@@ -4,12 +4,13 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="footer container">
+  <p class="footer__orn ornament" aria-hidden="true" data-reveal>1</p>
   <p class="label" data-reveal>Un projet en tête ?</p>
   <a href={`mailto:${site.email}`} class="footer__mail" data-reveal="lines">
     Écrivons <em>ensemble</em>
   </a>
   <div class="footer__bottom grid">
-    <p class="footer__copy">© {year} {site.name}</p>
+    <p class="footer__copy">© <span class="figures">{year}</span> {site.name}</p>
     <ul class="footer__socials">
       {
         site.socials.map((s) => (
@@ -36,7 +37,11 @@ const year = new Date().getFullYear();
     margin-top: 1rem;
     font-size: var(--fs-xxl);
     line-height: 0.95;
-    letter-spacing: -0.045em;
+    letter-spacing: -0.02em;
+  }
+  .footer__orn {
+    font-size: var(--fs-xl);
+    margin-bottom: 1.5rem;
   }
   .footer__bottom {
     margin-top: clamp(4rem, 10vw, 8rem);
@@ -64,7 +69,11 @@ const year = new Date().getFullYear();
       grid-column: 1 / -1;
       justify-self: start;
     }
-    .footer__bottom {
+    .footer__orn {
+    font-size: var(--fs-xl);
+    margin-bottom: 1.5rem;
+  }
+  .footer__bottom {
       row-gap: 1rem;
     }
   }

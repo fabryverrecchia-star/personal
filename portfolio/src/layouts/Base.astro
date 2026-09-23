@@ -30,13 +30,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="theme-color" content="#efede8" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#111110" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link
-      rel="preload"
-      href="/fonts/EBGaramond-Italic-VariableFont_wght.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    <link rel="preload" href="/fonts/EBGaramond-Roman.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/EBGaramond-Italic.woff2" as="font" type="font/woff2" crossorigin />
     <ClientRouter fallback="none" />
   </head>
   <body>

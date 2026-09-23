@@ -9,7 +9,7 @@ const isCurrent = (href: string) =>
   <a href="/" class="header__name link">{site.name}</a>
   <p class="header__role">{site.role}</p>
   <p class="header__time" aria-label="Heure locale">
-    {site.location}, <time data-clock data-tz={site.timeZone}>--:--</time>
+    {site.location}, <time class="figures" data-clock data-tz={site.timeZone}>--:--</time>
   </p>
   <nav class="header__nav" aria-label="Navigation principale">
     <ul>
@@ -47,7 +47,6 @@ const isCurrent = (href: string) =>
   }
   .header__time {
     grid-column: 7 / span 3;
-    font-variant-numeric: tabular-nums;
   }
   .header__nav {
     grid-column: 10 / -1;

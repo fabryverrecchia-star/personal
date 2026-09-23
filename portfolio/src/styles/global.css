@@ -1,23 +1,41 @@
 /* ==========================================================================
-   Polices — déposer les fichiers dans /public/fonts (voir README)
+   Polices — générées par scripts/build-fonts.py depuis brand/fonts/
    ========================================================================== */
 @font-face {
   font-family: 'EB Garamond';
-  src:
-    url('/fonts/EBGaramond-Italic-VariableFont_wght.woff2') format('woff2-variations'),
-    url('/fonts/EBGaramond-Italic-VariableFont_wght.ttf') format('truetype-variations');
+  src: url('/fonts/EBGaramond-Roman.woff2') format('woff2');
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'EB Garamond';
+  src: url('/fonts/EBGaramond-Italic.woff2') format('woff2');
   font-weight: 400 800;
   font-style: italic;
   font-display: swap;
 }
-
-/* Police sans-serif de la marque : renommer les fichiers ou ce bloc une fois reçus */
+/* Capitales ornées (Adobe Garamond Italic Alternate) : s'appliquent seules aux A–Z et & en italique */
 @font-face {
-  font-family: 'Brand Sans';
-  src: url('/fonts/BrandSans-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
+  font-family: 'Garamond Swash';
+  src: url('/fonts/AGaramond-Swash.woff2') format('woff2');
+  font-style: italic;
   font-display: swap;
+  unicode-range: U+0026, U+0041-005A;
+}
+/* Fleuron (glyphe « 1 » de la même police) */
+@font-face {
+  font-family: 'Garamond Ornament';
+  src: url('/fonts/AGaramond-Swash.woff2') format('woff2');
+  font-display: block;
+  unicode-range: U+0031;
+}
+/* Chiffres elzéviriens (Adobe Garamond Semibold Italic OsF) */
+@font-face {
+  font-family: 'Garamond Figures';
+  src: url('/fonts/AGaramond-SemiboldItalicOsF.woff2') format('woff2');
+  font-display: swap;
+  unicode-range: U+0030-0039;
 }
 
 /* ==========================================================================
@@ -30,19 +48,21 @@
   --line: rgb(18 18 17 / 0.14);
   --accent: #121211;
 
-  --font-sans: 'Brand Sans', 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
-  --font-serif: 'EB Garamond', 'Iowan Old Style', Georgia, serif;
+  --font-body: 'EB Garamond', 'Iowan Old Style', Garamond, Georgia, serif;
+  --font-italic: 'Garamond Swash', var(--font-body);
+  --font-figures: 'Garamond Figures', var(--font-body);
 
   --gutter: clamp(16px, 1.6vw, 28px);
   --margin: clamp(16px, 2.2vw, 40px);
   --header-h: 64px;
 
-  --fs-xs: 0.75rem;
-  --fs-sm: 0.875rem;
-  --fs-base: clamp(1rem, 0.94rem + 0.25vw, 1.125rem);
-  --fs-lg: clamp(1.25rem, 1.05rem + 0.8vw, 1.75rem);
-  --fs-xl: clamp(2rem, 1.2rem + 3.4vw, 4.5rem);
-  --fs-xxl: clamp(3rem, 1.4rem + 7vw, 9.5rem);
+  /* Garamond a un petit œil : les tailles sont un cran au-dessus d'une sans-serif */
+  --fs-xs: 0.9375rem;
+  --fs-sm: 1.0625rem;
+  --fs-base: clamp(1.125rem, 1.05rem + 0.3vw, 1.3125rem);
+  --fs-lg: clamp(1.4rem, 1.15rem + 0.9vw, 2rem);
+  --fs-xl: clamp(2.4rem, 1.4rem + 3.9vw, 5.25rem);
+  --fs-xxl: clamp(3.5rem, 1.6rem + 8vw, 11rem);
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   color-scheme: light dark;
@@ -77,9 +97,11 @@ body {
   min-height: 100svh;
   background: var(--bg);
   color: var(--fg);
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   font-size: var(--fs-base);
-  line-height: 1.45;
+  line-height: 1.35;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -140,17 +162,25 @@ html.lenis body {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   column-gap: var(--gutter);
 }
-.serif,
+.italic,
 em {
-  font-family: var(--font-serif);
+  font-family: var(--font-italic);
   font-style: italic;
   font-weight: 400;
-  letter-spacing: -0.01em;
+}
+.figures {
+  font-family: var(--font-figures);
+  font-variant-numeric: oldstyle-nums;
+}
+.ornament {
+  font-family: 'Garamond Ornament', var(--font-body);
+  font-style: normal;
+  line-height: 1;
 }
 .label {
   font-size: var(--fs-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.08em;
   color: var(--muted);
 }
 .sr-only {

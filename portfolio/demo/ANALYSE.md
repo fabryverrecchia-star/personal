@@ -27,7 +27,7 @@ Astro · GSAP · Lenis · Three.js (WebGL) · Swup (transitions) · Tailwind · 
 | CSS | Tailwind | CSS natif avec variables (tokens) : plus léger et plus lisible pour une identité sur mesure |
 | Contenu | Prismic (service externe) | Fichiers Markdown typés (content collections) : gratuit, versionné, rapide ; migrable vers un CMS plus tard |
 | Images | — | `astro:assets` : AVIF/WebP, `srcset` responsive, lazy-loading, `fetchpriority` pour la première image |
-| Polices | Commerciales | EB Garamond Italic variable (1 fichier pour toutes les graisses) + préchargement + `font-display: swap` |
+| Polices | Une sans-serif commerciale | Système entièrement Garamond : romain + italique variables, capitales ornées et chiffres elzéviriens. Réduit aux caractères latins (1,8 Mo → ~150 Ko), préchargé, chargé seulement si nécessaire (`unicode-range`) |
 | Accessibilité | — | `prefers-reduced-motion` respecté (pas de Lenis ni d'animations), lien d'évitement, focus visible, `aria-pressed` sur la bascule |
 | Sans JavaScript | — | Contenu entièrement visible ; le loader n'existe que si le JS est actif (`@media (scripting: enabled)`) |
 | Thème | Clair | Clair + sombre automatique (`prefers-color-scheme`) |

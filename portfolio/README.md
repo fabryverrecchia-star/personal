@@ -15,8 +15,9 @@ npm run check    # vérification des types
 
 ```
 portfolio/
-├── public/fonts/          # ← déposer les polices ici (voir le README du dossier)
-├── brand/                 # ← logo, couleurs, textes de marque
+├── brand/fonts/           # polices sources (.ttf)
+├── public/fonts/          # polices web générées (.woff2)
+├── scripts/build-fonts.py # conversion et allègement des polices
 ├── demo/ANALYSE.md        # analyse du site de référence
 └── src/
     ├── site.config.ts     # nom, rôle, accroche, e-mail, réseaux, navigation
@@ -50,5 +51,12 @@ Texte de l'étude de cas.
 
 ## Typographie
 
-Dans `site.config.ts`, les mots entourés d'`*astérisques*` dans l'accroche s'affichent en **EB Garamond Italic**.
-Dans les pages, la balise `<em>` produit le même effet.
+Tout le site repose sur la famille Garamond :
+
+- **EB Garamond** (romain) pour le texte et les titres ;
+- **EB Garamond Italic** pour les mots mis en valeur : `*astérisques*` dans `site.config.ts`, `<em>` dans les pages.
+  Les capitales en italique prennent automatiquement les formes ornées d'**Adobe Garamond Italic Alternate** ;
+- **Adobe Garamond Semibold Italic**, chiffres elzéviriens, pour les chiffres (classe `.figures`) ;
+- le fleuron (classe `.ornament`, caractère `1`) comme élément décoratif.
+
+Pour modifier les polices : remplacer les fichiers de `brand/fonts/` puis lancer `python3 scripts/build-fonts.py`.

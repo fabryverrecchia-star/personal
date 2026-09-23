@@ -22,13 +22,13 @@ const { projects } = Astro.props;
       projects.map((project, i) => (
         <li class="item" data-flip-id={project.id}>
           <a href={`/work/${project.id}`} class="item__link">
-            <span class="item__index">{String(i + 1).padStart(2, '0')}</span>
+            <span class="item__index figures">{String(i + 1).padStart(2, '0')}</span>
             <div class="item__media" data-media>
               <ProjectMedia project={project} eager={i < 2} />
             </div>
             <span class="item__title">{project.data.title}</span>
             <span class="item__cat">{project.data.category}</span>
-            <span class="item__year">{project.data.year}</span>
+            <span class="item__year figures">{project.data.year}</span>
           </a>
         </li>
       ))
@@ -78,7 +78,6 @@ const { projects } = Astro.props;
   .item__index {
     grid-area: index;
     color: var(--muted);
-    font-variant-numeric: tabular-nums;
   }
   .item__title {
     grid-area: title;

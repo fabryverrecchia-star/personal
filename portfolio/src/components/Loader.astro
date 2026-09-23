@@ -4,8 +4,8 @@ import { site } from '../site.config';
 
 <div class="loader" data-loader transition:persist="loader" aria-hidden="true">
   <div class="loader__inner container">
-    <span class="loader__name">{site.name}</span>
-    <span class="loader__count"><span data-loader-count>0</span></span>
+    <span class="loader__name italic">{site.name}</span>
+    <span class="loader__count figures"><span data-loader-count>0</span></span>
   </div>
 </div>
 
@@ -34,12 +34,11 @@ import { site } from '../site.config';
     padding-bottom: var(--margin);
   }
   .loader__name {
-    font-size: var(--fs-sm);
+    font-size: var(--fs-xl);
+    line-height: 1;
   }
   .loader__count {
     font-size: var(--fs-xxl);
-    line-height: 0.8;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.04em;
+    line-height: 0.75;
   }
 </style>

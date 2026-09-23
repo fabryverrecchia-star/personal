@@ -24,7 +24,7 @@ const { Content } = await render(project);
       <h1 class="project__title" data-reveal="lines">{title}</h1>
       <dl class="project__meta">
         <div data-reveal><dt class="label">Client</dt><dd>{client}</dd></div>
-        <div data-reveal><dt class="label">Année</dt><dd>{year}</dd></div>
+        <div data-reveal><dt class="label">Année</dt><dd class="figures">{year}</dd></div>
         <div data-reveal><dt class="label">Type</dt><dd>{category}</dd></div>
         <div data-reveal><dt class="label">Rôle</dt><dd>{role.join(', ')}</dd></div>
         {
@@ -66,7 +66,7 @@ const { Content } = await render(project);
     font-size: var(--fs-xxl);
     font-weight: 400;
     line-height: 0.9;
-    letter-spacing: -0.05em;
+    letter-spacing: -0.02em;
   }
   .project__meta {
     grid-column: 9 / -1;
@@ -94,7 +94,7 @@ const { Content } = await render(project);
   }
   .prose :global(h2) {
     margin-top: 1em;
-    font-family: var(--font-serif);
+    font-family: var(--font-italic);
     font-style: italic;
     font-weight: 400;
     font-size: var(--fs-xl);
@@ -108,7 +108,7 @@ const { Content } = await render(project);
     display: block;
     font-size: var(--fs-xxl);
     line-height: 1;
-    letter-spacing: -0.045em;
+    letter-spacing: -0.02em;
   }
   @media (max-width: 800px) {
     .project__title,
