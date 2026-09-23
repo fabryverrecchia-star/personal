@@ -1,0 +1,71 @@
+---
+import { site } from '../site.config';
+const year = new Date().getFullYear();
+---
+
+<footer class="footer container">
+  <p class="label" data-reveal>Un projet en tête ?</p>
+  <a href={`mailto:${site.email}`} class="footer__mail" data-reveal="lines">
+    Écrivons <em>ensemble</em>
+  </a>
+  <div class="footer__bottom grid">
+    <p class="footer__copy">© {year} {site.name}</p>
+    <ul class="footer__socials">
+      {
+        site.socials.map((s) => (
+          <li>
+            <a href={s.href} class="link" target="_blank" rel="noopener noreferrer">
+              {s.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <button class="footer__top link" type="button" data-scroll-top>Haut de page ↑</button>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    margin-top: clamp(6rem, 15vw, 14rem);
+    padding-top: var(--margin);
+    border-top: 1px solid var(--line);
+  }
+  .footer__mail {
+    display: block;
+    margin-top: 1rem;
+    font-size: var(--fs-xxl);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+  }
+  .footer__bottom {
+    margin-top: clamp(4rem, 10vw, 8rem);
+    padding-block: var(--margin);
+    font-size: var(--fs-sm);
+    align-items: end;
+  }
+  .footer__copy {
+    grid-column: 1 / span 4;
+  }
+  .footer__socials {
+    grid-column: 5 / span 5;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+  }
+  .footer__top {
+    grid-column: 10 / -1;
+    justify-self: end;
+  }
+  @media (max-width: 800px) {
+    .footer__copy,
+    .footer__socials,
+    .footer__top {
+      grid-column: 1 / -1;
+      justify-self: start;
+    }
+    .footer__bottom {
+      row-gap: 1rem;
+    }
+  }
+</style>

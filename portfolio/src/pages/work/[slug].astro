@@ -1,0 +1,120 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ProjectMedia from '../../components/ProjectMedia.astro';
+import { getProjects } from '../../lib';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project, i) => ({
+    params: { slug: project.id },
+    props: { project, next: projects[(i + 1) % projects.length] },
+  }));
+}
+
+const { project, next } = Astro.props;
+const { title, client, year, category, role, url } = project.data;
+const { Content } = await render(project);
+---
+
+<Base title={title} description={`${title} — ${category} pour ${client} (${year}).`}>
+  <article class="project">
+    <header class="project__head container grid">
+      <p class="label project__back"><a href="/" class="link">← Projets</a></p>
+      <h1 class="project__title" data-reveal="lines">{title}</h1>
+      <dl class="project__meta">
+        <div data-reveal><dt class="label">Client</dt><dd>{client}</dd></div>
+        <div data-reveal><dt class="label">Année</dt><dd>{year}</dd></div>
+        <div data-reveal><dt class="label">Type</dt><dd>{category}</dd></div>
+        <div data-reveal><dt class="label">Rôle</dt><dd>{role.join(', ')}</dd></div>
+        {
+          url && (
+            <div data-reveal>
+              <dt class="label">En ligne</dt>
+              <dd><a href={url} class="link" target="_blank" rel="noopener noreferrer">Voir le site ↗</a></dd>
+            </div>
+          )
+        }
+      </dl>
+    </header>
+
+    <div class="project__cover container" data-reveal="media">
+      <ProjectMedia project={project} sizes="100vw" eager />
+    </div>
+
+    <div class="project__body container grid">
+      <div class="prose" data-reveal="lines"><Content /></div>
+    </div>
+
+    <a href={`/work/${next.id}`} class="project__next container">
+      <span class="label">Projet suivant</span>
+      <span class="project__next-title">{next.data.title} <em>→</em></span>
+    </a>
+  </article>
+</Base>
+
+<style>
+  .project__head {
+    padding-top: clamp(2rem, 8vh, 6rem);
+    row-gap: 2rem;
+  }
+  .project__back {
+    grid-column: 1 / -1;
+  }
+  .project__title {
+    grid-column: 1 / span 8;
+    font-size: var(--fs-xxl);
+    font-weight: 400;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+  .project__meta {
+    grid-column: 9 / -1;
+    align-self: end;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem var(--gutter);
+    font-size: var(--fs-sm);
+  }
+  .project__cover {
+    margin-top: clamp(2rem, 6vw, 5rem);
+  }
+  .project__cover :global(.media) {
+    aspect-ratio: 16 / 9;
+  }
+  .project__body {
+    margin-top: clamp(3rem, 8vw, 7rem);
+  }
+  .prose {
+    grid-column: 4 / span 6;
+    display: grid;
+    gap: 1em;
+    font-size: var(--fs-lg);
+    line-height: 1.3;
+  }
+  .prose :global(h2) {
+    margin-top: 1em;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: var(--fs-xl);
+    line-height: 1;
+  }
+  .project__next {
+    display: block;
+    margin-top: clamp(6rem, 12vw, 10rem);
+  }
+  .project__next-title {
+    display: block;
+    font-size: var(--fs-xxl);
+    line-height: 1;
+    letter-spacing: -0.045em;
+  }
+  @media (max-width: 800px) {
+    .project__title,
+    .project__meta,
+    .prose {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

@@ -1,0 +1,61 @@
+---
+import Base from '../layouts/Base.astro';
+import Rich from '../components/Rich.astro';
+import WorkIndex from '../components/WorkIndex.astro';
+import { site } from '../site.config';
+import { getProjects } from '../lib';
+
+const projects = await getProjects();
+---
+
+<Base>
+  <section class="hero container grid">
+    <Rich as="h1" class="hero__title" text={site.headline} data-reveal="lines" />
+    <p class="hero__intro" data-reveal="lines">{site.intro}</p>
+    <p class="hero__scroll label" data-reveal>(Défiler)</p>
+  </section>
+
+  <WorkIndex projects={projects} />
+</Base>
+
+<style>
+  .hero {
+    min-height: calc(100svh - var(--header-h));
+    align-content: space-between;
+    padding-block: clamp(3rem, 10vh, 8rem) var(--margin);
+  }
+  .hero__title {
+    grid-column: 1 / span 11;
+    font-size: var(--fs-xl);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+  .hero__title :global(em) {
+    font-size: 1.1em;
+    line-height: 0.9;
+  }
+  .hero__intro {
+    grid-column: 7 / span 4;
+    align-self: end;
+    color: var(--muted);
+  }
+  .hero__scroll {
+    grid-column: 12;
+    justify-self: end;
+    align-self: end;
+  }
+  @media (max-width: 800px) {
+    .hero__title,
+    .hero__intro {
+      grid-column: 1 / -1;
+    }
+    .hero__intro {
+      margin-top: 3rem;
+    }
+    .hero__scroll {
+      display: none;
+    }
+  }
+</style>

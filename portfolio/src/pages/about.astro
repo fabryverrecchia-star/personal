@@ -1,0 +1,66 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../site.config';
+
+const services = ['Direction artistique', 'Design d’interface', 'Développement créatif', 'Animation & interaction', 'WebGL'];
+---
+
+<Base title="À propos">
+  <section class="about container grid">
+    <p class="label about__label" data-reveal>À propos</p>
+    <h1 class="about__title" data-reveal="lines">
+      Je conçois des expériences web où chaque <em>détail</em> compte — du premier pixel à la dernière <em>transition</em>.
+    </h1>
+    <div class="about__text" data-reveal="lines">
+      <p>
+        Texte de présentation : ton parcours, ta manière de travailler, ce qui te distingue. Deux ou trois
+        paragraphes courts suffisent.
+      </p>
+      <p>
+        Basé·e en {site.location}, disponible pour des collaborations avec des studios, des agences et
+        des marques.
+      </p>
+    </div>
+    <div class="about__services">
+      <p class="label" data-reveal>Services</p>
+      <ul>{services.map((s) => <li data-reveal>{s}</li>)}</ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .about {
+    padding-top: clamp(3rem, 10vh, 8rem);
+    row-gap: clamp(2rem, 6vw, 5rem);
+  }
+  .about__label {
+    grid-column: 1 / span 3;
+  }
+  .about__title {
+    grid-column: 4 / -1;
+    font-size: var(--fs-xl);
+    font-weight: 400;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+  }
+  .about__text {
+    grid-column: 4 / span 5;
+    display: grid;
+    gap: 1em;
+  }
+  .about__services {
+    grid-column: 10 / -1;
+  }
+  .about__services ul {
+    margin-top: 0.75rem;
+  }
+  .about__services li {
+    padding-block: 0.4rem;
+    border-bottom: 1px solid var(--line);
+  }
+  @media (max-width: 800px) {
+    .about > * {
+      grid-column: 1 / -1 !important;
+    }
+  }
+</style>

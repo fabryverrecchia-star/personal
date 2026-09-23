@@ -1,0 +1,81 @@
+---
+import { site } from '../site.config';
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isCurrent = (href: string) =>
+  href === '/' ? path === '/' || path.startsWith('/work') : path.startsWith(href);
+---
+
+<header class="header container grid">
+  <a href="/" class="header__name link">{site.name}</a>
+  <p class="header__role">{site.role}</p>
+  <p class="header__time" aria-label="Heure locale">
+    {site.location}, <time data-clock data-tz={site.timeZone}>--:--</time>
+  </p>
+  <nav class="header__nav" aria-label="Navigation principale">
+    <ul>
+      {
+        site.nav.map((item) => (
+          <li>
+            <a href={item.href} class="link" aria-current={isCurrent(item.href) ? 'page' : undefined}>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+      <li><a href={`mailto:${site.email}`} class="link">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    height: var(--header-h);
+    align-items: center;
+    font-size: var(--fs-sm);
+    color: #fff;
+    mix-blend-mode: difference;
+  }
+  .header__name {
+    grid-column: 1 / span 3;
+    justify-self: start;
+  }
+  .header__role {
+    grid-column: 4 / span 3;
+  }
+  .header__time {
+    grid-column: 7 / span 3;
+    font-variant-numeric: tabular-nums;
+  }
+  .header__nav {
+    grid-column: 10 / -1;
+    justify-self: end;
+  }
+  .header__nav ul {
+    display: flex;
+    gap: 1.25rem;
+    white-space: nowrap;
+  }
+  @media (max-width: 800px) {
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .header__role,
+    .header__time {
+      display: none;
+    }
+    .header__name {
+      grid-column: 1 / span 6;
+    }
+    .header__nav {
+      grid-column: 6 / -1;
+    }
+    .header__nav ul {
+      gap: 0.9rem;
+    }
+  }
+</style>

@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page introuvable">
+  <section class="nf container">
+    <h1 data-reveal="lines">Page <em>introuvable</em></h1>
+    <a href="/" class="link">Retour à l’accueil</a>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    min-height: 60svh;
+    display: grid;
+    align-content: center;
+    gap: 2rem;
+  }
+  h1 {
+    font-size: var(--fs-xxl);
+    font-weight: 400;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+</style>

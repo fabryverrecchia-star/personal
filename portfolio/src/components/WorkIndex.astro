@@ -1,0 +1,147 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ProjectMedia from './ProjectMedia.astro';
+
+interface Props {
+  projects: CollectionEntry<'projects'>[];
+}
+const { projects } = Astro.props;
+---
+
+<section class="work container" data-work data-view="grid" aria-labelledby="work-title">
+  <div class="work__bar">
+    <h2 id="work-title" class="label">Projets sélectionnés ({projects.length})</h2>
+    <div class="work__toggle" role="group" aria-label="Affichage">
+      <button type="button" class="link" data-view-btn="grid" aria-pressed="true">Grille</button>
+      <button type="button" class="link" data-view-btn="list" aria-pressed="false">Liste</button>
+    </div>
+  </div>
+
+  <ul class="work__items">
+    {
+      projects.map((project, i) => (
+        <li class="item" data-flip-id={project.id}>
+          <a href={`/work/${project.id}`} class="item__link">
+            <span class="item__index">{String(i + 1).padStart(2, '0')}</span>
+            <div class="item__media" data-media>
+              <ProjectMedia project={project} eager={i < 2} />
+            </div>
+            <span class="item__title">{project.data.title}</span>
+            <span class="item__cat">{project.data.category}</span>
+            <span class="item__year">{project.data.year}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .work__bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-block: 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .work__toggle {
+    display: flex;
+    gap: 1rem;
+    font-size: var(--fs-sm);
+  }
+  .work__toggle button[aria-pressed='false'] {
+    color: var(--muted);
+  }
+
+  /* ---------- Grille ---------- */
+  .work__items {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: calc(var(--gutter) * 2) var(--gutter);
+    padding-top: var(--gutter);
+  }
+  .item__link {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      'media media media'
+      'index title year'
+      '. cat .';
+    column-gap: 0.75rem;
+    row-gap: 0.15rem;
+    font-size: var(--fs-sm);
+  }
+  .item__media {
+    grid-area: media;
+    margin-bottom: 0.75rem;
+  }
+  .item__index {
+    grid-area: index;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .item__title {
+    grid-area: title;
+  }
+  .item__cat {
+    grid-area: cat;
+    color: var(--muted);
+  }
+  .item__year {
+    grid-area: year;
+    color: var(--muted);
+  }
+  @media (hover: hover) {
+    .item__link:hover :global(img) {
+      transform: scale(1.04);
+    }
+  }
+
+  /* ---------- Liste ---------- */
+  [data-view='list'] .work__items {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding-top: 0;
+  }
+  [data-view='list'] .item {
+    border-bottom: 1px solid var(--line);
+  }
+  [data-view='list'] .item__link {
+    grid-template-columns: 3rem 5rem minmax(0, 1fr) minmax(0, 1fr) auto;
+    grid-template-areas: 'index media title cat year';
+    align-items: center;
+    padding-block: 0.75rem;
+    font-size: var(--fs-lg);
+    transition: color 0.4s var(--ease-out);
+  }
+  [data-view='list'] .item__media {
+    margin: 0;
+  }
+  [data-view='list'] .item__index,
+  [data-view='list'] .item__cat,
+  [data-view='list'] .item__year {
+    font-size: var(--fs-sm);
+  }
+  @media (hover: hover) {
+    [data-view='list'] .work__items:hover .item__link {
+      color: var(--muted);
+    }
+    [data-view='list'] .work__items .item__link:hover {
+      color: var(--fg);
+    }
+  }
+
+  @media (max-width: 800px) {
+    .work__items {
+      grid-template-columns: 1fr;
+    }
+    [data-view='list'] .item__link {
+      grid-template-columns: 2rem 4rem minmax(0, 1fr) auto;
+      grid-template-areas: 'index media title year';
+      font-size: var(--fs-base);
+    }
+    [data-view='list'] .item__cat {
+      display: none;
+    }
+  }
+</style>

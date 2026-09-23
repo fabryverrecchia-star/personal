@@ -1,0 +1,19 @@
+---
+// Rend un texte où les segments *entre astérisques* passent en EB Garamond Italic.
+interface Props {
+  text: string;
+  as?: 'span' | 'p' | 'div' | 'h1' | 'h2' | 'h3';
+  class?: string;
+  [key: string]: unknown;
+}
+const { text, as: Tag = 'span', class: className, ...rest } = Astro.props;
+const escape = (s: string) =>
+  s.replaceAll('&', '&amp;').replaceAll('\u003c', '&lt;').replaceAll('\u003e', '&gt;');
+// Les segments impairs (entre astérisques) passent en italique serif
+const html = escape(text)
+  .split('*')
+  .map((part, i) => (i % 2 ? `\u003cem>${part}\u003c/em>` : part))
+  .join('');
+---
+
+<Tag class={className} {...rest} set:html={html} />

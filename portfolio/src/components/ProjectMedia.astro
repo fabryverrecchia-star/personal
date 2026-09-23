@@ -1,0 +1,53 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  sizes?: string;
+  eager?: boolean;
+}
+const { project, sizes = '(max-width: 800px) 100vw, 50vw', eager = false } = Astro.props;
+const { cover, color, title } = project.data;
+---
+
+<div class="media" style={`--media-color: ${color}`}>
+  {
+    cover ? (
+      <Image
+        src={cover}
+        alt={title}
+        widths={[480, 800, 1200, 1800]}
+        sizes={sizes}
+        loading={eager ? 'eager' : 'lazy'}
+        fetchpriority={eager ? 'high' : 'auto'}
+      />
+    ) : (
+      <span class="media__placeholder serif">{title}</span>
+    )
+  }
+</div>
+
+<style>
+  .media {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    container-type: inline-size;
+    background: var(--media-color);
+  }
+  .media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s var(--ease-out);
+  }
+  .media__placeholder {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 9cqi;
+    color: rgb(255 255 255 / 0.85);
+  }
+</style>
