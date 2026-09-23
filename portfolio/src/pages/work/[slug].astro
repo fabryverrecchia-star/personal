@@ -21,7 +21,7 @@ const { Content } = await render(project);
   <article class="project">
     <header class="project__head container grid">
       <p class="label project__back"><a href="/" class="link">← Projets</a></p>
-      <h1 class="project__title" data-reveal="lines">{title}</h1>
+      <h1 class="project__title display" data-reveal="lines">{title}</h1>
       <dl class="project__meta">
         <div data-reveal><dt class="label">Client</dt><dd>{client}</dd></div>
         <div data-reveal><dt class="label">Année</dt><dd class="figures">{year}</dd></div>
@@ -48,7 +48,7 @@ const { Content } = await render(project);
 
     <a href={`/work/${next.id}`} class="project__next container">
       <span class="label">Projet suivant</span>
-      <span class="project__next-title">{next.data.title} <em>→</em></span>
+      <span class="project__next-title display">{next.data.title} <em>→</em></span>
     </a>
   </article>
 </Base>
@@ -64,7 +64,8 @@ const { Content } = await render(project);
   .project__title {
     grid-column: 1 / span 8;
     font-size: var(--fs-xxl);
-    font-weight: 400;
+    font-family: var(--font-display);
+    font-weight: 300;
     line-height: 0.9;
     letter-spacing: -0.02em;
   }
@@ -94,9 +95,9 @@ const { Content } = await render(project);
   }
   .prose :global(h2) {
     margin-top: 1em;
-    font-family: var(--font-italic);
+    font-family: 'Garamond Swash', var(--font-display);
     font-style: italic;
-    font-weight: 400;
+    font-weight: 300;
     font-size: var(--fs-xl);
     line-height: 1;
   }
@@ -106,6 +107,8 @@ const { Content } = await render(project);
   }
   .project__next-title {
     display: block;
+    font-family: var(--font-display);
+    font-weight: 300;
     font-size: var(--fs-xxl);
     line-height: 1;
     letter-spacing: -0.02em;

@@ -6,11 +6,11 @@ const year = new Date().getFullYear();
 <footer class="footer container">
   <p class="footer__orn ornament" aria-hidden="true" data-reveal>1</p>
   <p class="label" data-reveal>Un projet en tête ?</p>
-  <a href={`mailto:${site.email}`} class="footer__mail" data-reveal="lines">
+  <a href={`mailto:${site.email}`} class="footer__mail display" data-reveal="lines">
     Écrivons <em>ensemble</em>
   </a>
   <div class="footer__bottom grid">
-    <p class="footer__copy">© <span class="figures">{year}</span> {site.name}</p>
+    <p class="footer__copy">© <span class="figures">{year}</span> <span class="name">{site.name}</span></p>
     <ul class="footer__socials">
       {
         site.socials.map((s) => (
@@ -34,6 +34,8 @@ const year = new Date().getFullYear();
   }
   .footer__mail {
     display: block;
+    font-family: var(--font-display);
+    font-weight: 300;
     margin-top: 1rem;
     font-size: var(--fs-xxl);
     line-height: 0.95;

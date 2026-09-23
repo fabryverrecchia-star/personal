@@ -8,7 +8,7 @@ const services = ['Direction artistique', 'Design d’interface', 'Développemen
 <Base title="À propos">
   <section class="about container grid">
     <p class="label about__label" data-reveal>À propos</p>
-    <h1 class="about__title" data-reveal="lines">
+    <h1 class="about__title display" data-reveal="lines">
       Je conçois des expériences web où chaque <em>détail</em> compte — du premier pixel à la dernière <em>transition</em>.
     </h1>
     <div class="about__text" data-reveal="lines">
@@ -39,7 +39,8 @@ const services = ['Direction artistique', 'Design d’interface', 'Développemen
   .about__title {
     grid-column: 4 / -1;
     font-size: var(--fs-xl);
-    font-weight: 400;
+    font-family: var(--font-display);
+    font-weight: 300;
     line-height: 1.02;
     letter-spacing: -0.015em;
   }

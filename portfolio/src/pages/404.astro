@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 
 <Base title="Page introuvable">
   <section class="nf container">
-    <h1 data-reveal="lines">Page <em>introuvable</em></h1>
+    <h1 class="display" data-reveal="lines">Page <em>introuvable</em></h1>
     <a href="/" class="link">Retour à l’accueil</a>
   </section>
 </Base>
@@ -18,7 +18,8 @@ import Base from '../layouts/Base.astro';
   }
   h1 {
     font-size: var(--fs-xxl);
-    font-weight: 400;
+    font-family: var(--font-display);
+    font-weight: 300;
     line-height: 0.9;
     letter-spacing: -0.02em;
   }

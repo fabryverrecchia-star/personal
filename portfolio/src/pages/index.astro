@@ -10,7 +10,7 @@ const projects = await getProjects();
 
 <Base>
   <section class="hero container grid">
-    <Rich as="h1" class="hero__title" text={site.headline} data-reveal="lines" />
+    <Rich as="h1" class="hero__title display" text={site.headline} data-reveal="lines" />
     <p class="hero__intro" data-reveal="lines">{site.intro}</p>
     <p class="hero__scroll label" data-reveal>(Défiler)</p>
   </section>
@@ -27,7 +27,8 @@ const projects = await getProjects();
   .hero__title {
     grid-column: 1 / span 11;
     font-size: var(--fs-xl);
-    font-weight: 400;
+    font-family: var(--font-display);
+    font-weight: 300;
     line-height: 1;
     letter-spacing: -0.015em;
     text-wrap: balance;

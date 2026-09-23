@@ -53,7 +53,9 @@ Texte de l'étude de cas.
 
 Tout le site repose sur la famille Garamond :
 
-- **EB Garamond** (romain) pour le texte et les titres ;
+- **Le nom « Fabrizio Verrecchia »** est toujours en **Helvetica Neue** (classe `.name`) ;
+- **Cormorant Garamond Light** (300) pour les grands titres (classe `.display`) ;
+- **EB Garamond** (romain) pour le texte courant ;
 - **EB Garamond Italic** pour les mots mis en valeur : `*astérisques*` dans `site.config.ts`, `<em>` dans les pages.
   Les capitales en italique prennent automatiquement les formes ornées d'**Adobe Garamond Italic Alternate** ;
 - **Adobe Garamond Semibold Italic**, chiffres elzéviriens, pour les chiffres (classe `.figures`) ;

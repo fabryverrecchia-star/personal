@@ -15,6 +15,21 @@
   font-style: italic;
   font-display: swap;
 }
+/* Cormorant Garamond Light : grands titres */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  src: url('/fonts/CormorantGaramond-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  src: url('/fonts/CormorantGaramond-LightItalic.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
 /* Capitales ornées (Adobe Garamond Italic Alternate) : s'appliquent seules aux A–Z et & en italique */
 @font-face {
   font-family: 'Garamond Swash';
@@ -50,7 +65,10 @@
 
   --font-body: 'EB Garamond', 'Iowan Old Style', Garamond, Georgia, serif;
   --font-italic: 'Garamond Swash', var(--font-body);
+  --font-display: 'Cormorant Garamond', var(--font-body);
   --font-figures: 'Garamond Figures', var(--font-body);
+  /* Le nom est toujours composé en Helvetica Neue */
+  --font-name: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
   --gutter: clamp(16px, 1.6vw, 28px);
   --margin: clamp(16px, 2.2vw, 40px);
@@ -177,6 +195,17 @@ em {
   font-family: var(--font-italic);
   font-style: italic;
   font-weight: 400;
+}
+/* Grands titres en Garamond léger */
+.display em {
+  font-family: 'Garamond Swash', var(--font-display);
+  font-weight: 300;
+}
+.name {
+  font-family: var(--font-name);
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 .figures {
   font-family: var(--font-figures);

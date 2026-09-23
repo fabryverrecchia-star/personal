@@ -4,7 +4,7 @@ import { site } from '../site.config';
 
 <div class="loader" data-loader transition:persist="loader" aria-hidden="true">
   <div class="loader__inner container">
-    <span class="loader__name italic">{site.name}</span>
+    <span class="loader__name name">{site.name}</span>
     <span class="loader__count figures"><span data-loader-count>0</span></span>
   </div>
 </div>
@@ -36,6 +36,7 @@ import { site } from '../site.config';
   .loader__name {
     font-size: var(--fs-xl);
     line-height: 1;
+    letter-spacing: -0.035em;
   }
   .loader__count {
     font-size: var(--fs-xxl);

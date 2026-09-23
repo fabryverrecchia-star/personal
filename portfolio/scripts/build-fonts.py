@@ -3,6 +3,7 @@
 Sources : brand/fonts/*.ttf
 Usage   : pip install fonttools brotli && python3 scripts/build-fonts.py
 """
+import shutil
 from pathlib import Path
 
 from fontTools import subset
@@ -61,6 +62,10 @@ def build(src: str, out: str, unicodes: str, repair: bool = False) -> None:
 
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
+    # Cormorant Garamond Light : déjà en woff2 latin (Fontsource), copiée telle quelle
+    for f in ("CormorantGaramond-Light.woff2", "CormorantGaramond-LightItalic.woff2"):
+        shutil.copy(SRC / f, OUT / f)
+        print(f"{f:45} {(OUT / f).stat().st_size / 1024:7.1f} Ko")
     build("EBGaramond-VariableFont_wght.ttf", "EBGaramond-Roman.woff2", LATIN)
     build("EBGaramond-Italic-VariableFont_wght.ttf", "EBGaramond-Italic.woff2", LATIN)
     build("Adobe Garamond Italic Alternate.ttf", "AGaramond-Swash.woff2", "U+0026,U+0031,U+0041-005A", repair=True)
