@@ -6,6 +6,28 @@ interface Props {
   projects: CollectionEntry<'projects'>[];
 }
 const { projects } = Astro.props;
+
+// Composition « désordonnée » sur 12 colonnes : colonne de départ, largeur,
+// format, décalages vertical / horizontal (en vw). Les décalages négatifs font
+// légèrement chevaucher certains projets. Le motif se répète au-delà de 16.
+const layout = [
+  { c: 2, s: 4, ar: '4 / 5', y: 0, x: 0 },
+  { c: 7, s: 3, ar: '1 / 1', y: 9, x: 0 },
+  { c: 11, s: 2, ar: '3 / 4', y: -2, x: 0 },
+  { c: 1, s: 3, ar: '3 / 4', y: -7, x: 0 },
+  { c: 5, s: 4, ar: '4 / 3', y: 3, x: -2 },
+  { c: 10, s: 3, ar: '4 / 5', y: -9, x: 0 },
+  { c: 3, s: 4, ar: '16 / 10', y: -4, x: 0 },
+  { c: 7, s: 2, ar: '3 / 4', y: 7, x: -1.5 },
+  { c: 9, s: 3, ar: '1 / 1', y: -3, x: 0 },
+  { c: 1, s: 3, ar: '1 / 1', y: -6, x: 0 },
+  { c: 4, s: 3, ar: '4 / 5', y: 4, x: -1 },
+  { c: 8, s: 5, ar: '16 / 10', y: -8, x: -2 },
+  { c: 2, s: 4, ar: '4 / 3', y: -3, x: 0 },
+  { c: 6, s: 2, ar: '3 / 4', y: 6, x: -2 },
+  { c: 8, s: 3, ar: '4 / 5', y: -5, x: 0 },
+  { c: 11, s: 2, ar: '1 / 1', y: 4, x: -1 },
+];
 ---
 
 <section class="work container" data-work data-view="grid" aria-labelledby="work-title">
@@ -19,24 +41,35 @@ const { projects } = Astro.props;
 
   <ul class="work__items">
     {
-      projects.map((project, i) => (
-        <li class="item" data-flip-id={project.id}>
-          <a href={`/work/${project.id}`} class="item__link">
-            <span class="item__index figures">{String(i + 1).padStart(2, '0')}</span>
-            <div class="item__media" data-media>
-              <ProjectMedia project={project} eager={i < 2} />
-            </div>
-            <span class="item__title">{project.data.title}</span>
-            <span class="item__cat">{project.data.category}</span>
-            <span class="item__year figures">{project.data.year}</span>
-          </a>
-        </li>
-      ))
+      projects.map((project, i) => {
+        const l = layout[i % layout.length];
+        return (
+          <li
+            class="item"
+            data-flip-id={project.id}
+            style={`--c:${l.c};--s:${l.s};--ar:${l.ar};--y:${l.y}vw;--x:${l.x}vw;--i:${i}`}
+          >
+            <a href={`/work/${project.id}`} class="item__link">
+              <span class="item__index figures">{String(i + 1).padStart(2, '0')}</span>
+              <div class="item__media" data-media>
+                <ProjectMedia project={project} eager={i < 3} />
+              </div>
+              <span class="item__title">{project.data.title}</span>
+              <span class="item__cat">{project.data.category}</span>
+              <span class="item__year figures">{project.data.year}</span>
+            </a>
+          </li>
+        );
+      })
     }
   </ul>
 </section>
 
 <style>
+  .work {
+    background: var(--bg);
+    padding-bottom: 6vw;
+  }
   .work__bar {
     display: flex;
     justify-content: space-between;
@@ -53,27 +86,39 @@ const { projects } = Astro.props;
     color: var(--muted);
   }
 
-  /* ---------- Grille ---------- */
+  /* ---------- Grille désordonnée ---------- */
   .work__items {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: calc(var(--gutter) * 2) var(--gutter);
-    padding-top: var(--gutter);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--gutter);
+    row-gap: 1.5vw;
+    padding-top: 4vw;
+  }
+  .item {
+    position: relative;
+    grid-column: var(--c) / span var(--s);
+    margin-top: var(--y);
+    margin-left: var(--x);
+    z-index: calc(1 + var(--i));
+  }
+  .item:hover {
+    z-index: 100;
   }
   .item__link {
     display: grid;
     grid-template-columns: auto 1fr auto;
     grid-template-areas:
       'media media media'
-      'index title year'
-      '. cat .';
-    column-gap: 0.75rem;
-    row-gap: 0.15rem;
-    font-size: var(--fs-sm);
+      'index title year';
+    column-gap: 0.6rem;
+    font-size: var(--fs-xs);
   }
   .item__media {
     grid-area: media;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.4rem;
+  }
+  .item__media :global(.media) {
+    aspect-ratio: var(--ar);
   }
   .item__index {
     grid-area: index;
@@ -83,17 +128,11 @@ const { projects } = Astro.props;
     grid-area: title;
   }
   .item__cat {
-    grid-area: cat;
-    color: var(--muted);
+    display: none;
   }
   .item__year {
     grid-area: year;
     color: var(--muted);
-  }
-  @media (hover: hover) {
-    .item__link:hover :global(img) {
-      transform: scale(1.04);
-    }
   }
 
   /* ---------- Liste ---------- */
@@ -103,6 +142,8 @@ const { projects } = Astro.props;
     padding-top: 0;
   }
   [data-view='list'] .item {
+    grid-column: 1 / -1;
+    margin: 0;
     border-bottom: 1px solid var(--line);
   }
   [data-view='list'] .item__link {
@@ -115,6 +156,14 @@ const { projects } = Astro.props;
   }
   [data-view='list'] .item__media {
     margin: 0;
+  }
+  [data-view='list'] .item__media :global(.media) {
+    aspect-ratio: 4 / 3;
+  }
+  [data-view='list'] .item__cat {
+    display: block;
+    grid-area: cat;
+    color: var(--muted);
   }
   [data-view='list'] .item__index,
   [data-view='list'] .item__cat,
@@ -132,7 +181,19 @@ const { projects } = Astro.props;
 
   @media (max-width: 800px) {
     .work__items {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      row-gap: 4vw;
+    }
+    .item {
+      grid-column: 1 / span 4;
+      margin: 0;
+    }
+    .item:nth-child(even) {
+      grid-column: 3 / span 4;
+      margin-top: -8vw;
+    }
+    .item:nth-child(3n) {
+      grid-column: 2 / span 5;
     }
     [data-view='list'] .item__link {
       grid-template-columns: 2rem 4rem minmax(0, 1fr) auto;

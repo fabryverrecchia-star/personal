@@ -205,7 +205,7 @@ function prepareReveals(): Reveal[] {
       progress.value = 0;
       reveals.push({
         el,
-        play: () => gsap.to(progress, { value: 1, duration: 1.4, ease: EASE_IN_OUT }),
+        play: () => gsap.to(progress, { value: 1, duration: 1.2, ease: 'power3.out' }),
       });
       return;
     }

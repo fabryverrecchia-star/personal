@@ -19,7 +19,11 @@ const projects = await getProjects();
 </Base>
 
 <style>
+  /* L'intro reste figée pendant que la galerie monte par-dessus */
   .hero {
+    position: sticky;
+    top: var(--header-h);
+    z-index: -1;
     min-height: calc(100svh - var(--header-h));
     align-content: space-between;
     padding-block: clamp(3rem, 10vh, 8rem) var(--margin);

@@ -60,21 +60,17 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     transform-origin: bottom;
     pointer-events: none;
   }
+  /* Calques : intro figée (z -1) < fond de la galerie < WebGL (z 1) < légendes / liens (z ≥ 1) */
   .gl {
     position: fixed;
     inset: 0;
-    z-index: 0;
+    z-index: 1;
     pointer-events: none;
   }
   .gl canvas {
     display: block;
     width: 100%;
     height: 100%;
-  }
-  main,
-  footer {
-    position: relative;
-    z-index: 1;
   }
   .skip:focus {
     position: fixed;
