@@ -3,6 +3,7 @@ import { Flip } from 'gsap/Flip';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import Lenis from 'lenis';
+import { GL, type GLItem } from './gl';
 
 gsap.registerPlugin(Flip, ScrollTrigger, SplitText);
 
@@ -20,6 +21,20 @@ if (!reduceMotion) {
   gsap.ticker.add((time) => lenis?.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
 }
+
+/* ------------------------------------------------------------------------ */
+/* Visuels WebGL (désactivés si mouvement réduit ou WebGL indisponible)      */
+/* ------------------------------------------------------------------------ */
+const glRoot = document.querySelector<HTMLElement>('[data-gl-root]');
+const gl = !reduceMotion && glRoot ? GL.create(glRoot, () => lenis?.velocity ?? 0) : null;
+
+// Transition en cours : 'open' = zoom grille → projet, 'close' = dézoom projet → grille
+let mode: 'curtain' | 'open' | 'close' = 'curtain';
+let flying: GLItem | null = null;
+let homeScroll = 0;
+const heroMedia = () => document.querySelector<HTMLElement>('.project__hero [data-gl]');
+const pageContent = () => [document.querySelector('main'), document.querySelector('footer')];
+const isHome = (url: URL) => (url.pathname.replace(/\/$/, '') || '/') === '/';
 
 /* ------------------------------------------------------------------------ */
 /* Nettoyage entre les pages                                                */
@@ -72,24 +87,60 @@ const curtain = () => document.querySelector<HTMLElement>('[data-curtain]');
 document.addEventListener('astro:before-preparation', (event) => {
   if (reduceMotion) return;
   const load = event.loader;
-  event.loader = async () => {
-    lenis?.stop();
-    await Promise.all([
-      gsap.fromTo(
-        curtain(),
-        { scaleY: 0, transformOrigin: 'bottom' },
-        { scaleY: 1, duration: 0.7, ease: EASE_IN_OUT },
-      ),
-      load(),
-    ]);
-  };
+  if (isHome(event.from)) homeScroll = window.scrollY;
+
+  const media = event.sourceElement?.closest('.item__link')?.querySelector<HTMLElement>('[data-gl]');
+  const hero = heroMedia();
+
+  if (gl && media && gl.has(media)) {
+    // Ouverture : le visuel cliqué s'agrandit jusqu'au plein écran
+    mode = 'open';
+    event.loader = async () => {
+      lenis?.stop();
+      flying = gl.take(media);
+      await Promise.all([
+        flying && gl.flyTo(flying, () => ({ x: 0, y: 0, w: innerWidth, h: innerHeight })),
+        gl.fade(flying, 0, 0.5),
+        gsap.to(pageContent(), { autoAlpha: 0, duration: 0.5, ease: 'power2.out' }),
+        load(),
+      ]);
+    };
+  } else if (gl && hero && gl.has(hero) && isHome(event.to)) {
+    // Fermeture : le visuel quitte la page projet puis rejoint sa place dans la grille
+    mode = 'close';
+    event.loader = async () => {
+      lenis?.stop();
+      flying = gl.take(hero);
+      await Promise.all([gsap.to(pageContent(), { autoAlpha: 0, duration: 0.45, ease: 'power2.out' }), load()]);
+    };
+  } else {
+    mode = 'curtain';
+    event.loader = async () => {
+      lenis?.stop();
+      await Promise.all([
+        gsap.fromTo(
+          curtain(),
+          { scaleY: 0, transformOrigin: 'bottom' },
+          { scaleY: 1, duration: 0.7, ease: EASE_IN_OUT },
+        ),
+        load(),
+      ]);
+    };
+  }
 });
 
-document.addEventListener('astro:before-swap', cleanupPage);
+document.addEventListener('astro:before-swap', () => {
+  cleanupPage();
+  gl?.detach(flying);
+});
 
 document.addEventListener('astro:after-swap', () => {
-  lenis?.scrollTo(0, { immediate: true, force: true });
+  applySavedView(); // même mise en page qu'au départ, pour retrouver la position exacte
   lenis?.resize();
+  const y = mode === 'close' ? homeScroll : 0;
+  lenis?.scrollTo(y, { immediate: true, force: true });
+  window.scrollTo(0, y);
+  if (mode === 'close') gsap.set(pageContent(), { autoAlpha: 0 });
 });
 
 async function curtainOut() {
@@ -147,8 +198,17 @@ function prepareReveals(): Reveal[] {
     }
   });
 
-  // Les visuels de la grille de projets se dévoilent aussi
+  // Les visuels de la grille de projets se dévoilent aussi (en WebGL si actif)
   document.querySelectorAll<HTMLElement>('[data-work] [data-media]').forEach((el) => {
+    const progress = gl?.uniform(el.querySelector('[data-gl]')!, 'uProgress');
+    if (progress) {
+      progress.value = 0;
+      reveals.push({
+        el,
+        play: () => gsap.to(progress, { value: 1, duration: 1.4, ease: EASE_IN_OUT }),
+      });
+      return;
+    }
     gsap.set(el, { clipPath: 'inset(0% 0% 100% 0%)' });
     reveals.push({
       el,
@@ -178,6 +238,25 @@ function playReveals(reveals: Reveal[]) {
 /* Projets : bascule grille / liste avec Flip                                */
 /* ------------------------------------------------------------------------ */
 const VIEW_KEY = 'work-view';
+
+function savedView() {
+  try {
+    const v = localStorage.getItem(VIEW_KEY);
+    return v === 'list' || v === 'grid' ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function applySavedView() {
+  const work = document.querySelector<HTMLElement>('[data-work]');
+  const view = savedView();
+  if (!work || !view) return;
+  work.dataset.view = view;
+  work
+    .querySelectorAll('[data-view-btn]')
+    .forEach((b) => b.setAttribute('aria-pressed', String((b as HTMLElement).dataset.viewBtn === view)));
+}
 
 function initWorkToggle() {
   const work = document.querySelector<HTMLElement>('[data-work]');
@@ -214,11 +293,8 @@ function initWorkToggle() {
     }
   };
 
-  let saved: string | null = null;
-  try {
-    saved = localStorage.getItem(VIEW_KEY);
-  } catch {}
-  if (saved === 'list' || saved === 'grid') setView(saved, false);
+  const saved = savedView();
+  if (saved) setView(saved, false);
 
   buttons.forEach((b) => {
     const onClick = () => setView(b.dataset.viewBtn!, true);
@@ -263,7 +339,43 @@ document.addEventListener('astro:page-load', async () => {
   initScrollTop();
   initWorkToggle();
 
+  const current = mode;
+  mode = 'curtain';
+
+  if (current === 'open' && gl && flying) {
+    // Le visuel agrandi devient celui de la page projet
+    const hero = heroMedia();
+    gl.attach(hero);
+    if (hero) gl.land(flying, hero);
+    else gl.dispose(flying);
+    flying = null;
+    const reveals = prepareReveals();
+    lenis?.start();
+    playReveals(reveals);
+    return;
+  }
+
+  if (current === 'close' && gl && flying) {
+    // Dézoom vers la position de départ dans la grille
+    const item = flying;
+    flying = null;
+    const target = document.querySelector<HTMLElement>(`[data-work] [data-gl][data-gl-id="${item.id}"]`);
+    if (target) target.style.opacity = '0';
+    gl.attach(target);
+    gl.fade(item, 1, 0.8, 0);
+    gsap.to(pageContent(), { autoAlpha: 1, duration: 0.6, delay: 0.55, ease: 'power2.out' });
+    if (target) {
+      await gl.flyTo(item, () => gl.rect(target));
+      gl.land(item, target);
+    } else {
+      gl.dispose(item);
+    }
+    lenis?.start();
+    return;
+  }
+
   if (firstLoad) await document.fonts.ready; // découpe des lignes avec les bonnes métriques
+  gl?.attach();
   const reveals = prepareReveals();
 
   if (firstLoad) {

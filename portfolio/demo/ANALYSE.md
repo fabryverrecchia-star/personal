@@ -23,7 +23,7 @@ Astro · GSAP · Lenis · Three.js (WebGL) · Swup (transitions) · Tailwind · 
 | Sujet | Démo | Notre base |
 |---|---|---|
 | Transitions de page | Swup (librairie supplémentaire) | Routeur natif d'Astro (`ClientRouter`) + GSAP : une dépendance en moins |
-| WebGL | Three.js chargé partout (~150 ko gz) | Retiré de la base ; à n'ajouter que si un effet le justifie, et uniquement sur la page concernée |
+| WebGL | Three.js (~150 ko gz) | OGL (~10 ko gz) : visuels synchronisés au DOM, courbure selon la vitesse de défilement, perspective au survol, zoom grille → projet et dézoom au point de départ. Repli automatique sur le DOM sans WebGL ou avec « réduire les animations » |
 | CSS | Tailwind | CSS natif avec variables (tokens) : plus léger et plus lisible pour une identité sur mesure |
 | Contenu | Prismic (service externe) | Fichiers Markdown typés (content collections) : gratuit, versionné, rapide ; migrable vers un CMS plus tard |
 | Images | — | `astro:assets` : AVIF/WebP, `srcset` responsive, lazy-loading, `fetchpriority` pour la première image |
@@ -37,6 +37,5 @@ Poids actuel : ~62 ko gz de JS au total (GSAP + Flip + ScrollTrigger + SplitText
 ## Pistes pour la suite
 
 - Survol des lignes en vue liste : aperçu de l'image qui suit le curseur
-- Effet WebGL léger (déformation d'image au survol) chargé à la demande
 - Page projet : galerie, vidéos, crédits
 - Version anglaise (i18n Astro)

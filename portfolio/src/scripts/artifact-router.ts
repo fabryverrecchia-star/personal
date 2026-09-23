@@ -24,10 +24,13 @@ function render(path: string) {
   } catch {}
 }
 
-async function navigate(path: string) {
+async function navigate(path: string, sourceElement?: Element) {
   if (path === current) return;
   const prep = Object.assign(new Event('astro:before-preparation'), {
     loader: async () => {},
+    from: new URL(`https://site${current}`),
+    to: new URL(`https://site${path}`),
+    sourceElement,
   });
   document.dispatchEvent(prep);
   await prep.loader();
@@ -43,7 +46,7 @@ document.addEventListener('click', (e) => {
   const href = a?.getAttribute('href');
   if (!href?.startsWith('/') || e.metaKey || e.ctrlKey || e.shiftKey) return;
   e.preventDefault();
-  navigate(toPath(href));
+  navigate(toPath(href), a!);
 });
 
 const start = fromToken(location.hash.slice(1));

@@ -25,6 +25,7 @@ portfolio/
     ├── assets/images/     # images des projets (optimisées au build)
     ├── styles/global.css  # tokens (couleurs, typo, grille) + @font-face
     ├── scripts/app.ts     # loader, Lenis, révélations, Flip grille/liste, transitions
+    ├── scripts/gl.ts      # WebGL (OGL) : courbure au défilement, survol, zoom/dézoom
     ├── components/        # Header, Footer, Loader, WorkIndex, ProjectMedia, Rich
     ├── layouts/Base.astro
     └── pages/             # accueil, à propos, work/[slug], 404

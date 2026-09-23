@@ -19,9 +19,16 @@ const { Content } = await render(project);
 
 <Base title={title} description={`${title} — ${category} pour ${client} (${year}).`}>
   <article class="project">
+    <!-- Visuel plein écran : cible du zoom depuis la grille -->
+    <div class="project__hero" data-gl-hero-wrap>
+      <ProjectMedia project={project} sizes="100vw" eager hover={false} />
+      <div class="project__hero-inner container">
+        <a href="/" class="project__close link" data-close>Fermer <span aria-hidden="true">✕</span></a>
+        <h1 class="project__title display" data-reveal="lines">{title}</h1>
+      </div>
+    </div>
+
     <header class="project__head container grid">
-      <p class="label project__back"><a href="/" class="link">← Projets</a></p>
-      <h1 class="project__title display" data-reveal="lines">{title}</h1>
       <dl class="project__meta">
         <div data-reveal><dt class="label">Client</dt><dd>{client}</dd></div>
         <div data-reveal><dt class="label">Année</dt><dd class="figures">{year}</dd></div>
@@ -38,10 +45,6 @@ const { Content } = await render(project);
       </dl>
     </header>
 
-    <div class="project__cover container" data-reveal="media">
-      <ProjectMedia project={project} sizes="100vw" eager />
-    </div>
-
     <div class="project__body container grid">
       <div class="prose" data-reveal="lines"><Content /></div>
     </div>
@@ -54,34 +57,49 @@ const { Content } = await render(project);
 </Base>
 
 <style>
-  .project__head {
-    padding-top: clamp(2rem, 8vh, 6rem);
-    row-gap: 2rem;
+  .project {
+    margin-top: calc(-1 * var(--header-h));
   }
-  .project__back {
-    grid-column: 1 / -1;
+  .project__hero {
+    position: relative;
+    height: 100svh;
+    color: #fff;
+  }
+  .project__hero :global(.media) {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+    height: 100%;
+  }
+  .project__hero-inner {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-block: calc(var(--header-h) + 1rem) var(--margin);
+  }
+  .project__close {
+    align-self: flex-end;
+    font-size: var(--fs-sm);
   }
   .project__title {
-    grid-column: 1 / span 8;
     font-size: var(--fs-xxl);
     font-family: var(--font-display);
     font-weight: 300;
     line-height: 0.9;
     letter-spacing: -0.02em;
   }
+  .project__head {
+    padding-top: clamp(2rem, 6vw, 5rem);
+  }
   .project__meta {
-    grid-column: 9 / -1;
-    align-self: end;
+    grid-column: 1 / -1;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
     gap: 1rem var(--gutter);
     font-size: var(--fs-sm);
-  }
-  .project__cover {
-    margin-top: clamp(2rem, 6vw, 5rem);
-  }
-  .project__cover :global(.media) {
-    aspect-ratio: 16 / 9;
   }
   .project__body {
     margin-top: clamp(3rem, 8vw, 7rem);
@@ -114,8 +132,6 @@ const { Content } = await render(project);
     letter-spacing: -0.02em;
   }
   @media (max-width: 800px) {
-    .project__title,
-    .project__meta,
     .prose {
       grid-column: 1 / -1;
     }

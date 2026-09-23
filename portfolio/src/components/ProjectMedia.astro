@@ -6,12 +6,22 @@ interface Props {
   project: CollectionEntry<'projects'>;
   sizes?: string;
   eager?: boolean;
+  /** Perspective au survol (désactivée pour le visuel plein écran) */
+  hover?: boolean;
 }
-const { project, sizes = '(max-width: 800px) 100vw, 50vw', eager = false } = Astro.props;
+const { project, sizes = '(max-width: 800px) 100vw, 50vw', eager = false, hover = true } = Astro.props;
 const { cover, color, title } = project.data;
 ---
 
-<div class="media" style={`--media-color: ${color}`}>
+<div
+  class="media"
+  style={`--media-color: ${color}`}
+  data-gl
+  data-gl-id={project.id}
+  data-gl-color={color}
+  data-gl-title={title}
+  data-gl-hover={hover ? undefined : 'off'}
+>
   {
     cover ? (
       <Image
