@@ -69,13 +69,23 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --bg: #111110;
     --fg: #ecebe6;
     --muted: #8d8980;
     --line: rgb(236 235 230 / 0.14);
     --accent: #ecebe6;
+    color-scheme: dark;
   }
+}
+/* Thème forcé (ex. aperçu dans un artefact) */
+:root[data-theme='dark'] {
+  --bg: #111110;
+  --fg: #ecebe6;
+  --muted: #8d8980;
+  --line: rgb(236 235 230 / 0.14);
+  --accent: #ecebe6;
+  color-scheme: dark;
 }
 
 /* ==========================================================================
