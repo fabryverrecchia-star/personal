@@ -25,12 +25,12 @@ html = html.replace(/\/_astro\/[^"')\s]+/g, (url) => {
 });
 html = html.replace('href="/favicon.svg"', `href="data:image/svg+xml;base64,${readFileSync(join(dist, 'favicon.svg')).toString('base64')}"`);
 
-// page d'artefact : le squelette <html><head><body> est ajouté à la publication
+// page autonome : on garde les balises charset et viewport (indispensables quand le fichier est ouvert
+// directement sur un téléphone), le squelette <html><head><body> est recréé par le navigateur ou l'artefact
 html = html
   .replace(/<!doctype html>/i, '')
   .replace(/<\/?(html|body)[^>]*>/gi, '')
   .replace(/<\/?head>/gi, '')
-  .replace(/<meta name="viewport"[^>]*>/gi, '')
   .replace(/<title>[\s\S]*?<\/title>/, '');
 html = `<title>Mel Ar Bescond</title>\n${html}`;
 
