@@ -110,50 +110,64 @@ if (gl) gsap.ticker.add(() => {
 });
 
 /* ───────────── Ouverture et hero ───────────── */
-const heroGlyphs = $$('[data-hero-logo] .glyph');
 const heroFrame = $('[data-hero-frame]');
 const heroGL = gl?.get(heroFrame);
-gsap.set(heroGlyphs, { yPercent: 40, opacity: 0 });
-gsap.set('[data-hero-fade]', { opacity: 0, y: 16 });
+const heroLines = $$('.hero__line > span');
+gsap.set(heroLines, { yPercent: 110 });
+gsap.set('[data-hero-fade], [data-hero-nav]', { opacity: 0, y: 16 });
 if (!heroGL) gsap.set('[data-hero-frame] img', { scale: 1.12 });
 
 function heroIntro() {
   const tl = gsap
     .timeline({ onComplete: startSlides })
-    .to(heroGlyphs, { yPercent: 0, opacity: 1, duration: 1.8, stagger: 0.05, ease: 'expo.out' }, 0)
-    .to('[data-hero-fade]', { opacity: 1, y: 0, duration: 1.4, stagger: 0.08, ease: 'expo.out' }, 0.5);
-  if (heroGL) tl.to(heroGL, { reveal: 1, duration: 2.4, ease: 'power2.out' }, 0.2);
+    .to(heroLines, { yPercent: 0, duration: 1.8, stagger: 0.12, ease: 'expo.out' }, 0.5)
+    .to('[data-hero-fade], [data-hero-nav]', { opacity: 1, y: 0, duration: 1.4, stagger: 0.08, ease: 'expo.out' }, 1);
+  if (heroGL) tl.to(heroGL, { reveal: 1, duration: 2.6, ease: 'power2.out' }, 0);
   else tl.to('[data-hero-frame] img', { scale: 1, duration: 2.6, ease: 'silk' }, 0);
   return tl;
 }
 
-// diaporama du hero : une photo toutes les 5 s, transition liquide en WebGL (fondu sinon)
+// diaporama du hero : barres de progression, transition liquide en WebGL (fondu sinon)
+const SLIDE_TIME = 6;
 function startSlides() {
-  if (!heroFrame || reduced) return;
+  if (!heroFrame) return;
   const imgs = $$('img', heroFrame);
+  const dots = $$<HTMLButtonElement>('[data-goto]');
+  const bars = dots.map((d) => $('[data-bar]', d)!);
   const n = imgs.length;
-  const caps = JSON.parse($('[data-slide-caps]')?.textContent || '[]') as string[];
-  const num = $('[data-slide-n]');
-  const cap = $('[data-slide-cap]');
   let i = 0;
-  const next = () => {
-    const to = (i + 1) % n;
-    const tl = gsap.timeline({ onComplete: () => void gsap.delayedCall(4.2, next) });
+  let busy = false;
+  let timer: gsap.core.Tween | null = null;
+
+  const run = () => {
+    timer?.kill();
+    gsap.set(bars, { scaleX: 0 });
+    bars.slice(0, i).forEach((b) => gsap.set(b, { scaleX: 1 }));
+    if (reduced) return;
+    timer = gsap.to(bars[i], { scaleX: 1, duration: SLIDE_TIME, ease: 'none', onComplete: () => goTo((i + 1) % n) });
+  };
+  const goTo = (to: number) => {
+    if (busy || to === i) return;
+    busy = true;
+    timer?.kill();
+    dots.forEach((d, k) => d.classList.toggle('is-on', k === to));
+    const done = () => {
+      i = to;
+      busy = false;
+      run();
+    };
     if (heroGL?.slides) {
       const s = heroGL.slides;
-      tl.fromTo(s, { p: 0 }, { p: 1, duration: 2, ease: 'power2.inOut', onComplete: () => ((s.index = to), (s.p = 0)) }, 0);
+      s.next = to;
+      gsap.fromTo(s, { p: 0 }, { p: 1, duration: 1.9, ease: 'power2.inOut', onComplete: () => ((s.index = to), (s.p = 0), done()) });
     } else {
-      tl.to(imgs[to], { opacity: 1, duration: 1.6, ease: 'power2.inOut' }, 0).set(imgs[i], { opacity: 0 });
+      gsap.to(imgs[to], { opacity: 1, duration: 1.4, ease: 'power2.inOut', onComplete: () => (imgs.forEach((im, k) => k !== to && gsap.set(im, { opacity: 0 })), done()) });
     }
-    tl.to([num, cap], { yPercent: -100, opacity: 0, duration: 0.5, ease: 'power2.in' }, 0.4)
-      .add(() => {
-        if (num) num.textContent = String(to + 1).padStart(2, '0');
-        if (cap) cap.textContent = caps[to] ?? '';
-      })
-      .fromTo([num, cap], { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.9, ease: 'expo.out' });
-    i = to;
+    // le titre respire à chaque changement
+    gsap.fromTo(heroLines, { yPercent: 0 }, { yPercent: -8, duration: 0.95, ease: 'power2.inOut', yoyo: true, repeat: 1, stagger: 0.06 });
   };
-  gsap.delayedCall(3.5, next);
+  dots.forEach((d, k) => d.addEventListener('click', () => goTo(k)));
+  run();
 }
 
 // secteur angulaire (pour les boucles de corde du préloader)
@@ -198,18 +212,23 @@ function runLoader() {
     .add(heroIntro(), 4.0);
 }
 
-// le cadre photo s'ouvre en plein écran au défilement
+// au défilement : la photo se resserre en cadre, le texte monte et s'efface
 {
-  const stage = $('[data-hero-stage]');
-  if (stage && heroFrame)
-    gsap.fromTo(heroFrame, {
-      '--inset': () => `${parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gutter')) || Math.max(16, Math.min(64, innerWidth * 0.04))}px`,
-    }, {
-      '--inset': '0px',
+  const hero = $('[data-hero]');
+  if (hero && heroFrame) {
+    const gutter = () => `${Math.max(16, Math.min(64, innerWidth * 0.04))}px`;
+    gsap.fromTo(
+      heroFrame,
+      { '--inset': '0px' },
+      { '--inset': gutter, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true, invalidateOnRefresh: true } },
+    );
+    gsap.to('[data-hero-content]', {
+      yPercent: -18,
+      opacity: 0,
       ease: 'none',
-      immediateRender: true,
-      scrollTrigger: { trigger: stage, start: 'top 80%', end: 'top top', scrub: true, invalidateOnRefresh: true },
+      scrollTrigger: { trigger: hero, start: 'top top', end: '70% top', scrub: true },
     });
+  }
 }
 
 /* ───────────── Révélations ───────────── */

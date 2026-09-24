@@ -85,6 +85,8 @@ uniform float uTime;
 uniform float uVel;
 uniform float uPar;
 uniform float uKen;    // lent zoom continu
+uniform float uShade;  // voile de lisibilité pour le texte posé dessus
+uniform vec2 uLook;    // léger décalage suivant la souris
 varying vec2 vUv;
 ${NOISE}
 void main() {
@@ -95,11 +97,15 @@ void main() {
   float m = smoothstep(th - 0.07, th + 0.07, edge);
   vec2 base = (vUv - 0.5) / (1.08 + uKen * 0.06) + 0.5;
   base.y += uPar;
+  base += uLook * 0.018;
   vec2 dA = vec2((n - 0.5) * 0.18 * uP, -uP * 0.06);
   vec2 dB = vec2((n - 0.5) * 0.18 * (1.0 - uP), (1.0 - uP) * 0.06);
   vec3 a = texture2D(uA, cover(base + dA, uRect.zw, uImgA)).rgb;
   vec3 b = texture2D(uB, cover((base - 0.5) / (1.0 + (1.0 - uP) * 0.12) + 0.5 + dB, uRect.zw, uImgB)).rgb;
   vec3 col = mix(a, b, m);
+  // voile : bas et haut assombris pour le texte, sans toucher au centre
+  float shade = smoothstep(0.62, 0.0, vUv.y) * 0.62 + smoothstep(0.78, 1.0, vUv.y) * 0.3 + 0.1;
+  col *= 1.0 - shade * uShade;
   // liseré lumineux sur le front
   col += vec3(1.0, 0.85, 0.55) * (1.0 - abs(m - 0.5) * 2.0) * 0.12 * step(0.01, uP) * step(uP, 0.99);
   // entrée du hero
@@ -118,7 +124,7 @@ export interface GLItem {
   parallax: number;
   mesh: Mesh;
   loaded: boolean;
-  slides?: { textures: Texture[]; sizes: [number, number][]; index: number; p: number };
+  slides?: { textures: Texture[]; sizes: [number, number][]; index: number; next: number; p: number };
 }
 
 export function initGL() {
@@ -196,9 +202,23 @@ export function initGL() {
         vertex,
         fragment: slidesFrag,
         transparent: true,
-        uniforms: { ...common, uA: { value: textures[0] }, uB: { value: textures[1 % textures.length] }, uImgA: { value: [1, 1] }, uImgB: { value: [1, 1] }, uP: { value: 0 }, uKen: { value: 0 } },
+        uniforms: {
+          ...common,
+          uA: { value: textures[0] },
+          uB: { value: textures[1 % textures.length] },
+          uImgA: { value: [1, 1] },
+          uImgB: { value: [1, 1] },
+          uP: { value: 0 },
+          uKen: { value: 0 },
+          uShade: { value: el.hasAttribute('data-gl-shade') ? 1 : 0 },
+          uLook: { value: [0, 0] },
+        },
       });
-      item.slides = { textures, sizes, index: 0, p: 0 };
+      item.slides = { textures, sizes, index: 0, next: 1, p: 0 };
+      item.mouse = [0, 0];
+      addEventListener('pointermove', (e) => {
+        item.mouse = [e.clientX / innerWidth - 0.5, e.clientY / innerHeight - 0.5];
+      });
     } else {
       const size: [number, number] = [1, 1];
       const tex = loadTexture(imgs[0], (w, h) => {
@@ -251,9 +271,12 @@ export function initGL() {
         const s = it.slides;
         const n = s.textures.length;
         u.uA.value = s.textures[s.index % n];
-        u.uB.value = s.textures[(s.index + 1) % n];
+        u.uB.value = s.textures[s.next % n];
         u.uImgA.value = s.sizes[s.index % n];
-        u.uImgB.value = s.sizes[(s.index + 1) % n];
+        u.uImgB.value = s.sizes[s.next % n];
+        const look = u.uLook.value as number[];
+        look[0] += (it.mouse[0] - look[0]) * 0.05;
+        look[1] += (-it.mouse[1] - look[1]) * 0.05;
         u.uP.value = s.p;
         u.uKen.value = (Math.sin(state.time * 0.15) + 1) / 2;
       } else {

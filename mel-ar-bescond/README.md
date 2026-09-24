@@ -17,7 +17,7 @@ npm run preview:file   # page autonome artifact/mel-ar-bescond.html (aperçu à 
 | Section | Mouvement |
 | --- | --- |
 | Ouverture | sur fond blanc, l’emblème se dessine : la corde s’enroule autour de l’anneau, les boucles se nouent, puis l’abeille apparaît |
-| Hero | grand logo ; diaporama WebGL des 4 photos du shooting (transition liquide), le cadre s’ouvre en plein écran au défilement |
+| Hero | les 4 photos du shooting en plein écran (WebGL, transition liquide, léger suivi de la souris), grand titre révélé ligne par ligne, navigation par barres de progression ; au défilement la photo se resserre en cadre |
 | Promesse | les mots s’éclairent au fil de la lecture |
 | La maison | photos en WebGL : révélation organique, parallaxe, courbure au défilement, ondulation au survol |
 | La récolte | deux saisons en très grand ; au survol, une photo suit le curseur |
@@ -26,7 +26,7 @@ npm run preview:file   # page autonome artifact/mel-ar-bescond.html (aperçu à 
 
 Toutes les photos (sauf les vignettes du panier) sont redessinées en WebGL par `src/scripts/gl.ts` sur un canvas fixe calé sur les `<figure data-gl>` ; sans WebGL, les images normales s’affichent.
 
-Défilement doux Lenis aussi au tactile (`syncTouch`). Si l’utilisateur a activé « réduire les animations », Lenis, l’ouverture et les boucles sont désactivés.
+Défilement doux Lenis à la molette ; au doigt, défilement natif du téléphone. Si l’utilisateur a activé « réduire les animations », Lenis, l’ouverture et les boucles sont désactivés.
 
 ## Modifier le contenu
 
