@@ -323,8 +323,9 @@ function initClock() {
 
 function initSadik() {
   const section = document.querySelector<HTMLElement>('[data-sadik]');
-  if (!section || reduceMotion) return;
-  const composer = SadikComposer.create(section);
+  if (!section) return;
+  // Mouvement réduit : la composition reste liée au défilement, mais les pièces apparaissent en place
+  const composer = SadikComposer.create(section, { reduced: reduceMotion });
   if (!composer) return;
   onCleanup(() => composer.dispose());
   // La piste de défilement vient d'apparaître : on remet les mesures à jour

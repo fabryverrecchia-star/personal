@@ -181,15 +181,24 @@ export class SadikComposer {
   private intro = 0; // apparition des pièces éparpillées à l'arrivée sur la page
   private cleanups: Array<() => void> = [];
 
-  static create(section: HTMLElement): SadikComposer | null {
+  static create(section: HTMLElement, options: { reduced?: boolean } = {}): SadikComposer | null {
     try {
-      return new SadikComposer(section);
+      return new SadikComposer(section, !!options.reduced);
     } catch {
       return null; // pas de WebGL : le SVG reste affiché
     }
   }
 
-  private constructor(private section: HTMLElement) {
+  private embedded = false; // page qui ne défile pas elle-même (cadre intégré à hauteur du contenu)
+  private viewTop = 0; // haut de la zone visible, relatif à la section (mode intégré)
+  private viewportH = 0;
+  private stageY = 0;
+  private rebuildRail = () => {};
+
+  private constructor(
+    private section: HTMLElement,
+    private reduced: boolean, // mouvement réduit : les pièces apparaissent en place, sans voler
+  ) {
     const stage = section.querySelector<HTMLElement>('[data-sadik-stage]')!;
     const logoEl = section.querySelector<HTMLElement>('[data-sadik-logo]')!;
     const hint = section.querySelector<HTMLElement>('[data-sadik-hint]');
@@ -299,19 +308,85 @@ export class SadikComposer {
     this.cleanups.push(() => ro.disconnect());
     layout();
 
-    // Progression pilotée par le défilement (la composition se termine à 80 % de la piste)
+    // Hauteur d'écran réelle, en px : dans un cadre qui prend la hauteur de son contenu
+    // (aperçu intégré, certaines applis mobiles), 100svh vaudrait toute la page.
+    const measureViewport = () => {
+      const vh = Math.min(window.innerHeight, window.visualViewport?.height ?? Infinity, screen.height || Infinity);
+      this.viewportH = Math.round(vh);
+      section.style.setProperty('--sadik-vh', `${this.viewportH}px`);
+      // Si la page ne peut pas défiler elle-même, c'est le parent qui défile : pas de piste collante
+      const html = document.documentElement;
+      const embedded = window.innerHeight > (screen.height || Infinity) * 1.15 || html.scrollHeight <= window.innerHeight + 4;
+      if (embedded !== this.embedded) {
+        this.embedded = embedded;
+        section.classList.toggle('is-embedded', embedded);
+        if (embedded) queueMicrotask(() => this.rebuildRail());
+        ScrollTrigger.refresh();
+      }
+    };
+    measureViewport();
+    window.addEventListener('resize', measureViewport);
+    this.cleanups.push(() => window.removeEventListener('resize', measureViewport));
+
+    // Page qui défile : progression sur la piste (la composition se termine à 80 %)
+    const fromScroll = (progress: number) => {
+      if (!this.embedded) this.target = clamp01(progress / 0.8);
+    };
     const st = ScrollTrigger.create({
       trigger: section,
       start: 'top top',
       end: 'bottom bottom',
-      onUpdate: (self) => (this.target = clamp01(self.progress / 0.8)),
-      onRefresh: (self) => (this.target = clamp01(self.progress / 0.8)),
+      onUpdate: (self) => fromScroll(self.progress),
+      onRefresh: (self) => fromScroll(self.progress),
     });
     this.cleanups.push(() => st.kill());
 
-    const io = new IntersectionObserver(([e]) => (this.visible = e.isIntersecting));
-    io.observe(section);
-    this.cleanups.push(() => io.disconnect());
+    // Cadre intégré (la page ne défile pas, c'est son parent qui défile) : on repère la zone
+    // réellement visible grâce à de fines bandes observées (IntersectionObserver mesure par
+    // rapport à l'écran, même à travers un iframe), puis on maintient la scène à l'écran
+    // nous-mêmes (équivalent de position: sticky) et on en déduit la progression.
+    const rail = document.createElement('div');
+    rail.setAttribute('aria-hidden', 'true');
+    rail.style.cssText = 'position:absolute;inset:0 auto 0 0;width:1px;display:flex;flex-direction:column;pointer-events:none;visibility:hidden';
+    section.prepend(rail);
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!this.embedded) return;
+        const top = section.getBoundingClientRect().top;
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const r = e.boundingClientRect;
+          const v = e.intersectionRect;
+          if (v.top > r.top + 0.5) this.viewTop = v.top - top; // bande coupée par le haut de l'écran
+          else if (v.bottom < r.bottom - 0.5) this.viewTop = v.bottom - top - this.viewportH; // par le bas
+          else if (e.target === rail.firstElementChild) this.viewTop = Math.min(this.viewTop, 0);
+        }
+      },
+      { threshold: [0, 0.25, 0.5, 0.75, 1] },
+    );
+    const buildRail = () => {
+      io.disconnect();
+      rail.replaceChildren();
+      const n = Math.ceil(section.offsetHeight / 8);
+      for (let i = 0; i < n; i++) {
+        const band = document.createElement('div');
+        band.style.cssText = 'flex:0 0 8px';
+        rail.append(band);
+        io.observe(band);
+      }
+    };
+    this.rebuildRail = buildRail;
+    const railRo = new ResizeObserver(() => this.embedded && buildRail());
+    railRo.observe(section);
+    const visibility = new IntersectionObserver(([e]) => (this.visible = e.isIntersecting));
+    visibility.observe(section);
+    this.cleanups.push(() => {
+      io.disconnect();
+      railRo.disconnect();
+      visibility.disconnect();
+      rail.remove();
+      stage.style.transform = '';
+    });
 
     const onMove = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse') return;
@@ -327,6 +402,14 @@ export class SadikComposer {
     const tick = (t: number) => {
       this.time = t;
       if (!this.visible) return;
+      if (this.embedded) {
+        const travel = Math.max(1, section.offsetHeight - this.viewportH);
+        const y = Math.min(travel, Math.max(0, this.viewTop));
+        this.stageY += (y - this.stageY) * 0.5;
+        if (Math.abs(y - this.stageY) < 0.5) this.stageY = y;
+        stage.style.transform = `translate3d(0, ${this.stageY.toFixed(1)}px, 0)`;
+        this.target = clamp01(y / travel / 0.8);
+      }
       this.progress += (this.target - this.progress) * 0.14;
       if (Math.abs(this.target - this.progress) < 1e-4) this.progress = this.target;
       this.render();
@@ -362,6 +445,7 @@ export class SadikComposer {
     const cx = this.logo.x + (item.box.x + item.box.w / 2) * s;
     const cy = this.logo.y + (item.box.y + item.box.h / 2) * s;
 
+    if (this.reduced) return { dx: 0, dy: 0, rot: 0, scale: 1 };
     if (item.piece.kind === 'bg') {
       // Les papiers du fond glissent depuis le haut ou le bas de l'écran
       const dir = a < 0.5 ? -1 : 1;
@@ -395,7 +479,7 @@ export class SadikComposer {
 
       // Dérive lente tant que la pièce n'est pas posée, et léger parallaxe au pointeur
       const [, , , , , f, g, depth] = item.rand;
-      const drift = kind === 'letter' ? free : 0;
+      const drift = kind === 'letter' && !this.reduced ? free : 0;
       const wob = Math.sin(this.time * (0.5 + f * 0.6) + g * 6.28);
       const par = (0.4 + depth) * 30 * drift;
 
@@ -420,7 +504,7 @@ export class SadikComposer {
       } else if (kind === 'bg') {
         u.uAlpha.value = clamp01(t * 2.5);
       } else {
-        u.uAlpha.value = this.intro;
+        u.uAlpha.value = this.reduced ? e : this.intro;
       }
     }
     this.renderer.render({ scene: this.scene, camera: this.camera });
@@ -435,6 +519,7 @@ export class SadikComposer {
     this.geometry.remove();
     this.gl.canvas.remove();
     this.gl.getExtension('WEBGL_lose_context')?.loseContext();
-    this.section.classList.remove('is-live');
+    this.section.classList.remove('is-live', 'is-embedded');
+    this.section.style.removeProperty('--sadik-vh');
   }
 }

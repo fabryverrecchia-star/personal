@@ -28,20 +28,27 @@ const svg = sadikSvg({ id, attrs: 'class="sadik__svg" preserveAspectRatio="xMidY
   }
   /* Piste de défilement : n'existe que lorsque la composition WebGL est active */
   .sadik.is-live {
-    height: 320svh;
+    height: calc(var(--sadik-vh, 100svh) * 3.2);
   }
+
   .sadik__stage {
     position: relative;
     display: grid;
     place-items: center;
-    min-height: 100svh;
+    min-height: var(--sadik-vh, 100svh);
     padding: calc(var(--header-h) + 1rem) var(--margin) var(--margin);
     overflow: hidden;
   }
   .sadik.is-live .sadik__stage {
     position: sticky;
     top: 0;
-    height: 100svh;
+    height: var(--sadik-vh, 100svh);
+  }
+  /* Page intégrée qui ne défile pas elle-même : la scène est maintenue à l'écran en JS */
+  .sadik.is-embedded .sadik__stage {
+    position: absolute;
+    inset: 0 0 auto 0;
+    will-change: transform;
   }
   .sadik__stage :global(canvas) {
     position: absolute;
@@ -80,7 +87,7 @@ const svg = sadikSvg({ id, attrs: 'class="sadik__svg" preserveAspectRatio="xMidY
 
   @media (max-width: 800px), (orientation: portrait) {
     .sadik.is-live {
-      height: 260svh;
+      height: calc(var(--sadik-vh, 100svh) * 2.6);
     }
     .sadik__stage {
       padding-inline: 16px;
