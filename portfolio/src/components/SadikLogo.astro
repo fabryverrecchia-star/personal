@@ -13,7 +13,7 @@ const svg = sadikSvg({ id, attrs: 'class="sadik__svg" preserveAspectRatio="xMidY
 <section class="sadik" data-sadik aria-label="Logo SADIK">
   <div class="sadik__stage" data-sadik-stage>
     <div class="sadik__logo" data-sadik-logo set:html={svg} />
-    <p class="sadik__hint label" data-sadik-hint aria-hidden="true">(Défiler pour composer)</p>
+    <p class="sadik__hint" data-sadik-hint><span>Scroll down</span><i aria-hidden="true"></i></p>
   </div>
 </section>
 
@@ -74,12 +74,52 @@ const svg = sadikSvg({ id, attrs: 'class="sadik__svg" preserveAspectRatio="xMidY
   }
   .sadik__hint {
     position: absolute;
-    z-index: 1;
+    z-index: 2;
     left: 50%;
-    bottom: var(--margin);
+    bottom: max(var(--margin, 24px), 24px);
     translate: -50% 0;
-    color: rgb(239 237 232 / 0.6);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    font: 500 13px/1 ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #ece7da;
     white-space: nowrap;
+    pointer-events: none;
+    animation: sadik-hint-in 0.9s 0.6s both ease-out;
+  }
+  /* Reste lisible quand une pièce passe dessous */
+  .sadik__hint :global(span) {
+    padding: 8px 6px 8px 10px;
+    background: rgb(15 17 14 / 0.72);
+  }
+  /* Fil qui descend : invite à faire défiler */
+  .sadik__hint :global(i) {
+    position: relative;
+    width: 1px;
+    height: 44px;
+    overflow: hidden;
+    background: rgb(236 231 218 / 0.2);
+  }
+  .sadik__hint :global(i)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #f89000;
+    animation: sadik-hint-line 1.6s infinite cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  @keyframes sadik-hint-in {
+    from { opacity: 0; transform: translateY(8px); }
+  }
+  @keyframes sadik-hint-line {
+    0% { transform: translateY(-100%); }
+    60%, 100% { transform: translateY(100%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sadik__hint, .sadik__hint :global(i)::after { animation: none; }
   }
   .sadik:not(.is-live) .sadik__hint {
     display: none;
