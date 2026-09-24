@@ -10,9 +10,9 @@ const CONFIG = {
   // Si renseignée, l'inscription est envoyée directement sans passer par la messagerie.
   endpoint: "",
   // Animations quand l'appareil demande à « réduire les animations » (réglage d'accessibilité) :
-  //  "douces"    → fondus, curseur et compteurs seulement (recommandé)
   //  "completes" → toutes les animations, comme sur un appareil sans ce réglage
-  animationsReduites: "douces",
+  //  "douces"    → fondus, curseur et compteurs seulement (plus doux pour les personnes sensibles au mouvement)
+  animationsReduites: "completes",
 };
 
 const STAGES = {
@@ -393,11 +393,14 @@ function init() {
   ScrollTrigger.config({ ignoreMobileResize: true });
 
   /* ---- Lenis (défilement fluide) */
-  // Uniquement avec une souris : au doigt, le défilement natif est déjà fluide
+  // Souris : lissage de la molette. Tactile : défilement avec inertie (syncTouch).
   let lenis = null;
-  if (window.Lenis && finePointer) {
+  if (window.Lenis) {
     try {
-      lenis = new window.Lenis({ duration: 1.15, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+      lenis = new window.Lenis({
+        duration: 1.15, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        syncTouch: !finePointer, syncTouchLerp: .085, touchInertiaMultiplier: 28,
+      });
       lenis.on("scroll", ScrollTrigger.update);
       gsap.ticker.add((t) => lenis.raf(t * 1000));
       gsap.ticker.lagSmoothing(0);
