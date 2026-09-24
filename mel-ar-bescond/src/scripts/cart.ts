@@ -157,7 +157,32 @@ export function initCart(opts: { lock: (locked: boolean) => void }) {
       .filter((x) => x !== '')
       .join('\n');
     const subject = `Demande de commande — ${fd.get('name')}`;
-    window.location.href = `mailto:${root.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    // la messagerie ne s'ouvre pas partout (navigateur sans client mail, aperçu intégré) :
+    // on affiche toujours le message prêt à copier
+    $<HTMLTextAreaElement>('[data-sent-text]', root).value = `Objet : ${subject}\n\n${body}`;
+    $('[data-sent]', root).hidden = false;
+    root.classList.add('is-sent');
+    gsap.from($$('[data-sent] > *', root), { y: 20, opacity: 0, stagger: 0.06, duration: 0.6, ease: 'power3.out' });
+    try {
+      window.location.href = `mailto:${root.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    } catch {
+      /* pas de messagerie : le texte reste affiché */
+    }
+  });
+
+  const copyLabel = $('[data-sent-copy-label]', root);
+  $('[data-sent-copy]', root).addEventListener('click', () => {
+    const ta = $<HTMLTextAreaElement>('[data-sent-text]', root);
+    const done = () => (copyLabel.textContent = 'Message copié');
+    navigator.clipboard?.writeText(ta.value).then(done, () => {
+      ta.select();
+      copyLabel.textContent = 'Texte sélectionné';
+    }) ?? (ta.select(), done());
+  });
+  $('[data-sent-back]', root).addEventListener('click', () => {
+    $('[data-sent]', root).hidden = true;
+    root.classList.remove('is-sent');
+    copyLabel.textContent = 'Copier le message';
   });
 
   render();

@@ -60,7 +60,7 @@ const nav = [
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: clamp(14px, 1.8vw, 26px) var(--gutter);
+    padding: calc(clamp(14px, 1.8vw, 26px) + env(safe-area-inset-top, 0px)) var(--gutter) clamp(14px, 1.8vw, 26px);
     color: var(--ink);
     transition:
       transform 0.8s var(--ease),

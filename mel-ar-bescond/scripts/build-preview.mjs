@@ -25,6 +25,15 @@ html = html.replace(/\/_astro\/[^"')\s]+/g, (url) => {
 });
 html = html.replace('href="/favicon.svg"', `href="data:image/svg+xml;base64,${readFileSync(join(dist, 'favicon.svg')).toString('base64')}"`);
 
+// page d'artefact : le squelette <html><head><body> est ajouté à la publication
+html = html
+  .replace(/<!doctype html>/i, '')
+  .replace(/<\/?(html|body)[^>]*>/gi, '')
+  .replace(/<\/?head>/gi, '')
+  .replace(/<meta name="viewport"[^>]*>/gi, '')
+  .replace(/<title>[\s\S]*?<\/title>/, '');
+html = `<title>Mel Ar Bescond</title>\n${html}`;
+
 mkdirSync(join(root, 'artifact'), { recursive: true });
 writeFileSync(out, html);
 console.log(`artifact/mel-ar-bescond.html — ${(statSync(out).size / 1024).toFixed(0)} Ko`);

@@ -45,6 +45,17 @@ import Crate from './Crate.astro';
           <textarea name="message" rows="2"></textarea>
         </label>
       </form>
+
+      <div class="sent" data-sent hidden>
+        <p class="script sent__title">Merci !</p>
+        <p>Votre messagerie devrait s’ouvrir avec la demande déjà rédigée. Si rien ne s’ouvre, copiez le message et envoyez-le à :</p>
+        <p class="sent__mail"><span data-sent-mail>{site.email}</span></p>
+        <textarea class="sent__text" id="sent-text" readonly rows="8" data-sent-text aria-label="Texte de la demande"></textarea>
+        <div class="sent__actions">
+          <button type="button" class="btn" data-sent-copy><span class="btn__dot"></span><span data-sent-copy-label>Copier le message</span></button>
+          <button type="button" class="btn btn--ghost" data-sent-back>Modifier</button>
+        </div>
+      </div>
     </div>
 
     <footer class="cart__foot" data-cart-foot>
@@ -279,6 +290,44 @@ import Crate from './Crate.astro';
   }
   .field--choice input {
     accent-color: var(--amber);
+  }
+  .sent {
+    display: grid;
+    gap: 0.9rem;
+    padding-block: 1.4rem;
+  }
+  .sent[hidden] {
+    display: none;
+  }
+  .sent__title {
+    font-size: 3rem;
+    line-height: 1;
+    color: var(--brown);
+  }
+  .sent__mail {
+    font-size: 1.3rem;
+    font-style: italic;
+    user-select: all;
+  }
+  .sent__text {
+    width: 100%;
+    padding: 0.9rem;
+    border-radius: 12px;
+    background: var(--cream);
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    resize: vertical;
+  }
+  .sent__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  :global(.cart.is-sent) .cart__form,
+  :global(.cart.is-sent) .cart__items,
+  :global(.cart.is-sent) .cart__foot {
+    display: none !important;
   }
   .cart__foot {
     padding: 1.2rem 1.6rem calc(1.2rem + env(safe-area-inset-bottom));
