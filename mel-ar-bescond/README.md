@@ -1,7 +1,7 @@
 # Mel Ar Bescond
 
 Site vitrine et demande de commande du miel **Mel Ar Bescond**, récolté à Louargat (Côtes-d’Armor) par Nathalie et Frédéric Baltzer.
-Astro + GSAP (ScrollTrigger, SplitText, MotionPath) + Lenis + OGL (WebGL).
+Astro + GSAP (ScrollTrigger, SplitText) + Lenis. Direction éditoriale sobre : ivoire et encre, photographie, aucune illustration ajoutée en dehors de l’identité (logo, monogramme).
 
 ## Démarrer
 
@@ -14,19 +14,15 @@ npm run preview:file   # page autonome artifact/mel-ar-bescond.html (aperçu à 
 
 ## Ce qu’il y a dans la page
 
-| Section | Effet |
+| Section | Mouvement |
 | --- | --- |
-| Ouverture | alvéole qui se remplit de miel, compteur, rideau qui coule vers le haut |
-| Hero | miel en WebGL qui coule du haut de l’écran, attiré par le curseur ou le doigt, qui s’allonge au défilement ; logo révélé lettre par lettre ; abeille en vol |
-| Bandeau | défilement infini dont la vitesse suit celle du scroll |
-| Manifeste | les mots s’éclairent au défilement, photos en pastilles dans le texte |
-| La maison | photo en arche dévoilée avec parallaxe, signature |
-| Engagements | défilement horizontal épinglé (aussi sur mobile) |
-| La récolte | le fond change de teinte selon la saison, gouttes qui s’étirent |
-| Cristallisation | section épinglée : le miel passe de liquide à cristallisé |
-| Composez votre panier | pots en SVG (teinte, cristallisation) avec inclinaison 3D ; un clic sur une contenance envoie une goutte de miel vers une caisse en bois où le pot tombe ; un clic sur un pot de la caisse le retire |
-| Pastille « Ma demande » | apparaît en bas d’écran dès qu’un pot est choisi, hors de la section panier |
-| Tarifs, terroir, commande, pied de page | tableau des tarifs, carte de Bretagne, étapes, grand logo |
+| Ouverture | le logo apparaît lettre par lettre, un filet se trace, le rideau se lève |
+| Hero | grand logo, puis la photo s’ouvre en plein écran au défilement |
+| Promesse | les mots s’éclairent au fil de la lecture |
+| La maison | photos dévoilées en rideau, parallaxe douce |
+| La récolte | deux saisons en très grand ; au survol, une photo suit le curseur |
+| Commander | une ligne par miel, une case par contenance ; le panier se compose avec les photos des pots |
+| Le terroir, pied de page | faits du lieu-dit, grand logo |
 
 Défilement doux Lenis aussi au tactile (`syncTouch`). Si l’utilisateur a activé « réduire les animations », Lenis, l’ouverture et les boucles sont désactivés.
 
@@ -50,11 +46,13 @@ Il suffit de déposer un fichier dans `src/assets/photos/` avec l’un des noms 
 
 | Nom | Emplacement | Photo du shooting conseillée |
 | --- | --- | --- |
-| `duo` | grande photo « La maison » | les deux apiculteurs devant la ruche |
-| `ruche` | engagement « Production limitée » | gros plan des cadres et des abeilles |
-| `fleur` | engagement « Locale », pastille du manifeste | abeille sur une fleur de prunier |
-| `recolte` | engagement « Familiale », pastille du manifeste | le couteau dans le cadre de miel |
-| `tarifs` | fond du tableau des tarifs | au choix |
+| `hero` (ou `duo`) | grande photo d’ouverture | les deux apiculteurs devant la ruche |
+| `recolte` | grande photo « La maison » | le couteau dans le cadre de miel |
+| `ruche` | petite photo « La maison » et grand bandeau du terroir | gros plan des cadres et des abeilles |
+| `fleur` | saison Printemps | abeille sur une fleur de prunier |
+| `ete` | saison Été | au choix |
+| `terroir` | grand bandeau du terroir (sinon `ruche`) | paysage, ruches |
+| `pot-seul` | vignette des pots dans le panier | un pot seul, de face |
 | `apiculteurs`, `cuillere`, `filet`, `tamis`, `pot`, `pot2` | recadrages actuels du brand kit | à remplacer si besoin |
 
 Astro génère les versions optimisées au build.
@@ -65,4 +63,6 @@ Astro génère les versions optimisées au build.
 - `src/assets/svg/` : logo (un tracé par lettre, pour l’animation), emblème, abeille, monogramme, hermine, carte de Bretagne, vectorisés depuis le kit (`scripts/vectorize.mjs`) ;
 - `src/assets/photos/` : les recadrages provisoires (`scripts/crops.mjs`).
 
-Polices : Cormorant (titres et texte), Pinyon Script (touches manuscrites), Exo 2 (petites capitales), toutes auto-hébergées via Fontsource.
+Polices : Cormorant (titres et texte) et Exo 2 (petites capitales), auto-hébergées via Fontsource.
+
+Le grand bandeau du terroir n’apparaît qu’avec une photo du shooting : les recadrages du brand kit sont trop petits pour ce format.

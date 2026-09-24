@@ -1,0 +1,138 @@
+---
+import { Image } from 'astro:assets';
+import { products } from '../data/products';
+import { photo } from '../lib/photos';
+
+// De la plus ancienne à la plus récente saison
+const seasons = [...products].reverse().map((p) => ({
+  ...p,
+  img: p.id.startsWith('printemps') ? photo('fleur', 'apiculteurs') : photo('ete', 'cuillere'),
+}));
+const from = (p: (typeof products)[number]) => Math.min(...Object.values(p.prices).filter((v): v is number => v !== null));
+---
+
+<section class="saisons" id="recolte" data-theme="dark" data-saisons>
+  <div class="wrap">
+    <div class="saisons__head">
+      <p class="label saisons__kicker" data-reveal>La récolte 2026</p>
+      <h2 class="h2" data-split>Deux saisons, <em>deux caractères</em></h2>
+    </div>
+
+    <ul class="saisons__list">
+      {
+        seasons.map((p) => (
+          <li class="season" data-season>
+            <a href="#commander" class="season__link">
+              <span class="season__name" data-split-chars>{p.season}</span>
+              <span class="season__meta">
+                <span class="label season__notes">{p.notes}</span>
+                <span class="season__desc">{p.description}</span>
+                <span class="label season__from">À partir de {from(p)} €</span>
+              </span>
+            </a>
+            <figure class="season__img" data-season-img>
+              <Image src={p.img} alt="" widths={[400, 700]} sizes="(max-width: 800px) 90vw, 22vw" />
+            </figure>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .saisons {
+    background: var(--night);
+    color: var(--ivory);
+    padding-block: clamp(110px, 14vw, 220px);
+  }
+  .saisons__head {
+    display: grid;
+    gap: 1.6rem;
+    margin-bottom: clamp(56px, 8vw, 120px);
+    max-width: 900px;
+  }
+  .saisons__kicker {
+    color: color-mix(in srgb, var(--ivory) 55%, transparent);
+  }
+  .saisons__head .h2 em {
+    color: var(--gold);
+  }
+  .saisons__list {
+    list-style: none;
+    border-top: 1px solid var(--night-line);
+  }
+  .season {
+    position: relative;
+    border-bottom: 1px solid var(--night-line);
+  }
+  .season__link {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    gap: 2rem;
+    align-items: center;
+    padding-block: clamp(28px, 4vw, 56px);
+  }
+  .season__name {
+    font-size: var(--fs-giant);
+    line-height: 0.9;
+    font-weight: 300;
+    font-style: italic;
+    letter-spacing: -0.03em;
+    transition: transform 0.9s var(--ease), color 0.6s var(--ease);
+  }
+  .season__name :global(.char) {
+    display: inline-block;
+  }
+  .season__link:hover .season__name {
+    transform: translateX(0.12em);
+    color: var(--gold);
+  }
+  .season__meta {
+    display: grid;
+    gap: 0.9rem;
+    max-width: 30rem;
+  }
+  .season__notes,
+  .season__from {
+    color: color-mix(in srgb, var(--ivory) 55%, transparent);
+  }
+  .season__desc {
+    font-size: var(--fs-lead);
+    line-height: 1.35;
+    font-weight: 300;
+  }
+  /* Image qui suit le curseur (bureau) */
+  .season__img {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 5;
+    width: clamp(220px, 20vw, 340px);
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+  }
+  .season__img :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (hover: none), (max-width: 800px) {
+    .season__link {
+      grid-template-columns: 1fr;
+      gap: 1.2rem;
+    }
+    .season__img {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      opacity: 1;
+      visibility: visible;
+      margin-bottom: 2rem;
+    }
+  }
+</style>

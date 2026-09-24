@@ -1,37 +1,11 @@
 ---
-// Écran d'ouverture : un alvéole se remplit de miel, puis le rideau coule vers le haut.
+// Ouverture : le logo apparaît, un filet se trace, le rideau se lève.
+import logo from '../assets/svg/logo.svg?raw';
 ---
 
 <div class="loader" data-loader aria-hidden="true">
-  <div class="loader__inner">
-    <svg class="loader__cell" viewBox="0 0 200 230">
-      <defs>
-        <clipPath id="loader-hex">
-          <path d="M100 8 188 58v114l-88 50-88-50V58z"></path>
-        </clipPath>
-        <linearGradient id="loader-honey" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#e9b457"></stop>
-          <stop offset="1" stop-color="#a8641a"></stop>
-        </linearGradient>
-      </defs>
-      <g clip-path="url(#loader-hex)">
-        <g data-loader-fill>
-          <path
-            data-loader-wave
-            fill="url(#loader-honey)"
-            d="M-200 20 Q-150 4 -100 20 T0 20 T100 20 T200 20 T300 20 T400 20 V400 H-200Z"></path>
-        </g>
-      </g>
-      <path class="loader__stroke" data-loader-stroke d="M100 8 188 58v114l-88 50-88-50V58z"></path>
-    </svg>
-    <p class="loader__word script" data-loader-word>Mel</p>
-    <p class="loader__count label"><span data-loader-count>000</span> — Récolte 2026</p>
-  </div>
-  <svg class="loader__drips" viewBox="0 0 1440 160" preserveAspectRatio="none" data-loader-drips>
-    <path
-      d="M0 0H1440V40C1400 40 1395 70 1380 95 1368 118 1344 118 1334 96 1318 62 1300 40 1240 40 1180 40 1170 58 1160 72 1150 88 1128 88 1120 70 1105 45 1080 40 1000 40 920 40 905 70 896 110 888 146 858 146 850 110 842 72 830 40 760 40 690 40 680 56 672 66 662 80 642 80 634 64 622 44 600 40 520 40 440 40 428 66 420 90 410 118 384 118 376 90 366 56 350 40 280 40 210 40 200 60 190 78 180 96 158 96 150 76 138 50 120 40 60 40H0Z"
-      fill="currentColor"></path>
-  </svg>
+  <div class="loader__logo" data-loader-logo set:html={logo} />
+  <div class="loader__bar"><i data-loader-bar></i></div>
 </div>
 
 <style>
@@ -39,53 +13,40 @@
     position: fixed;
     inset: 0;
     z-index: 100;
-    color: var(--night);
     display: grid;
     place-items: center;
-    pointer-events: all;
-  }
-  .loader::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: currentColor;
+    align-content: center;
+    gap: 2.4rem;
+    background: var(--night);
+    color: var(--ivory);
   }
   :global(html:not(.js)) .loader {
     display: none;
   }
-  .loader__inner {
-    position: relative;
-    display: grid;
-    justify-items: center;
-    gap: 1.2rem;
-    color: var(--cream);
+  .loader__logo {
+    width: min(64vw, 380px);
   }
-  .loader__cell {
-    width: clamp(90px, 14vw, 140px);
+  .loader__logo :global(svg) {
+    width: 100%;
+    height: auto;
     overflow: visible;
   }
-  .loader__stroke {
-    fill: none;
-    stroke: var(--gold);
-    stroke-width: 1.2;
+  .loader__logo :global(.glyph) {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
   }
-  .loader__word {
-    font-size: clamp(2.8rem, 6vw, 4.4rem);
-    line-height: 1;
-    color: var(--gold);
-    margin-top: -0.4rem;
+  .loader__bar {
+    position: relative;
+    width: min(64vw, 380px);
+    height: 1px;
+    background: var(--night-line);
+    overflow: hidden;
   }
-  .loader__count {
-    color: color-mix(in srgb, var(--cream) 70%, transparent);
-    font-variant-numeric: tabular-nums;
-  }
-  .loader__drips {
+  .loader__bar i {
     position: absolute;
-    left: 0;
-    top: 100%;
-    width: 100%;
-    height: clamp(60px, 12vw, 160px);
-    margin-top: -1px;
-    transform-origin: top;
+    inset: 0;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
   }
 </style>

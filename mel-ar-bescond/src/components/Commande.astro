@@ -1,0 +1,318 @@
+---
+import { getImage } from 'astro:assets';
+import { products, sizes } from '../data/products';
+import { photo } from '../lib/photos';
+
+// vignette du pot utilisée pour composer le panier
+const thumb = await getImage({ src: photo('pot-seul', 'pot'), width: 240, format: 'webp' });
+const label = (s: string) => ({ '250g': '250 g', '500g': '500 g', '1kg': '1 kg' })[s] ?? s;
+---
+
+<section class="commande" id="commander" data-commande>
+  <div class="wrap">
+    <header class="commande__head">
+      <p class="label muted" data-reveal>Demande de commande</p>
+      <h2 class="display commande__title" data-split>Composez <em>votre panier</em></h2>
+      <p class="muted commande__intro" data-reveal>
+        Aucun paiement en ligne. Choisissez vos pots, envoyez votre demande : nous vous rappelons pour le retrait à Louargat.
+      </p>
+    </header>
+
+    <div class="commande__grid">
+      <div class="commande__list">
+        {
+          products.map((p) => (
+            <article class="row" data-reveal>
+              <div class="row__name">
+                <h3>
+                  {p.name} <span>{p.year}</span>
+                </h3>
+                <p class="label muted">{p.notes}</p>
+              </div>
+              <div class="row__sizes" role="group" aria-label={`Ajouter un pot ${p.name}`}>
+                {sizes.map((s) =>
+                  p.prices[s] === null ? (
+                    <span class="size is-out">
+                      <span class="size__w">{label(s)}</span>
+                      <span class="size__p">Épuisé</span>
+                    </span>
+                  ) : (
+                    <button type="button" class="size" data-add={p.id} data-size={s} aria-label={`Ajouter un pot ${p.name} de ${label(s)}, ${p.prices[s]} euros`}>
+                      <span class="size__w">{label(s)}</span>
+                      <span class="size__p">{p.prices[s]} €</span>
+                      <span class="size__plus" aria-hidden="true" />
+                    </button>
+                  ),
+                )}
+              </div>
+            </article>
+          ))
+        }
+        <p class="label muted commande__note" data-reveal>
+          Le miel se cristallise naturellement, gage de qualité. À conserver dans un endroit frais et sec.
+        </p>
+      </div>
+
+      <aside class="basket" data-basket data-thumb={thumb.src} aria-label="Votre panier">
+        <div class="basket__top">
+          <p class="label">Votre panier</p>
+          <p class="label muted"><span data-cart-count>0</span> pot(s)</p>
+        </div>
+        <div class="basket__tray" data-tray>
+          <p class="basket__empty" data-tray-empty>Vos pots apparaîtront ici.</p>
+          <div class="basket__jars" data-tray-jars aria-live="polite"></div>
+        </div>
+        <p class="basket__hint label muted">Touchez un pot pour le retirer</p>
+        <div class="basket__foot">
+          <p class="basket__total"><span class="label muted">Estimation</span> <span data-cart-total>0 €</span></p>
+          <button type="button" class="btn" data-cart-open data-basket-send disabled>Envoyer ma demande</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  .commande {
+    padding-block: clamp(110px, 14vw, 220px);
+  }
+  .commande__head {
+    display: grid;
+    gap: 1.6rem;
+    margin-bottom: clamp(56px, 7vw, 110px);
+  }
+  .commande__title {
+    font-size: var(--fs-h1);
+  }
+  .commande__title em {
+    color: var(--gold);
+  }
+  .commande__intro {
+    max-width: 36rem;
+  }
+  .commande__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: clamp(32px, 6vw, 110px);
+    align-items: start;
+  }
+  .commande__list {
+    border-top: 1px solid var(--line);
+  }
+  .row {
+    display: grid;
+    gap: 1.4rem;
+    padding-block: clamp(26px, 3vw, 40px);
+    border-bottom: 1px solid var(--line);
+  }
+  .row__name {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .row__name h3 {
+    font-size: var(--fs-h2);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1;
+  }
+  .row__name h3 span {
+    font-style: normal;
+    color: var(--ink-soft);
+  }
+  .row__sizes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .size {
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: 0.15rem;
+    padding: 1rem 1.1rem;
+    text-align: left;
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition:
+      background 0.5s var(--ease),
+      color 0.5s var(--ease),
+      box-shadow 0.5s var(--ease);
+  }
+  button.size:hover,
+  button.size:focus-visible {
+    background: var(--ink);
+    color: var(--ivory);
+    box-shadow: inset 0 0 0 1px var(--ink);
+  }
+  .size__w {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .size__p {
+    font-size: 1.35rem;
+    font-weight: 400;
+  }
+  .size__plus {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 11px;
+    height: 11px;
+    background:
+      linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat,
+      linear-gradient(currentColor, currentColor) center / 1px 100% no-repeat;
+    opacity: 0.6;
+    transition: transform 0.5s var(--ease);
+  }
+  button.size:hover .size__plus {
+    transform: rotate(90deg);
+    opacity: 1;
+  }
+  .size.is-out {
+    color: color-mix(in srgb, var(--ink) 35%, transparent);
+  }
+  .size.is-out .size__p {
+    font-family: var(--sans);
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: line-through;
+    padding-top: 0.45rem;
+  }
+  .commande__note {
+    padding-top: 1.6rem;
+    max-width: 34rem;
+    line-height: 1.8;
+  }
+
+  /* Panier visuel */
+  .basket {
+    position: sticky;
+    top: 110px;
+    display: grid;
+    gap: 1.2rem;
+    padding: clamp(20px, 2.4vw, 32px);
+    background: var(--paper);
+  }
+  .basket__top {
+    display: flex;
+    justify-content: space-between;
+  }
+  .basket__tray {
+    position: relative;
+    min-height: 220px;
+    display: flex;
+    align-items: flex-end;
+    padding: 1.4rem 1rem 0;
+    border-bottom: 1px solid var(--ink);
+    overflow: hidden;
+  }
+  .basket__empty {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 1.4rem;
+    font-style: italic;
+    font-weight: 300;
+    color: var(--ink-soft);
+    transition: opacity 0.6s var(--ease);
+    pointer-events: none;
+  }
+  :global(html.has-items) .basket__empty {
+    opacity: 0;
+  }
+  .basket__jars {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+  }
+  .basket__jars :global(.pj) {
+    position: relative;
+    flex: none;
+    width: 52px;
+    height: 92px;
+    overflow: hidden;
+    cursor: pointer;
+    transform-origin: 50% 100%;
+    box-shadow: -3px 0 8px rgb(23 18 13 / 0.18);
+    transition: margin 0.6s var(--ease);
+  }
+  .basket__jars :global(.pj img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 30%;
+  }
+  .basket__jars :global(.pj--250g) {
+    width: 40px;
+    height: 70px;
+  }
+  .basket__jars :global(.pj--1kg) {
+    width: 64px;
+    height: 116px;
+  }
+  .basket__jars :global(.pj--printemps img) {
+    filter: brightness(1.14) saturate(0.55) sepia(0.12);
+  }
+  .basket__jars :global(.pj::after) {
+    content: attr(data-cap);
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0.3rem 0;
+    background: rgb(23 18 13 / 0.72);
+    color: var(--ivory);
+    font-family: var(--sans);
+    font-size: 0.5rem;
+    letter-spacing: 0.12em;
+    text-align: center;
+    text-transform: uppercase;
+    transform: translateY(100%);
+    transition: transform 0.4s var(--ease);
+  }
+  .basket__jars :global(.pj:hover::after) {
+    transform: translateY(0);
+  }
+  .basket__jars :global(.pj-more) {
+    align-self: center;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    padding-inline: 0.6rem;
+  }
+  .basket__hint {
+    font-size: 0.6rem;
+  }
+  .basket__foot {
+    display: grid;
+    gap: 1rem;
+  }
+  .basket__total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 2rem;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  @media (max-width: 900px) {
+    .commande__grid {
+      grid-template-columns: 1fr;
+    }
+    .basket {
+      position: relative;
+      top: 0;
+    }
+  }
+</style>

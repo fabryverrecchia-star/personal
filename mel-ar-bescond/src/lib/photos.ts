@@ -15,3 +15,11 @@ export function photo(name: string, ...fallbacks: string[]): ImageMetadata {
   }
   throw new Error(`Photo introuvable : ${[name, ...fallbacks].join(', ')}`);
 }
+
+/** Photo du shooting si elle a été déposée, sinon undefined (pour les grands formats). */
+export function maybe(...names: string[]): ImageMetadata | undefined {
+  for (const n of names) {
+    const img = byName.get(n);
+    if (img) return img;
+  }
+}

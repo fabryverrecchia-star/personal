@@ -16,7 +16,7 @@ const { title = `${site.name} — ${site.tagline}`, description = site.descripti
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#f2ebdf" />
+    <meta name="theme-color" content="#f7f3ec" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -26,7 +26,7 @@ const { title = `${site.name} — ${site.tagline}`, description = site.descripti
       document.documentElement.classList.add('js');
     </script>
   </head>
-  <body class="is-loading">
+  <body>
     <slot />
     <div class="grain" aria-hidden="true"></div>
   </body>

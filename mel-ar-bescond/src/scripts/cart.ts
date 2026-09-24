@@ -1,4 +1,4 @@
-// Demande de commande : panier visuel (caisse), stockage local, envoi de la demande par e-mail.
+// Demande de commande : panier visuel (vraies photos de pots), stockage local, envoi de la demande par e-mail.
 // Pas de paiement : la demande part chez Nathalie et Frédéric, qui rappellent le client.
 import { gsap } from 'gsap';
 import { products, type Size } from '../data/products';
@@ -10,7 +10,7 @@ export interface Line {
 }
 
 const KEY = 'mab-cart-v1';
-const MAX_JARS = 18; // pots dessinés dans la caisse, au-delà : pastille « +n »
+const MAX_JARS = 14; // pots montrés dans le panier, au-delà : « +n »
 const $ = <T extends Element = HTMLElement>(s: string, root: ParentNode = document) => root.querySelector<T>(s)!;
 const $$ = <T extends Element = HTMLElement>(s: string, root: ParentNode = document) => [...root.querySelectorAll<T>(s)];
 const product = (id: string) => products.find((p) => p.id === id)!;
@@ -75,14 +75,13 @@ export function initCart(opts: { lock: (locked: boolean) => void }) {
         { xPercent: 0, yPercent: 0, duration: 0.8, ease: 'expo.out' },
         0,
       )
-      .from($$('.cart__head, .cart__crate, [data-cart-items] li, .cart__empty > *, .cart__form > *, .cart__foot', root), {
+      .from($$('.cart__head, [data-cart-items] li, .cart__empty > *, .cart__form > *, .cart__foot', root), {
         y: 30,
         opacity: 0,
         stagger: 0.04,
         duration: 0.6,
         ease: 'power3.out',
-      }, 0.15)
-      .from($$('.mj', root), { y: -80, opacity: 0, stagger: 0.04, duration: 0.9, ease: 'bounce.out' }, 0.3);
+      }, 0.15);
     root.setAttribute('aria-hidden', 'false');
     opts.lock(true);
     setTimeout(() => $<HTMLButtonElement>('.cart__x', root).focus({ preventScroll: true }), 300);
@@ -104,14 +103,14 @@ export function initCart(opts: { lock: (locked: boolean) => void }) {
 
   document.addEventListener('click', (e) => {
     const t = e.target as HTMLElement;
-    const jar = t.closest<HTMLElement>('.mj');
+    const jar = t.closest<HTMLElement>('.pj');
     if (jar) {
       // retirer un pot de la caisse
       // c'est le pot touché qui s'en va : il échange sa clé avec le dernier pot de la même sorte
       const [id, size] = jar.dataset.key!.split('|');
       const last = `${id}|${size}|${(lines.find((l) => l.id === id && l.size === size)?.qty ?? 1) - 1}`;
       const box = jar.parentElement!;
-      const other = box.querySelector<HTMLElement>(`.mj[data-key="${last}"]`);
+      const other = box.querySelector<HTMLElement>(`.pj[data-key="${last}"]`);
       if (other && other !== jar) [other.dataset.key, jar.dataset.key] = [jar.dataset.key, last];
       change(id, size as Size, -1);
       return;
@@ -189,50 +188,47 @@ export function initCart(opts: { lock: (locked: boolean) => void }) {
   return { show, hide };
 }
 
-const miniJar = (id: string, size: Size, key: string) => {
+const thumb = () => document.querySelector<HTMLElement>('[data-basket]')?.dataset.thumb ?? '';
+const tint = (id: string) => (id.startsWith('printemps') ? 'is-printemps' : '');
+
+const photoJar = (id: string, size: Size, key: string) => {
   const p = product(id);
-  return `<button type="button" class="mj mj--${size}" data-key="${key}" aria-label="Retirer un pot ${p.name} ${sizeLabel(size)}">
-    <svg viewBox="0 0 40 52"><rect x="5" y="1" width="30" height="9" rx="2.5" fill="#15100c"/>
-    <rect x="3" y="9" width="34" height="42" rx="7" fill="url(#mj-${id})"/>
-    <ellipse cx="20" cy="31" rx="11.5" ry="9.5" fill="#f4ecdc"/>
-    <text x="20" y="33.5" text-anchor="middle" font-family="Pinyon Script, cursive" font-size="7" fill="#2a1f16">${p.name}</text>
-    <rect x="7" y="13" width="2.6" height="32" rx="1.3" fill="#fff" opacity=".35"/></svg></button>`;
+  return `<button type="button" class="pj pj--${size} ${id.startsWith('printemps') ? 'pj--printemps' : ''}" data-key="${key}"
+    data-cap="${p.name} · ${sizeLabel(size)}" aria-label="Retirer un pot ${p.name} ${sizeLabel(size)}"><img src="${thumb()}" alt=""></button>`;
 };
 
-// Pots dessinés dans chaque caisse : on n'anime que ceux qui arrivent ou partent
-function renderCrates() {
+// Pots du panier visuel : on n'anime que ceux qui arrivent ou partent
+function renderTrays() {
   const keys: [string, Line][] = [];
   for (const l of lines) for (let n = 0; n < l.qty; n++) keys.push([`${l.id}|${l.size}|${n}`, l]);
   const shown = keys.slice(0, MAX_JARS);
   const extra = keys.length - shown.length;
 
-  $$('[data-crate-jars]').forEach((box) => {
-    const existing = new Map($$<HTMLElement>('.mj', box).map((el) => [el.dataset.key!, el]));
+  $$('[data-tray-jars]').forEach((box) => {
+    const existing = new Map($$<HTMLElement>('.pj', box).map((el) => [el.dataset.key!, el]));
     const wanted = new Set(shown.map(([k]) => k));
     existing.forEach((el, k) => {
       if (wanted.has(k)) return;
-      el.classList.add('is-leaving');
       el.dataset.key = `gone-${k}`;
-      gsap.to(el, { y: -60, opacity: 0, rotate: gsap.utils.random(-30, 30), scale: 0.6, duration: 0.45, ease: 'power2.in', onComplete: () => el.remove() });
+      gsap.to(el, { yPercent: 110, opacity: 0, duration: 0.6, ease: 'expo.in', onComplete: () => el.remove() });
     });
     shown.forEach(([k, l], i) => {
       let el = existing.get(k);
       if (!el) {
-        box.insertAdjacentHTML('beforeend', miniJar(l.id, l.size, k));
+        box.insertAdjacentHTML('beforeend', photoJar(l.id, l.size, k));
         el = box.lastElementChild as HTMLElement;
-        const visible = box.getBoundingClientRect().bottom > 0 && box.getBoundingClientRect().top < innerHeight;
-        if (visible)
-          gsap.fromTo(
-            el,
-            { y: -window.innerHeight * 0.45, rotate: gsap.utils.random(-25, 25), opacity: 0 },
-            { y: 0, rotate: gsap.utils.random(-5, 5), opacity: 1, duration: 1.1, ease: 'bounce.out' },
-          );
-        else gsap.set(el, { rotate: gsap.utils.random(-5, 5) });
+        gsap.fromTo(el, { clipPath: 'inset(100% 0 0 0)', y: 30 }, { clipPath: 'inset(0% 0 0 0)', y: 0, duration: 1.1, ease: 'expo.out' });
+        gsap.fromTo(el.querySelector('img'), { scale: 1.4 }, { scale: 1, duration: 1.4, ease: 'expo.out' });
       }
       el.style.order = String(i);
     });
-    box.querySelector('.mj-more')?.remove();
-    if (extra > 0) box.insertAdjacentHTML('beforeend', `<span class="mj-more" style="order:${MAX_JARS}">+${extra}</span>`);
+    box.querySelector('.pj-more')?.remove();
+    if (extra > 0) box.insertAdjacentHTML('beforeend', `<span class="pj-more" style="order:${MAX_JARS}">+${extra}</span>`);
+    // les pots se serrent sur une seule rangée quand la place manque
+    const jars = $$<HTMLElement>('.pj:not([data-key^="gone"])', box);
+    const need = jars.reduce((w, el) => w + el.offsetWidth + 4, 0);
+    const over = jars.length > 1 ? Math.max(0, (need - box.clientWidth + 20) / (jars.length - 1)) : 0;
+    jars.forEach((el, i) => (el.style.marginLeft = i && over ? `${-over}px` : ''));
   });
 }
 
@@ -246,35 +242,25 @@ function render() {
     .map((l, i) => {
       const p = product(l.id);
       return `<li data-i="${i}">
-        <span class="ci-jar" style="--c1:${p.honey[0]};--c2:${p.honey[1]}"><i></i></span>
+        <img class="ci-img ${tint(l.id)}" src="${thumb()}" alt="">
         <div>
           <p class="ci-name">${p.name} ${p.year}</p>
-          <p class="ci-meta">${sizeLabel(l.size)} · ${p.prices[l.size]} € le pot</p>
-          <div class="ci-qty">
-            <button type="button" data-act="minus" aria-label="Retirer un pot">−</button>
-            <span>${l.qty}</span>
-            <button type="button" data-act="plus" aria-label="Ajouter un pot">+</button>
-          </div>
+          <p class="ci-meta">${sizeLabel(l.size)} · ${price(l)} €</p>
         </div>
-        <div><p class="ci-price">${price(l)}€</p><button type="button" class="ci-rm" data-act="rm">Retirer</button></div>
+        <div class="ci-qty">
+          <button type="button" data-act="minus" aria-label="Retirer un pot">−</button>
+          <span>${l.qty}</span>
+          <button type="button" data-act="plus" aria-label="Ajouter un pot">+</button>
+        </div>
       </li>`;
     })
     .join('');
 
   const n = count();
-  $$('[data-cart-total]').forEach((el) => (el.textContent = `${total()}€`));
+  $$('[data-cart-total]').forEach((el) => (el.textContent = `${total()} €`));
   $$('[data-cart-count]').forEach((el) => (el.textContent = String(n)));
-  $$('[data-crate-count]').forEach((el) => (el.textContent = String(n)));
-  $$('[data-crate-word]').forEach((el) => (el.textContent = n > 1 ? 'pots' : 'pot'));
-  $$<HTMLButtonElement>('[data-crate-send]').forEach((b) => (b.disabled = !has));
-  $$('[data-dock-jars]').forEach(
-    (el) =>
-      (el.innerHTML = lines
-        .slice(0, 4)
-        .map((l) => `<i style="--c1:${product(l.id).honey[0]};--c2:${product(l.id).honey[1]}"></i>`)
-        .join('')),
-  );
-  renderCrates();
+  $$<HTMLButtonElement>('[data-basket-send]').forEach((b) => (b.disabled = !has));
+  renderTrays();
 }
 
 export function addToCart(id: string, size: Size, qty = 1) {

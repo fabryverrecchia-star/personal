@@ -1,6 +1,5 @@
 ---
 import { site } from '../site.config';
-import Crate from './Crate.astro';
 ---
 
 <div class="cart" data-cart aria-hidden="true" data-email={site.email}>
@@ -8,73 +7,66 @@ import Crate from './Crate.astro';
   <aside class="cart__panel" role="dialog" aria-modal="true" aria-labelledby="cart-title" data-cart-panel>
     <header class="cart__head">
       <h2 id="cart-title" class="cart__title">Ma <em>demande</em></h2>
-      <button class="cart__x" type="button" data-cart-close aria-label="Fermer"><span></span><span></span></button>
+      <button class="cart__x label" type="button" data-cart-close>Fermer</button>
     </header>
 
     <div class="cart__scroll" data-lenis-prevent>
-      <div class="cart__crate"><Crate compact /></div>
-      <p class="cart__empty" data-cart-empty>
-        <span class="muted">Déposez quelques pots dans votre panier, puis revenez ici pour nous envoyer votre demande.</span>
-        <a href="#boutique" class="btn" data-cart-close>Composer mon panier</a>
-      </p>
+      <div class="cart__empty" data-cart-empty>
+        <p class="muted">Votre panier est vide. Choisissez vos pots, puis revenez ici pour nous envoyer votre demande.</p>
+        <a href="#commander" class="cta" data-cart-close>Composer mon panier <span class="cta__line"></span></a>
+      </div>
       <ul class="cart__items" data-cart-items></ul>
 
       <form class="cart__form" id="cart-form" data-cart-form>
-        <p class="label cart__form-h">Pour vous rappeler</p>
+        <p class="label muted">Pour vous rappeler</p>
         <label class="field">
-          <span class="label">Nom &amp; prénom</span>
-          <input name="name" required autocomplete="name" />
+          <span class="label">Nom et prénom</span>
+          <input id="f-name" name="name" required autocomplete="name" />
         </label>
-        <div class="field-row">
-          <label class="field">
-            <span class="label">Téléphone</span>
-            <input name="phone" type="tel" required autocomplete="tel" />
-          </label>
-          <label class="field">
-            <span class="label">E-mail</span>
-            <input name="email" type="email" autocomplete="email" />
-          </label>
-        </div>
+        <label class="field">
+          <span class="label">Téléphone</span>
+          <input id="f-phone" name="phone" type="tel" required autocomplete="tel" />
+        </label>
+        <label class="field">
+          <span class="label">E-mail (facultatif)</span>
+          <input id="f-email" name="email" type="email" autocomplete="email" />
+        </label>
         <fieldset class="field field--choice">
           <legend class="label">Récupération</legend>
-          <label><input type="radio" name="pickup" value="Retrait à Louargat" checked /> Retrait à Louargat</label>
-          <label><input type="radio" name="pickup" value="Remise en main propre, à convenir" /> À convenir</label>
+          <label><input id="f-pick-1" type="radio" name="pickup" value="Retrait à Louargat" checked /> Retrait à Louargat</label>
+          <label><input id="f-pick-2" type="radio" name="pickup" value="Remise en main propre, à convenir" /> À convenir</label>
         </fieldset>
         <label class="field">
           <span class="label">Message (facultatif)</span>
-          <textarea name="message" rows="2"></textarea>
+          <textarea id="f-msg" name="message" rows="2"></textarea>
         </label>
       </form>
 
       <div class="sent" data-sent hidden>
-        <p class="script sent__title">Merci !</p>
-        <p>Votre messagerie devrait s’ouvrir avec la demande déjà rédigée. Si rien ne s’ouvre, copiez le message et envoyez-le à :</p>
-        <p class="sent__mail"><span data-sent-mail>{site.email}</span></p>
-        <textarea class="sent__text" id="sent-text" readonly rows="8" data-sent-text aria-label="Texte de la demande"></textarea>
+        <p class="sent__title">Merci.</p>
+        <p class="muted">
+          Votre messagerie devrait s’ouvrir avec la demande déjà rédigée. Si rien ne s’ouvre, copiez le message et
+          envoyez-le à <span class="sent__mail">{site.email}</span>.
+        </p>
+        <textarea class="sent__text" id="sent-text" readonly rows="9" data-sent-text aria-label="Texte de la demande"></textarea>
         <div class="sent__actions">
-          <button type="button" class="btn" data-sent-copy><span class="btn__dot"></span><span data-sent-copy-label>Copier le message</span></button>
-          <button type="button" class="btn btn--ghost" data-sent-back>Modifier</button>
+          <button type="button" class="btn" data-sent-copy><span data-sent-copy-label>Copier le message</span></button>
+          <button type="button" class="btn btn--line" data-sent-back>Modifier</button>
         </div>
       </div>
     </div>
 
-    <footer class="cart__foot" data-cart-foot>
-      <div class="cart__total">
-        <span class="label">Estimation</span>
-        <span class="cart__sum" data-cart-total>0€</span>
-      </div>
-      <button class="btn cart__send" type="submit" form="cart-form" data-cart-send>
-        <span class="btn__dot"></span>Envoyer ma demande
-      </button>
-      <p class="cart__note label">Aucun paiement en ligne · nous vous rappelons</p>
+    <footer class="cart__foot">
+      <p class="cart__total"><span class="label muted">Estimation</span> <span data-cart-total>0 €</span></p>
+      <button class="btn" type="submit" form="cart-form" data-cart-send>Envoyer ma demande</button>
+      <p class="cart__note label muted">Aucun paiement en ligne</p>
     </footer>
   </aside>
 </div>
 
 <button class="dock" type="button" data-cart-open data-dock aria-label="Voir ma demande">
-  <span class="dock__jars" data-dock-jars aria-hidden="true"></span>
-  <span class="dock__txt"><span class="label">Ma demande</span><span class="dock__sum"><span data-cart-count>0</span> pot(s) · <span data-cart-total>0€</span></span></span>
-  <span class="dock__go" aria-hidden="true">→</span>
+  <span class="label">Ma demande</span>
+  <span class="dock__sum"><span data-cart-count>0</span> · <span data-cart-total>0 €</span></span>
 </button>
 
 <style>
@@ -87,9 +79,7 @@ import Crate from './Crate.astro';
   .cart__veil {
     position: absolute;
     inset: 0;
-    background: rgb(22 16 11 / 0.45);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgb(18 14 10 / 0.4);
     opacity: 0;
   }
   .cart__panel {
@@ -97,70 +87,39 @@ import Crate from './Crate.astro';
     top: 0;
     right: 0;
     bottom: 0;
-    width: min(100%, 520px);
-    background: var(--ivory);
+    width: min(100%, 500px);
     display: flex;
     flex-direction: column;
-    border-radius: 24px 0 0 24px;
-    overflow: hidden;
+    background: var(--ivory);
   }
   .cart__head {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 1.6rem 1.6rem 1rem;
+    align-items: baseline;
+    padding: calc(28px + env(safe-area-inset-top, 0px)) 28px 20px;
+    border-bottom: 1px solid var(--line);
   }
   .cart__title {
-    font-size: 2.6rem;
-    font-weight: 400;
+    font-size: 2.4rem;
+    font-weight: 300;
     line-height: 1;
   }
   .cart__title em {
-    color: var(--amber);
-  }
-  .cart__x {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    box-shadow: inset 0 0 0 1px currentColor;
-    position: relative;
-    transition: transform 0.5s var(--ease);
-  }
-  .cart__x:hover {
-    transform: rotate(90deg);
-  }
-  .cart__x span {
-    position: absolute;
-    left: 14px;
-    right: 14px;
-    top: 50%;
-    height: 1.2px;
-    background: currentColor;
-    transform: rotate(45deg);
-  }
-  .cart__x span + span {
-    transform: rotate(-45deg);
+    font-style: italic;
+    color: var(--gold);
   }
   .cart__scroll {
     flex: 1;
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 0 1.6rem 1.6rem;
+    padding: 0 28px 28px;
   }
   .cart__empty {
     display: grid;
-    justify-items: start;
-    gap: 0.6rem;
-    padding-block: 2rem;
+    gap: 1.4rem;
+    padding-top: 2rem;
   }
-  .cart__crate {
-    margin: 2.2rem auto 0.4rem;
-    width: 88%;
-  }
-  .cart__empty .btn {
-    margin-top: 1rem;
-  }
-  :global(.has-items) .cart__empty {
+  :global(html.has-items) .cart__empty {
     display: none;
   }
   .cart__items {
@@ -168,161 +127,130 @@ import Crate from './Crate.astro';
   }
   .cart__items :global(li) {
     display: grid;
-    grid-template-columns: 64px 1fr auto;
+    grid-template-columns: 44px 1fr auto;
     gap: 1rem;
     align-items: center;
-    padding: 1rem 0;
-    border-bottom: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+    padding-block: 1.1rem;
+    border-bottom: 1px solid var(--line);
   }
-  .cart__items :global(.ci-jar) {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    background: var(--cream);
+  .cart__items :global(.ci-img) {
+    width: 44px;
+    height: 60px;
+    object-fit: cover;
   }
-  .cart__items :global(.ci-jar i) {
-    width: 26px;
-    height: 32px;
-    border-radius: 6px 6px 9px 9px;
-    background: linear-gradient(160deg, var(--c1), var(--c2));
-    box-shadow: inset 0 6px 0 #1b1511;
+  .cart__items :global(.ci-img.is-printemps) {
+    filter: brightness(1.14) saturate(0.55) sepia(0.12);
   }
   .cart__items :global(.ci-name) {
-    font-size: 1.35rem;
+    font-size: 1.3rem;
     font-style: italic;
+    font-weight: 300;
     line-height: 1.1;
   }
   .cart__items :global(.ci-meta) {
     font-family: var(--sans);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
+    font-size: 0.64rem;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--ink-soft);
+    margin-top: 0.3rem;
   }
   .cart__items :global(.ci-qty) {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    margin-top: 0.4rem;
+    gap: 0.9rem;
     font-family: var(--sans);
-    font-weight: 600;
+    font-size: 0.8rem;
   }
   .cart__items :global(.ci-qty button) {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent);
-  }
-  .cart__items :global(.ci-price) {
-    font-size: 1.4rem;
-    text-align: right;
-  }
-  .cart__items :global(.ci-rm) {
-    display: block;
-    margin-left: auto;
-    font-family: var(--sans);
-    font-size: 0.66rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    text-decoration: underline;
+    width: 26px;
+    height: 26px;
+    box-shadow: inset 0 0 0 1px var(--line);
   }
   .cart__form {
     display: none;
-    gap: 1rem;
-    margin-top: 1.6rem;
+    gap: 1.2rem;
+    margin-top: 2rem;
   }
-  :global(.has-items) .cart__form {
+  :global(html.has-items) .cart__form {
     display: grid;
-  }
-  .cart__form-h {
-    color: var(--amber);
   }
   .field {
     display: grid;
-    gap: 0.35rem;
+    gap: 0.3rem;
     border: 0;
     min-width: 0;
   }
   .field .label,
   .field legend {
-    font-size: 0.62rem;
+    font-size: 0.6rem;
     color: var(--ink-soft);
   }
   .field input,
   .field textarea {
     width: 100%;
-    padding: 0.7rem 0;
-    border-bottom: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--line);
     font-size: 1.15rem;
     outline: none;
     border-radius: 0;
-    transition: border-color 0.3s;
+    transition: border-color 0.4s;
   }
   .field input:focus,
   .field textarea:focus {
-    border-color: var(--honey);
+    border-color: var(--ink);
   }
   .field textarea {
     resize: none;
   }
-  .field-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
   .field--choice {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem 1.2rem;
+    gap: 0.4rem 1.6rem;
   }
   .field--choice legend {
     width: 100%;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
   }
   .field--choice label {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 1.1rem;
+    gap: 0.5rem;
   }
   .field--choice input {
-    accent-color: var(--amber);
+    accent-color: var(--ink);
   }
   .sent {
     display: grid;
-    gap: 0.9rem;
-    padding-block: 1.4rem;
+    gap: 1rem;
+    padding-top: 2rem;
   }
   .sent[hidden] {
     display: none;
   }
   .sent__title {
-    font-size: 3rem;
+    font-size: 2.6rem;
+    font-weight: 300;
+    font-style: italic;
     line-height: 1;
-    color: var(--brown);
   }
   .sent__mail {
-    font-size: 1.3rem;
-    font-style: italic;
+    color: var(--ink);
     user-select: all;
   }
   .sent__text {
     width: 100%;
-    padding: 0.9rem;
-    border-radius: 12px;
-    background: var(--cream);
+    padding: 1rem;
+    background: var(--paper);
     font-family: var(--sans);
-    font-size: 0.85rem;
-    line-height: 1.5;
+    font-size: 0.82rem;
+    line-height: 1.6;
     resize: vertical;
   }
   .sent__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.6rem;
+    gap: 8px;
   }
   :global(.cart.is-sent) .cart__form,
   :global(.cart.is-sent) .cart__items,
@@ -330,114 +258,59 @@ import Crate from './Crate.astro';
     display: none !important;
   }
   .cart__foot {
-    padding: 1.2rem 1.6rem calc(1.2rem + env(safe-area-inset-bottom));
-    border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
     display: grid;
     gap: 0.9rem;
-    background: var(--cream);
+    padding: 20px 28px calc(20px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--line);
+  }
+  :global(html:not(.has-items)) .cart__foot {
+    display: none;
   }
   .cart__total {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-  }
-  .cart__sum {
-    font-size: 2.2rem;
+    font-size: 1.9rem;
+    font-weight: 300;
     line-height: 1;
-  }
-  .cart__send {
-    justify-content: center;
   }
   .cart__note {
     text-align: center;
-    font-size: 0.6rem;
-    color: var(--ink-soft);
-  }
-  :global(html:not(.has-items)) .cart__foot {
-    display: none;
+    font-size: 0.58rem;
   }
 
-  /* Pastille flottante */
+  /* Barre « Ma demande » */
   .dock {
     position: fixed;
     z-index: 58;
     right: var(--gutter);
-    bottom: calc(18px + env(safe-area-inset-bottom));
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
     display: flex;
     align-items: center;
-    gap: 0.9rem;
-    padding: 0.55rem 0.6rem 0.55rem 0.9rem;
-    border-radius: 999px;
+    gap: 1.4rem;
+    padding: 1rem 1.4rem;
     background: var(--ink);
     color: var(--ivory);
-    box-shadow: 0 18px 40px -12px rgb(22 16 11 / 0.55);
-    transform: translateY(160%);
-    transition: transform 0.8s var(--ease);
+    transform: translateY(180%);
+    transition: transform 0.9s var(--ease);
   }
   :global(.dock.is-on) {
     transform: translateY(0);
   }
   :global(html.cart-open) .dock,
   :global(html.menu-open) .dock {
-    transform: translateY(160%);
-  }
-  .dock__jars {
-    display: flex;
-    align-items: flex-end;
-    height: 30px;
-  }
-  .dock__jars :global(i) {
-    width: 16px;
-    height: 20px;
-    margin-left: -6px;
-    border-radius: 3px 3px 5px 5px;
-    background: linear-gradient(160deg, var(--c1), var(--c2));
-    box-shadow:
-      inset 0 4px 0 #0f0b08,
-      0 0 0 1.5px var(--ink);
-  }
-  .dock__jars :global(i:first-child) {
-    margin-left: 0;
-  }
-  .dock__txt {
-    display: grid;
-    line-height: 1.15;
-    text-align: left;
-  }
-  .dock__txt .label {
-    font-size: 0.58rem;
-    color: var(--gold);
+    transform: translateY(180%);
   }
   .dock__sum {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-style: italic;
     white-space: nowrap;
-  }
-  .dock__go {
-    width: 40px;
-    height: 40px;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: var(--honey);
-    color: var(--ink);
-    font-family: var(--sans);
   }
 
   @media (max-width: 560px) {
     .dock {
-      left: 50%;
-      right: auto;
-      translate: -50% 0;
-    }
-    .cart__panel {
-      top: auto;
-      height: 92svh;
-      width: 100%;
-      border-radius: 22px 22px 0 0;
-    }
-    .field-row {
-      grid-template-columns: 1fr;
+      left: var(--gutter);
+      justify-content: space-between;
     }
   }
 </style>

@@ -3,15 +3,8 @@ import logo from '../assets/svg/logo.svg?raw';
 import { site } from '../site.config';
 ---
 
-<footer class="footer" data-theme="dark" data-footer>
+<footer class="footer" data-theme="dark">
   <div class="wrap footer__wrap">
-    <div class="footer__top">
-      <p class="footer__quote">
-        <span class="script">Merci</span> de soutenir une apiculture familiale, locale et responsable.
-      </p>
-      <a href="#top" class="footer__up label" data-magnetic>Haut de page ↑</a>
-    </div>
-
     <div class="footer__cols">
       <div>
         <p class="label footer__h">La maison</p>
@@ -21,80 +14,54 @@ import { site } from '../site.config';
       </div>
       <div>
         <p class="label footer__h">Contact</p>
-        <p><a class="ulink" href={`mailto:${site.email}`}>{site.email}</a></p>
-        {site.phone && <p><a class="ulink" href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a></p>}
-        {site.instagram && <p><a class="ulink" href={site.instagram} target="_blank" rel="noopener">Instagram</a></p>}
+        <p class="footer__mail">{site.email}</p>
+        {site.phone && <p>{site.phone}</p>}
+        {site.instagram && <p><a href={site.instagram} target="_blank" rel="noopener">Instagram</a></p>}
       </div>
       <div>
-        <p class="label footer__h">Explorer</p>
-        <p><a class="ulink" href="#maison">La maison</a></p>
-        <p><a class="ulink" href="#recolte">La récolte 2026</a></p>
-        <p><a class="ulink" href="#boutique">Demande de commande</a></p>
+        <p class="label footer__h">Commander</p>
+        <p>Demande sans paiement en ligne, retrait à Louargat.</p>
+        <p><a href="#commander" class="cta footer__cta">Composer mon panier <span class="cta__line"></span></a></p>
       </div>
     </div>
 
-    <div class="footer__logo" data-footer-logo set:html={logo} aria-label="Mel Ar Bescond" />
+    <div class="footer__logo" data-footer-logo set:html={logo} aria-hidden="true" />
 
     <div class="footer__legal label">
       <span>© {site.harvest} {site.name}</span>
       <span>SIRET {site.siret}</span>
-      <span>Le miel se cristallise naturellement</span>
+      <a href="#top">Haut de page</a>
     </div>
   </div>
 </footer>
 
 <style>
   .footer {
-    position: relative;
     background: var(--night);
-    color: var(--cream);
-    padding-top: clamp(80px, 10vw, 140px);
-    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    color: var(--ivory);
+    padding-top: clamp(90px, 10vw, 150px);
+    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
     overflow: hidden;
   }
   .footer__wrap {
     display: grid;
-    gap: clamp(50px, 7vw, 100px);
-  }
-  .footer__top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 2rem;
-  }
-  .footer__quote {
-    font-size: var(--fs-h3);
-    line-height: 1.2;
-    max-width: 22ch;
-    font-style: italic;
-    font-weight: 350;
-  }
-  .footer__quote .script {
-    font-style: normal;
-    font-size: 1.5em;
-    color: var(--gold);
-  }
-  .footer__up {
-    white-space: nowrap;
-    padding: 1em 1.4em;
-    border-radius: 999px;
-    box-shadow: inset 0 0 0 1px currentColor;
+    gap: clamp(60px, 8vw, 120px);
   }
   .footer__cols {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 2rem;
-    font-size: 1.15rem;
+    font-weight: 300;
   }
   .footer__h {
-    color: var(--gold);
-    margin-bottom: 0.8rem;
+    color: color-mix(in srgb, var(--ivory) 50%, transparent);
+    margin-bottom: 1rem;
   }
-  .footer__cols p {
-    line-height: 1.6;
+  .footer__mail {
+    user-select: all;
   }
-  .footer__logo {
-    color: var(--cream);
+  .footer__cta {
+    margin-top: 1rem;
   }
   .footer__logo :global(svg) {
     width: 100%;
@@ -109,23 +76,16 @@ import { site } from '../site.config';
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 0.6rem 2rem;
+    gap: 0.8rem 2rem;
     padding-top: 1.4rem;
-    border-top: 1px solid color-mix(in srgb, var(--cream) 18%, transparent);
-    color: color-mix(in srgb, var(--cream) 55%, transparent);
-    font-size: 0.64rem;
+    border-top: 1px solid var(--night-line);
+    color: color-mix(in srgb, var(--ivory) 50%, transparent);
   }
 
-  @media (max-width: 700px) {
-    .footer__top {
-      flex-direction: column;
-      align-items: flex-start;
-    }
+  @media (max-width: 800px) {
     .footer__cols {
-      grid-template-columns: 1fr 1fr;
-    }
-    .footer__cols > div:first-child {
-      grid-column: 1 / -1;
+      grid-template-columns: 1fr;
+      gap: 2.4rem;
     }
   }
 </style>

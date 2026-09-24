@@ -1,183 +1,92 @@
 ---
-import bretagne from '../assets/svg/bretagne.svg?raw';
-import hermine from '../assets/svg/hermine.svg?raw';
+import { Image } from 'astro:assets';
+import { maybe } from '../lib/photos';
 import { site } from '../site.config';
+// grand format : affiché seulement avec une photo du shooting (les recadrages du kit sont trop petits)
+const band = maybe('terroir', 'ruche');
 ---
 
-<section class="terroir" id="terroir" data-theme="dark">
-  <div class="terroir__hermine" data-parallax="-0.25" set:html={hermine} aria-hidden="true" />
+<section class="terroir" id="terroir">
+  {
+    band ? (
+      <figure class="terroir__band" data-band>
+        <div class="terroir__img" data-parallax="0.2">
+          <Image src={band} alt="" widths={[800, 1400, 2000]} sizes="100vw" />
+        </div>
+      </figure>
+    ) : (
+      <div class="terroir__rule wrap"><div class="rule" /></div>
+    )
+  }
+
   <div class="wrap terroir__grid">
-    <div class="terroir__txt">
-      <p class="label terroir__kicker" data-reveal>Le terroir</p>
-      <h2 class="display terroir__title" data-split>
-        Né en <em>Bretagne,</em> au pied du Menez Bré
-      </h2>
-      <p class="lead terroir__lead" data-reveal>
-        Nos ruches vivent à Coat ar Bescond, sur la commune de Louargat, entre bocage, landes et talus fleuris. Un paysage
-        breton qui donne à chaque récolte son goût unique.
+    <p class="label muted" data-reveal>Le terroir</p>
+    <div class="terroir__body">
+      <h2 class="h2" data-split>Né en Bretagne, <em>au pied du Menez Bré</em></h2>
+      <p class="lead muted" data-reveal>
+        Nos ruches vivent à Coat ar Bescond, sur la commune de Louargat, entre bocage, landes et talus fleuris.
       </p>
       <dl class="terroir__facts" data-reveal>
-        <div><dt class="label">Lieu-dit</dt><dd>{site.address.street}</dd></div>
-        <div><dt class="label">Commune</dt><dd>{site.address.zip} {site.address.city}</dd></div>
-        <div><dt class="label">Coordonnées</dt><dd>48°34′ N · 3°20′ O</dd></div>
+        <div><dt class="label muted">Lieu-dit</dt><dd>{site.address.street}</dd></div>
+        <div><dt class="label muted">Commune</dt><dd>{site.address.zip} {site.address.city}</dd></div>
+        <div><dt class="label muted">Coordonnées</dt><dd>48°34′ N · 3°20′ O</dd></div>
       </dl>
-    </div>
-
-    <div class="terroir__map" data-map>
-      <div class="terroir__shape" set:html={bretagne} />
-      <span class="terroir__pin" style="left:34.8%;top:26%" data-map-pin>
-        <i></i>
-        <span class="terroir__pin-label">
-          <span class="script">Louargat</span>
-          <span class="label">Côtes-d’Armor</span>
-        </span>
-      </span>
-      <svg class="terroir__rings" viewBox="0 0 100 100" style="left:34.8%;top:26%" aria-hidden="true">
-        <circle cx="50" cy="50" r="12"></circle>
-        <circle cx="50" cy="50" r="26"></circle>
-        <circle cx="50" cy="50" r="42"></circle>
-      </svg>
     </div>
   </div>
 </section>
 
 <style>
   .terroir {
+    padding-bottom: clamp(120px, 16vw, 240px);
+  }
+  .terroir__band {
     position: relative;
+    height: 78svh;
     overflow: hidden;
-    background: var(--night);
-    color: var(--cream);
-    padding-block: clamp(110px, 15vw, 220px);
+    margin-bottom: clamp(80px, 10vw, 160px);
+    background: var(--paper);
   }
-  .terroir__hermine {
+  .terroir__img {
     position: absolute;
-    right: -6vw;
-    top: 4%;
-    width: clamp(220px, 34vw, 520px);
-    color: color-mix(in srgb, var(--gold) 9%, transparent);
-    pointer-events: none;
+    inset: -15% 0;
   }
-  .terroir__hermine :global(svg) {
+  .terroir__img :global(img) {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
+  }
+  .terroir__rule {
+    margin-bottom: clamp(80px, 10vw, 140px);
   }
   .terroir__grid {
-    position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-    gap: clamp(40px, 6vw, 100px);
-    align-items: center;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+    gap: 2rem;
   }
-  .terroir__txt {
+  .terroir__body {
     display: grid;
     gap: 1.8rem;
+    max-width: 900px;
   }
-  .terroir__kicker {
+  .terroir__body .h2 em {
     color: var(--gold);
-  }
-  .terroir__title {
-    font-size: var(--fs-h1);
-  }
-  .terroir__title em {
-    color: var(--gold);
-  }
-  .terroir__lead {
-    color: color-mix(in srgb, var(--cream) 78%, transparent);
-    max-width: 36ch;
   }
   .terroir__facts {
     display: grid;
-    grid-template-columns: repeat(3, auto);
-    justify-content: start;
-    gap: 1rem 2.4rem;
-    margin-top: 1rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
   }
-  .terroir__facts dt {
-    color: var(--gold);
-    margin-bottom: 0.3rem;
+  .terroir__facts div {
+    display: grid;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
   }
   .terroir__facts dd {
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     font-style: italic;
-  }
-  .terroir__map {
-    position: relative;
-  }
-  .terroir__shape {
-    color: var(--cream);
-  }
-  .terroir__shape :global(svg) {
-    width: 100%;
-    height: auto;
-    filter: drop-shadow(0 30px 60px rgb(0 0 0 / 0.45));
-  }
-  .terroir__shape :global(path) {
-    fill: color-mix(in srgb, var(--cream) 92%, var(--gold));
-  }
-  .terroir__pin {
-    position: absolute;
-    z-index: 2;
-    width: 0;
-    height: 0;
-  }
-  .terroir__pin i {
-    position: absolute;
-    width: 18px;
-    height: 18px;
-    left: -9px;
-    top: -9px;
-    background: var(--amber);
-    transform: rotate(45deg);
-    box-shadow: 0 0 0 5px rgb(168 100 26 / 0.25);
-  }
-  .terroir__pin-label {
-    position: absolute;
-    left: 18px;
-    top: 10px;
-    display: grid;
-    white-space: nowrap;
-    color: var(--ink);
-  }
-  .terroir__pin-label .script {
-    font-size: clamp(1.8rem, 3vw, 2.8rem);
-    line-height: 1;
-    color: var(--brown);
-  }
-  .terroir__pin-label .label {
-    font-size: 0.6rem;
-    color: var(--ink-soft);
-  }
-  .terroir__rings {
-    position: absolute;
-    width: 40%;
-    transform: translate(-50%, -50%);
-    overflow: visible;
-    pointer-events: none;
-  }
-  .terroir__rings circle {
-    fill: none;
-    stroke: var(--amber);
-    stroke-width: 0.4;
-    transform-origin: center;
-    transform-box: fill-box;
-    animation: ring 3.6s var(--ease) infinite;
-    opacity: 0;
-  }
-  .terroir__rings circle:nth-child(2) {
-    animation-delay: 1.2s;
-  }
-  .terroir__rings circle:nth-child(3) {
-    animation-delay: 2.4s;
-  }
-  @keyframes ring {
-    0% {
-      transform: scale(0.3);
-      opacity: 0.9;
-    }
-    100% {
-      transform: scale(1.4);
-      opacity: 0;
-    }
+    font-weight: 300;
   }
 
   @media (max-width: 800px) {
@@ -185,7 +94,11 @@ import { site } from '../site.config';
       grid-template-columns: 1fr;
     }
     .terroir__facts {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
+      gap: 0.8rem;
+    }
+    .terroir__band {
+      height: 56svh;
     }
   }
 </style>
