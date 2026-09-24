@@ -1,7 +1,7 @@
 # Mel Ar Bescond
 
 Site vitrine et demande de commande du miel **Mel Ar Bescond**, récolté à Louargat (Côtes-d’Armor) par Nathalie et Frédéric Baltzer.
-Astro + GSAP (ScrollTrigger, SplitText) + Lenis. Direction éditoriale sobre : ivoire et encre, photographie, aucune illustration ajoutée en dehors de l’identité (logo, monogramme).
+Astro + GSAP (ScrollTrigger, SplitText) + Lenis + OGL (images en WebGL). Direction éditoriale sobre : ivoire et encre, photographie, aucune illustration ajoutée en dehors de l’identité (logo, monogramme).
 
 ## Démarrer
 
@@ -16,13 +16,15 @@ npm run preview:file   # page autonome artifact/mel-ar-bescond.html (aperçu à 
 
 | Section | Mouvement |
 | --- | --- |
-| Ouverture | le logo apparaît lettre par lettre, un filet se trace, le rideau se lève |
-| Hero | grand logo, puis la photo s’ouvre en plein écran au défilement |
+| Ouverture | sur fond blanc, l’emblème se dessine : la corde s’enroule autour de l’anneau, les boucles se nouent, puis l’abeille apparaît |
+| Hero | grand logo ; diaporama WebGL des 4 photos du shooting (transition liquide), le cadre s’ouvre en plein écran au défilement |
 | Promesse | les mots s’éclairent au fil de la lecture |
-| La maison | photos dévoilées en rideau, parallaxe douce |
+| La maison | photos en WebGL : révélation organique, parallaxe, courbure au défilement, ondulation au survol |
 | La récolte | deux saisons en très grand ; au survol, une photo suit le curseur |
 | Commander | une ligne par miel, une case par contenance ; le panier se compose avec les photos des pots |
 | Le terroir, pied de page | faits du lieu-dit, grand logo |
+
+Toutes les photos (sauf les vignettes du panier) sont redessinées en WebGL par `src/scripts/gl.ts` sur un canvas fixe calé sur les `<figure data-gl>` ; sans WebGL, les images normales s’affichent.
 
 Défilement doux Lenis aussi au tactile (`syncTouch`). Si l’utilisateur a activé « réduire les animations », Lenis, l’ouverture et les boucles sont désactivés.
 
@@ -42,18 +44,15 @@ Pas de paiement ni de compte client : le visiteur compose son panier, laisse son
 
 ## Photos
 
-Il suffit de déposer un fichier dans `src/assets/photos/` avec l’un des noms ci-dessous (jpg, png, webp ou avif) : il remplace automatiquement le recadrage provisoire tiré du brand kit (`src/lib/photos.ts`).
+Les photos du shooting sont dans `brand/shooting/` et `src/assets/photos/` : `duo`, `recolte`, `ruche`, `fleur`. Pour en changer, on remplace le fichier en gardant le nom (jpg, png, webp ou avif) ; `src/lib/photos.ts` prend automatiquement la photo du shooting, sinon un recadrage du brand kit.
 
-| Nom | Emplacement | Photo du shooting conseillée |
-| --- | --- | --- |
-| `hero` (ou `duo`) | grande photo d’ouverture | les deux apiculteurs devant la ruche |
-| `recolte` | grande photo « La maison » | le couteau dans le cadre de miel |
-| `ruche` | petite photo « La maison » et grand bandeau du terroir | gros plan des cadres et des abeilles |
-| `fleur` | saison Printemps | abeille sur une fleur de prunier |
-| `ete` | saison Été | au choix |
-| `terroir` | grand bandeau du terroir (sinon `ruche`) | paysage, ruches |
-| `pot-seul` | vignette des pots dans le panier | un pot seul, de face |
-| `apiculteurs`, `cuillere`, `filet`, `tamis`, `pot`, `pot2` | recadrages actuels du brand kit | à remplacer si besoin |
+| Nom | Emplacement |
+| --- | --- |
+| `duo`, `recolte`, `ruche`, `fleur` | diaporama du hero (dans cet ordre) |
+| `duo` / `ruche` | « La maison » (grande / petite photo) |
+| `fleur` / `ete` (sinon `recolte`) | saisons Printemps / Été |
+| `terroir` (sinon `ruche`) | grand bandeau du terroir |
+| `pot-seul` (sinon `pot`) | vignette des pots dans le panier |
 
 Astro génère les versions optimisées au build.
 

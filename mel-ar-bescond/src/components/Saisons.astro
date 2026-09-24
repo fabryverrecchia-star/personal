@@ -6,7 +6,7 @@ import { photo } from '../lib/photos';
 // De la plus ancienne à la plus récente saison
 const seasons = [...products].reverse().map((p) => ({
   ...p,
-  img: p.id.startsWith('printemps') ? photo('fleur', 'apiculteurs') : photo('ete', 'cuillere'),
+  img: p.id.startsWith('printemps') ? photo('fleur', 'apiculteurs') : photo('ete', 'recolte', 'cuillere'),
 }));
 const from = (p: (typeof products)[number]) => Math.min(...Object.values(p.prices).filter((v): v is number => v !== null));
 ---
@@ -30,7 +30,7 @@ const from = (p: (typeof products)[number]) => Math.min(...Object.values(p.price
                 <span class="label season__from">À partir de {from(p)} €</span>
               </span>
             </a>
-            <figure class="season__img" data-season-img>
+            <figure class="season__img" data-season-img data-gl data-gl-nohover data-gl-parallax="0">
               <Image src={p.img} alt="" widths={[400, 700]} sizes="(max-width: 800px) 90vw, 22vw" />
             </figure>
           </li>

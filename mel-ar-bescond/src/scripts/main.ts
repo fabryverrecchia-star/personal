@@ -4,6 +4,7 @@ import { SplitText } from 'gsap/SplitText';
 import { CustomEase } from 'gsap/CustomEase';
 import Lenis from 'lenis';
 import { initCart, addToCart } from './cart';
+import { initGL } from './gl';
 import type { Size } from '../data/products';
 
 gsap.registerPlugin(ScrollTrigger, SplitText, CustomEase);
@@ -100,18 +101,68 @@ const header = $('[data-header]')!;
 /* ───────────── Découpes de texte ───────────── */
 const splits = $$('[data-split]').map((el) => SplitText.create(el, { type: 'lines', mask: 'lines', autoSplit: true }));
 
+/* ───────────── Images WebGL ───────────── */
+const gl = initGL();
+if (gl) gsap.ticker.add(() => {
+  gl.setVelocity(lenis?.velocity ?? 0);
+  gl.tick();
+});
+
 /* ───────────── Ouverture et hero ───────────── */
 const heroGlyphs = $$('[data-hero-logo] .glyph');
+const heroFrame = $('[data-hero-frame]');
+const heroGL = gl?.get(heroFrame);
 gsap.set(heroGlyphs, { yPercent: 40, opacity: 0 });
 gsap.set('[data-hero-fade]', { opacity: 0, y: 16 });
-gsap.set('[data-hero-img]', { scale: 1.18 });
+if (!heroGL) gsap.set('[data-hero-frame] img', { scale: 1.12 });
 
 function heroIntro() {
-  return gsap
-    .timeline()
+  const tl = gsap
+    .timeline({ onComplete: startSlides })
     .to(heroGlyphs, { yPercent: 0, opacity: 1, duration: 1.8, stagger: 0.05, ease: 'expo.out' }, 0)
-    .to('[data-hero-img]', { scale: 1, duration: 2.6, ease: 'silk' }, 0)
     .to('[data-hero-fade]', { opacity: 1, y: 0, duration: 1.4, stagger: 0.08, ease: 'expo.out' }, 0.5);
+  if (heroGL) tl.to(heroGL, { reveal: 1, duration: 2.4, ease: 'power2.out' }, 0.2);
+  else tl.to('[data-hero-frame] img', { scale: 1, duration: 2.6, ease: 'silk' }, 0);
+  return tl;
+}
+
+// diaporama du hero : une photo toutes les 5 s, transition liquide en WebGL (fondu sinon)
+function startSlides() {
+  if (!heroFrame || reduced) return;
+  const imgs = $$('img', heroFrame);
+  const n = imgs.length;
+  const caps = JSON.parse($('[data-slide-caps]')?.textContent || '[]') as string[];
+  const num = $('[data-slide-n]');
+  const cap = $('[data-slide-cap]');
+  let i = 0;
+  const next = () => {
+    const to = (i + 1) % n;
+    const tl = gsap.timeline({ onComplete: () => void gsap.delayedCall(4.2, next) });
+    if (heroGL?.slides) {
+      const s = heroGL.slides;
+      tl.fromTo(s, { p: 0 }, { p: 1, duration: 2, ease: 'power2.inOut', onComplete: () => ((s.index = to), (s.p = 0)) }, 0);
+    } else {
+      tl.to(imgs[to], { opacity: 1, duration: 1.6, ease: 'power2.inOut' }, 0).set(imgs[i], { opacity: 0 });
+    }
+    tl.to([num, cap], { yPercent: -100, opacity: 0, duration: 0.5, ease: 'power2.in' }, 0.4)
+      .add(() => {
+        if (num) num.textContent = String(to + 1).padStart(2, '0');
+        if (cap) cap.textContent = caps[to] ?? '';
+      })
+      .fromTo([num, cap], { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.9, ease: 'expo.out' });
+    i = to;
+  };
+  gsap.delayedCall(3.5, next);
+}
+
+// secteur angulaire (pour les boucles de corde du préloader)
+function wedge(cx: number, cy: number, r: number, start: number, dir: number, p: number) {
+  if (p <= 0) return '';
+  const a0 = (start * Math.PI) / 180;
+  const a1 = a0 + dir * Math.min(p, 0.9999) * Math.PI * 2;
+  const [x0, y0] = [cx + r * Math.cos(a0), cy + r * Math.sin(a0)];
+  const [x1, y1] = [cx + r * Math.cos(a1), cy + r * Math.sin(a1)];
+  return `M${cx} ${cy}L${x0} ${y0}A${r} ${r} 0 ${p > 0.5 ? 1 : 0} ${dir > 0 ? 1 : 0} ${x1} ${y1}Z`;
 }
 
 function runLoader() {
@@ -122,7 +173,12 @@ function runLoader() {
     return;
   }
   lock(true);
-  const glyphs = $$('.glyph', loader);
+  const [ring, medal, text] = $$<SVGCircleElement>('[data-draw]', loader);
+  const sweeps = $$<SVGPathElement>('[data-sweep]', loader).map((el) => {
+    const [cx, cy, r, start, dir] = el.dataset.sweep!.split(',').map(Number);
+    const o = { p: 0 };
+    return { o, draw: () => el.setAttribute('d', wedge(cx, cy, r, start, dir, o.p)) };
+  });
   gsap
     .timeline({
       onComplete: () => {
@@ -130,28 +186,29 @@ function runLoader() {
         lock(false);
       },
     })
-    .from(glyphs, { yPercent: 50, opacity: 0, duration: 1.4, stagger: 0.05, ease: 'expo.out' }, 0)
-    .to('[data-loader-bar]', { scaleX: 1, duration: 1.6, ease: 'power2.inOut' }, 0.1)
-    .to(loader, { clipPath: 'inset(0 0 100% 0)', duration: 1.3, ease: 'expo.inOut' }, 1.9)
-    .to(glyphs, { yPercent: -30, opacity: 0, duration: 0.8, stagger: 0.02, ease: 'power3.in' }, 1.8)
-    .add(heroIntro(), 2.35);
+    .fromTo(ring, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 2, ease: 'power2.inOut' }, 0)
+    .to(sweeps.map((s) => s.o), { p: 1, duration: 1.8, ease: 'power2.inOut', onUpdate: () => sweeps.forEach((s) => s.draw()) }, 0.6)
+    .fromTo(medal, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.3, ease: 'power2.inOut' }, 1)
+    .fromTo(text, { strokeDashoffset: 1 }, { strokeDashoffset: 0.5, duration: 1.4, ease: 'power2.inOut' }, 1.2)
+    .fromTo('[data-core]', { opacity: 0 }, { opacity: 1, duration: 1.1, ease: 'power2.out' }, 1.7)
+    .from('[data-loader-emblem]', { scale: 0.94, duration: 3.2, ease: 'power2.out' }, 0)
+    .to('[data-loader-emblem]', { scale: 0.9, opacity: 0, duration: 0.8, ease: 'power3.in' }, 3.3)
+    .to(loader, { clipPath: 'inset(0 0 100% 0)', duration: 1.2, ease: 'expo.inOut' }, 3.6)
+    .add(heroIntro(), 4.0);
 }
 
-// la photo s'ouvre en plein écran au défilement
+// le cadre photo s'ouvre en plein écran au défilement
 {
   const stage = $('[data-hero-stage]');
-  if (stage) {
-    gsap.to('[data-hero-frame]', {
-      clipPath: 'inset(0px 0px 0px 0px)',
+  if (stage && heroFrame)
+    gsap.fromTo(heroFrame, {
+      '--inset': () => `${parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gutter')) || Math.max(16, Math.min(64, innerWidth * 0.04))}px`,
+    }, {
+      '--inset': '0px',
       ease: 'none',
-      scrollTrigger: { trigger: stage, start: 'top 80%', end: 'top top', scrub: true },
+      immediateRender: true,
+      scrollTrigger: { trigger: stage, start: 'top 80%', end: 'top top', scrub: true, invalidateOnRefresh: true },
     });
-    gsap.to('[data-hero-img]', {
-      yPercent: 8,
-      ease: 'none',
-      scrollTrigger: { trigger: stage, start: 'top top', end: 'bottom top', scrub: true },
-    });
-  }
 }
 
 /* ───────────── Révélations ───────────── */
@@ -197,8 +254,13 @@ function reveals() {
     );
   });
 
-  // images : rideau vertical et léger dézoom
+  // images : révélation organique en WebGL (rideau et dézoom sinon)
   $$('[data-reveal-img]').forEach((el) => {
+    const item = gl?.get(el);
+    if (item) {
+      gsap.to(item, { reveal: 1, duration: 2.4, ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top 88%', once: true } });
+      return;
+    }
     gsap.fromTo(
       el,
       { clipPath: 'inset(100% 0% 0% 0%)' },
@@ -207,23 +269,6 @@ function reveals() {
     const img = el.querySelector('img');
     if (img) gsap.from(img, { scale: 1.3, duration: 2.4, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 88%', once: true } });
   });
-
-  $$('[data-parallax]').forEach((el) => {
-    const f = parseFloat(el.dataset.parallax!);
-    gsap.fromTo(
-      el,
-      { yPercent: -f * 50 },
-      { yPercent: f * 50, ease: 'none', scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } },
-    );
-  });
-
-  const band = $('[data-band]');
-  if (band)
-    gsap.fromTo(
-      band,
-      { clipPath: 'inset(12% 8% 12% 8%)' },
-      { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: { trigger: band, start: 'top bottom', end: 'center center', scrub: true } },
-    );
 
   gsap.from($$('.footer .glyph'), {
     yPercent: 60,
@@ -237,28 +282,31 @@ function reveals() {
 
 /* ───────────── Saisons : image qui suit le curseur ───────────── */
 function seasons() {
-  if (!finePointer || window.innerWidth <= 800) return;
+  const follow = finePointer && window.innerWidth > 800;
   $$('[data-season]').forEach((row) => {
     const img = $('[data-season-img]', row)!;
+    const item = gl?.get(img);
+    if (!follow) {
+      // mobile : l'image est dans le flux, révélée à l'entrée
+      if (item) gsap.to(item, { reveal: 1, duration: 2.2, ease: 'power2.out', scrollTrigger: { trigger: img, start: 'top 90%', once: true } });
+      return;
+    }
+    if (item) item.alpha = 0;
     const x = gsap.quickTo(img, 'x', { duration: 0.9, ease: 'power3.out' });
     const y = gsap.quickTo(img, 'y', { duration: 0.9, ease: 'power3.out' });
-    const r = gsap.quickTo(img, 'rotation', { duration: 1.2, ease: 'power3.out' });
-    let lastX = 0;
     row.addEventListener('pointerenter', (e) => {
       gsap.set(img, { x: e.clientX + 30, y: e.clientY - img.offsetHeight / 2 });
-      gsap.to(img, { autoAlpha: 1, clipPath: 'inset(0% 0% 0% 0%)', duration: 0.9, ease: 'expo.out', overwrite: 'auto' });
-      gsap.fromTo(img.querySelector('img'), { scale: 1.25 }, { scale: 1, duration: 1.2, ease: 'expo.out' });
+      if (item) gsap.to(item, { alpha: 1, reveal: 1, duration: 1.2, ease: 'power3.out', overwrite: 'auto' });
+      else gsap.to(img, { autoAlpha: 1, duration: 0.6, overwrite: 'auto' });
     });
     row.addEventListener('pointermove', (e) => {
       x(e.clientX + 30);
       y(e.clientY - img.offsetHeight / 2);
-      r(gsap.utils.clamp(-6, 6, (e.clientX - lastX) * 0.4));
-      lastX = e.clientX;
     });
-    row.addEventListener('pointerleave', () =>
-      gsap.to(img, { autoAlpha: 0, clipPath: 'inset(100% 0% 0% 0%)', duration: 0.6, ease: 'expo.in', overwrite: 'auto' }),
-    );
-    gsap.set(img, { clipPath: 'inset(100% 0% 0% 0%)' });
+    row.addEventListener('pointerleave', () => {
+      if (item) gsap.to(item, { reveal: 0, alpha: 0, duration: 0.7, ease: 'power2.in', overwrite: 'auto' });
+      else gsap.to(img, { autoAlpha: 0, duration: 0.5, overwrite: 'auto' });
+    });
   });
 }
 

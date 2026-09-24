@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import { photo } from '../lib/photos';
 import monogram from '../assets/svg/monogram.svg?raw';
-const main = photo('recolte', 'pot');
+const main = photo('duo', 'apiculteurs');
 const detail = photo('ruche', 'tamis');
 ---
 
@@ -24,16 +24,12 @@ const detail = photo('ruche', 'tamis');
       </div>
     </div>
 
-    <figure class="maison__main" data-reveal-img>
-      <div class="maison__img" data-parallax="0.12">
-        <Image src={main} alt="Récolte d’un cadre de miel" widths={[600, 1000, 1400]} sizes="(max-width: 800px) 92vw, 44vw" />
-      </div>
+    <figure class="maison__main" data-gl data-reveal-img data-gl-parallax="0.1">
+      <Image src={main} alt="Nathalie et Frédéric Baltzer auprès d’une ruche" widths={[600, 1000, 1400]} sizes="(max-width: 800px) 92vw, 44vw" />
     </figure>
 
-    <figure class="maison__detail" data-reveal-img>
-      <div class="maison__img" data-parallax="-0.1">
-        <Image src={detail} alt="" widths={[400, 800]} sizes="(max-width: 800px) 50vw, 20vw" />
-      </div>
+    <figure class="maison__detail" data-gl data-reveal-img data-gl-parallax="-0.08">
+      <Image src={detail} alt="" widths={[400, 800]} sizes="(max-width: 800px) 50vw, 20vw" />
     </figure>
   </div>
 </section>
@@ -91,11 +87,8 @@ const detail = photo('ruche', 'tamis');
     aspect-ratio: 3 / 4;
     margin-top: -18%;
   }
-  .maison__img {
-    position: absolute;
-    inset: -10% 0;
-  }
-  .maison__img :global(img) {
+  .maison__main :global(img),
+  .maison__detail :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;

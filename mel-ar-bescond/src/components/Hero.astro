@@ -2,7 +2,12 @@
 import { Image } from 'astro:assets';
 import logo from '../assets/svg/logo.svg?raw';
 import { photo } from '../lib/photos';
-const hero = photo('hero', 'duo', 'apiculteurs');
+const slides = [
+  { img: photo('duo', 'apiculteurs'), cap: 'Nathalie & Frédéric' },
+  { img: photo('recolte', 'tamis'), cap: 'La récolte' },
+  { img: photo('ruche', 'filet'), cap: 'Au cœur de la ruche' },
+  { img: photo('fleur', 'cuillere'), cap: 'Les floraisons' },
+];
 ---
 
 <section class="hero" id="top" data-hero>
@@ -17,15 +22,22 @@ const hero = photo('hero', 'duo', 'apiculteurs');
   </h1>
 
   <div class="hero__stage" data-hero-stage>
-    <figure class="hero__frame" data-hero-frame>
-      <div class="hero__img" data-hero-img>
-        <Image src={hero} alt="Nathalie et Frédéric Baltzer auprès de leurs ruches" widths={[800, 1400, 2000]} sizes="100vw" loading="eager" />
-      </div>
+    <figure class="hero__frame" data-hero-frame data-gl-slides data-gl-parallax="0.08">
+      {
+        slides.map((s, i) => (
+          <Image src={s.img} alt={i === 0 ? 'Nathalie et Frédéric Baltzer auprès de leurs ruches' : ''} widths={[900, 1600, 2200]} sizes="100vw" loading="eager" data-slide={i} />
+        ))
+      }
     </figure>
     <div class="hero__caption wrap">
       <p class="hero__by" data-hero-fade>Par Nathalie &amp; Frédéric Baltzer</p>
+      <p class="hero__slide label" data-hero-fade aria-hidden="true">
+        <span class="hero__slide-n"><span data-slide-n>01</span> / 04</span>
+        <span class="hero__slide-cap" data-slide-cap>{slides[0].cap}</span>
+      </p>
       <a href="#commander" class="cta" data-hero-fade>Composer mon panier <span class="cta__line"></span></a>
     </div>
+    <script type="application/json" data-slide-caps set:html={JSON.stringify(slides.map((s) => s.cap))} />
   </div>
 </section>
 
@@ -59,20 +71,31 @@ const hero = photo('hero', 'duo', 'apiculteurs');
     margin-top: clamp(40px, 7vh, 80px);
   }
   .hero__frame {
+    --inset: var(--gutter);
     position: relative;
     height: 88svh;
+    margin-inline: var(--inset);
     overflow: hidden;
-    clip-path: inset(0 var(--gutter) 0 var(--gutter));
+    background: var(--paper);
   }
-  .hero__img {
+  .hero__frame :global(img) {
     position: absolute;
-    inset: -8% 0;
-  }
-  .hero__img :global(img) {
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 35%;
+  }
+  .hero__frame :global(img:not([data-slide='0'])) {
+    opacity: 0;
+  }
+  .hero__slide {
+    display: flex;
+    gap: 1.4rem;
+    color: var(--ink-soft);
+  }
+  .hero__slide-n {
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
   }
   .hero__caption {
     display: flex;

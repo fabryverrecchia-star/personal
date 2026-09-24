@@ -1,11 +1,59 @@
 ---
-// Ouverture : le logo apparaît, un filet se trace, le rideau se lève.
-import logo from '../assets/svg/logo.svg?raw';
+// Ouverture sur fond blanc : l'emblème se dessine, la corde s'enroule autour de l'anneau,
+// les boucles se nouent de chaque côté, puis le texte et l'abeille apparaissent.
+// Le tracé de l'emblème est révélé par un masque animé (voir runLoader dans main.ts).
+import emblem from '../assets/svg/emblem.svg?raw';
+const inner = emblem.replace(/^<svg[^>]*>|<\/svg>$/g, '');
 ---
 
 <div class="loader" data-loader aria-hidden="true">
-  <div class="loader__logo" data-loader-logo set:html={logo} />
-  <div class="loader__bar"><i data-loader-bar></i></div>
+  <svg class="loader__emblem" viewBox="0 0 1392 1104" data-loader-emblem>
+    <defs>
+      <mask id="rope-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1392" height="1104">
+        <!-- boucles : balayage autour des nœuds -->
+        <path data-sweep="376,624,360,180,1" fill="#fff"></path>
+        <path data-sweep="1016,624,360,0,-1" fill="#fff"></path>
+        <!-- on masque ce qui tombe dans l'anneau -->
+        <circle cx="691" cy="480" r="384" fill="#000"></circle>
+        <!-- anneau de corde : il s'enroule -->
+        <circle
+          data-draw
+          cx="691"
+          cy="480"
+          r="341"
+          fill="none"
+          stroke="#fff"
+          stroke-width="96"
+          pathLength="1"
+          transform="rotate(90 691 480)"></circle>
+        <!-- médaillon du monogramme -->
+        <circle
+          data-draw
+          cx="691"
+          cy="936"
+          r="150"
+          fill="none"
+          stroke="#fff"
+          stroke-width="190"
+          pathLength="1"
+          transform="rotate(-90 691 936)"></circle>
+        <!-- inscription en arc -->
+        <circle
+          data-draw
+          cx="691"
+          cy="480"
+          r="460"
+          fill="none"
+          stroke="#fff"
+          stroke-width="150"
+          pathLength="1"
+          transform="rotate(180 691 480)"></circle>
+        <!-- cœur : abeille, cercle et points -->
+        <circle data-core cx="691" cy="480" r="296" fill="#fff" opacity="0"></circle>
+      </mask>
+    </defs>
+    <g mask="url(#rope-mask)" fill="currentColor" set:html={inner} />
+  </svg>
 </div>
 
 <style>
@@ -15,38 +63,19 @@ import logo from '../assets/svg/logo.svg?raw';
     z-index: 100;
     display: grid;
     place-items: center;
-    align-content: center;
-    gap: 2.4rem;
-    background: var(--night);
-    color: var(--ivory);
+    background: #fff;
+    color: var(--ink);
   }
   :global(html:not(.js)) .loader {
     display: none;
   }
-  .loader__logo {
-    width: min(64vw, 380px);
-  }
-  .loader__logo :global(svg) {
-    width: 100%;
+  .loader__emblem {
+    width: min(78vw, 560px);
     height: auto;
     overflow: visible;
   }
-  .loader__logo :global(.glyph) {
-    transform-box: fill-box;
-    transform-origin: 50% 100%;
-  }
-  .loader__bar {
-    position: relative;
-    width: min(64vw, 380px);
-    height: 1px;
-    background: var(--night-line);
-    overflow: hidden;
-  }
-  .loader__bar i {
-    position: absolute;
-    inset: 0;
-    background: var(--gold);
-    transform: scaleX(0);
-    transform-origin: left;
+  .loader__emblem [data-draw] {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
   }
 </style>

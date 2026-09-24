@@ -9,10 +9,8 @@ const band = maybe('terroir', 'ruche');
 <section class="terroir" id="terroir">
   {
     band ? (
-      <figure class="terroir__band" data-band>
-        <div class="terroir__img" data-parallax="0.2">
-          <Image src={band} alt="" widths={[800, 1400, 2000]} sizes="100vw" />
-        </div>
+      <figure class="terroir__band" data-band data-gl data-reveal-img data-gl-parallax="0.18">
+        <Image src={band} alt="" widths={[800, 1400, 2000]} sizes="100vw" />
       </figure>
     ) : (
       <div class="terroir__rule wrap"><div class="rule" /></div>
@@ -46,11 +44,7 @@ const band = maybe('terroir', 'ruche');
     margin-bottom: clamp(80px, 10vw, 160px);
     background: var(--paper);
   }
-  .terroir__img {
-    position: absolute;
-    inset: -15% 0;
-  }
-  .terroir__img :global(img) {
+  .terroir__band :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
