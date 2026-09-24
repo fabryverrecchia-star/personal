@@ -7,8 +7,11 @@ export const site = {
   owners: 'Nathalie et Frédéric Baltzer',
   address: { street: '10 Coat ar Bescond', zip: '22540', city: 'Louargat', region: 'Côtes-d’Armor' },
   siret: '82363836600018',
-  // TODO : remplacer par les vraies coordonnées de contact (les commandes sont envoyées à cette adresse)
-  email: 'contact@melarbescond.fr',
+  // adresse qui reçoit les demandes de commande
+  email: 'frederic.baltzer@gmail.com',
+  // envoi des demandes par FormSubmit (formsubmit.co), sans serveur ni compte.
+  // Au tout premier envoi, FormSubmit écrit à l'adresse ci-dessus pour faire activer le formulaire (un clic).
+  formEndpoint: 'https://formsubmit.co/ajax/frederic.baltzer@gmail.com',
   phone: '',
   instagram: '',
   harvest: 2026,

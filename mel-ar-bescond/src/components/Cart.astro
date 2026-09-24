@@ -2,7 +2,7 @@
 import { site } from '../site.config';
 ---
 
-<div class="cart" data-cart aria-hidden="true" data-email={site.email}>
+<div class="cart" data-cart aria-hidden="true" data-email={site.email} data-endpoint={site.formEndpoint}>
   <div class="cart__veil" data-cart-close></div>
   <aside class="cart__panel" role="dialog" aria-modal="true" aria-labelledby="cart-title" data-cart-panel>
     <header class="cart__head">
@@ -40,17 +40,29 @@ import { site } from '../site.config';
           <span class="label">Message (facultatif)</span>
           <textarea id="f-msg" name="message" rows="2"></textarea>
         </label>
+        <input class="sr-only" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <p class="cart__error" data-cart-error hidden role="alert"></p>
       </form>
 
-      <div class="sent" data-sent hidden>
+      <div class="sent" data-sent-ok hidden role="status">
         <p class="sent__title">Merci.</p>
+        <p>Votre demande est bien envoyée à Nathalie &amp; Frédéric.</p>
+        <p class="muted">Ils vous rappellent au <span data-sent-phone></span> pour convenir du retrait. Aucun paiement n’est demandé en ligne.</p>
+        <div class="sent__actions">
+          <button type="button" class="btn" data-cart-close>Fermer</button>
+        </div>
+      </div>
+
+      <div class="sent" data-sent hidden>
+        <p class="sent__title">Presque…</p>
         <p class="muted">
-          Votre messagerie devrait s’ouvrir avec la demande déjà rédigée. Si rien ne s’ouvre, copiez le message et
-          envoyez-le à <span class="sent__mail">{site.email}</span>.
+          L’envoi n’a pas abouti (connexion interrompue ?). Réessayez, ou copiez le message et envoyez-le à{' '}
+          <span class="sent__mail">{site.email}</span>.
         </p>
         <textarea class="sent__text" id="sent-text" readonly rows="9" data-sent-text aria-label="Texte de la demande"></textarea>
         <div class="sent__actions">
-          <button type="button" class="btn" data-sent-copy><span data-sent-copy-label>Copier le message</span></button>
+          <button type="button" class="btn" data-sent-retry>Réessayer</button>
+          <button type="button" class="btn btn--line" data-sent-copy><span data-sent-copy-label>Copier le message</span></button>
           <button type="button" class="btn btn--line" data-sent-back>Modifier</button>
         </div>
       </div>
@@ -229,8 +241,17 @@ import { site } from '../site.config';
     gap: 1rem;
     padding-top: 2rem;
   }
-  .sent[hidden] {
+  .sent[hidden],
+  .cart__error[hidden] {
     display: none;
+  }
+  .cart__error {
+    color: #8a2f1c;
+    font-size: 1rem;
+  }
+  :global(.cart__send.is-busy) {
+    opacity: 0.6;
+    pointer-events: none;
   }
   .sent__title {
     font-size: 2.6rem;
@@ -256,6 +277,7 @@ import { site } from '../site.config';
     flex-wrap: wrap;
     gap: 8px;
   }
+  :global(.cart.is-sent) .cart__empty,
   :global(.cart.is-sent) .cart__form,
   :global(.cart.is-sent) .cart__items,
   :global(.cart.is-sent) .cart__foot {

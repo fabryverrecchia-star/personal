@@ -89,6 +89,8 @@ export function initCart(opts: { lock: (locked: boolean) => void }) {
   const hide = () => {
     if (!open) return;
     open = false;
+    // après un envoi réussi, le tiroir retrouve son état normal une fois fermé
+    if (!$('[data-sent-ok]', root).hidden) setTimeout(() => showPanel(null), 700);
     document.documentElement.classList.remove('cart-open');
     root.setAttribute('aria-hidden', 'true');
     gsap.to(veil, { opacity: 0, duration: 0.4 });
@@ -130,43 +132,94 @@ export function initCart(opts: { lock: (locked: boolean) => void }) {
     change(l.id, l.size, act === 'plus' ? 1 : act === 'minus' ? -1 : -l.qty);
   });
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (!lines.length) return;
+  const sendBtn = $<HTMLButtonElement>('[data-cart-send]', root);
+  const errorEl = $('[data-cart-error]', root);
+  const showPanel = (which: 'ok' | 'fail' | null) => {
+    $('[data-sent-ok]', root).hidden = which !== 'ok';
+    $('[data-sent]', root).hidden = which !== 'fail';
+    root.classList.toggle('is-sent', which !== null);
+    if (which) gsap.from($$(which === 'ok' ? '[data-sent-ok] > *' : '[data-sent] > *', root), { y: 20, opacity: 0, stagger: 0.06, duration: 0.6, ease: 'power3.out' });
+  };
+
+  let sending = false;
+  const send = async () => {
+    if (!lines.length || sending) return;
+    if (!form.reportValidity()) return;
     const fd = new FormData(form);
+    if (fd.get('_honey')) return; // robot
+    const order = lines.map((l) => {
+      const p = product(l.id);
+      return `${l.qty} × ${p.name} ${p.year} — ${sizeLabel(l.size)} (${price(l)} €)`;
+    });
+    const name = String(fd.get('name') ?? '').trim();
+    const phone = String(fd.get('phone') ?? '').trim();
+    const email = String(fd.get('email') ?? '').trim();
+    const subject = `Demande de miel — ${name}`;
     const body = [
       'Bonjour Nathalie et Frédéric,',
       '',
       'Je souhaiterais réserver :',
-      ...lines.map((l) => {
-        const p = product(l.id);
-        return `• ${l.qty} × ${p.name} ${p.year} — ${sizeLabel(l.size)} (${price(l)} €)`;
-      }),
+      ...order.map((o) => `• ${o}`),
       '',
       `Estimation : ${total()} €`,
       `Récupération : ${fd.get('pickup')}`,
       '',
-      `Nom : ${fd.get('name')}`,
-      `Téléphone : ${fd.get('phone')}`,
-      fd.get('email') ? `E-mail : ${fd.get('email')}` : '',
+      `Nom : ${name}`,
+      `Téléphone : ${phone}`,
+      email ? `E-mail : ${email}` : '',
       fd.get('message') ? `\nMessage : ${fd.get('message')}` : '',
-      '',
-      'Merci !',
     ]
       .filter((x) => x !== '')
       .join('\n');
-    const subject = `Demande de commande — ${fd.get('name')}`;
-    // la messagerie ne s'ouvre pas partout (navigateur sans client mail, aperçu intégré) :
-    // on affiche toujours le message prêt à copier
     $<HTMLTextAreaElement>('[data-sent-text]', root).value = `Objet : ${subject}\n\n${body}`;
-    $('[data-sent]', root).hidden = false;
-    root.classList.add('is-sent');
-    gsap.from($$('[data-sent] > *', root), { y: 20, opacity: 0, stagger: 0.06, duration: 0.6, ease: 'power3.out' });
+
+    sending = true;
+    errorEl.hidden = true;
+    sendBtn.classList.add('is-busy');
+    sendBtn.textContent = 'Envoi en cours…';
     try {
-      window.location.href = `mailto:${root.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const res = await fetch(root.dataset.endpoint!, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          _subject: subject,
+          _template: 'table',
+          _captcha: 'false',
+          ...(email ? { _replyto: email } : {}),
+          Nom: name,
+          Téléphone: phone,
+          'E-mail': email || '—',
+          Commande: order.join('\n'),
+          Estimation: `${total()} €`,
+          Récupération: String(fd.get('pickup')),
+          Message: String(fd.get('message') ?? '') || '—',
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || String(data.success) !== 'true') throw new Error(data.message || `HTTP ${res.status}`);
+      // envoyée : on vide le panier et on remercie
+      $('[data-sent-phone]', root).textContent = phone;
+      lines = [];
+      save();
+      render();
+      form.reset();
+      showPanel('ok');
     } catch {
-      /* pas de messagerie : le texte reste affiché */
+      showPanel('fail');
+    } finally {
+      sending = false;
+      sendBtn.classList.remove('is-busy');
+      sendBtn.textContent = 'Envoyer ma demande';
     }
+  };
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    void send();
+  });
+  $('[data-sent-retry]', root).addEventListener('click', () => {
+    showPanel(null);
+    void send();
   });
 
   const copyLabel = $('[data-sent-copy-label]', root);
@@ -179,8 +232,7 @@ export function initCart(opts: { lock: (locked: boolean) => void }) {
     }) ?? (ta.select(), done());
   });
   $('[data-sent-back]', root).addEventListener('click', () => {
-    $('[data-sent]', root).hidden = true;
-    root.classList.remove('is-sent');
+    showPanel(null);
     copyLabel.textContent = 'Copier le message';
   });
 

@@ -38,9 +38,10 @@ Défilement doux Lenis à la molette ; au doigt, défilement natif du téléphon
 
 Pas de paiement ni de compte client : le visiteur compose son panier, laisse son nom et son téléphone, et envoie une **demande**. Nathalie et Frédéric le rappellent pour convenir du retrait.
 
-- Le panier est gardé dans le navigateur (`localStorage`).
-- « Envoyer ma demande » ouvre la messagerie du visiteur avec un récapitulatif (pots, estimation, nom, téléphone, mode de retrait) adressé à `site.email`.
-- Pour recevoir les demandes sans passer par la messagerie du visiteur, il suffira de brancher le formulaire sur un service (Formspree, Netlify Forms…) dans `src/scripts/cart.ts`.
+- Les demandes partent directement à **frederic.baltzer@gmail.com** via [FormSubmit](https://formsubmit.co) (gratuit, sans serveur ni compte). Réglage : `email` et `formEndpoint` dans `src/site.config.ts`.
+- ⚠️ **Activation, une seule fois** : au tout premier envoi depuis le site en ligne, FormSubmit envoie à frederic.baltzer@gmail.com un e-mail « Activate Form ». Il faut cliquer sur le lien : les demandes suivantes arrivent ensuite normalement (vérifier aussi les spams).
+- En cas d’échec (connexion coupée), le visiteur peut réessayer ou copier le message tout prêt et l’envoyer lui-même.
+- Le panier est gardé dans le navigateur (`localStorage`) et vidé après un envoi réussi.
 
 ## Photos
 
