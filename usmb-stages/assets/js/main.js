@@ -219,12 +219,33 @@ if (form) {
 
     $(".success__msg").textContent = sent
       ? "Votre demande a bien été transmise au club. Nous revenons vers vous pour confirmer l'inscription."
-      : "Votre messagerie s'ouvre avec la demande pré-remplie : il ne vous reste qu'à l'envoyer. Le club reviendra vers vous pour confirmer l'inscription.";
+      : "";
+    if (!sent) {
+      const msg = $(".success__msg");
+      msg.textContent = "Envoyez ce récapitulatif au club à l'adresse ";
+      const mail = Object.assign(document.createElement("span"), { className: "success__mail", textContent: CONFIG.email });
+      msg.append(mail, ". Si votre messagerie ne s'est pas ouverte, copiez-le avec le bouton ci-dessous. Le club reviendra vers vous pour confirmer l'inscription.");
+    }
     $(".success__recap").textContent = recap;
     form.hidden = true;
     success.hidden = false;
     success.focus({ preventScroll: true });
     window.__usmbScrollTo?.(success);
+  });
+
+  $("[data-copy]")?.addEventListener("click", async (e) => {
+    const btn = e.currentTarget;
+    const recap = $(".success__recap");
+    try {
+      await navigator.clipboard.writeText(recap.textContent);
+      $(".btn__label", btn).textContent = "Copié";
+    } catch (_) {
+      const range = document.createRange();
+      range.selectNodeContents(recap);
+      const sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(range);
+      $(".btn__label", btn).textContent = "Texte sélectionné";
+    }
   });
 
   $("[data-reset]")?.addEventListener("click", () => {
@@ -234,6 +255,8 @@ if (form) {
     saved.forEach(([el, v]) => (el.type === "checkbox" ? (el.checked = v) : (el.value = v)));
     success.hidden = true;
     form.hidden = false;
+    const copyLabel = $("[data-copy] .btn__label");
+    if (copyLabel) copyLabel.textContent = "Copier le récapitulatif";
     updateForm();
     form.elements.prenom.focus({ preventScroll: true });
     window.__usmbScrollTo?.(form);
