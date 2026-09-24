@@ -56,7 +56,7 @@ const label = (s: string) => ({ '250g': '250 g', '500g': '500 g', '1kg': '1 kg' 
       <aside class="basket" data-basket data-thumb={thumb.src} aria-label="Votre panier">
         <div class="basket__top">
           <p class="label">Votre panier</p>
-          <p class="label muted"><span data-cart-count>0</span> pot(s)</p>
+          <p class="label muted"><span data-cart-count>0</span> <span data-cart-word>pot</span></p>
         </div>
         <div class="basket__tray" data-tray>
           <p class="basket__empty" data-tray-empty>Vos pots apparaîtront ici.</p>
@@ -140,11 +140,18 @@ const label = (s: string) => ({ '250g': '250 g', '500g': '500 g', '1kg': '1 kg' 
       color 0.5s var(--ease),
       box-shadow 0.5s var(--ease);
   }
-  button.size:hover,
-  button.size:focus-visible {
+  button.size:focus-visible,
+  button.size:active {
     background: var(--ink);
     color: var(--ivory);
     box-shadow: inset 0 0 0 1px var(--ink);
+  }
+  @media (hover: hover) {
+    button.size:hover {
+      background: var(--ink);
+      color: var(--ivory);
+      box-shadow: inset 0 0 0 1px var(--ink);
+    }
   }
   .size__w {
     font-family: var(--sans);
@@ -311,8 +318,7 @@ const label = (s: string) => ({ '250g': '250 g', '500g': '500 g', '1kg': '1 kg' 
       grid-template-columns: 1fr;
     }
     .basket {
-      position: relative;
-      top: 0;
+      display: none;
     }
   }
 </style>

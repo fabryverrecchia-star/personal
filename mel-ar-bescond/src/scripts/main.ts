@@ -18,7 +18,8 @@ const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matc
 /* ───────────── Défilement doux (bureau et tactile) ───────────── */
 let lenis: Lenis | null = null;
 if (!reduced) {
-  lenis = new Lenis({ lerp: 0.075, smoothWheel: true, syncTouch: true, syncTouchLerp: 0.065, touchInertiaExponent: 1.6, autoRaf: false });
+  // molette lissée ; au doigt on garde le défilement natif du téléphone, plus fluide que toute simulation
+  lenis = new Lenis({ lerp: 0.075, smoothWheel: true, syncTouch: false, autoRaf: false });
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((t) => lenis!.raf(t * 1000));
   gsap.ticker.lagSmoothing(0);
@@ -318,6 +319,8 @@ function commande() {
       addToCart(btn.dataset.add!, btn.dataset.size as Size);
       gsap.fromTo(btn, { scale: 0.97 }, { scale: 1, duration: 0.8, ease: 'expo.out' });
       updateDock();
+      const dock = $('[data-dock]');
+      if (dock && window.innerWidth <= 900) gsap.fromTo(dock, { y: 6 }, { y: 0, duration: 0.7, ease: 'elastic.out(1, 0.5)', clearProps: 'transform' });
     }),
   );
   ScrollTrigger.create({
@@ -334,7 +337,8 @@ function commande() {
 }
 function updateDock() {
   const has = document.documentElement.classList.contains('has-items');
-  $('[data-dock]')?.classList.toggle('is-on', has && !basketVisible && window.scrollY > window.innerHeight);
+  const mobile = window.innerWidth <= 900;
+  $('[data-dock]')?.classList.toggle('is-on', has && (mobile || (!basketVisible && window.scrollY > window.innerHeight)));
 }
 ScrollTrigger.create({ start: 0, end: 'max', onUpdate: updateDock });
 

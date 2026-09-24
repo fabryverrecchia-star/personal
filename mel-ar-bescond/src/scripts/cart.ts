@@ -103,7 +103,7 @@ export function initCart(opts: { lock: (locked: boolean) => void }) {
 
   document.addEventListener('click', (e) => {
     const t = e.target as HTMLElement;
-    const jar = t.closest<HTMLElement>('.pj');
+    const jar = t.closest<HTMLElement>('.pj:not(span)');
     if (jar) {
       // retirer un pot de la caisse
       // c'est le pot touché qui s'en va : il échange sa clé avec le dernier pot de la même sorte
@@ -191,8 +191,10 @@ export function initCart(opts: { lock: (locked: boolean) => void }) {
 const thumb = () => document.querySelector<HTMLElement>('[data-basket]')?.dataset.thumb ?? '';
 const tint = (id: string) => (id.startsWith('printemps') ? 'is-printemps' : '');
 
-const photoJar = (id: string, size: Size, key: string) => {
+const photoJar = (id: string, size: Size, key: string, decorative = false) => {
   const p = product(id);
+  if (decorative)
+    return `<span class="pj pj--${size} ${id.startsWith('printemps') ? 'pj--printemps' : ''}" data-key="${key}"><img src="${thumb()}" alt=""></span>`;
   return `<button type="button" class="pj pj--${size} ${id.startsWith('printemps') ? 'pj--printemps' : ''}" data-key="${key}"
     data-cap="${p.name} · ${sizeLabel(size)}" aria-label="Retirer un pot ${p.name} ${sizeLabel(size)}"><img src="${thumb()}" alt=""></button>`;
 };
@@ -215,7 +217,7 @@ function renderTrays() {
     shown.forEach(([k, l], i) => {
       let el = existing.get(k);
       if (!el) {
-        box.insertAdjacentHTML('beforeend', photoJar(l.id, l.size, k));
+        box.insertAdjacentHTML('beforeend', photoJar(l.id, l.size, k, !!box.closest('[data-dock]')));
         el = box.lastElementChild as HTMLElement;
         gsap.fromTo(el, { clipPath: 'inset(100% 0 0 0)', y: 30 }, { clipPath: 'inset(0% 0 0 0)', y: 0, duration: 1.1, ease: 'expo.out' });
         gsap.fromTo(el.querySelector('img'), { scale: 1.4 }, { scale: 1, duration: 1.4, ease: 'expo.out' });
@@ -259,6 +261,7 @@ function render() {
   const n = count();
   $$('[data-cart-total]').forEach((el) => (el.textContent = `${total()} €`));
   $$('[data-cart-count]').forEach((el) => (el.textContent = String(n)));
+  $$('[data-cart-word]').forEach((el) => (el.textContent = n > 1 ? 'pots' : 'pot'));
   $$<HTMLButtonElement>('[data-basket-send]').forEach((b) => (b.disabled = !has));
   renderTrays();
 }

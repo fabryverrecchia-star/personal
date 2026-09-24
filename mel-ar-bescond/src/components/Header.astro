@@ -59,9 +59,14 @@ const nav = [
       background 0.6s var(--ease);
   }
   :global(.header.is-scrolled) {
-    background: color-mix(in srgb, var(--ivory) 88%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: color-mix(in srgb, var(--ivory) 94%, transparent);
+  }
+  @media (hover: hover) {
+    :global(.header.is-scrolled) {
+      background: color-mix(in srgb, var(--ivory) 86%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
   }
   :global(.header.is-hidden) {
     transform: translateY(-105%);

@@ -35,7 +35,8 @@ const slides = [
         <span class="hero__slide-n"><span data-slide-n>01</span> / 04</span>
         <span class="hero__slide-cap" data-slide-cap>{slides[0].cap}</span>
       </p>
-      <a href="#commander" class="cta" data-hero-fade>Composer mon panier <span class="cta__line"></span></a>
+      <a href="#commander" class="cta hero__cta" data-hero-fade>Composer mon panier <span class="cta__line"></span></a>
+      <a href="#commander" class="btn hero__btn" data-hero-fade>Composer mon panier</a>
     </div>
     <script type="application/json" data-slide-caps set:html={JSON.stringify(slides.map((s) => s.cap))} />
   </div>
@@ -110,13 +111,39 @@ const slides = [
     font-weight: 300;
   }
 
+  .hero__btn {
+    display: none;
+  }
   @media (max-width: 700px) {
+    .hero {
+      padding-top: calc(84px + env(safe-area-inset-top, 0px));
+    }
+    .hero__head,
+    .hero__slide,
+    .hero__cta {
+      display: none;
+    }
+    .hero__title {
+      margin-top: 8px;
+    }
+    .hero__stage {
+      margin-top: 28px;
+    }
     .hero__frame {
-      height: 72svh;
+      height: auto;
+      aspect-ratio: 4 / 5;
     }
     .hero__caption {
       flex-direction: column;
-      gap: 1rem;
+      align-items: stretch;
+      gap: 1.2rem;
+      padding-top: 1.4rem;
+    }
+    .hero__by {
+      font-size: 1.25rem;
+    }
+    .hero__btn {
+      display: inline-flex;
     }
   }
 </style>

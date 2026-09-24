@@ -129,7 +129,7 @@ export function initGL() {
 
   let renderer: Renderer;
   try {
-    renderer = new Renderer({ canvas, alpha: true, premultipliedAlpha: true, antialias: true, dpr: Math.min(devicePixelRatio, 2) });
+    renderer = new Renderer({ canvas, alpha: true, premultipliedAlpha: true, antialias: true, dpr: Math.min(devicePixelRatio, matchMedia('(hover: none)').matches ? 1.5 : 2) });
     if (!renderer.gl) throw new Error('webgl');
   } catch {
     canvas.remove();

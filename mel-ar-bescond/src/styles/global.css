@@ -279,6 +279,19 @@ html.gl [data-gl-slides] {
 .btn--line::before {
   background: var(--ink);
 }
+@media (max-width: 900px) {
+  html.has-items body {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (hover: none) {
+  .grain {
+    animation: none;
+    inset: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
