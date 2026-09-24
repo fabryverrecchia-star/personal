@@ -35,6 +35,8 @@ const STAGES = {
 // Catégories de la saison 2026-2027 : Uxx = né(e) en 2027 - xx
 const SEASON_END = 2027;
 
+const diag = { init: "", errors: [] };
+window.addEventListener("error", (e) => diag.errors.push(e.message));
 const $ = (s, c = document) => c.querySelector(s);
 const $$ = (s, c = document) => [...c.querySelectorAll(s)];
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -321,13 +323,16 @@ function init() {
   ScrollTrigger.config({ ignoreMobileResize: true });
 
   /* ---- Lenis (défilement fluide) */
+  // Uniquement avec une souris : au doigt, le défilement natif est déjà fluide
   let lenis = null;
-  if (window.Lenis) {
-    lenis = new window.Lenis({ duration: 1.15, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
-    lenis.on("scroll", ScrollTrigger.update);
-    gsap.ticker.add((t) => lenis.raf(t * 1000));
-    gsap.ticker.lagSmoothing(0);
-    lenis.stop();
+  if (window.Lenis && finePointer) {
+    try {
+      lenis = new window.Lenis({ duration: 1.15, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add((t) => lenis.raf(t * 1000));
+      gsap.ticker.lagSmoothing(0);
+      lenis.stop();
+    } catch (e) { diag.errors.push("Lenis : " + e.message); lenis = null; }
   }
   window.__usmbScrollTo = (el) => (lenis ? lenis.scrollTo(el, { offset: -90 }) : el.scrollIntoView({ behavior: "smooth" }));
   $$('a[href^="#"]').forEach((a) =>
@@ -559,4 +564,40 @@ function navBehaviour(lenis) {
 }
 
 // Les scripts sont en `defer` : le DOM et les librairies sont prêts.
-try { init(); } catch (e) { console.error(e); hideLoader(); }
+try { init(); diag.init = "ok"; } catch (e) {
+  console.error(e);
+  diag.init = "erreur";
+  diag.errors.push(e.message);
+  // Ne jamais laisser de contenu masqué par une animation interrompue
+  hideLoader();
+  window.ScrollTrigger?.killAll();
+  window.gsap?.globalTimeline.clear();
+  $$("main [style], .nav[style]").forEach((el) => el.removeAttribute("style"));
+}
+
+/* ---- Diagnostic : ajouter #diag à l'adresse de la page */
+function showDiag() {
+  if (location.hash !== "#diag") return;
+  let scrolls = 0;
+  window.addEventListener("scroll", () => scrolls++, { passive: true });
+  const box = document.createElement("pre");
+  box.style.cssText = "position:fixed;left:8px;right:8px;bottom:8px;z-index:200;margin:0;padding:10px;border-radius:10px;background:rgba(0,0,0,.85);color:#9ff5bd;font:11px/1.45 ui-monospace,monospace;white-space:pre-wrap;pointer-events:none";
+  document.body.appendChild(box);
+  const render = () => {
+    box.textContent = [
+      "GSAP : " + (window.gsap ? window.gsap.version : "NON CHARGÉ"),
+      "ScrollTrigger : " + (window.ScrollTrigger ? window.ScrollTrigger.getAll().length + " déclencheurs" : "NON CHARGÉ"),
+      "Lenis : " + (window.Lenis ? "chargé" : "non chargé"),
+      "Réduire les animations : " + (reduced ? "OUI (animations coupées)" : "non"),
+      "Pointeur souris : " + (finePointer ? "oui" : "non (tactile)"),
+      "Fenêtre : " + innerWidth + "×" + innerHeight + (window.top !== window ? " (dans un cadre)" : ""),
+      "Hauteur page : " + document.documentElement.scrollHeight + " · scrollY " + Math.round(scrollY) + " · évènements scroll " + scrolls,
+      "Démarrage : " + (diag.init || "?"),
+      "Erreurs : " + (diag.errors.length ? diag.errors.join(" | ") : "aucune"),
+    ].join("\n");
+  };
+  render();
+  setInterval(render, 500);
+}
+showDiag();
+window.addEventListener("hashchange", showDiag);
