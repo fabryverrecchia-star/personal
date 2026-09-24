@@ -23,13 +23,14 @@ const nav = [
     <button class="header__cart label" data-cart-open aria-label="Voir ma demande">
       Ma demande <span class="header__count" data-cart-count>0</span>
     </button>
-    <button class="header__burger label" data-menu-toggle aria-expanded="false">
+    <a href="#menu" class="header__burger label" data-menu-toggle aria-expanded="false" aria-controls="menu">
       <span class="header__burger-open">Menu</span><span class="header__burger-close">Fermer</span>
-    </button>
+    </a>
   </div>
 </header>
 
-<div class="menu" data-menu aria-hidden="true">
+<div class="menu" id="menu" data-menu aria-hidden="true">
+  <a href="#top" class="menu__close label">Fermer</a>
   <nav class="menu__nav">
     {
       nav.map((n) => (
@@ -175,6 +176,20 @@ const nav = [
     color: var(--ivory);
     visibility: hidden;
     clip-path: inset(0 0 100% 0);
+  }
+  /* sans JavaScript (aperçu de fichier, script bloqué) : le menu s'ouvre quand même */
+  :global(html:not(.js-ready)) .menu:target {
+    visibility: visible;
+    clip-path: none;
+  }
+  .menu__close {
+    position: absolute;
+    top: calc(26px + env(safe-area-inset-top, 0px));
+    right: var(--gutter);
+    display: none;
+  }
+  :global(html:not(.js-ready)) .menu__close {
+    display: block;
   }
   .menu__nav {
     display: grid;

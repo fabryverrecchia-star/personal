@@ -12,6 +12,14 @@ CustomEase.create('silk', 'M0,0 C0.16,0.84 0.3,1 1,1');
 
 const $ = <T extends Element = HTMLElement>(s: string, r: ParentNode = document) => r.querySelector<T>(s);
 const $$ = <T extends Element = HTMLElement>(s: string, r: ParentNode = document) => [...r.querySelectorAll<T>(s)];
+// une partie qui échoue ne doit jamais bloquer les autres (menu, préloader, panier)
+function safe(name: string, fn: () => void) {
+  try {
+    fn();
+  } catch (err) {
+    console.error(`[mel-ar-bescond] ${name}`, err);
+  }
+}
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
@@ -34,11 +42,11 @@ const scrollTo = (target: string | number) => {
   else $(target)?.scrollIntoView();
 };
 
-initCart({ lock });
+safe('panier', () => void initCart({ lock }));
 
 document.addEventListener('click', (e) => {
   const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"]');
-  if (!a) return;
+  if (!a || a.hasAttribute('data-menu-toggle')) return;
   const id = a.getAttribute('href')!;
   e.preventDefault();
   closeMenu();
@@ -64,7 +72,8 @@ function closeMenu() {
   menuTl.timeScale(1.5).reverse();
   lock(false);
 }
-menuBtn.addEventListener('click', () => {
+menuBtn.addEventListener('click', (e) => {
+  e.preventDefault();
   if (menuOpen) return closeMenu();
   menuOpen = true;
   document.documentElement.classList.add('menu-open');
@@ -103,7 +112,14 @@ const header = $('[data-header]')!;
 const splits = $$('[data-split]').map((el) => SplitText.create(el, { type: 'lines', mask: 'lines', autoSplit: true }));
 
 /* ───────────── Images WebGL ───────────── */
-const gl = initGL();
+const gl = (() => {
+  try {
+    return initGL();
+  } catch (err) {
+    console.error('[mel-ar-bescond] webgl', err);
+    return null;
+  }
+})();
 if (gl) gsap.ticker.add(() => {
   gl.setVelocity(lenis?.velocity ?? 0);
   gl.tick();
@@ -394,11 +410,21 @@ function updateDock() {
 ScrollTrigger.create({ start: 0, end: 'max', onUpdate: updateDock });
 
 /* ───────────── Démarrage ───────────── */
-reveals();
-seasons();
-commande();
+safe('révélations', reveals);
+safe('saisons', seasons);
+safe('commande', commande);
 
 // le préloader démarre tout de suite et suit lui-même le chargement
-runLoader();
+safe('préloader', () => {
+  try {
+    runLoader();
+  } catch (err) {
+    // le préloader ne doit jamais rester bloqué à l'écran
+    $('[data-loader]')?.remove();
+    lock(false);
+    throw err;
+  }
+});
+document.documentElement.classList.add('js-ready');
 document.fonts?.ready.then(() => ScrollTrigger.refresh());
 window.addEventListener('load', () => ScrollTrigger.refresh());
