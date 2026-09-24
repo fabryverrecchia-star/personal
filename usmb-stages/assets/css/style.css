@@ -307,7 +307,7 @@ button { font: inherit; color: inherit; }
 
 /* =========================== Programme */
 .programme { position: relative; background: var(--paper); color: #06140c; border-radius: clamp(24px, 4vw, 48px) clamp(24px, 4vw, 48px) 0 0; }
-.programme__pin { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding: clamp(4rem, 8vw, 6rem) 0 3rem; overflow: hidden; }
+.programme__pin { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding: clamp(4rem, 8vw, 6rem) 0 3rem; overflow: hidden; }
 .programme__head { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1.5rem; padding: 0 var(--gutter); margin-bottom: clamp(2rem, 5vw, 3.5rem); }
 .programme .eyebrow { color: #0f8a3e; }
 .programme .section-title .serif { color: #0f8a3e; }
@@ -453,6 +453,9 @@ button { font: inherit; color: inherit; }
 .footer__row b { color: var(--ink); }
 .footer__logo { width: 88px; height: auto; }
 .footer__legal { margin: 3rem 0 0; font-size: .8rem; color: var(--ink-mute); }
+
+/* onde au toucher (mobile) */
+.tap-ripple { position: fixed; z-index: 96; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; pointer-events: none; border: 1.5px solid var(--green-glow); background: radial-gradient(circle, rgba(92, 240, 143, .25), transparent 70%); }
 
 /* =========================== Reveal (JS) */
 .js [data-reveal] { opacity: 0; transform: translateY(40px); }

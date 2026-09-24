@@ -317,6 +317,8 @@ function init() {
     return;
   }
   gsap.registerPlugin(ScrollTrigger);
+  // Évite les sauts quand la barre d'adresse mobile apparaît / disparaît
+  ScrollTrigger.config({ ignoreMobileResize: true });
 
   /* ---- Lenis (défilement fluide) */
   let lenis = null;
@@ -437,9 +439,8 @@ function init() {
     gsap.from(body.children, { y: 50, autoAlpha: 0, duration: 1.2, ease: "expo.out", stagger: .09, scrollTrigger: { trigger: body, start: "top 78%" } })
   );
 
-  /* ---- Programme horizontal épinglé */
-  const mm = gsap.matchMedia();
-  mm.add("(min-width: 900px)", () => {
+  /* ---- Programme horizontal épinglé (ordinateur et mobile) */
+  {
     const section = $(".programme");
     const trackEl = $(".programme__track");
     const distance = () => Math.max(0, trackEl.scrollWidth - window.innerWidth);
@@ -447,18 +448,33 @@ function init() {
     const tween = gsap.to(trackEl, {
       x: () => -distance(), ease: "none",
       scrollTrigger: {
-        trigger: ".programme__pin", start: "top top", end: () => "+=" + distance(),
-        pin: true, scrub: 1, invalidateOnRefresh: true, anticipatePin: 1,
+        trigger: ".programme__pin", start: "top top", end: () => "+=" + distance() * (finePointer ? 1 : 1.3),
+        pin: true, scrub: finePointer ? 1 : .6, invalidateOnRefresh: true, anticipatePin: 1,
       },
     });
-    gsap.to(".programme__progress span", { scaleX: 1, ease: "none", scrollTrigger: { trigger: ".programme__pin", start: "top top", end: () => "+=" + distance(), scrub: true } });
-    $$(".day").forEach((d, i) =>
-      gsap.from(d, { rotate: i % 2 ? 4 : -4, y: 60, autoAlpha: 0, duration: 1, ease: "expo.out", scrollTrigger: { trigger: d, containerAnimation: tween, start: "left 95%" } })
-    );
-    return () => section.classList.remove("is-pinned");
-  });
-  mm.add("(max-width: 899px)", () => {
-    gsap.from(".day", { y: 50, autoAlpha: 0, duration: 1, ease: "expo.out", stagger: .08, scrollTrigger: { trigger: ".programme__track", start: "top 85%" } });
+    gsap.to(".programme__progress span", { scaleX: 1, ease: "none", scrollTrigger: { trigger: ".programme__pin", start: "top top", end: () => "+=" + distance() * (finePointer ? 1 : 1.3), scrub: true, invalidateOnRefresh: true } });
+    $$(".day").forEach((d, i) => {
+      gsap.from(d, { rotate: i % 2 ? 4 : -4, y: 60, autoAlpha: 0, duration: 1, ease: "expo.out", scrollTrigger: { trigger: d, containerAnimation: tween, start: "left 95%" } });
+      // Sur écran tactile : effet carrousel 3D, la carte au centre se redresse
+      if (!finePointer) {
+        gsap.set(d, { transformPerspective: 900 });
+        gsap.timeline({ scrollTrigger: { trigger: d, containerAnimation: tween, start: "left right", end: "right left", scrub: true } })
+          .fromTo(d, { rotateY: -22, scale: .88 }, { rotateY: 0, scale: 1, ease: "sine.out" })
+          .to(d, { rotateY: 22, scale: .88, ease: "sine.in" });
+      }
+    });
+  }
+
+  /* ---- Inclinaison selon la vitesse de défilement (tous écrans) */
+  const skewTargets = $$(".stage__media, .section-title");
+  const skewTo = skewTargets.map((el) => gsap.quickTo(el, "skewY", { duration: .5, ease: "power3" }));
+  ScrollTrigger.create({
+    onUpdate: (self) => {
+      const v = gsap.utils.clamp(-5, 5, self.getVelocity() / -350);
+      skewTo.forEach((fn) => fn(v));
+      clearTimeout(skewTargets._t);
+      skewTargets._t = setTimeout(() => skewTo.forEach((fn) => fn(0)), 120);
+    },
   });
 
   /* ---- Infos, tarifs, formulaire */
@@ -504,6 +520,25 @@ function init() {
         gsap.to(card, { y: -8, rotateY: ((e.clientX - r.left) / r.width - .5) * 8, rotateX: -((e.clientY - r.top) / r.height - .5) * 8, transformPerspective: 900, duration: .6, ease: "power3.out" });
       });
       card.addEventListener("pointerleave", () => gsap.to(card, { y: 0, rotateX: 0, rotateY: 0, duration: .8, ease: "elastic.out(1, .5)" }));
+    });
+  }
+
+  /* ---- Équivalents tactiles : onde au toucher, boutons qui s'enfoncent */
+  if (!finePointer) {
+    document.addEventListener("pointerdown", (e) => {
+      const r = document.createElement("span");
+      r.className = "tap-ripple";
+      r.style.left = e.clientX + "px";
+      r.style.top = e.clientY + "px";
+      document.body.appendChild(r);
+      gsap.fromTo(r, { scale: 0, autoAlpha: .7 }, { scale: 1, autoAlpha: 0, duration: .8, ease: "expo.out", onComplete: () => r.remove() });
+    }, { passive: true });
+    $$(".btn, .pill-card, .choice__box, .info-card").forEach((el) => {
+      el.addEventListener("pointerdown", () => gsap.to(el, { scale: .95, duration: .2, ease: "power3.out" }), { passive: true });
+      const release = () => gsap.to(el, { scale: 1, duration: .7, ease: "elastic.out(1, .4)" });
+      el.addEventListener("pointerup", release);
+      el.addEventListener("pointercancel", release);
+      el.addEventListener("pointerleave", release);
     });
   }
 
