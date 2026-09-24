@@ -170,14 +170,17 @@ function startSlides() {
   run();
 }
 
-// secteur angulaire (pour les boucles de corde du préloader)
-function wedge(cx: number, cy: number, r: number, start: number, dir: number, p: number) {
-  if (p <= 0) return '';
-  const a0 = (start * Math.PI) / 180;
-  const a1 = a0 + dir * Math.min(p, 0.9999) * Math.PI * 2;
-  const [x0, y0] = [cx + r * Math.cos(a0), cy + r * Math.sin(a0)];
-  const [x1, y1] = [cx + r * Math.cos(a1), cy + r * Math.sin(a1)];
-  return `M${cx} ${cy}L${x0} ${y0}A${r} ${r} 0 ${p > 0.5 ? 1 : 0} ${dir > 0 ? 1 : 0} ${x1} ${y1}Z`;
+// progression réelle du chargement : polices + images chargées tout de suite (hero, etc.)
+function loadProgress(onProgress: (p: number) => void) {
+  // on attend seulement ce qu'on voit en premier : les deux premières photos du hero
+  const imgs = $$<HTMLImageElement>('[data-hero-frame] img').slice(0, 2);
+  const total = imgs.length + 1;
+  let done = 0;
+  const tick = () => onProgress(Math.min(1, ++done / total));
+  imgs.forEach((im) => (im.complete ? tick() : (im.addEventListener('load', tick, { once: true }), im.addEventListener('error', tick, { once: true }))));
+  (document.fonts?.ready ?? Promise.resolve()).then(tick);
+  // filet de sécurité : jamais plus de 5 s d'attente
+  setTimeout(() => onProgress(1), 5000);
 }
 
 function runLoader() {
@@ -188,28 +191,57 @@ function runLoader() {
     return;
   }
   lock(true);
-  const [ring, medal, text] = $$<SVGCircleElement>('[data-draw]', loader);
-  const sweeps = $$<SVGPathElement>('[data-sweep]', loader).map((el) => {
-    const [cx, cy, r, start, dir] = el.dataset.sweep!.split(',').map(Number);
-    const o = { p: 0 };
-    return { o, draw: () => el.setAttribute('d', wedge(cx, cy, r, start, dir, o.p)) };
-  });
-  gsap
-    .timeline({
-      onComplete: () => {
-        loader.remove();
-        lock(false);
-      },
-    })
-    .fromTo(ring, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 2, ease: 'power2.inOut' }, 0)
-    .to(sweeps.map((s) => s.o), { p: 1, duration: 1.8, ease: 'power2.inOut', onUpdate: () => sweeps.forEach((s) => s.draw()) }, 0.6)
-    .fromTo(medal, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.3, ease: 'power2.inOut' }, 1)
-    .fromTo(text, { strokeDashoffset: 1 }, { strokeDashoffset: 0.5, duration: 1.4, ease: 'power2.inOut' }, 1.2)
-    .fromTo('[data-core]', { opacity: 0 }, { opacity: 1, duration: 1.1, ease: 'power2.out' }, 1.7)
-    .from('[data-loader-emblem]', { scale: 0.94, duration: 3.2, ease: 'power2.out' }, 0)
-    .to('[data-loader-emblem]', { scale: 0.9, opacity: 0, duration: 0.8, ease: 'power3.in' }, 3.3)
-    .to(loader, { clipPath: 'inset(0 0 100% 0)', duration: 1.2, ease: 'expo.inOut' }, 3.6)
-    .add(heroIntro(), 4.0);
+  const stroke = $('[data-mono-stroke]', loader)!;
+  const fill = $('[data-mono-fill]', loader)!;
+  const bar = $('[data-loader-bar]', loader)!;
+  const pct = $('[data-loader-pct]', loader)!;
+  const center = $('.loader__center', loader)!;
+  const logoBox = $('[data-loader-logo]', loader)!;
+  const glyphs = $$('.glyph', logoBox);
+
+  // le tracé suit le chargement, sans aller plus vite qu'un dessin à la main (2,2 s minimum)
+  let target = 0;
+  const shown = { p: 0 };
+  const t0 = performance.now();
+  let finished = false;
+  loadProgress((p) => (target = Math.max(target, p)));
+  const draw = () => {
+    const cap = Math.min(1, (performance.now() - t0) / 2200);
+    shown.p += (Math.min(target, cap) - shown.p) * 0.1;
+    if (Math.min(target, cap) >= 1 && shown.p > 0.985) shown.p = 1;
+    stroke.style.strokeDashoffset = String(1 - shown.p);
+    bar.style.transform = `scaleX(${shown.p})`;
+    pct.textContent = String(Math.round(shown.p * 100));
+    if (shown.p >= 1 && !finished) {
+      finished = true;
+      gsap.ticker.remove(draw);
+      finish();
+    }
+  };
+  gsap.ticker.add(draw);
+
+  const finish = () => {
+    const shift = (logoBox.offsetHeight + parseFloat(getComputedStyle(logoBox).top) - center.offsetHeight) / 2;
+    gsap
+      .timeline({
+        onComplete: () => {
+          loader.remove();
+          lock(false);
+        },
+      })
+      // le monogramme se remplit d'encre
+      .to(fill, { opacity: 1, duration: 0.9, ease: 'power2.out' }, 0)
+      .to(stroke, { opacity: 0, duration: 0.9, ease: 'power2.out' }, 0.2)
+      .fromTo('[data-loader-mono]', { scale: 1 }, { scale: 0.86, duration: 1.4, ease: 'expo.inOut' }, 0.3)
+      .to('.loader__foot', { opacity: 0, duration: 0.5 }, 0.3)
+      // Mel ar Bescond apparaît dessous, l'ensemble se recentre
+      .to(center, { y: -shift, duration: 1.4, ease: 'expo.inOut' }, 0.5)
+      .fromTo(glyphs, { yPercent: 60, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 1.4, stagger: 0.06, ease: 'expo.out' }, 0.9)
+      // puis le site entier
+      .to(center, { opacity: 0, y: -shift - 30, duration: 0.8, ease: 'power3.in' }, 2.7)
+      .to(loader, { clipPath: 'inset(0 0 100% 0)', duration: 1.2, ease: 'expo.inOut' }, 3)
+      .add(heroIntro(), 3.3);
+  };
 }
 
 // au défilement : la photo se resserre en cadre, le texte monte et s'efface
@@ -366,10 +398,7 @@ reveals();
 seasons();
 commande();
 
-const start = () => {
-  runLoader();
-  ScrollTrigger.refresh();
-};
-if (document.fonts?.ready) Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 2500))]).then(start);
-else start();
+// le préloader démarre tout de suite et suit lui-même le chargement
+runLoader();
+document.fonts?.ready.then(() => ScrollTrigger.refresh());
 window.addEventListener('load', () => ScrollTrigger.refresh());

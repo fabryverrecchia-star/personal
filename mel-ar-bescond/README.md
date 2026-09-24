@@ -16,7 +16,7 @@ npm run preview:file   # page autonome artifact/mel-ar-bescond.html (aperçu à 
 
 | Section | Mouvement |
 | --- | --- |
-| Ouverture | sur fond blanc, l’emblème se dessine : la corde s’enroule autour de l’anneau, les boucles se nouent, puis l’abeille apparaît |
+| Ouverture | sur fond blanc, le monogramme NF se compose au rythme du chargement (contour tracé, puis rempli d’encre), « Mel ar Bescond » apparaît dessous, puis le rideau se lève sur le site |
 | Hero | les 4 photos du shooting en plein écran (WebGL, transition liquide, léger suivi de la souris), grand titre révélé ligne par ligne, navigation par barres de progression ; au défilement la photo se resserre en cadre |
 | Promesse | les mots s’éclairent au fil de la lecture |
 | La maison | photos en WebGL : révélation organique, parallaxe, courbure au défilement, ondulation au survol |
@@ -61,6 +61,8 @@ Astro génère les versions optimisées au build.
 `brand/kit/` contient le brand kit d’origine. `npm run brand` régénère :
 - `src/assets/svg/` : logo (un tracé par lettre, pour l’animation), emblème, abeille, monogramme, hermine, carte de Bretagne, vectorisés depuis le kit (`scripts/vectorize.mjs`) ;
 - `src/assets/photos/` : les recadrages provisoires (`scripts/crops.mjs`).
+
+`node scripts/monogram.mjs` régénère le monogramme NF affiné du préloader (`src/assets/svg/monogram-fine.svg`).
 
 Polices : Cormorant (titres et texte) et Exo 2 (petites capitales), auto-hébergées via Fontsource.
 

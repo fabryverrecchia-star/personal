@@ -1,59 +1,24 @@
 ---
-// Ouverture sur fond blanc : l'emblème se dessine, la corde s'enroule autour de l'anneau,
-// les boucles se nouent de chaque côté, puis le texte et l'abeille apparaissent.
-// Le tracé de l'emblème est révélé par un masque animé (voir runLoader dans main.ts).
-import emblem from '../assets/svg/emblem.svg?raw';
-const inner = emblem.replace(/^<svg[^>]*>|<\/svg>$/g, '');
+// Ouverture sur fond blanc : le monogramme NF se compose au rythme du chargement (son contour se trace,
+// puis il se remplit d'encre), « Mel ar Bescond » apparaît, puis le rideau se lève sur le site.
+import mono from '../assets/svg/monogram-fine.svg?raw';
+import logo from '../assets/svg/logo.svg?raw';
+const vb = mono.match(/viewBox="([^"]+)"/)![1];
+const d = mono.match(/ d="([^"]+)"/)![1];
 ---
 
 <div class="loader" data-loader aria-hidden="true">
-  <svg class="loader__emblem" viewBox="0 0 1392 1104" data-loader-emblem>
-    <defs>
-      <mask id="rope-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1392" height="1104">
-        <!-- boucles : balayage autour des nœuds -->
-        <path data-sweep="376,624,360,180,1" fill="#fff"></path>
-        <path data-sweep="1016,624,360,0,-1" fill="#fff"></path>
-        <!-- on masque ce qui tombe dans l'anneau -->
-        <circle cx="691" cy="480" r="384" fill="#000"></circle>
-        <!-- anneau de corde : il s'enroule -->
-        <circle
-          data-draw
-          cx="691"
-          cy="480"
-          r="341"
-          fill="none"
-          stroke="#fff"
-          stroke-width="96"
-          pathLength="1"
-          transform="rotate(90 691 480)"></circle>
-        <!-- médaillon du monogramme -->
-        <circle
-          data-draw
-          cx="691"
-          cy="936"
-          r="150"
-          fill="none"
-          stroke="#fff"
-          stroke-width="190"
-          pathLength="1"
-          transform="rotate(-90 691 936)"></circle>
-        <!-- inscription en arc -->
-        <circle
-          data-draw
-          cx="691"
-          cy="480"
-          r="460"
-          fill="none"
-          stroke="#fff"
-          stroke-width="150"
-          pathLength="1"
-          transform="rotate(180 691 480)"></circle>
-        <!-- cœur : abeille, cercle et points -->
-        <circle data-core cx="691" cy="480" r="296" fill="#fff" opacity="0"></circle>
-      </mask>
-    </defs>
-    <g mask="url(#rope-mask)" fill="currentColor" set:html={inner} />
-  </svg>
+  <div class="loader__center">
+    <svg class="loader__mono" viewBox={vb} data-loader-mono>
+      <path class="loader__fill" d={d} data-mono-fill></path>
+      <path class="loader__stroke" d={d} pathLength="1" data-mono-stroke></path>
+    </svg>
+    <div class="loader__logo" data-loader-logo set:html={logo} />
+  </div>
+  <div class="loader__foot">
+    <span class="loader__bar"><i data-loader-bar></i></span>
+    <span class="label loader__pct"><span data-loader-pct>0</span></span>
+  </div>
 </div>
 
 <style>
@@ -69,13 +34,72 @@ const inner = emblem.replace(/^<svg[^>]*>|<\/svg>$/g, '');
   :global(html:not(.js)) .loader {
     display: none;
   }
-  .loader__emblem {
-    width: min(78vw, 560px);
+  .loader__center {
+    position: relative;
+    display: grid;
+    justify-items: center;
+  }
+  .loader__mono {
+    width: clamp(92px, 11vw, 150px);
     height: auto;
     overflow: visible;
   }
-  .loader__emblem [data-draw] {
+  .loader__stroke {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
+  }
+  .loader__fill {
+    fill: var(--ink);
+    opacity: 0;
+  }
+  .loader__logo {
+    position: absolute;
+    top: calc(100% + clamp(24px, 3.4vh, 40px));
+    left: 50%;
+    translate: -50% 0;
+    width: clamp(190px, 22vw, 300px);
+  }
+  .loader__logo :global(svg) {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .loader__logo :global(.glyph) {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+  .loader__foot {
+    position: absolute;
+    left: var(--gutter);
+    right: var(--gutter);
+    bottom: calc(clamp(24px, 5vh, 48px) + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+  }
+  .loader__bar {
+    position: relative;
+    flex: 1;
+    height: 1px;
+    background: rgb(23 18 13 / 0.12);
+    overflow: hidden;
+  }
+  .loader__bar i {
+    position: absolute;
+    inset: 0;
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  .loader__pct {
+    min-width: 3ch;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-soft);
   }
 </style>
