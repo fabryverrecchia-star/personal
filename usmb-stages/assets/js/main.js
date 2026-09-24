@@ -9,6 +9,10 @@ const CONFIG = {
   // Optionnel : URL d'un service de formulaire (Formspree, Getform, Make…) acceptant un POST JSON.
   // Si renseignée, l'inscription est envoyée directement sans passer par la messagerie.
   endpoint: "",
+  // Animations quand l'appareil demande à « réduire les animations » (réglage d'accessibilité) :
+  //  "douces"    → fondus, curseur et compteurs seulement (recommandé)
+  //  "completes" → toutes les animations, comme sur un appareil sans ce réglage
+  animationsReduites: "douces",
 };
 
 const STAGES = {
@@ -39,7 +43,8 @@ const diag = { init: "", errors: [] };
 window.addEventListener("error", (e) => diag.errors.push(e.message));
 const $ = (s, c = document) => c.querySelector(s);
 const $$ = (s, c = document) => [...c.querySelectorAll(s)];
-const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reduced = CONFIG.animationsReduites !== "completes" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (reduced) document.documentElement.classList.add("reduce-motion");
 const finePointer = window.matchMedia("(pointer: fine)").matches;
 
 /* =========================================================
@@ -309,9 +314,74 @@ function hideLoader() {
   if (l) l.remove();
 }
 
+/* ---- Blocs partagés entre la version complète et la version douce */
+function wordsAndCounters(gsap) {
+  /* ---- Manifeste mot par mot */
+  const words = splitWords($(".manifesto__text"));
+  gsap.to(words, {
+    opacity: 1, stagger: .1, ease: "none",
+    scrollTrigger: { trigger: ".manifesto__text", start: "top 80%", end: "bottom 45%", scrub: true },
+  });
+
+  /* ---- Compteurs */
+  $$("[data-count]").forEach((el) => {
+    const end = Number(el.dataset.count);
+    const o = { v: end > 100 ? end - 60 : 0 };
+    el.textContent = Math.round(o.v);
+    gsap.to(o, {
+      v: end, duration: 2, ease: "power3.out",
+      onUpdate: () => (el.textContent = Math.round(o.v)),
+      scrollTrigger: { trigger: el, start: "top 88%", once: true },
+    });
+  });
+}
+
+function setupCursor(gsap, magnetic) {
+  const cursor = $(".cursor");
+  const label = $(".cursor__label");
+  const xTo = gsap.quickTo(cursor, "x", { duration: .45, ease: "power3" });
+  const yTo = gsap.quickTo(cursor, "y", { duration: .45, ease: "power3" });
+  window.addEventListener("pointermove", (e) => { xTo(e.clientX); yTo(e.clientY); });
+  $$("[data-cursor]").forEach((el) => {
+    el.addEventListener("pointerenter", () => { label.textContent = el.dataset.cursor; cursor.classList.add("is-hover"); });
+    el.addEventListener("pointerleave", () => cursor.classList.remove("is-hover"));
+  });
+  document.addEventListener("pointerleave", () => gsap.to(cursor, { autoAlpha: 0, duration: .3 }));
+  document.addEventListener("pointerenter", () => gsap.to(cursor, { autoAlpha: 1, duration: .3 }));
+  if (!magnetic) return;
+  $$(".magnetic").forEach((el) => {
+    const strength = el.classList.contains("btn--xl") ? 10 : 22;
+    const mx = gsap.quickTo(el, "x", { duration: .8, ease: "elastic.out(1, .4)" });
+    const my = gsap.quickTo(el, "y", { duration: .8, ease: "elastic.out(1, .4)" });
+    el.addEventListener("pointermove", (e) => {
+      const r = el.getBoundingClientRect();
+      mx(((e.clientX - r.left) / r.width - .5) * strength);
+      my(((e.clientY - r.top) / r.height - .5) * strength);
+    });
+    el.addEventListener("pointerleave", () => { mx(0); my(0); });
+  });
+}
+
+/* ---- Version douce : fondus sans déplacement (appareil réglé sur « réduire les animations ») */
+function lightMotion(gsap, ScrollTrigger) {
+  gsap.registerPlugin(ScrollTrigger);
+  hideLoader();
+  window.__usmbScrollTo = (el) => el.scrollIntoView({ block: "start" });
+  navBehaviour();
+  gsap.from([".hero__media img", ".hero__inner", ".hero__foot"], { autoAlpha: 0, duration: 1.4, ease: "power1.out", stagger: .25 });
+  const groups = [".manifesto > .eyebrow", ".stats li", ".section-head", ".stage__media", ".stage__body", ".programme__head", ".day", ".info-card", ".pricing__row", ".signup__intro", ".form__group", ".footer__big", ".footer__row"];
+  $$(groups.join(",")).forEach((el) =>
+    gsap.from(el, { autoAlpha: 0, duration: 1, ease: "power1.out", scrollTrigger: { trigger: el, start: "top 92%", once: true } })
+  );
+  wordsAndCounters(gsap);
+  if (finePointer) setupCursor(gsap, false);
+  window.addEventListener("load", () => ScrollTrigger.refresh());
+}
+
 function init() {
   const { gsap, ScrollTrigger } = window;
-  if (!gsap || !ScrollTrigger || reduced) {
+  if (gsap && ScrollTrigger && reduced) { lightMotion(gsap, ScrollTrigger); return; }
+  if (!gsap || !ScrollTrigger) {
     hideLoader();
     // Défilement fluide natif pour les ancres, sans librairie
     window.__usmbScrollTo = (el) => el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
@@ -403,24 +473,7 @@ function init() {
     });
   }
 
-  /* ---- Manifeste mot par mot */
-  const words = splitWords($(".manifesto__text"));
-  gsap.to(words, {
-    opacity: 1, stagger: .1, ease: "none",
-    scrollTrigger: { trigger: ".manifesto__text", start: "top 80%", end: "bottom 45%", scrub: true },
-  });
-
-  /* ---- Compteurs */
-  $$("[data-count]").forEach((el) => {
-    const end = Number(el.dataset.count);
-    const o = { v: end > 100 ? end - 60 : 0 };
-    el.textContent = Math.round(o.v);
-    gsap.to(o, {
-      v: end, duration: 2, ease: "power3.out",
-      onUpdate: () => (el.textContent = Math.round(o.v)),
-      scrollTrigger: { trigger: el, start: "top 88%", once: true },
-    });
-  });
+  wordsAndCounters(gsap);
 
   /* ---- Titres de section */
   $$("section:not(.hero) .section-title").forEach((t) => {
@@ -494,29 +547,7 @@ function init() {
 
   /* ---- Curseur & boutons magnétiques */
   if (finePointer) {
-    const cursor = $(".cursor");
-    const label = $(".cursor__label");
-    const xTo = gsap.quickTo(cursor, "x", { duration: .45, ease: "power3" });
-    const yTo = gsap.quickTo(cursor, "y", { duration: .45, ease: "power3" });
-    window.addEventListener("pointermove", (e) => { xTo(e.clientX); yTo(e.clientY); });
-    $$("[data-cursor]").forEach((el) => {
-      el.addEventListener("pointerenter", () => { label.textContent = el.dataset.cursor; cursor.classList.add("is-hover"); });
-      el.addEventListener("pointerleave", () => cursor.classList.remove("is-hover"));
-    });
-    document.addEventListener("pointerleave", () => gsap.to(cursor, { autoAlpha: 0, duration: .3 }));
-    document.addEventListener("pointerenter", () => gsap.to(cursor, { autoAlpha: 1, duration: .3 }));
-
-    $$(".magnetic").forEach((el) => {
-      const strength = el.classList.contains("btn--xl") ? 10 : 22;
-      const mx = gsap.quickTo(el, "x", { duration: .8, ease: "elastic.out(1, .4)" });
-      const my = gsap.quickTo(el, "y", { duration: .8, ease: "elastic.out(1, .4)" });
-      el.addEventListener("pointermove", (e) => {
-        const r = el.getBoundingClientRect();
-        mx(((e.clientX - r.left) / r.width - .5) * strength);
-        my(((e.clientY - r.top) / r.height - .5) * strength);
-      });
-      el.addEventListener("pointerleave", () => { mx(0); my(0); });
-    });
+    setupCursor(gsap, true);
 
     // Légère inclinaison 3D des cartes programme
     $$(".day").forEach((card) => {
@@ -588,7 +619,7 @@ function showDiag() {
       "GSAP : " + (window.gsap ? window.gsap.version : "NON CHARGÉ"),
       "ScrollTrigger : " + (window.ScrollTrigger ? window.ScrollTrigger.getAll().length + " déclencheurs" : "NON CHARGÉ"),
       "Lenis : " + (window.Lenis ? "chargé" : "non chargé"),
-      "Réduire les animations : " + (reduced ? "OUI (animations coupées)" : "non"),
+      "Réduire les animations : " + (reduced ? "OUI → version douce" : "non") + " (réglage : " + CONFIG.animationsReduites + ")",
       "Pointeur souris : " + (finePointer ? "oui" : "non (tactile)"),
       "Fenêtre : " + innerWidth + "×" + innerHeight + (window.top !== window ? " (dans un cadre)" : ""),
       "Hauteur page : " + document.documentElement.scrollHeight + " · scrollY " + Math.round(scrollY) + " · évènements scroll " + scrolls,

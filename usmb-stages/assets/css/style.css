@@ -460,9 +460,8 @@ button { font: inherit; color: inherit; }
 /* =========================== Reveal (JS) */
 .js [data-reveal] { opacity: 0; transform: translateY(40px); }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-  .js .manifesto__text .word { opacity: 1; }
-  .js [data-reveal] { opacity: 1; transform: none; }
-  .grain { display: none; }
-}
+/* Appareil réglé sur « réduire les animations » : on coupe les mouvements en boucle */
+.reduce-motion .grain { display: none; }
+.reduce-motion .marquee__track, .reduce-motion .eyebrow .dot, .reduce-motion .scroll-cue i::after { animation: none; }
+.reduce-motion .marquee__track { flex-wrap: wrap; width: auto; justify-content: center; row-gap: .6rem; }
+.reduce-motion .marquee__track > :nth-child(n+15) { display: none; }
