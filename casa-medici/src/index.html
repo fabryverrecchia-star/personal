@@ -1,0 +1,1111 @@
+<meta charset="utf-8">
+<title>Casa Medici</title>
+<meta name="description" content="Casa Medici, ristorante à Alfortville. Branding et direction artistique par Fabrizio Verrecchia × Abysse Lab Paris.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Geist:wght@300;400;500&family=Martian+Mono:wdth,wght@75,300;75,400&display=swap">
+<style>
+:root{
+  --paper:#f3f4f0;
+  --ink:#191919;
+  --ink-soft:#3d3d3d;
+  --mute:#77756c;
+  --line:rgba(25,25,25,.18);
+  --carminio:#811300;
+  --rosso:#cf1f00;
+  --profondo:#b42209;
+  --bordeaux:#740401;
+  --corallo:#d14e15;
+  --bruciato:#bb3200;
+  --bronzo:#e4a858;
+  --bruno:#594a2d;
+  --crema:#ffecd6;
+  --avorio:#fff1ca;
+  --pesca:#ffc5af;
+  --rosa:#ffefeb;
+  --salvia:#dcded6;
+  --oliva:#cfd1b9;
+  --gut:clamp(16px,2.6vw,40px);
+  --f-display:"Geist","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --f-serif:"Cormorant Garamond","Cormorant",Garamond,"Times New Roman",serif;
+  --f-mono:"Martian Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.19,1,.22,1);
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--paper)}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-display);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:clip}
+img{max-width:100%;display:block}
+a{color:inherit}
+::selection{background:var(--rosso);color:var(--crema)}
+:focus-visible{outline:1px solid var(--rosso);outline-offset:4px}
+
+/* ---------- utilitaires typo ---------- */
+.mono{font-family:var(--f-mono);font-variation-settings:"wdth" 75;font-stretch:75%;font-size:11px;line-height:1.45;letter-spacing:.06em;text-transform:uppercase;font-weight:400}
+.mono b{font-weight:400;opacity:.55}
+.display{font-family:var(--f-display);font-weight:400;letter-spacing:-.045em;line-height:.9;text-wrap:balance;margin:0}
+.serif{font-family:var(--f-serif);font-weight:300}
+.num{display:inline-grid;place-items:center;width:1.9em;height:1.9em;border:1px solid currentColor;border-radius:50%;font-family:var(--f-serif);font-size:clamp(20px,2.2vw,30px);line-height:1;letter-spacing:-.02em;flex:none;font-variant-numeric:lining-nums}
+.chapter{display:flex;gap:clamp(14px,2vw,28px);align-items:flex-start}
+.chapter .display{font-size:clamp(40px,6.4vw,104px)}
+
+/* ---------- grain ---------- */
+.grain{position:fixed;inset:-50%;z-index:40;pointer-events:none;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain 1s steps(4) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}100%{transform:translate(0,0)}}
+
+/* ---------- canvas WebGL ---------- */
+#gl{position:fixed;inset:0;width:100%;height:100%;z-index:20;pointer-events:none}
+
+/* ---------- barre ---------- */
+.bar{position:fixed;top:0;left:0;right:0;z-index:50;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:calc(env(safe-area-inset-top,0px) + 18px) var(--gut) 18px;color:var(--crema);transition:color .6s var(--ease);pointer-events:none}
+.bar a,.bar button{pointer-events:auto}
+.bar[data-tone="dark"]{color:var(--ink)}
+.bar__brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.bar__brand svg{width:18px;height:auto;color:currentColor}
+.bar__mid{text-align:center}
+.bar__right{text-align:right;white-space:nowrap}
+.bar__progress{position:absolute;left:var(--gut);right:var(--gut);bottom:0;height:1px;background:currentColor;opacity:.25;transform-origin:left;transform:scaleX(var(--p,0))}
+
+/* ---------- loader ---------- */
+.loader{position:fixed;inset:0;z-index:60;background:var(--crema);color:var(--carminio);display:grid;place-items:center;transition:clip-path 1.3s var(--ease);clip-path:inset(0 0 0 0)}
+.loader.is-out{clip-path:inset(0 0 100% 0)}
+.loader__mark{width:min(34vw,150px);color:var(--carminio)}
+.loader__mark path{fill:currentColor;fill-opacity:0;stroke:currentColor;stroke-width:.7;stroke-dasharray:1;stroke-dashoffset:1}
+.loader.is-drawing .loader__mark path{transition:stroke-dashoffset 1.9s var(--ease),fill-opacity .9s ease 1.2s;stroke-dashoffset:0;fill-opacity:1}
+.loader__foot{position:absolute;left:var(--gut);right:var(--gut);bottom:calc(env(safe-area-inset-bottom,0px) + 22px);display:flex;justify-content:space-between;gap:16px}
+.loader__count{font-variant-numeric:tabular-nums}
+
+/* ---------- hero ---------- */
+.hero{position:relative;height:340vh;background:var(--carminio);color:var(--crema)}
+.hero__sticky{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.hero__meta{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 76px);display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.hero__meta .copy{font-family:var(--f-serif);font-size:22px;line-height:1}
+.hero__phase{position:absolute;left:var(--gut);top:50%;transform:translateY(-50%);display:grid;gap:6px}
+.hero__phase span{transition:opacity .6s,transform .8s var(--ease)}
+.hero__phase span.off{opacity:.25}
+.hero__hint{position:absolute;right:var(--gut);top:50%;transform:translateY(-50%);writing-mode:vertical-rl;display:flex;gap:14px;align-items:center}
+.hero__hint i{display:block;width:1px;height:56px;background:currentColor;opacity:.5;animation:hint 2.4s var(--ease) infinite;transform-origin:top}
+@keyframes hint{0%{transform:scaleY(0)}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.hero__lockup{position:absolute;left:50%;top:50%;width:min(84vw,1060px);transform:translate(-50%,-50%);display:grid;justify-items:center;gap:clamp(18px,3vh,34px);pointer-events:none}
+.hero__word{width:100%;color:var(--crema);clip-path:inset(0 100% 0 0)}
+.hero__word svg{width:100%;height:auto;display:block}
+.hero__sub{display:flex;align-items:center;gap:clamp(14px,3vw,34px);font-size:clamp(11px,1.2vw,15px);opacity:0;transform:translateY(12px)}
+.hero__sub svg{width:clamp(22px,2.6vw,34px);height:auto}
+.hero__da{opacity:0}
+.hero__credits{position:absolute;left:var(--gut);right:var(--gut);bottom:calc(env(safe-area-inset-bottom,0px) + 26px);display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:center}
+.hero__credits > div:first-child{text-align:left}
+.hero__credits > div:last-child{text-align:right}
+.hero__fallback{position:absolute;left:50%;top:50%;width:min(40vw,210px);transform:translate(-50%,-50%);color:var(--crema);display:none}
+.no-gl .hero__fallback{display:block}
+
+/* ---------- sections communes ---------- */
+.section{position:relative;padding-inline:var(--gut);padding-block:clamp(90px,14vw,200px)}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--gut)}
+.foot{display:flex;justify-content:space-between;gap:16px;border-top:1px solid var(--line);padding-top:12px;margin-top:clamp(60px,8vw,110px)}
+.foot span:nth-child(2){letter-spacing:.9em}
+
+/* ---------- révélations ---------- */
+.js .rv{opacity:0;transform:translateY(28px);transition:opacity 1.1s var(--ease),transform 1.3s var(--ease);transition-delay:calc(var(--d,0) * 90ms)}
+.js .rv.in{opacity:1;transform:none}
+.js .lines .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em;margin-bottom:-.08em}
+.js .lines .w > span{display:inline-block;transform:translateY(105%);transition:transform 1.25s var(--ease);transition-delay:calc(var(--i,0) * 38ms)}
+.js .lines.in .w > span{transform:none}
+
+/* ---------- Vita ---------- */
+.vita{background:var(--paper)}
+.vita__top{display:flex;justify-content:space-between;gap:16px;margin-bottom:clamp(40px,6vw,80px)}
+.vita__lead{font-family:var(--f-serif);font-weight:300;font-size:clamp(34px,5.4vw,88px);line-height:1.02;letter-spacing:-.02em;margin:0;max-width:17ch;text-wrap:balance}
+.vita__lead .wf{color:var(--ink);opacity:.14;transition:opacity .35s linear}
+.vita__lead .wf.on{opacity:1}
+.vita__lead em{font-style:italic;color:var(--rosso)}
+.vita__line{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:clamp(14px,3vw,40px);margin-top:clamp(60px,9vw,130px)}
+.vita__from{display:grid;gap:8px}
+.vita__from .name{font-family:var(--f-display);font-size:clamp(24px,3.4vw,52px);letter-spacing:-.04em;line-height:1}
+.vita__rule{height:1px;background:var(--ink);transform-origin:left;transform:scaleX(0);transition:transform 1.8s var(--ease) .2s;position:relative}
+.vita__line.in .vita__rule{transform:scaleX(1)}
+.vita__rule::after{content:"";position:absolute;right:-1px;top:-4px;width:9px;height:9px;border-top:1px solid var(--ink);border-right:1px solid var(--ink);transform:rotate(45deg)}
+.vita__to{width:clamp(170px,28vw,420px);color:var(--rosso)}
+.vita__to svg{width:100%;height:auto}
+.vita__body{margin-top:clamp(50px,7vw,90px)}
+.vita__body p{grid-column:7 / span 5;margin:0;font-size:16px;line-height:1.6;color:var(--ink-soft);max-width:52ch}
+
+/* ---------- Le projet ---------- */
+.projet{background:var(--rosa)}
+.projet__head{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:clamp(40px,6vw,80px)}
+.projet__head .display{font-size:clamp(64px,13vw,210px)}
+.projet__fig{grid-column:1 / span 6;align-self:start;position:sticky;top:90px}
+.projet__txt{grid-column:8 / span 5;display:grid;gap:44px}
+.block h3{margin:0 0 14px}
+.block p{margin:0 0 12px;color:var(--ink-soft);max-width:54ch}
+.block strong{font-weight:500;color:var(--ink)}
+.principles{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.principles li{display:grid;grid-template-columns:22px 1fr;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.principles svg{width:14px;height:auto;color:var(--rosso);transform:translateY(2px)}
+
+/* ---------- figures WebGL ---------- */
+.fig{position:relative;margin:0;background:rgba(129,19,0,.06);overflow:hidden}
+.fig img{width:100%;height:100%;object-fit:cover;transition:opacity .4s}
+.gl-on .fig[data-gl] img{opacity:0}
+.fig figcaption{position:absolute;left:0;top:calc(100% + 10px)}
+.figwrap{position:relative;padding-bottom:28px}
+.figwrap figcaption{position:static;margin-top:10px}
+
+/* ---------- Univers (galerie horizontale) ---------- */
+.univers{background:var(--paper);padding:0}
+.univers__pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:flex;align-items:center}
+.univers__track{display:flex;align-items:center;gap:clamp(24px,4vw,70px);padding-inline:var(--gut);will-change:transform}
+.univers__intro{flex:none;width:min(86vw,560px);display:grid;gap:28px;padding-right:clamp(0px,4vw,60px)}
+.univers__intro p{margin:0;color:var(--ink-soft);max-width:48ch}
+.univers__intro .kicker{color:var(--ink)}
+.u-item{flex:none;display:grid;gap:10px}
+.u-item .fig{width:var(--w);aspect-ratio:var(--r)}
+.u-quote{flex:none;width:min(78vw,440px);font-family:var(--f-serif);font-weight:300;font-style:italic;font-size:clamp(28px,3.2vw,46px);line-height:1.08;color:var(--carminio);margin:0}
+.univers__count{position:absolute;left:var(--gut);bottom:26px;font-variant-numeric:tabular-nums}
+.univers__bar{position:absolute;left:calc(var(--gut) + 90px);right:var(--gut);bottom:32px;height:1px;background:var(--line)}
+.univers__bar i{position:absolute;inset:0;background:var(--ink);transform-origin:left;transform:scaleX(var(--p,0))}
+
+/* ---------- Signe (construction) ---------- */
+.signe{background:var(--rosso);color:var(--avorio)}
+.signe__pin{position:relative}
+.signe__grid{align-items:center;row-gap:60px}
+.signe__txt{grid-column:1 / span 5;display:grid;gap:34px}
+.signe__txt p{margin:0;max-width:46ch;opacity:.86}
+.signe__quote{font-family:var(--f-serif);font-weight:300;font-size:clamp(30px,3.6vw,56px);line-height:1.02;margin:0;letter-spacing:-.01em}
+.signe__quote em{display:block;font-style:italic;opacity:.72}
+.signe__draw{grid-column:7 / span 6;position:relative;aspect-ratio:1 / 1;max-width:620px;justify-self:end;width:100%}
+.signe__draw svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.cons line,.cons rect,.cons circle,.cons ellipse{fill:none;stroke:var(--avorio);stroke-width:.35;opacity:.5;stroke-dasharray:1;stroke-dashoffset:var(--o,1)}
+.cons text{fill:var(--avorio);font-family:var(--f-mono);font-size:4.2px;letter-spacing:.06em;opacity:var(--t,0)}
+.emb path{fill:var(--avorio);fill-opacity:var(--fo,0);stroke:var(--avorio);stroke-width:.6;stroke-dasharray:1;stroke-dashoffset:var(--o,1)}
+.signe__study{grid-column:1 / span 4;margin-top:20px}
+.signe__study .fig{aspect-ratio:689 / 867}
+.signe__no{grid-column:6 / span 7;margin-top:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,241,202,.25);border:1px solid rgba(255,241,202,.25)}
+.signe__no div{background:var(--rosso);padding:20px 18px 22px;display:grid;gap:10px;align-content:start}
+.signe__no .t{font-family:var(--f-serif);font-size:clamp(22px,2vw,30px);line-height:1.05}
+
+/* ---------- Couleurs ---------- */
+.couleurs{background:var(--paper)}
+.couleurs__head{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:flex-start;gap:30px;flex-wrap:wrap;margin-bottom:clamp(40px,6vw,80px)}
+.couleurs__head p{margin:0;max-width:44ch;color:var(--ink-soft)}
+.swatches{display:flex;height:clamp(420px,62vh,640px);gap:0}
+.sw{flex:1;position:relative;padding:18px;display:flex;flex-direction:column;justify-content:space-between;color:var(--c,var(--crema));transition:flex 1s var(--ease);cursor:default;overflow:hidden;min-width:0}
+.sw:hover,.sw:focus-within{flex:2.3}
+.sw .nm{font-family:var(--f-serif);font-size:clamp(24px,2.6vw,40px);line-height:1;white-space:nowrap}
+.sw .meta{display:grid;gap:4px}
+.sw .role{max-width:28ch;opacity:0;transform:translateY(10px);transition:opacity .6s,transform .8s var(--ease);font-size:13px;line-height:1.45}
+.sw:hover .role,.sw:focus-within .role{opacity:.9;transform:none}
+.js .swatches .sw{clip-path:inset(100% 0 0 0);transition:flex 1s var(--ease),clip-path 1.4s var(--ease);transition-delay:0s,calc(var(--i) * 110ms)}
+.js .swatches.in .sw{clip-path:inset(0 0 0 0)}
+.carminio{position:relative;margin-top:clamp(80px,10vw,140px);display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--gut);align-items:end;row-gap:30px}
+.carminio__chip{grid-column:1 / span 5;background:#fff;padding:14px 14px 18px;box-shadow:0 30px 60px -30px rgba(25,25,25,.35)}
+.carminio__chip div{aspect-ratio:1;background:var(--carminio)}
+.carminio__chip p{margin:12px 0 0;display:flex;justify-content:space-between}
+.carminio__txt{grid-column:7 / span 6;display:grid;gap:24px}
+.carminio__txt .display{font-size:clamp(46px,7vw,120px);color:var(--carminio)}
+.carminio__txt dl{display:grid;grid-template-columns:auto 1fr;gap:6px 20px;margin:0;border-top:1px solid var(--line);padding-top:16px}
+.carminio__txt dd{margin:0;font-variant-numeric:tabular-nums}
+
+/* ---------- Logotype ---------- */
+.logo{background:var(--salvia)}
+.logo__big{margin-top:clamp(60px,9vw,130px);color:var(--rosso)}
+.logo__big svg{width:100%;height:auto;overflow:visible}
+.logo__big path{fill:currentColor;fill-opacity:var(--fo,0);stroke:currentColor;stroke-width:.45;stroke-dasharray:1;stroke-dashoffset:var(--o,1)}
+.logo__specs{margin-top:22px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.lockups{margin-top:clamp(80px,10vw,150px);display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gut)}
+.lk{position:relative;display:grid;place-items:center;overflow:hidden;min-height:clamp(320px,38vw,560px);padding:clamp(28px,4vw,60px)}
+.lk .inner{display:grid;justify-items:center;gap:clamp(16px,2vw,26px);width:100%;position:relative;z-index:1}
+.lk .word{width:min(100%,380px)}
+.lk .word svg,.lk .emb-s svg{width:100%;height:auto}
+.lk .sub{display:flex;align-items:center;gap:18px;font-size:clamp(10px,1vw,13px)}
+.lk .sub svg{width:24px;height:auto}
+.lk .tag{position:absolute;left:14px;top:12px;z-index:2}
+.lk--crema{grid-column:span 7;background:var(--rosa);color:var(--profondo)}
+.lk--noir{grid-column:span 5;background:#0e0c0b;color:#fff}
+.lk--rosso{grid-column:span 5;background:var(--rosso);color:var(--avorio)}
+.lk--pesca{grid-column:span 7;background:var(--pesca);color:var(--carminio)}
+.lk--pesca .bgimg{position:absolute;inset:-4% 0;background:url(assets/img/grazie.webp) center/contain no-repeat;opacity:.55;will-change:transform}
+.lk .word--wide{width:min(100%,560px)}
+
+/* ---------- Symbole ---------- */
+.symbole{background:var(--avorio)}
+.symbole__row{margin-top:clamp(60px,8vw,120px);display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gut);align-items:end}
+.sy{display:grid;gap:18px;justify-items:center;text-align:center}
+.sy svg{width:min(100%,200px);height:auto;overflow:visible}
+.sy .ring{color:#d7c9c3}
+.symbole__apps{margin-top:clamp(90px,11vw,160px);display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gut);align-items:end}
+.arch{grid-column:1 / span 5;background:var(--rosso);color:var(--avorio);border-radius:999px 999px 0 0;aspect-ratio:3 / 4;display:grid;grid-template-rows:1fr auto;justify-items:center;padding:16% 8% 7%;overflow:hidden}
+.arch .emb-s{width:46%;align-self:center}
+.arch .emb-s svg,.arch .word svg{width:100%;height:auto}
+.arch .word{width:100%}
+.apps__side{grid-column:7 / span 6;display:grid;gap:var(--gut)}
+.socials{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.avatar{width:clamp(96px,11vw,150px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center}
+.avatar svg{height:auto}
+.avatar--a{background:var(--profondo);color:var(--crema)}
+.avatar--a svg{width:38%}
+.avatar--b{background:var(--bordeaux);color:var(--crema)}
+.avatar--b svg{width:70%}
+.apps__side p{margin:0;max-width:46ch;color:var(--ink-soft)}
+.apps__side .fig{aspect-ratio:840 / 930;width:min(100%,460px)}
+.apps__pair{display:grid;grid-template-columns:1fr 1fr;gap:var(--gut);align-items:end}
+.apps__red{background:var(--rosso);color:var(--avorio);aspect-ratio:840/930;display:grid;place-items:center;position:relative;overflow:hidden}
+.apps__red .word{width:74%}
+.apps__red svg{width:100%;height:auto}
+.apps__red .emb-bg{position:absolute;width:150%;opacity:.1;color:var(--carminio)}
+
+/* ---------- Photo ---------- */
+.photo{background:var(--paper)}
+.photo__row{margin-top:clamp(60px,8vw,110px);display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gut);align-items:start}
+.mat{padding:clamp(10px,1.2vw,18px);background:var(--m)}
+.mat .fig{aspect-ratio:4 / 5}
+.photo__row > div:nth-child(2){margin-top:12vw}
+.photo__row > div:nth-child(3){margin-top:4vw}
+.photo__row > div:nth-child(4){margin-top:16vw}
+.photo__note{margin-top:clamp(70px,9vw,130px)}
+.photo__note p{grid-column:1 / span 5;margin:0;font-family:var(--f-serif);font-size:clamp(26px,2.8vw,42px);line-height:1.1}
+.photo__note .fig{grid-column:8 / span 5;aspect-ratio:662 / 828}
+
+/* ---------- Contact / Grazie ---------- */
+.contact{background:var(--salvia);padding-bottom:0}
+.contact__grid{align-items:start;row-gap:50px}
+.contact__list{grid-column:1 / span 7;display:grid;gap:clamp(24px,3vw,40px);margin:0}
+.contact__list dt{margin-bottom:4px}
+.contact__list dd{margin:0;font-family:var(--f-display);font-weight:500;font-size:clamp(28px,4.4vw,70px);letter-spacing:-.045em;line-height:.95;word-break:break-word}
+.contact__list dd a{text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .6s var(--ease)}
+.contact__list dd a:hover{background-size:100% 1px}
+.copy-btn{margin-left:12px;vertical-align:middle;border:1px solid currentColor;background:transparent;color:inherit;border-radius:99px;padding:6px 10px;cursor:pointer}
+.contact__side{grid-column:9 / span 4;display:grid;gap:26px}
+.contact__side .fig{aspect-ratio:466 / 647}
+.grazie{position:relative;background:var(--pesca);color:var(--carminio);margin-inline:calc(var(--gut) * -1);margin-top:clamp(90px,12vw,170px);padding:clamp(80px,12vw,160px) var(--gut) 26px;overflow:hidden}
+.grazie__bg{position:absolute;inset:0;background:url(assets/img/grazie.webp) center 30%/min(100%,900px) auto no-repeat;opacity:.42}
+.grazie__in{position:relative;display:grid;justify-items:center;gap:clamp(20px,3vw,36px);text-align:center}
+.grazie__in .stack{width:min(78vw,520px)}
+.grazie__in .stack svg{width:100%;height:auto}
+.grazie__in .sub{display:flex;gap:22px;align-items:center;font-size:clamp(11px,1.2vw,15px)}
+.grazie__in .sub svg{width:28px;height:auto}
+.grazie__words{font-family:var(--f-display);font-size:clamp(42px,6vw,96px);letter-spacing:-.045em;line-height:.9;margin:clamp(40px,6vw,80px) 0 0}
+.grazie__words em{font-style:italic;display:block}
+.grazie__foot{position:relative;margin-top:clamp(70px,9vw,120px);display:grid;grid-template-columns:repeat(3,1fr);gap:16px;border-top:1px solid rgba(129,19,0,.35);padding-top:14px}
+.grazie__foot > :nth-child(2){text-align:center}
+.grazie__foot > :last-child{text-align:right}
+
+/* ---------- responsive ---------- */
+@media (max-width:900px){
+  .bar__mid{display:none}
+  .bar{grid-template-columns:1fr 1fr}
+  .hero__phase,.hero__hint{display:none}
+  .hero__credits{grid-template-columns:1fr 1fr;row-gap:10px}
+  .hero__credits > div:first-child,.hero__credits > div:last-child{text-align:left}
+  .hero__credits > div:nth-child(2){text-align:right}
+  .vita__line{grid-template-columns:1fr;justify-items:start}
+  .vita__rule{width:100%}
+  .vita__body p,.projet__fig,.projet__txt,.signe__txt,.signe__draw,.signe__study,.signe__no,.carminio__chip,.carminio__txt,.contact__list,.contact__side,.photo__note p,.photo__note .fig{grid-column:1 / -1}
+  .projet__fig{position:relative;top:0;margin-bottom:50px}
+  .signe__draw{justify-self:center}
+  .signe__no{grid-template-columns:1fr}
+  .swatches{flex-direction:column;height:auto}
+  .sw{min-height:92px;flex:none!important}
+  .sw .role{opacity:.9;transform:none}
+  .lk--crema,.lk--noir,.lk--rosso,.lk--pesca{grid-column:1 / -1}
+  .symbole__row{grid-template-columns:1fr 1fr 1fr;gap:12px}
+  .arch,.apps__side{grid-column:1 / -1}
+  .arch{max-width:420px;width:100%;justify-self:center}
+  .photo__row{grid-template-columns:1fr 1fr}
+  .photo__row > div:nth-child(n){margin-top:0}
+  .photo__row > div:nth-child(even){margin-top:14vw}
+  .photo__note{row-gap:40px}
+  .grazie__foot{grid-template-columns:1fr;text-align:center}
+  .grazie__foot > *{text-align:center!important}
+}
+@media (prefers-reduced-motion:reduce){
+  .grain{animation:none}
+  .js .rv,.js .lines .w > span{transition:none;opacity:1;transform:none}
+  .js .swatches .sw{clip-path:none}
+  .hero__hint i{animation:none}
+}
+</style>
+
+<div class="grain" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<!-- ============ LOADER ============ -->
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader__mark"><!--SVG:emblem--></div>
+  <div class="loader__foot mono">
+    <span>Casa Medici <b>—</b> da Vita Ristorante</span>
+    <span class="loader__count" id="count">000</span>
+  </div>
+</div>
+
+<!-- ============ BARRE ============ -->
+<header class="bar mono" id="bar">
+  <a class="bar__brand" href="#top" aria-label="Casa Medici, retour en haut"><!--SVG:emblem--><span>Casa Medici</span></a>
+  <span class="bar__mid">Branding &amp; art direction <b>—</b> 2026</span>
+  <span class="bar__right">F. Verrecchia <b>×</b> Abysse Lab</span>
+  <i class="bar__progress" aria-hidden="true"></i>
+</header>
+
+<main id="top">
+
+<!-- ============ HERO : particules → pictogramme → logotype ============ -->
+<section class="hero" id="hero" data-tone="light" aria-label="Casa Medici">
+  <div class="hero__sticky" id="heroSticky">
+    <div class="hero__meta mono">
+      <span>Juillet 2026</span>
+      <span class="copy">©</span>
+      <span>Branding &amp; art direction</span>
+    </div>
+
+    <div class="hero__phase mono" aria-hidden="true">
+      <span id="ph1">3.1 <b>—</b> Il segno</span>
+      <span id="ph2" class="off">3.0 <b>—</b> Il nome</span>
+    </div>
+    <div class="hero__hint mono" aria-hidden="true"><span>Scorri</span><i></i></div>
+
+    <div class="hero__fallback"><!--SVG:emblem--></div>
+
+    <div class="hero__lockup">
+      <h1 class="hero__word" id="heroWord"><span class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Casa Medici</span><!--SVG:horizontal_flower--></h1>
+      <div class="hero__sub mono" id="heroSub"><span>Ristorante</span><!--SVG:flower--><span>Alfortville</span></div>
+      <div class="hero__da mono" id="heroDa">Una casa della famiglia <b>·</b> Vita Ristorante</div>
+    </div>
+
+    <div class="hero__credits mono">
+      <div><b>[Client]</b><br>Daniele Tari</div>
+      <div><b>[Art direction]</b><br>Fabrizio Verrecchia</div>
+      <div><b>[Agency]</b><br>Abysse Lab Paris</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DA VITA A MEDICI ============ -->
+<section class="section vita" data-tone="dark" id="vita">
+  <div class="vita__top mono rv"><span>Da Vita a Medici</span><span>Alfortville <b>·</b> 94</span></div>
+  <p class="vita__lead" id="vitaLead">Après Vita Ristorante, Daniele Tari ouvre une deuxième maison. Même table, même accueil, <em>une nouvelle adresse&nbsp;à&nbsp;retenir.</em></p>
+
+  <div class="vita__line rv" id="vitaLine">
+    <div class="vita__from">
+      <span class="mono"><b>[Maison mère]</b></span>
+      <span class="name">Vita Ristorante</span>
+    </div>
+    <div class="vita__rule" aria-hidden="true"></div>
+    <div class="vita__to" aria-label="Casa Medici"><!--SVG:horizontal--></div>
+  </div>
+
+  <div class="grid vita__body">
+    <p class="rv">Casa Medici naît de l’expérience de Vita Ristorante. L’identité reprend ce que la première adresse a construit, la générosité, la cuisine sincère, le sens de la famille, et lui donne une forme plus affirmée : un signe propriétaire, une palette chaude, une façade que l’on remarque depuis la rue.</p>
+  </div>
+</section>
+
+<!-- ============ LE PROJET ============ -->
+<section class="section projet" data-tone="dark" id="projet">
+  <div class="grid">
+    <div class="projet__head">
+      <h2 class="display lines">Le projet</h2>
+      <span class="mono rv">Una maison italienne</span>
+    </div>
+    <div class="projet__fig">
+      <figure class="fig" data-gl style="aspect-ratio:1024/905"><img src="assets/img/occhio.jpg" alt="Détail d’une peinture de la Renaissance : un œil entouré de lys" width="1024" height="905"></figure>
+    </div>
+    <div class="projet__txt">
+      <div class="block rv">
+        <h3 class="mono">Une maison italienne</h3>
+        <p><strong>Casa Medici</strong> naît comme une adresse italienne chaleureuse, pensée comme une maison, avec jardin, en pleine ville. Un lieu où l’on vient pour manger, mais aussi pour retrouver une atmosphère : celle d’un restaurant vivant, élégant, familier, avec une vraie présence dès la rue.</p>
+        <p>Le projet ne cherche pas à raconter l’Italie de manière décorative. Il l’évoque par les matières, les couleurs, la lumière et le sens de l’accueil.</p>
+      </div>
+      <div class="block rv">
+        <h3 class="mono">Un restaurant italien ancré</h3>
+        <p>La façade, le store, les boiseries profondes, les rideaux légers et les lumières chaudes composent un langage visuel immédiatement reconnaissable. L’objectif : une <strong>présence simple, généreuse et mémorable</strong>, élégante sans être distante, chaleureuse sans être folklorique.</p>
+      </div>
+      <div class="block rv">
+        <h3 class="mono">Principes</h3>
+        <ul class="principles">
+          <li><!--SVG:flower--><span>Créer une façade signature, visible et accueillante</span></li>
+          <li><!--SVG:flower--><span>Exprimer l’Italie par la matière plutôt que par le cliché</span></li>
+          <li><!--SVG:flower--><span>Construire une ambiance chaude, intime et conviviale</span></li>
+          <li><!--SVG:flower--><span>Donner au lieu une identité forte, durable et immédiatement lisible</span></li>
+          <li><!--SVG:flower--><span>Faire de Casa Medici une adresse que l’on remarque, puis que l’on retient</span></li>
+        </ul>
+      </div>
+      <div class="block rv">
+        <h3 class="mono">Identité et silence</h3>
+        <p>Un signe reconnaissable, une palette chaude, une lumière douce, des détails graphiques précis. Une adresse pensée pour attirer depuis l’extérieur, puis donner envie de rester.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ (1) UNIVERS ============ -->
+<section class="section univers" data-tone="dark" id="univers">
+  <div class="univers__pin">
+    <div class="univers__track" id="uTrack">
+      <div class="univers__intro">
+        <div class="chapter"><span class="num">1</span><h2 class="display">Univers<br>&amp; moodboards</h2></div>
+        <span class="mono kicker">Héritage florentin, maison contemporaine</span>
+        <p>Casa Medici puise son imaginaire dans la Florence des grandes maisons italiennes, là où l’art, la table, la matière et la conversation faisaient partie d’un même langage. Le nom évoque les Médicis comme un symbole : un art de vivre italien, cultivé, généreux, attaché à la beauté du quotidien.</p>
+      </div>
+      <div class="u-item" style="--w:clamp(220px,26vw,400px);--r:454/615"><figure class="fig" data-gl><img src="assets/img/arazzo.jpg" alt="Tapisserie ancienne à motif végétal" loading="lazy"></figure><span class="mono">Arazzo <b>·</b> matière</span></div>
+      <div class="u-item" style="--w:clamp(260px,34vw,520px);--r:840/930"><figure class="fig" data-gl><img src="assets/img/salone.jpg" alt="Salon aux murs rouges et arche rayée" loading="lazy"></figure><span class="mono">Salone <b>·</b> intérieur</span></div>
+      <p class="u-quote">« Une Italie de caractère, plus intime que spectaculaire. »</p>
+      <div class="u-item" style="--w:clamp(200px,22vw,340px);--r:676/761"><figure class="fig" data-gl><img src="assets/img/marmo.jpg" alt="Sculpture de marbre, deux visages" loading="lazy"></figure><span class="mono">Marmo <b>·</b> noblesse du trait</span></div>
+      <div class="u-item" style="--w:clamp(240px,30vw,460px);--r:1/1"><figure class="fig" data-gl><img src="assets/img/mani.jpg" alt="Deux mains qui se tendent sur fond rouge" loading="lazy"></figure><span class="mono">Mani <b>·</b> l’accueil</span></div>
+      <div class="u-item" style="--w:clamp(200px,24vw,360px);--r:466/647"><figure class="fig" data-gl><img src="assets/img/garofano.jpg" alt="Main tenant des œillets, peinture ancienne" loading="lazy"></figure><span class="mono">Garofano <b>·</b> la référence florale</span></div>
+      <div class="u-item" style="--w:clamp(220px,26vw,400px);--r:576/676"><figure class="fig" data-gl><img src="assets/img/corona.jpg" alt="Mains posant une couronne dorée" loading="lazy"></figure><span class="mono">Corona <b>·</b> héritage</span></div>
+      <p class="u-quote">« La chaleur d’une salle, la lumière d’une façade, la présence d’un rouge ancien. »</p>
+      <div class="u-item" style="--w:clamp(220px,26vw,400px);--r:473/536"><figure class="fig" data-gl><img src="assets/img/alloro.jpg" alt="Main tenant une couronne de laurier" loading="lazy"></figure><span class="mono">Alloro <b>·</b> maison</span></div>
+      <div class="u-item" style="--w:clamp(240px,28vw,420px);--r:1/1"><figure class="fig" data-gl><img src="assets/img/putti.jpg" alt="Ronde de putti sur fond rouge" loading="lazy"></figure><span class="mono">Putti <b>·</b> ornement discret</span></div>
+    </div>
+    <span class="univers__count mono" id="uCount">01 / 09</span>
+    <div class="univers__bar" aria-hidden="true"><i id="uBar"></i></div>
+  </div>
+</section>
+
+<!-- ============ CONCEPT / SIGNE ============ -->
+<section class="section signe" data-tone="light" id="signe">
+  <div class="grid signe__grid">
+    <div class="signe__txt">
+      <div class="chapter"><span class="num">2.1</span><h2 class="display lines">Limite<br>de la marque</h2></div>
+      <p class="signe__quote rv">Un emblème inspiré, mais redessiné.<em>Évocateur, mais propriétaire.</em></p>
+      <p class="rv">La fleur de Florence, les blasons et les armoiries appartiennent à un patrimoine visuel déjà fortement identifié. Les reprendre tels quels créerait un risque de confusion. Casa Medici en extrait un langage formel : la courbe, la verticalité, l’ornement, la noblesse du trait, la référence florale, l’idée de maison.</p>
+    </div>
+    <div class="signe__draw" id="signeDraw" aria-label="Construction du pictogramme Casa Medici">
+      <svg viewBox="-30 -10 251.4 271.6" class="cons" aria-hidden="true">
+        <rect x="2" y="2" width="187.4" height="247.6" pathLength="1"/>
+        <line x1="95.7" y1="-8" x2="95.7" y2="260" pathLength="1"/>
+        <line x1="-28" y1="125.8" x2="219" y2="125.8" pathLength="1"/>
+        <line x1="-28" y1="41.2" x2="219" y2="41.2" pathLength="1"/>
+        <line x1="-28" y1="217.2" x2="219" y2="217.2" pathLength="1"/>
+        <circle cx="95.7" cy="62" r="20.8" pathLength="1"/>
+        <circle cx="95.7" cy="125.8" r="93.7" pathLength="1"/>
+        <line x1="39.5" y1="-8" x2="39.5" y2="260" pathLength="1"/>
+        <line x1="152" y1="-8" x2="152" y2="260" pathLength="1"/>
+        <text x="98" y="-3">AXE 0°</text>
+        <text x="-28" y="122.5">1 : 1,315</text>
+        <text x="-28" y="38">TÊTE</text>
+        <text x="-28" y="214">TIGE</text>
+        <text x="154" y="257">187,4 × 247,6</text>
+      </svg>
+      <svg viewBox="-30 -10 251.4 271.6" class="emb" aria-hidden="true"><!--PATHS:emblem--></svg>
+    </div>
+    <div class="signe__study rv">
+      <div class="figwrap"><figure class="fig" data-gl><img src="assets/img/gigli-studio.jpg" alt="Planche d’études de fleurs de lys dessinées à la main" loading="lazy"></figure><figcaption class="mono">Études <b>·</b> fleur de lys, recherches de courbes</figcaption></div>
+    </div>
+    <div class="signe__no mono rv">
+      <div><span><b>Ne pas</b></span><span class="t">Copier la fleur de Florence</span></div>
+      <div><span><b>Ne pas</b></span><span class="t">Reprendre blasons et armoiries</span></div>
+      <div><span><b>Construire</b></span><span class="t">Un signe propre, ancré sans pastiche</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ (2) COULEURS ============ -->
+<section class="section couleurs" data-tone="dark" id="couleurs">
+  <div class="grid">
+    <div class="couleurs__head">
+      <div class="chapter"><span class="num">2</span><h2 class="display lines">Couleurs<br>de marque</h2></div>
+      <p class="rv">Une palette chaude, terrestre et immédiatement identifiable, inspirée de l’Italie traditionnelle : crème ancien, rouge profond, corail brûlé, brun boisé et bronze doré. Survolez une teinte pour lire son rôle.</p>
+    </div>
+  </div>
+  <div class="swatches" id="swatches">
+    <div class="sw" tabindex="0" style="background:var(--crema);--c:var(--carminio);--i:0"><span class="nm">Crema antica</span><div class="meta"><span class="role">Le crème apporte la lumière et la douceur. Fond des menus, des cartes et de la vitrine.</span><span class="mono">#FFECD6 <b>·</b> C0 M8 J17 N0</span></div></div>
+    <div class="sw" tabindex="0" style="background:var(--profondo);--i:1"><span class="nm">Rosso profondo</span><div class="meta"><span class="role">Le rouge installe une présence forte, chaleureuse et mémorable.</span><span class="mono">#B42209 <b>·</b> C15 M95 J100 N6</span></div></div>
+    <div class="sw" tabindex="0" style="background:var(--corallo);--i:2"><span class="nm">Corallo bruciato</span><div class="meta"><span class="role">Le corail réchauffe les supports imprimés et les réseaux.</span><span class="mono">#D14E15 <b>·</b> C10 M80 J100 N2</span></div></div>
+    <div class="sw" tabindex="0" style="background:var(--bronzo);--c:var(--bruno);--i:3"><span class="nm">Bronzo dorato</span><div class="meta"><span class="role">Le bronze souligne les détails, les enseignes, les éclairages et les finitions.</span><span class="mono">#E4A858 <b>·</b> C10 M35 J75 N0</span></div></div>
+    <div class="sw" tabindex="0" style="background:var(--bruno);--i:4"><span class="nm">Bruno boscoso</span><div class="meta"><span class="role">Le brun évoque le bois, la table, le vin et les intérieurs accueillants.</span><span class="mono">#594A2D <b>·</b> C45 M50 J80 N45</span></div></div>
+  </div>
+
+  <div class="carminio">
+    <div class="carminio__chip rv"><div></div><p class="mono"><span>rosso carminio</span><span>2.3</span></p></div>
+    <div class="carminio__txt">
+      <span class="mono rv">Couleur principale</span>
+      <h3 class="display lines">Rosso<br>carminio</h3>
+      <dl class="mono rv">
+        <dt><b>HEX</b></dt><dd>#811300</dd>
+        <dt><b>RVB</b></dt><dd>129 · 19 · 0</dd>
+        <dt><b>Pictogramme</b></dt><dd>#CF1F00 · rosso segno</dd>
+        <dt><b>Usage</b></dt><dd>Store, couverture, menus, signe</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ============ (3) LOGOTYPE ============ -->
+<section class="section logo" data-tone="dark" id="logotype">
+  <div class="chapter"><span class="num">3</span><h2 class="display lines">Logotype</h2></div>
+  <div class="logo__big" id="logoBig"><!--SVG:horizontal_raw--></div>
+  <div class="logo__specs mono rv">
+    <span>Capitales didones, C et M en ligatures calligraphiques</span>
+    <span>Ratio 4,96 : 1</span>
+    <span>Rouge signe #CF1F00</span>
+  </div>
+
+  <div class="lockups">
+    <div class="lk lk--crema rv">
+      <span class="tag mono">3.3 <b>—</b> Principal</span>
+      <div class="inner"><div class="word"><!--SVG:stacked--></div><div class="sub mono"><span>Ristorante</span><!--SVG:flower--><span>Alfortville</span></div></div>
+    </div>
+    <div class="lk lk--noir rv" style="--d:1">
+      <span class="tag mono">Monochrome</span>
+      <div class="inner"><div class="word" style="width:min(100%,260px)"><!--SVG:stacked--></div><div class="sub mono"><span>Ristorante</span><!--SVG:flower--><span>Alfortville</span></div></div>
+    </div>
+    <div class="lk lk--rosso rv">
+      <span class="tag mono">3.2 <b>—</b> Horizontal</span>
+      <div class="inner"><div class="emb-s" style="width:56px"><!--SVG:emblem--></div><div class="word word--wide"><!--SVG:horizontal--></div></div>
+    </div>
+    <div class="lk lk--pesca rv" style="--d:1">
+      <div class="bgimg" data-par="0.12" aria-hidden="true"></div>
+      <span class="tag mono">3.4 <b>—</b> Édition</span>
+      <div class="inner"><div class="word"><!--SVG:stacked--></div><div class="sub mono"><span>Ristorante</span><!--SVG:flower--><span>Alfortville</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ (3.1) SYMBOLE ============ -->
+<section class="section symbole" data-tone="dark" id="symbole">
+  <div class="chapter"><span class="num">3.1</span><h2 class="display lines">Logo<br>symbol</h2></div>
+  <div class="symbole__row">
+    <div class="sy rv"><div style="color:var(--rosso)"><!--SVG:emblem--></div><span class="mono">Emblème complet</span></div>
+    <div class="sy rv" style="--d:1"><div class="sy-ring" style="color:var(--rosso)"><!--SVG:emblem_ring--></div><span class="mono">Ovale ton sur ton</span></div>
+    <div class="sy rv" style="--d:2"><div class="sy-free" style="color:var(--rosso)"><!--SVG:emblem_free--></div><span class="mono">Fleur libre</span></div>
+  </div>
+
+  <div class="symbole__apps">
+    <div class="arch rv"><div class="emb-s"><!--SVG:emblem_free--></div><div class="word"><!--SVG:horizontal--></div></div>
+    <div class="apps__side">
+      <span class="mono rv">3.2 <b>—</b> Dynamisme logo</span>
+      <p class="rv">Le signe vit seul ou avec le nom : arche de façade, pastille pour les réseaux sociaux, ovale gravé sur le verre de la vitrine. La fleur, redessinée, garde la verticalité et la courbe des enseignes anciennes.</p>
+      <div class="socials rv"><div class="avatar avatar--a"><!--SVG:emblem_free--></div><div class="avatar avatar--b"><!--SVG:stacked--></div><span class="mono">4.1 <b>—</b> Style social</span></div>
+      <div class="apps__pair">
+        <figure class="fig" data-gl style="aspect-ratio:840/930"><img src="assets/img/salone.jpg" alt="Intérieur rouge avec l’ovale Casa Medici" loading="lazy"></figure>
+        <div class="apps__red rv"><div class="emb-bg" aria-hidden="true"><!--SVG:emblem--></div><div class="word"><!--SVG:stacked--></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ (4) PHOTO ============ -->
+<section class="section photo" data-tone="dark" id="photo">
+  <div class="chapter"><span class="num">4</span><h2 class="display lines">Style de photos<br>&amp; communication</h2></div>
+  <div class="photo__row">
+    <div class="mat rv" style="--m:#959579"><figure class="fig" data-gl><img src="assets/img/tavola.jpg" alt="Assiette de pâtes et verres de vin en lumière chaude" loading="lazy"></figure></div>
+    <div class="mat rv" style="--m:#b6b6b4;--d:1"><figure class="fig" data-gl><img src="assets/img/servizio.jpg" alt="Serveur portant un cocktail rouge en salle" loading="lazy"></figure></div>
+    <div class="mat rv" style="--m:#d7c083;--d:2"><figure class="fig" data-gl><img src="assets/img/bancone.jpg" alt="Bar du restaurant avec silhouette en mouvement" loading="lazy"></figure></div>
+    <div class="mat rv" style="--m:#9badb4;--d:3"><figure class="fig" data-gl><img src="assets/img/cucina.jpg" alt="Cuisine ouverte, vapeur et lampe chaude" loading="lazy"></figure></div>
+  </div>
+  <div class="grid photo__note">
+    <p class="rv">Lumière chaude, gestes pris sur le vif, grain assumé. Des images de service plutôt que de studio&nbsp;: la maison vue de l’intérieur.</p>
+    <figure class="fig" data-gl><img src="assets/img/olio.jpg" alt="Filet d’huile d’olive versé sur des bruschette" loading="lazy"></figure>
+  </div>
+</section>
+
+<!-- ============ CONTACT / GRAZIE ============ -->
+<section class="section contact" data-tone="dark" id="contact">
+  <div class="grid contact__grid">
+    <dl class="contact__list">
+      <div class="rv"><dt class="mono"><b>Instagram</b></dt><dd><a href="https://www.instagram.com/abysselab.paris/" target="_blank" rel="noopener">@abysselab.paris</a></dd></div>
+      <div class="rv"><dt class="mono"><b>Téléphone</b></dt><dd><span id="tel">+33 (0)7 81 60 41 32</span></dd></div>
+      <div class="rv"><dt class="mono"><b>E-mail</b> <button class="copy-btn mono" type="button" id="copyMail">Copier</button></dt><dd><span id="mail">hello@abysselab.com</span></dd></div>
+    </dl>
+    <div class="contact__side">
+      <span class="mono rv">Contact <b>—</b> direction artistique</span>
+      <figure class="fig" data-gl><img src="assets/img/garofano.jpg" alt="Main tenant des œillets, peinture ancienne" loading="lazy"></figure>
+    </div>
+  </div>
+
+  <div class="grazie" data-tone="dark">
+    <div class="grazie__bg" data-par="0.08" aria-hidden="true"></div>
+    <div class="grazie__in">
+      <div class="stack rv"><!--SVG:stacked--></div>
+      <div class="sub mono rv"><span>Ristorante</span><!--SVG:flower--><span>Alfortville</span></div>
+      <span class="mono rv">Una casa della famiglia Vita Ristorante</span>
+      <p class="grazie__words rv">Grazie<em>Merci</em></p>
+    </div>
+    <div class="grazie__foot mono">
+      <span><b>[Client]</b> Daniele Tari</span>
+      <span>Art direction Fabrizio Verrecchia <b>×</b> Abysse Lab Paris</span>
+      <span>© Casa Medici 2026</span>
+    </div>
+  </div>
+</section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js"></script>
+<script>
+/* SVG sources pour l’échantillonnage des particules */
+const SVG_EMBLEM = `<!--RAW:emblem-->`;
+const SVG_WORD = `<!--RAW:horizontal_flower-->`;
+</script>
+<script>
+(() => {
+"use strict";
+const root = document.documentElement;
+root.classList.add("js");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = (s, c = document) => c.querySelector(s);
+const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const range = (v, a, b) => clamp((v - a) / (b - a));
+const ease = t => 1 - Math.pow(1 - t, 3);
+const easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+/* ---------- pathLength pour les tracés ---------- */
+$$(".loader__mark path, .emb path, .logo__big path").forEach(p => p.setAttribute("pathLength", "1"));
+
+/* ---------- découpe en mots ---------- */
+$$(".lines").forEach(el => {
+  let i = 0;
+  const walk = node => {
+    [...node.childNodes].forEach(n => {
+      if (n.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(part => {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          const w = document.createElement("span"); w.className = "w";
+          const s = document.createElement("span"); s.textContent = part; s.style.setProperty("--i", i++);
+          w.appendChild(s); frag.appendChild(w);
+        });
+        n.replaceWith(frag);
+      } else if (n.nodeType === 1 && n.tagName !== "BR") walk(n);
+    });
+  };
+  walk(el);
+});
+/* mots de la phrase Vita : remplissage au défilement */
+const vitaLead = $("#vitaLead");
+const vitaWords = [];
+(function splitFill(node) {
+  [...node.childNodes].forEach(n => {
+    if (n.nodeType === 3) {
+      const frag = document.createDocumentFragment();
+      n.textContent.split(/(\s+)/).forEach(part => {
+        if (!part) return;
+        if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+        const s = document.createElement("span"); s.className = "wf"; s.textContent = part;
+        vitaWords.push(s); frag.appendChild(s);
+      });
+      n.replaceWith(frag);
+    } else if (n.nodeType === 1) splitFill(n);
+  });
+})(vitaLead);
+
+/* ---------- révélations ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+}), { rootMargin: "0px 0px -12% 0px" });
+$$(".rv, .lines, .swatches, #vitaLine").forEach(el => io.observe(el));
+
+/* ---------- copier l’e-mail ---------- */
+$("#copyMail").addEventListener("click", e => {
+  const b = e.currentTarget, txt = $("#mail").textContent;
+  const done = ok => { b.textContent = ok ? "Copié" : "Sélectionné"; setTimeout(() => b.textContent = "Copier", 1800); };
+  const select = () => { const r = document.createRange(); r.selectNodeContents($("#mail")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); done(false); };
+  try { navigator.clipboard.writeText(txt).then(() => done(true), select); } catch (_) { select(); }
+});
+
+/* ---------- défilement doux ---------- */
+let lenis = null;
+if (window.Lenis && !reduce) {
+  lenis = new Lenis({ duration: 1.25, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true });
+  $$('a[href^="#"]').forEach(a => a.addEventListener("click", e => { e.preventDefault(); lenis.scrollTo(a.getAttribute("href"), { duration: 1.8 }); }));
+}
+if (lenis) lenis.stop();
+
+/* ---------- état ---------- */
+const S = { vw: innerWidth, vh: innerHeight, y: scrollY, vel: 0, mouse: [-9999, -9999], form: 0, t0: performance.now(), started: false };
+addEventListener("pointermove", e => { S.mouse = [e.clientX, e.clientY]; }, { passive: true });
+addEventListener("pointerleave", () => { S.mouse = [-9999, -9999]; });
+
+/* ============================================================
+   WebGL
+   ============================================================ */
+const canvas = $("#gl");
+const gl = canvas.getContext("webgl", { antialias: true, alpha: true, premultipliedAlpha: true });
+const GL = { ok: !!gl };
+if (!gl) root.classList.add("no-gl"); else root.classList.add("gl-on");
+
+function sh(type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+function prog(vs, fs) {
+  const p = gl.createProgram();
+  gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  const u = {}, a = {};
+  for (let i = 0; i < gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); i++) { const n = gl.getActiveUniform(p, i).name; u[n] = gl.getUniformLocation(p, n); }
+  for (let i = 0; i < gl.getProgramParameter(p, gl.ACTIVE_ATTRIBUTES); i++) { const n = gl.getActiveAttrib(p, i).name; a[n] = gl.getAttribLocation(p, n); }
+  return { p, u, a };
+}
+
+/* ----- particules : pictogramme → logotype ----- */
+const P_VS = `
+precision highp float;
+attribute vec2 aA; attribute vec2 aB; attribute vec3 aS; attribute vec4 aR;
+uniform float uForm, uMorph, uTime, uFade, uDpr, uPt;
+uniform vec2 uRes, uCenter, uMouse; uniform float uSizeA, uSizeB;
+varying float vA; varying float vTone;
+float st(float t, float r){ return smoothstep(0., 1., clamp(t * 1.7 - r * .7, 0., 1.)); }
+void main(){
+  float fA = st(uForm, aR.x);
+  float fB = st(uMorph, aR.y);
+  vec2 drift = vec2(sin(uTime * .21 + aR.z * 31.), cos(uTime * .17 + aR.w * 27.)) * 40.;
+  vec2 scatter = aS.xy * uRes * vec2(.62, .58) + drift;
+  vec2 p = mix(scatter, aA * uSizeA, fA);
+  p = mix(p, aB * uSizeB, fB);
+  float mid = sin(fB * 3.14159);
+  float ang = aR.z * 6.2832 + uTime * .7;
+  p += vec2(cos(ang), sin(ang)) * mid * (60. + 160. * aR.w);
+  p += vec2(sin(uTime * 1.3 + aR.z * 40.), cos(uTime * 1.1 + aR.w * 40.)) * (.8 + 2.5 * (1. - fA));
+  vec2 sp = p + uCenter;
+  vec2 d = sp - uMouse; float dist = length(d);
+  sp += d / max(dist, 1.) * smoothstep(140., 0., dist) * 34.;
+  vec2 clip = sp / uRes * 2. - 1.;
+  gl_Position = vec4(clip.x, -clip.y, 0., 1.);
+  gl_PointSize = uPt * uDpr * (.55 + aR.w * .9) * (1. + (1. - fA) * .6);
+  vA = uFade * (.45 + .55 * aR.x) * mix(.5, 1., fA);
+  vTone = aR.z;
+}`;
+const P_FS = `
+precision highp float;
+varying float vA; varying float vTone;
+uniform vec3 uC1, uC2;
+void main(){
+  vec2 c = gl_PointCoord - .5; float r = length(c);
+  float a = smoothstep(.5, .18, r) * vA;
+  vec3 col = mix(uC1, uC2, smoothstep(.72, 1., vTone));
+  gl_FragColor = vec4(col * a, a);
+}`;
+
+/* ----- images : révélation, courbure, ondulation ----- */
+const I_VS = `
+precision highp float;
+attribute vec2 aP;
+uniform vec4 uRect; uniform vec2 uRes; uniform float uVel;
+varying vec2 vUv;
+void main(){
+  vUv = aP;
+  vec2 px = uRect.xy + aP * uRect.zw;
+  px.y += sin(aP.x * 3.14159) * uVel;
+  px.x += sin(aP.y * 3.14159) * uVel * .15;
+  vec2 c = px / uRes * 2. - 1.;
+  gl_Position = vec4(c.x, -c.y, 0., 1.);
+}`;
+const I_FS = `
+precision highp float;
+varying vec2 vUv;
+uniform sampler2D uTex; uniform vec2 uImg, uSize, uMouse;
+uniform float uReveal, uHover, uTime, uVelF, uAlpha;
+float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+  return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + vec2(1, 1)), f.x), f.y); }
+float fbm(vec2 p){ float v = 0., a = .5; for (int i = 0; i < 4; i++){ v += a * n(p); p *= 2.03; a *= .5; } return v; }
+void main(){
+  vec2 uv = vUv;
+  float ra = uSize.x / uSize.y, ri = uImg.x / uImg.y;
+  vec2 sc = ra > ri ? vec2(1., ri / ra) : vec2(ra / ri, 1.);
+  float rv = uReveal;
+  float zoom = 1. + .22 * (1. - rv) * (1. - rv) + .05 * uHover;
+  vec2 cuv = (uv - .5) * sc / zoom + .5;
+  vec2 dm = uv - uMouse; dm.x *= ra; float d = length(dm);
+  cuv += normalize(dm + 1e-5) * sin(d * 28. - uTime * 4.) * .008 * uHover * smoothstep(.5, 0., d);
+  float shift = uVelF * .0025;
+  vec3 col;
+  col.r = texture2D(uTex, cuv + vec2(0., shift)).r;
+  col.g = texture2D(uTex, cuv).g;
+  col.b = texture2D(uTex, cuv - vec2(0., shift)).b;
+  float nz = fbm(uv * vec2(3.2, 2.2) * vec2(ra, 1.) + 3.1);
+  float t = (1. - uv.y) * .72 + nz * .34;
+  float e = rv * 1.12;
+  float m = smoothstep(t - .025, t + .025, e);
+  float band = smoothstep(.07, 0., abs(e - t)) * (1. - step(.999, rv));
+  col = mix(col, vec3(.894, .659, .345), band * .9);
+  float a = max(m, band) * uAlpha;
+  gl_FragColor = vec4(col * a, a);
+}`;
+
+let PP, IP, particle = null, planeBuf, planeIdx, planeCount = 0;
+const planes = [];
+
+if (GL.ok) {
+  try {
+    PP = prog(P_VS, P_FS);
+    IP = prog(I_VS, I_FS);
+    /* grille de plan subdivisée */
+    const seg = 24, verts = [], idx = [];
+    for (let y = 0; y <= seg; y++) for (let x = 0; x <= seg; x++) verts.push(x / seg, y / seg);
+    for (let y = 0; y < seg; y++) for (let x = 0; x < seg; x++) { const i = y * (seg + 1) + x; idx.push(i, i + 1, i + seg + 1, i + 1, i + seg + 2, i + seg + 1); }
+    planeBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, planeBuf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
+    planeIdx = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planeIdx); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(idx), gl.STATIC_DRAW);
+    planeCount = idx.length;
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+  } catch (err) { console.warn(err); GL.ok = false; root.classList.remove("gl-on"); root.classList.add("no-gl"); }
+}
+
+/* échantillonnage d’un SVG en points */
+function rasterSVG(src, w) {
+  return new Promise(res => {
+    const vb = src.match(/viewBox="([^"]+)"/)[1].split(/\s+/).map(Number);
+    const h = Math.round(w * vb[3] / vb[2]);
+    const img = new Image();
+    const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(src.replace('fill="currentColor"', 'fill="#000"').replace("<svg ", `<svg width="${w}" height="${h}" `));
+    img.onload = () => {
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      const x = c.getContext("2d"); x.drawImage(img, 0, 0, w, h);
+      res({ data: x.getImageData(0, 0, w, h).data, w, h });
+    };
+    img.onerror = () => res(null);
+    img.src = url;
+  });
+}
+function sample(r, n, normBy) {
+  const pts = new Float32Array(n * 2); let k = 0, guard = 0;
+  while (k < n && guard < n * 400) {
+    guard++;
+    const x = Math.random() * r.w, y = Math.random() * r.h;
+    if (r.data[((y | 0) * r.w + (x | 0)) * 4 + 3] > 120) {
+      pts[k * 2] = (x - r.w / 2) / normBy; pts[k * 2 + 1] = (y - r.h / 2) / normBy; k++;
+    }
+  }
+  return pts;
+}
+function sortByX(pts, n, jitter) {
+  const ord = [...Array(n).keys()].map(i => [pts[i * 2] + (Math.random() - .5) * jitter, i]).sort((a, b) => a[0] - b[0]);
+  const out = new Float32Array(n * 2);
+  ord.forEach(([, i], j) => { out[j * 2] = pts[i * 2]; out[j * 2 + 1] = pts[i * 2 + 1]; });
+  return out;
+}
+
+async function buildParticles() {
+  const N = S.vw < 700 ? 7000 : 15000;
+  const [ra, rb] = await Promise.all([rasterSVG(SVG_EMBLEM, 380), rasterSVG(SVG_WORD, 1400)]);
+  if (!ra || !rb) return;
+  const A = sortByX(sample(ra, N, ra.h), N, .12);   /* normalisé sur la hauteur */
+  const B = sortByX(sample(rb, N, rb.w), N, .03);   /* normalisé sur la largeur */
+  const Sx = new Float32Array(N * 3), R = new Float32Array(N * 4);
+  for (let i = 0; i < N; i++) {
+    const a = Math.random() * Math.PI * 2, rr = Math.pow(Math.random(), .55);
+    Sx[i * 3] = Math.cos(a) * rr; Sx[i * 3 + 1] = Math.sin(a) * rr; Sx[i * 3 + 2] = Math.random();
+    R[i * 4] = Math.random(); R[i * 4 + 1] = Math.random(); R[i * 4 + 2] = Math.random(); R[i * 4 + 3] = Math.random();
+  }
+  const buf = d => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, d, gl.STATIC_DRAW); return b; };
+  particle = { N, A: buf(A), B: buf(B), S: buf(Sx), R: buf(R) };
+}
+
+function hexRGB(h) { const v = parseInt(h.slice(1), 16); return [(v >> 16 & 255) / 255, (v >> 8 & 255) / 255, (v & 255) / 255]; }
+const C_CREMA = hexRGB("#ffecd6"), C_BRONZO = hexRGB("#e4a858");
+
+/* textures */
+function initPlanes() {
+  $$(".fig[data-gl]").forEach(fig => {
+    const img = $("img", fig);
+    const pl = { fig, img, tex: null, reveal: 0, t0: 0, hover: 0, hoverT: 0, m: [.5, .5], w: 1, h: 1, ready: false };
+    const make = () => {
+      const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      pl.tex = tex; pl.w = img.naturalWidth; pl.h = img.naturalHeight; pl.ready = true;
+    };
+    img.loading = "eager";
+    if (img.complete && img.naturalWidth) make(); else img.addEventListener("load", make, { once: true });
+    fig.addEventListener("pointerenter", () => { pl.hoverT = 1; });
+    fig.addEventListener("pointerleave", () => { pl.hoverT = 0; });
+    fig.addEventListener("pointermove", e => { const r = fig.getBoundingClientRect(); pl.m = [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; });
+    planes.push(pl);
+  });
+}
+
+function resize() {
+  S.vw = innerWidth; S.vh = innerHeight;
+  if (GL.ok) {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    canvas.width = Math.round(S.vw * dpr); canvas.height = Math.round(S.vh * dpr);
+    gl.viewport(0, 0, canvas.width, canvas.height); GL.dpr = dpr;
+  }
+  layoutGallery();
+}
+
+/* ---------- galerie horizontale ---------- */
+const uSec = $("#univers"), uTrack = $("#uTrack"), uBar = $("#uBar"), uCount = $("#uCount");
+const uItems = $$(".u-item", uTrack);
+let uDist = 0;
+function layoutGallery() {
+  uDist = Math.max(0, uTrack.scrollWidth - S.vw);
+  uSec.style.height = (uDist + S.vh) + "px";
+}
+
+/* ---------- éléments pilotés au défilement ---------- */
+const hero = $("#hero"), heroWord = $("#heroWord"), heroSub = $("#heroSub"), heroDa = $("#heroDa");
+const ph1 = $("#ph1"), ph2 = $("#ph2"), bar = $("#bar");
+const signe = $("#signeDraw"), consEls = $$(".cons line, .cons rect, .cons circle"), consTxt = $$(".cons text"), embPaths = $$(".emb path");
+const logoBig = $("#logoBig"), logoPaths = $$("path", logoBig);
+const pars = $$("[data-par]");
+const tones = $$("[data-tone]");
+
+function drawOn(els, p, spread) {
+  els.forEach((el, i) => {
+    const k = els.length > 1 ? i / (els.length - 1) : 0;
+    const local = range(p, k * spread, k * spread + (1 - spread));
+    el.style.setProperty("--o", (1 - ease(local)).toFixed(4));
+  });
+}
+
+function scrollFrame() {
+  const vh = S.vh;
+  /* héros */
+  const hr = hero.getBoundingClientRect();
+  const hp = clamp(-hr.top / (hr.height - vh));
+  S.heroP = hp;
+  S.morph = easeIO(range(hp, .12, .52));
+  const wordIn = range(hp, .5, .7);
+  heroWord.style.clipPath = `inset(-5% ${(100 - ease(wordIn) * 100).toFixed(2)}% -5% 0)`;
+  S.pFade = 1 - range(hp, .56, .72);
+  const subIn = range(hp, .64, .8);
+  heroSub.style.opacity = subIn; heroSub.style.transform = `translateY(${(1 - ease(subIn)) * 12}px)`;
+  heroDa.style.opacity = range(hp, .74, .9);
+  ph1.classList.toggle("off", hp > .3); ph2.classList.toggle("off", hp <= .3);
+  S.heroCy = $("#heroSticky").getBoundingClientRect().top + vh / 2;
+
+  /* phrase Vita */
+  const vr = vitaLead.getBoundingClientRect();
+  const vp = range(vh * .85 - vr.top, 0, vr.height + vh * .35);
+  const on = Math.floor(vp * vitaWords.length * 1.05);
+  vitaWords.forEach((w, i) => w.classList.toggle("on", i < on));
+
+  /* galerie */
+  const ur = uSec.getBoundingClientRect();
+  const up = clamp(-ur.top / Math.max(1, uDist));
+  uTrack.style.transform = `translate3d(${(-up * uDist).toFixed(1)}px,0,0)`;
+  uBar.style.setProperty("--p", up.toFixed(4));
+  uCount.textContent = String(Math.min(uItems.length, 1 + Math.floor(up * uItems.length))).padStart(2, "0") + " / " + String(uItems.length).padStart(2, "0");
+
+  /* construction du signe */
+  const sr = signe.getBoundingClientRect();
+  const sp = range(vh - sr.top, vh * .1, vh * .1 + sr.height + vh * .45);
+  drawOn(consEls, range(sp, 0, .45), .5);
+  consTxt.forEach((t, i) => t.style.setProperty("--t", (range(sp, .25 + i * .04, .4 + i * .04) * .8).toFixed(3)));
+  drawOn(embPaths, range(sp, .3, .85), .3);
+  embPaths.forEach(p => p.style.setProperty("--fo", range(sp, .72, .95).toFixed(3)));
+
+  /* logotype */
+  const lr = logoBig.getBoundingClientRect();
+  const lp = range(vh - lr.top, vh * .05, vh * .75);
+  drawOn(logoPaths, range(lp, 0, .8), .45);
+  logoPaths.forEach(p => p.style.setProperty("--fo", range(lp, .6, 1).toFixed(3)));
+
+  /* parallaxe */
+  pars.forEach(el => {
+    const r = el.parentElement.getBoundingClientRect();
+    el.style.transform = `translate3d(0,${((r.top + r.height / 2 - vh / 2) * -parseFloat(el.dataset.par)).toFixed(1)}px,0)`;
+  });
+
+  /* ton de la barre */
+  let tone = "light";
+  for (const s of tones) { const r = s.getBoundingClientRect(); if (r.top <= 34 && r.bottom > 34) tone = s.dataset.tone; }
+  bar.dataset.tone = tone;
+  const doc = document.documentElement;
+  bar.style.setProperty("--p", clamp(scrollY / Math.max(1, doc.scrollHeight - vh)).toFixed(4));
+}
+
+/* ---------- rendu ---------- */
+let last = performance.now(), lastY = scrollY;
+function render(now) {
+  const dt = Math.min(64, now - last); last = now;
+  const time = (now - S.t0) / 1000;
+  const y = lenis ? lenis.scroll : scrollY;
+  const rawVel = y - lastY; lastY = y;
+  S.vel = lerp(S.vel, clamp(rawVel, -80, 80), .12);
+  scrollFrame();
+
+  if (GL.ok) {
+    gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+    const dpr = GL.dpr, W = S.vw, H = S.vh;
+
+    /* images */
+    gl.useProgram(IP.p);
+    gl.bindBuffer(gl.ARRAY_BUFFER, planeBuf);
+    gl.enableVertexAttribArray(IP.a.aP); gl.vertexAttribPointer(IP.a.aP, 2, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planeIdx);
+    gl.uniform2f(IP.u.uRes, W, H); gl.uniform1f(IP.u.uTime, time);
+    gl.uniform1f(IP.u.uVel, reduce ? 0 : -S.vel * .35);
+    gl.uniform1f(IP.u.uVelF, reduce ? 0 : S.vel);
+    for (const pl of planes) {
+      if (!pl.ready) continue;
+      const r = pl.fig.getBoundingClientRect();
+      if (r.bottom < -100 || r.top > H + 100 || r.right < -100 || r.left > W + 100 || r.width < 2) continue;
+      if (!pl.t0 && r.top < H * .88 && r.bottom > 0 && S.started) pl.t0 = now;
+      pl.reveal = reduce ? (pl.t0 ? 1 : 0) : (pl.t0 ? clamp((now - pl.t0) / 1700) : 0);
+      pl.hover = lerp(pl.hover, pl.hoverT, .07);
+      gl.uniform4f(IP.u.uRect, r.left, r.top, r.width, r.height);
+      gl.uniform2f(IP.u.uSize, r.width, r.height);
+      gl.uniform2f(IP.u.uImg, pl.w, pl.h);
+      gl.uniform2f(IP.u.uMouse, pl.m[0], pl.m[1]);
+      gl.uniform1f(IP.u.uReveal, ease(pl.reveal));
+      gl.uniform1f(IP.u.uHover, pl.hover);
+      gl.uniform1f(IP.u.uAlpha, 1);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, pl.tex); gl.uniform1i(IP.u.uTex, 0);
+      gl.drawElements(gl.TRIANGLES, planeCount, gl.UNSIGNED_SHORT, 0);
+    }
+    gl.disableVertexAttribArray(IP.a.aP);
+
+    /* particules */
+    if (particle && S.pFade > 0.001 && S.heroCy > -H * .6) {
+      if (S.started) S.form = reduce ? 1 : Math.min(1, S.form + dt / 2600);
+      gl.useProgram(PP.p);
+      const bind = (name, b, n) => { gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.enableVertexAttribArray(PP.a[name]); gl.vertexAttribPointer(PP.a[name], n, gl.FLOAT, false, 0, 0); };
+      bind("aA", particle.A, 2); bind("aB", particle.B, 2); bind("aS", particle.S, 3); bind("aR", particle.R, 4);
+      const emH = Math.min(H * .5, W * .62, 500);
+      const wdW = Math.min(W * .84, 1060);
+      gl.uniform1f(PP.u.uForm, easeIO(S.form));
+      gl.uniform1f(PP.u.uMorph, S.morph);
+      gl.uniform1f(PP.u.uTime, reduce ? 0 : time);
+      gl.uniform1f(PP.u.uFade, S.pFade);
+      gl.uniform1f(PP.u.uDpr, dpr);
+      gl.uniform1f(PP.u.uPt, W < 700 ? 2.1 : 2.4);
+      gl.uniform2f(PP.u.uRes, W, H);
+      gl.uniform2f(PP.u.uCenter, W / 2, S.heroCy);
+      gl.uniform2f(PP.u.uMouse, S.mouse[0], S.mouse[1]);
+      gl.uniform1f(PP.u.uSizeA, emH);
+      gl.uniform1f(PP.u.uSizeB, wdW);
+      gl.uniform3fv(PP.u.uC1, C_CREMA); gl.uniform3fv(PP.u.uC2, C_BRONZO);
+      gl.drawArrays(gl.POINTS, 0, particle.N);
+      ["aA", "aB", "aS", "aR"].forEach(n => gl.disableVertexAttribArray(PP.a[n]));
+    }
+  }
+  requestAnimationFrame(render);
+}
+
+/* ---------- séquence d’ouverture ---------- */
+function start() {
+  resize();
+  addEventListener("resize", resize);
+  if (lenis) { const raf = t => { lenis.raf(t); requestAnimationFrame(raf); }; requestAnimationFrame(raf); }
+  requestAnimationFrame(render);
+
+  const loader = $("#loader"), count = $("#count");
+  const t0 = performance.now(), dur = reduce ? 300 : 2300;
+  requestAnimationFrame(() => loader.classList.add("is-drawing"));
+  (function tick(now) {
+    const p = clamp((now - t0) / dur);
+    count.textContent = String(Math.round(easeIO(p) * 100)).padStart(3, "0");
+    if (p < 1) requestAnimationFrame(tick);
+    else {
+      loader.classList.add("is-out");
+      setTimeout(() => { S.started = true; if (lenis) lenis.start(); }, reduce ? 0 : 450);
+      setTimeout(() => loader.remove(), 1500);
+    }
+  })(t0);
+}
+
+if (GL.ok) { initPlanes(); buildParticles().catch(e => console.warn(e)); }
+let booted = false;
+const boot = () => { if (!booted) { booted = true; start(); } };
+if (document.readyState === "complete") boot(); else addEventListener("load", boot, { once: true });
+/* garde-fou : démarrer même si une image tarde */
+setTimeout(boot, 3500);
+})();
+</script>
