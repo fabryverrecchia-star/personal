@@ -1,0 +1,206 @@
+---
+import { Image } from 'astro:assets';
+import { photo } from '../lib/photos';
+
+const items = [
+  {
+    t: 'Production limitée',
+    d: 'Nous récoltons avec mesure, au rythme des colonies. Moins de pots, mais des abeilles respectées et une nature préservée.',
+    img: photo('ruche', 'filet'),
+  },
+  {
+    t: 'Locale',
+    d: 'Nos ruches sont installées à Louargat, dans les Côtes-d’Armor. Du bocage breton jusqu’à votre table, sans détour.',
+    img: photo('fleur', 'cuillere'),
+  },
+  {
+    t: 'Familiale',
+    d: 'Nathalie et Frédéric s’occupent de tout, de la visite des ruches à l’étiquette posée sur chaque pot.',
+    img: photo('recolte', 'tamis'),
+  },
+  {
+    t: 'Responsable',
+    d: 'Un miel qui cristallise naturellement : la signature d’un produit vivant, simplement mis en pot.',
+    img: photo('pot2'),
+  },
+];
+---
+
+<section class="eng" data-theme="dark" data-hscroll>
+  <div class="eng__pin" data-hscroll-pin>
+    <div class="eng__track" data-hscroll-track>
+      <div class="eng__intro">
+        <p class="label eng__kicker">Nos engagements</p>
+        <h2 class="display eng__title" data-split>
+          Le temps <em>des abeilles,</em> pas celui des machines
+        </h2>
+        <p class="eng__hint label">
+          <span class="eng__arrow" aria-hidden="true"></span> Faites défiler
+        </p>
+      </div>
+
+      {
+        items.map((it, i) => (
+          <article class="eng__card" data-hcard>
+            <div class="eng__media" data-hmedia>
+              <Image src={it.img} alt="" widths={[400, 800]} sizes="(max-width: 700px) 80vw, 30vw" />
+            </div>
+            <div class="eng__body">
+              <span class="eng__num">0{i + 1}</span>
+              <h3 class="eng__h">{it.t}</h3>
+              <p class="eng__d">{it.d}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+    <div class="eng__progress" aria-hidden="true"><i data-hscroll-bar></i></div>
+  </div>
+</section>
+
+<style>
+  .eng {
+    background: var(--night);
+    color: var(--cream);
+  }
+  .eng__pin {
+    position: relative;
+    height: 100svh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+  .eng__track {
+    display: flex;
+    align-items: center;
+    gap: clamp(20px, 3vw, 48px);
+    padding-inline: var(--gutter) 12vw;
+    will-change: transform;
+  }
+  .eng__intro {
+    flex: none;
+    width: min(88vw, 640px);
+    display: grid;
+    gap: 2rem;
+    padding-right: clamp(10px, 4vw, 80px);
+  }
+  .eng__kicker {
+    color: var(--gold);
+  }
+  .eng__title {
+    font-size: var(--fs-h1);
+  }
+  .eng__title em {
+    color: var(--gold);
+  }
+  .eng__hint {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: color-mix(in srgb, var(--cream) 60%, transparent);
+  }
+  .eng__arrow {
+    width: 56px;
+    height: 1px;
+    background: currentColor;
+    position: relative;
+    overflow: hidden;
+  }
+  .eng__arrow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    animation: slide 2s var(--ease-in-out) infinite;
+  }
+  @keyframes slide {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+  .eng__card {
+    position: relative;
+    flex: none;
+    width: clamp(270px, 30vw, 440px);
+    display: grid;
+    gap: 1.4rem;
+  }
+  .eng__card:nth-child(odd) {
+    margin-top: 10vh;
+  }
+  .eng__card:nth-child(even) {
+    margin-top: -8vh;
+  }
+  .eng__media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 999px 999px 6px 6px;
+    background: var(--night-2);
+  }
+  .eng__card:nth-child(3n) .eng__media {
+    border-radius: 6px;
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+    aspect-ratio: 1.08;
+  }
+  .eng__media :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.25);
+  }
+  .eng__body {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 1.2rem;
+    row-gap: 0.4rem;
+  }
+  .eng__num {
+    grid-row: span 2;
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gold);
+    padding-top: 0.7rem;
+  }
+  .eng__h {
+    font-size: var(--fs-h3);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.1;
+  }
+  .eng__d {
+    color: color-mix(in srgb, var(--cream) 72%, transparent);
+    font-size: 1.08rem;
+  }
+  .eng__progress {
+    position: absolute;
+    left: var(--gutter);
+    right: var(--gutter);
+    bottom: clamp(24px, 5vh, 48px);
+    height: 1px;
+    background: color-mix(in srgb, var(--cream) 18%, transparent);
+  }
+  .eng__progress i {
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+
+  @media (max-width: 700px) {
+    .eng__card {
+      width: 78vw;
+    }
+    .eng__card:nth-child(odd),
+    .eng__card:nth-child(even) {
+      margin-top: 0;
+    }
+  }
+</style>

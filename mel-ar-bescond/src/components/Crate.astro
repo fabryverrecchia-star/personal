@@ -1,0 +1,217 @@
+---
+// Caisse en bois où tombent les pots choisis. Les pots sont générés par src/scripts/cart.ts.
+import { products } from '../data/products';
+
+interface Props {
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+---
+
+<div class:list={['crate', { 'crate--compact': compact }]} data-crate>
+  {
+    !compact && (
+      <svg width="0" height="0" class="crate__defs" aria-hidden="true">
+        <defs>
+          {products.map((p) => (
+            <linearGradient id={`mj-${p.id}`} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color={p.honey[0]} />
+              <stop offset="1" stop-color={p.honey[1]} />
+            </linearGradient>
+          ))}
+          <linearGradient id="crate-wood" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#d4a86f" />
+            <stop offset="1" stop-color="#b98a55" />
+          </linearGradient>
+          <linearGradient id="crate-back" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#6e4a2a" />
+            <stop offset="1" stop-color="#a07446" />
+          </linearGradient>
+        </defs>
+      </svg>
+    )
+  }
+  <svg class="crate__back" viewBox="0 0 600 300" preserveAspectRatio="none" aria-hidden="true">
+    <rect x="34" y="60" width="532" height="220" rx="4" fill="url(#crate-back)"></rect>
+    <g stroke="#4a3019" stroke-opacity="0.35">
+      <line x1="34" y1="112" x2="566" y2="112"></line>
+      <line x1="34" y1="168" x2="566" y2="168"></line>
+    </g>
+  </svg>
+
+  <div class="crate__jars" data-crate-jars aria-live="polite"></div>
+  <p class="crate__empty script" data-crate-empty>votre panier vous attend…</p>
+
+  <svg class="crate__front" viewBox="0 0 600 300" preserveAspectRatio="none" aria-hidden="true">
+    <g fill="url(#crate-wood)">
+      <rect x="20" y="178" width="560" height="52" rx="3"></rect>
+      <rect x="20" y="238" width="560" height="54" rx="3"></rect>
+      <rect x="14" y="52" width="40" height="244" rx="4"></rect>
+      <rect x="546" y="52" width="40" height="244" rx="4"></rect>
+    </g>
+    <g stroke="#8a5e33" stroke-opacity="0.35" fill="none" stroke-width="1.2">
+      <path d="M60 196c90-6 180 6 270-2s150 4 210-2"></path>
+      <path d="M60 214c120 5 200-6 300 2s120-3 180 0"></path>
+      <path d="M60 258c80-4 160 6 250-1s170 5 230-1"></path>
+      <path d="M60 276c110 4 230-5 320 2s100-2 160 0"></path>
+      <path d="M26 80c3 60-3 120 2 200M38 70c-2 70 3 140-1 210M560 80c3 60-3 120 2 200M572 70c-2 70 3 140-1 210"></path>
+    </g>
+    <g fill="#3a2a1a" opacity="0.55">
+      <circle cx="34" cy="204" r="3"></circle><circle cx="34" cy="265" r="3"></circle>
+      <circle cx="566" cy="204" r="3"></circle><circle cx="566" cy="265" r="3"></circle>
+    </g>
+    <text x="300" y="271" text-anchor="middle" class="crate__stamp">MEL AR BESCOND · LOUARGAT</text>
+  </svg>
+
+  {
+    !compact && (
+      <div class="crate__tag" data-crate-tag aria-hidden="true">
+        <span class="crate__string" />
+        <span class="crate__card">
+          <span class="script">Récolte</span>
+          <span class="label">2026</span>
+        </span>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .crate {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    font-size: clamp(15px, 2.3vw, 30px);
+    isolation: isolate;
+  }
+  .crate__defs {
+    position: absolute;
+  }
+  .crate__back,
+  .crate__front {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .crate__back {
+    z-index: 0;
+    filter: drop-shadow(0 30px 40px rgb(80 50 20 / 0.25));
+  }
+  .crate__front {
+    z-index: 2;
+    filter: drop-shadow(0 -2px 4px rgb(60 35 15 / 0.25));
+  }
+  .crate__stamp {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 4px;
+    fill: #6e4a2a;
+    opacity: 0.55;
+  }
+  .crate__jars {
+    position: absolute;
+    z-index: 1;
+    left: 9%;
+    right: 9%;
+    bottom: 26%;
+    top: -80%;
+    display: flex;
+    flex-wrap: wrap-reverse;
+    justify-content: center;
+    align-items: flex-end;
+    align-content: flex-start;
+    gap: 0 0.35em;
+    pointer-events: none;
+  }
+  .crate__jars :global(.mj) {
+    pointer-events: auto;
+    flex: none;
+    width: 3.3em;
+    margin-bottom: -0.6em;
+    transform-origin: 50% 100%;
+    cursor: pointer;
+    transition: filter 0.3s;
+  }
+  .crate__jars :global(.mj svg) {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 6px 6px rgb(60 35 15 / 0.35));
+  }
+  .crate__jars :global(.mj--250g) {
+    width: 2.6em;
+  }
+  .crate__jars :global(.mj--1kg) {
+    width: 4.2em;
+  }
+  .crate__jars :global(.mj:hover) {
+    filter: brightness(1.08);
+  }
+  .crate__jars :global(.mj-more) {
+    align-self: center;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.8em;
+    padding: 0.5em 0.8em;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--ivory);
+    margin-bottom: 4em;
+  }
+  .crate__empty {
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    right: 0;
+    top: 32%;
+    text-align: center;
+    font-size: 2.2em;
+    color: color-mix(in srgb, var(--cream) 85%, transparent);
+    transition: opacity 0.5s var(--ease);
+    pointer-events: none;
+  }
+  :global(.has-items) .crate__empty {
+    opacity: 0;
+  }
+  .crate__tag {
+    position: absolute;
+    z-index: 3;
+    right: -1%;
+    top: -14%;
+    transform-origin: 50% 0;
+    display: grid;
+    justify-items: center;
+  }
+  .crate__string {
+    width: 1px;
+    height: 2.4em;
+    background: #8a6a45;
+  }
+  .crate__card {
+    display: grid;
+    justify-items: center;
+    padding: 0.5em 0.9em 0.6em;
+    background: var(--ivory);
+    border-radius: 0.4em 0.4em 1.4em 1.4em;
+    box-shadow: 0 8px 18px rgb(60 35 15 / 0.2);
+    line-height: 1;
+  }
+  .crate__card .script {
+    font-size: 1.4em;
+    color: var(--brown);
+  }
+  .crate__card .label {
+    font-size: 0.55em;
+    color: var(--olive);
+    margin-top: 0.3em;
+  }
+  .crate--compact {
+    font-size: 13px;
+  }
+  .crate--compact .crate__empty {
+    font-size: 2.4em;
+  }
+</style>

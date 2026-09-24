@@ -1,0 +1,144 @@
+---
+import { Image } from 'astro:assets';
+import { photo } from '../lib/photos';
+const pot = photo('pot');
+const pot2 = photo('pot2');
+
+const steps = [
+  { t: 'Composez', d: 'Déposez vos pots dans le panier, saison et contenance au choix.' },
+  { t: 'Envoyez', d: 'Laissez-nous votre nom et votre téléphone : c’est une simple demande, sans paiement.' },
+  { t: 'Savourez', d: 'Nous vous rappelons pour convenir du retrait à Louargat ou d’une remise en main propre.' },
+];
+---
+
+<section class="order" id="commander">
+  <div class="wrap order__wrap">
+    <div class="order__imgs" aria-hidden="true">
+      <figure class="order__img order__img--a" data-float="-60">
+        <Image src={pot} alt="" widths={[300, 600]} sizes="20vw" />
+      </figure>
+      <figure class="order__img order__img--b" data-float="80">
+        <Image src={pot2} alt="" widths={[300, 600]} sizes="20vw" />
+      </figure>
+    </div>
+
+    <p class="label order__kicker" data-reveal>Demande de commande</p>
+    <h2 class="display order__title" data-split>
+      Un pot, <em>une saison,</em> un souvenir de Bretagne
+    </h2>
+
+    <ol class="order__steps">
+      {
+        steps.map((s, i) => (
+          <li data-reveal>
+            <span class="order__n">{i + 1}</span>
+            <h3>{s.t}</h3>
+            <p class="muted">{s.d}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="order__cta" data-reveal>
+      <a href="#panier" class="btn" data-magnetic><span class="btn__dot"></span>Composer mon panier</a>
+      <button class="btn btn--ghost" type="button" data-cart-open>Voir ma demande</button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .order {
+    position: relative;
+    overflow: hidden;
+    background: var(--cream);
+    padding-block: clamp(120px, 16vw, 240px);
+    text-align: center;
+  }
+  .order__wrap {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: clamp(24px, 3vw, 40px);
+  }
+  .order__kicker {
+    color: var(--amber);
+  }
+  .order__title {
+    font-size: var(--fs-h1);
+    max-width: 15ch;
+  }
+  .order__title em {
+    color: var(--amber);
+  }
+  .order__steps {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(20px, 3vw, 50px);
+    max-width: 1000px;
+    margin-top: 2rem;
+    text-align: left;
+  }
+  .order__steps li {
+    display: grid;
+    gap: 0.5rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  }
+  .order__n {
+    font-family: var(--script);
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--amber);
+  }
+  .order__steps h3 {
+    font-size: var(--fs-h3);
+    font-weight: 400;
+    font-style: italic;
+  }
+  .order__cta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 1.6rem;
+  }
+  .order__imgs {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .order__img {
+    position: absolute;
+    overflow: hidden;
+    border-radius: 999px 999px 6px 6px;
+    opacity: 0.9;
+  }
+  .order__img :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .order__img--a {
+    width: clamp(90px, 12vw, 200px);
+    aspect-ratio: 3 / 5;
+    left: 0;
+    top: 2%;
+  }
+  .order__img--b {
+    width: clamp(90px, 13vw, 210px);
+    aspect-ratio: 3 / 4;
+    right: 0;
+    bottom: 10%;
+    border-radius: 6px 6px 999px 999px;
+  }
+
+  @media (max-width: 800px) {
+    .order__steps {
+      grid-template-columns: 1fr;
+    }
+    .order__img {
+      opacity: 0.35;
+    }
+  }
+</style>

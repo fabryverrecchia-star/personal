@@ -1,0 +1,163 @@
+---
+import { products } from '../data/products';
+// Les saisons, de la plus ancienne à la plus récente
+const seasons = [...products].reverse();
+---
+
+<section class="recolte" id="recolte" data-recolte>
+  <div class="wrap">
+    <div class="recolte__head">
+      <svg class="recolte__badge" viewBox="0 0 320 170" aria-hidden="true" data-badge>
+        <path
+          d="M40 85c0-30 20-40 40-44 22-4 30-26 80-26s58 22 80 26c20 4 40 14 40 44s-20 40-40 44c-22 4-30 26-80 26s-58-22-80-26c-20-4-40-14-40-44z"
+          fill="var(--ivory)"></path>
+        <circle cx="64" cy="85" r="4" fill="var(--olive)"></circle>
+        <circle cx="256" cy="85" r="4" fill="var(--olive)"></circle>
+        <text x="160" y="52" text-anchor="middle" class="b-top">RÉCOLTE</text>
+        <text x="160" y="112" text-anchor="middle" class="b-year">2026</text>
+        <text x="160" y="140" text-anchor="middle" class="b-bot">PRINTEMPS – ÉTÉ</text>
+      </svg>
+      <h2 class="display recolte__title" data-split>Deux saisons, <em>deux caractères</em></h2>
+    </div>
+
+    <div class="recolte__list">
+      {
+        seasons.map((p, i) => (
+          <article class="season" data-season data-bg={i === 0 ? '#f4e6c2' : '#ecc98a'}>
+            <div class="season__drop" data-drop style={`--c1:${p.honey[0]};--c2:${p.honey[1]}`}>
+              <svg viewBox="0 0 100 130" aria-hidden="true">
+                <defs>
+                  <linearGradient id={`drop-${p.id}`} x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color={p.honey[0]} />
+                    <stop offset="1" stop-color={p.honey[1]} />
+                  </linearGradient>
+                </defs>
+                <path d="M50 4C62 34 92 60 92 86a42 42 0 0 1-84 0C8 60 38 34 50 4z" fill={`url(#drop-${p.id})`} />
+                <path d="M30 78c0-12 8-24 14-32" stroke="#fff" stroke-opacity=".55" stroke-width="5" stroke-linecap="round" fill="none" />
+              </svg>
+            </div>
+            <div class="season__txt">
+              <p class="label season__num">Saison 0{i + 1}</p>
+              <h3 class="season__name" data-split-chars>{p.season}</h3>
+              <p class="label season__notes">{p.notes}</p>
+              <p class="lead season__desc">{p.description}</p>
+              <a href="#boutique" class="ulink label season__link">
+                Voir le pot {p.season.toLowerCase()} →
+              </a>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .recolte {
+    padding-block: clamp(100px, 14vw, 200px);
+    background: var(--cream);
+    transition: background-color 0.9s var(--ease);
+  }
+  .recolte__head {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: 2rem;
+    margin-bottom: clamp(60px, 10vw, 140px);
+  }
+  .recolte__badge {
+    width: clamp(180px, 22vw, 300px);
+    filter: drop-shadow(0 20px 30px rgb(110 74 42 / 0.18));
+  }
+  .b-top,
+  .b-bot {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 2px;
+    fill: var(--olive);
+  }
+  .b-year {
+    font-family: var(--serif);
+    font-size: 56px;
+    fill: var(--olive);
+  }
+  .recolte__title {
+    font-size: var(--fs-h1);
+    max-width: 14ch;
+  }
+  .recolte__title em {
+    color: var(--amber);
+  }
+  .recolte__list {
+    display: grid;
+    gap: clamp(80px, 12vw, 180px);
+  }
+  .season {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+    gap: clamp(30px, 6vw, 110px);
+    align-items: center;
+  }
+  .season:nth-child(even) .season__drop {
+    order: 2;
+  }
+  .season__drop {
+    justify-self: center;
+    width: min(70%, 360px);
+    position: relative;
+  }
+  .season__drop::after {
+    content: '';
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: -12%;
+    height: 14%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--c2) 45%, transparent), transparent);
+  }
+  .season__drop svg {
+    width: 100%;
+    overflow: visible;
+    transform-origin: 50% 0;
+  }
+  .season__txt {
+    display: grid;
+    gap: 1.1rem;
+  }
+  .season__num,
+  .season__notes {
+    color: var(--amber);
+  }
+  .season__name {
+    font-size: clamp(4rem, 13vw, 13rem);
+    line-height: 0.85;
+    font-weight: 300;
+    font-style: italic;
+    letter-spacing: -0.03em;
+    margin-left: -0.05em;
+  }
+  .season__name :global(.char) {
+    display: inline-block;
+  }
+  .season__desc {
+    max-width: 30ch;
+  }
+  .season__link {
+    justify-self: start;
+    margin-top: 0.6rem;
+  }
+
+  @media (max-width: 800px) {
+    .season {
+      grid-template-columns: 1fr;
+    }
+    .season:nth-child(even) .season__drop {
+      order: 0;
+    }
+    .season__drop {
+      width: 46%;
+    }
+  }
+</style>

@@ -1,0 +1,138 @@
+---
+import { Image } from 'astro:assets';
+import { photo } from '../lib/photos';
+const fleur = photo('fleur', 'apiculteurs');
+const cuillere = photo('cuillere');
+const recolte = photo('recolte', 'tamis');
+import emblem from '../assets/svg/emblem.svg?url';
+---
+
+<section class="manifesto" id="manifeste">
+  <div class="wrap manifesto__wrap">
+    <p class="label manifesto__kicker" data-reveal>
+      <span class="manifesto__dot"></span> Notre promesse
+    </p>
+
+    <p class="manifesto__text" data-words>
+      Au cœur du bocage breton, à Louargat,
+      <span class="pill" data-pill><Image src={fleur} alt="" widths={[240, 480]} sizes="12vw" /></span>
+      nos abeilles butinent à leur rythme. Nous ne récoltons que ce que la ruche veut bien offrir
+      <span class="pill" data-pill><Image src={cuillere} alt="" widths={[240, 480]} sizes="12vw" /></span>
+      — un miel <em>rare</em>, patient, fidèle à sa saison, extrait et mis en pot à la main
+      <span class="pill" data-pill><Image src={recolte} alt="" widths={[240, 480]} sizes="12vw" /></span>
+      par notre famille.
+    </p>
+
+    <div class="manifesto__foot">
+      <div class="manifesto__emblem" data-emblem style={`--emblem: url(${emblem})`} aria-hidden="true"></div>
+      <div class="manifesto__meaning">
+        <p class="label muted" data-reveal>Mel ar Bescond, en breton</p>
+        <dl class="meaning" data-reveal>
+          <div>
+            <dt class="script">Mel</dt>
+            <dd>le miel</dd>
+          </div>
+          <div>
+            <dt class="script">ar Bescond</dt>
+            <dd>de Coat ar Bescond, notre lieu-dit</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .manifesto {
+    padding-block: clamp(110px, 18vw, 260px) clamp(90px, 14vw, 200px);
+    background: var(--cream);
+  }
+  .manifesto__kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+    color: var(--amber);
+    margin-bottom: clamp(28px, 4vw, 56px);
+  }
+  .manifesto__dot {
+    width: 0.7em;
+    height: 0.7em;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    background: currentColor;
+  }
+  .manifesto__text {
+    font-size: clamp(2rem, 5.2vw, 5.4rem);
+    line-height: 1.08;
+    font-weight: 380;
+    letter-spacing: -0.015em;
+    max-width: 17ch;
+    max-width: none;
+    text-wrap: pretty;
+  }
+  .manifesto__text em {
+    font-style: italic;
+    color: var(--amber);
+  }
+  .manifesto__text :global(.word) {
+    display: inline-block;
+  }
+  .pill {
+    display: inline-block;
+    width: 1.9em;
+    height: 0.9em;
+    border-radius: 999px;
+    overflow: hidden;
+    vertical-align: -0.06em;
+    margin-inline: 0.06em;
+    transform-origin: center;
+    background: var(--paper);
+  }
+  .pill :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .manifesto__foot {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(32px, 6vw, 100px);
+    align-items: center;
+    margin-top: clamp(80px, 12vw, 180px);
+  }
+  .manifesto__emblem {
+    aspect-ratio: 870 / 690;
+    width: min(100%, 560px);
+    justify-self: center;
+    background: linear-gradient(160deg, var(--brown), var(--ink) 70%);
+    mask: var(--emblem) center / contain no-repeat;
+    -webkit-mask: var(--emblem) center / contain no-repeat;
+  }
+  .meaning {
+    display: grid;
+    gap: 1.6rem;
+    margin-top: 1.6rem;
+  }
+  .meaning div {
+    display: grid;
+    gap: 0.2rem;
+    padding-bottom: 1.4rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+  }
+  .meaning dt {
+    font-size: clamp(2.6rem, 5vw, 4.6rem);
+    line-height: 1.1;
+    color: var(--brown);
+  }
+  .meaning dd {
+    font-size: var(--fs-lead);
+    font-style: italic;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 800px) {
+    .manifesto__foot {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

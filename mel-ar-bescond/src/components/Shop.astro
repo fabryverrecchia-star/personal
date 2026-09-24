@@ -1,0 +1,445 @@
+---
+import { Image } from 'astro:assets';
+import Jar from './Jar.astro';
+import Crate from './Crate.astro';
+import { products, sizes } from '../data/products';
+import { photo } from '../lib/photos';
+
+const tamis = photo('tarifs', 'tamis');
+const fmt = (n: number) => `${n}€`;
+const label = (s: string) => s.replace('g', ' g').replace('1k g', '1 kg');
+---
+
+<section class="shop" id="boutique">
+  <div class="wrap">
+    <header class="shop__head">
+      <p class="label shop__kicker" data-reveal><span class="shop__pulse"></span> Récolte 2026 — quantités limitées</p>
+      <h2 class="display shop__title" data-split>Composez <em>votre panier</em></h2>
+      <p class="lead muted shop__intro" data-reveal>
+        Pas de paiement en ligne : choisissez vos pots, envoyez-nous votre demande, nous vous rappelons.
+      </p>
+    </header>
+
+    <div class="shop__grid">
+      {
+        products.map((p, i) => (
+          <article class="product" data-product={p.id}>
+            <div class="product__stage" data-tilt data-cursor-label="Incliner">
+              <div class="product__halo" style={`--c1:${p.honey[0]};--c2:${p.honey[1]}`} />
+              <svg class="product__badge" viewBox="0 0 200 200" data-spin aria-hidden="true">
+                <defs>
+                  <path id={`badge-${p.id}`} d="M100 100m-78 0a78 78 0 1 1 156 0a78 78 0 1 1-156 0" />
+                </defs>
+                <text>
+                  <textPath href={`#badge-${p.id}`}>
+                    RÉCOLTE {p.year} · {p.season.toUpperCase()} · CÔTES-D’ARMOR ·
+                  </textPath>
+                </text>
+              </svg>
+              <div class="product__jar" data-jar-wrap>
+                <Jar product={p} />
+              </div>
+              <span class="product__index label">0{i + 1}</span>
+            </div>
+
+            <div class="product__info">
+              <h3 class="product__name">
+                {p.name} <span>{p.year}</span>
+              </h3>
+              <p class="label product__notes">{p.notes}</p>
+              <p class="product__desc muted">{p.description}</p>
+
+              <div class="chips" role="group" aria-label={`Ajouter un pot ${p.name}`}>
+                {sizes.map((s) => {
+                  const price = p.prices[s];
+                  return price === null ? (
+                    <span class="chip is-out" aria-label={`${label(s)} épuisé`}>
+                      <span class="chip__w">{label(s)}</span>
+                      <span class="chip__p">Épuisé</span>
+                    </span>
+                  ) : (
+                    <button type="button" class="chip" data-add={p.id} data-size={s} aria-label={`Ajouter un pot ${p.name} de ${label(s)}, ${price} euros`}>
+                      <span class="chip__w">{label(s)}</span>
+                      <span class="chip__p">{fmt(price)}</span>
+                      <span class="chip__plus" aria-hidden="true">+</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="composer" id="panier" data-composer>
+    <div class="wrap composer__wrap">
+      <div class="composer__txt">
+        <p class="label composer__kicker">Votre panier</p>
+        <p class="composer__title"><span data-crate-count>0</span> <span data-crate-word>pot</span></p>
+        <p class="composer__hint muted" data-crate-hint>
+          Touchez une contenance ci-dessus : le pot rejoint la caisse. Touchez un pot dans la caisse pour le retirer.
+        </p>
+        <p class="composer__total"><span class="label">Estimation</span> <span data-cart-total>0€</span></p>
+        <button type="button" class="btn composer__send" data-cart-open data-magnetic disabled data-crate-send>
+          <span class="btn__dot"></span>Envoyer ma demande
+        </button>
+      </div>
+      <Crate />
+    </div>
+  </div>
+
+  <div class="tarifs" data-theme="dark">
+    <div class="tarifs__bg" data-parallax="0.18">
+      <Image src={tamis} alt="" widths={[800, 1600]} sizes="100vw" />
+    </div>
+    <div class="wrap tarifs__wrap">
+      <p class="label tarifs__kicker" data-reveal>Tarifs · Printemps — Été 2026</p>
+      <table class="tarifs__table" data-reveal>
+        <thead>
+          <tr>
+            <th class="label" scope="col">Type de miel</th>
+            {sizes.map((s) => <th class="label" scope="col">{s}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {
+            products.map((p) => (
+              <tr>
+                <th scope="row">{p.name.toUpperCase()} {p.year}</th>
+                {sizes.map((s) => (p.prices[s] === null ? <td class="is-out label">Épuisé</td> : <td>{fmt(p.prices[s]!)}</td>))}
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+      <p class="label tarifs__note" data-reveal>Le miel se cristallise naturellement. À conserver dans un endroit frais et sec.</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .shop {
+    background: var(--ivory);
+    padding-top: clamp(100px, 14vw, 200px);
+  }
+  .shop__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+    align-items: end;
+    gap: 1.5rem 4rem;
+    margin-bottom: clamp(50px, 8vw, 110px);
+  }
+  .shop__kicker {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+    color: var(--amber);
+  }
+  .shop__pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 currentColor;
+    }
+    70%,
+    100% {
+      box-shadow: 0 0 0 10px transparent;
+    }
+  }
+  .shop__title {
+    font-size: var(--fs-h1);
+  }
+  .shop__title em {
+    color: var(--amber);
+  }
+  .shop__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(20px, 3vw, 44px);
+  }
+  .product {
+    display: grid;
+    gap: 1.6rem;
+    align-content: start;
+  }
+  .product__stage {
+    position: relative;
+    aspect-ratio: 1 / 0.92;
+    border-radius: clamp(18px, 2vw, 28px);
+    background: var(--cream);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    perspective: 900px;
+    isolation: isolate;
+  }
+  .product__halo {
+    position: absolute;
+    width: 72%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, var(--c1), var(--c2) 70%, transparent 71%);
+    filter: blur(50px);
+    opacity: 0.55;
+    z-index: -1;
+  }
+  .product__badge {
+    position: absolute;
+    width: 78%;
+    opacity: 0.8;
+    z-index: -1;
+  }
+  .product__badge text {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 9.3px;
+    letter-spacing: 3.2px;
+    fill: var(--olive);
+  }
+  .product__jar {
+    width: 48%;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .product__index {
+    position: absolute;
+    top: 1.2rem;
+    left: 1.4rem;
+    color: var(--ink-soft);
+  }
+  .product__info {
+    display: grid;
+    gap: 0.9rem;
+  }
+  .product__name {
+    font-size: clamp(2.4rem, 4.4vw, 4.2rem);
+    font-weight: 400;
+    line-height: 1;
+    font-style: italic;
+  }
+  .product__name span {
+    font-style: normal;
+    font-weight: 300;
+    color: var(--amber);
+  }
+  .product__notes {
+    color: var(--amber);
+  }
+  .product__desc {
+    max-width: 44ch;
+  }
+  .chips {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin-top: 0.6rem;
+  }
+  .chip {
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: 0.1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 16px;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 18%, transparent);
+    text-align: left;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+      color 0.45s var(--ease),
+      box-shadow 0.45s var(--ease),
+      transform 0.45s var(--ease);
+  }
+  .chip::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--ink);
+    transform: translateY(101%);
+    border-radius: 50% 50% 0 0 / 40% 40% 0 0;
+    transition:
+      transform 0.55s var(--ease),
+      border-radius 0.55s var(--ease);
+  }
+  .chip:hover::before,
+  .chip:focus-visible::before {
+    transform: translateY(0);
+    border-radius: 0;
+  }
+  .chip:hover,
+  .chip:focus-visible {
+    color: var(--ivory);
+    box-shadow: none;
+  }
+  .chip:active {
+    transform: scale(0.96);
+  }
+  .chip__w {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.86rem;
+    letter-spacing: 0.06em;
+  }
+  .chip__p {
+    font-size: 1.2rem;
+    font-style: italic;
+  }
+  .chip__plus {
+    position: absolute;
+    top: 0.55rem;
+    right: 0.7rem;
+    font-family: var(--sans);
+    font-size: 1.1rem;
+    line-height: 1;
+    color: var(--amber);
+  }
+  .chip.is-out {
+    color: color-mix(in srgb, var(--ink) 38%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 8%, transparent);
+  }
+  .chip.is-out .chip__p {
+    text-decoration: line-through;
+    font-family: var(--sans);
+    font-style: normal;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding-top: 0.4rem;
+  }
+
+  /* Composition du panier */
+  .composer {
+    padding-block: clamp(80px, 10vw, 150px) clamp(100px, 14vw, 200px);
+  }
+  .composer__wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+    gap: clamp(30px, 5vw, 90px);
+    align-items: center;
+  }
+  .composer__txt {
+    display: grid;
+    gap: 1rem;
+    justify-items: start;
+  }
+  .composer__kicker {
+    color: var(--amber);
+  }
+  .composer__title {
+    font-size: clamp(3rem, 6vw, 5.6rem);
+    line-height: 1;
+    font-weight: 350;
+    font-style: italic;
+  }
+  .composer__title [data-crate-count] {
+    display: inline-block;
+    font-style: normal;
+    color: var(--amber);
+  }
+  .composer__hint {
+    max-width: 34ch;
+  }
+  .composer__total {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    font-size: 2rem;
+    line-height: 1;
+    margin-top: 0.4rem;
+  }
+  .composer__total .label {
+    color: var(--ink-soft);
+  }
+  .composer__send {
+    margin-top: 0.6rem;
+  }
+
+  /* Tableau des tarifs */
+  .tarifs {
+    position: relative;
+    overflow: hidden;
+    color: var(--ivory);
+    background: var(--night);
+    padding-block: clamp(100px, 14vw, 200px);
+  }
+  .tarifs__bg {
+    position: absolute;
+    inset: -15% 0;
+  }
+  .tarifs__bg :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.42) saturate(1.1);
+  }
+  .tarifs__wrap {
+    position: relative;
+    max-width: 1100px;
+  }
+  .tarifs__kicker {
+    color: var(--gold);
+    margin-bottom: 2rem;
+  }
+  .tarifs__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--sans);
+  }
+  .tarifs__table th,
+  .tarifs__table td {
+    text-align: center;
+    padding: clamp(14px, 2.4vw, 32px) 0.4rem;
+    border-bottom: 1px solid rgb(250 246 239 / 0.6);
+    font-weight: 300;
+    font-size: clamp(1.1rem, 3.2vw, 2.8rem);
+    white-space: nowrap;
+  }
+  .tarifs__table thead th {
+    font-size: var(--fs-label);
+    font-weight: 600;
+    padding-bottom: 1rem;
+  }
+  .tarifs__table th:first-child {
+    text-align: left;
+  }
+  .tarifs__table .is-out {
+    text-decoration: line-through;
+    font-size: var(--fs-label);
+    opacity: 0.8;
+  }
+  .tarifs__note {
+    margin-top: 2.4rem;
+    text-align: center;
+    color: rgb(250 246 239 / 0.8);
+  }
+
+  @media (max-width: 900px) {
+    .shop__head,
+    .shop__grid,
+    .composer__wrap {
+      grid-template-columns: 1fr;
+    }
+    .shop__grid {
+      gap: 80px;
+    }
+    .composer__txt {
+      order: 2;
+    }
+  }
+  @media (max-width: 560px) {
+    .tarifs__table tbody th {
+      white-space: normal;
+      font-size: 1.05rem;
+    }
+  }
+</style>

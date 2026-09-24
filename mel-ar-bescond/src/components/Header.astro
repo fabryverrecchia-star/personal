@@ -1,0 +1,295 @@
+---
+import monogram from '../assets/svg/monogram.svg?raw';
+
+const nav = [
+  { href: '#maison', label: 'La maison' },
+  { href: '#recolte', label: 'La récolte' },
+  { href: '#boutique', label: 'Commander' },
+  { href: '#terroir', label: 'Le terroir' },
+];
+---
+
+<header class="header" data-header>
+  <a href="#top" class="header__brand" aria-label="Mel Ar Bescond — accueil" data-magnetic>
+    <span class="header__mono" set:html={monogram} />
+    <span class="header__name"><span class="script">M</span>el ar <span class="script">B</span>escond</span>
+  </a>
+
+  <nav class="header__nav" aria-label="Navigation principale">
+    {
+      nav.map((n) => (
+        <a href={n.href} class="label header__link">
+          <span data-text={n.label}>{n.label}</span>
+        </a>
+      ))
+    }
+  </nav>
+
+  <div class="header__actions">
+    <button class="header__cart label" data-cart-open data-magnetic aria-label="Voir ma demande">
+      <span class="header__cart-txt">Ma demande</span>
+      <span class="header__cart-count" data-cart-count>0</span>
+    </button>
+    <button class="header__burger" data-menu-toggle aria-label="Menu" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<div class="menu" data-menu aria-hidden="true">
+  <div class="menu__bg" data-menu-bg></div>
+  <nav class="menu__nav">
+    {
+      nav.map((n, i) => (
+        <a href={n.href} class="menu__link" data-menu-link>
+          <span class="menu__num label">0{i + 1}</span>
+          <span class="menu__txt">{n.label}</span>
+        </a>
+      ))
+    }
+  </nav>
+  <p class="menu__foot label">Louargat · Côtes-d’Armor · Récolte 2026</p>
+</div>
+
+<style>
+  .header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: clamp(14px, 1.8vw, 26px) var(--gutter);
+    color: var(--ink);
+    transition:
+      transform 0.8s var(--ease),
+      color 0.5s var(--ease);
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: color-mix(in srgb, var(--cream) 78%, transparent);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    opacity: 0;
+    transition: opacity 0.6s var(--ease);
+  }
+  :global(.header.is-scrolled)::before {
+    opacity: 1;
+  }
+  :global(.header.is-hidden) {
+    transform: translateY(-110%);
+  }
+  :global(.header.is-dark) {
+    color: var(--cream);
+  }
+  :global(.header.is-dark)::before {
+    background: color-mix(in srgb, var(--night) 70%, transparent);
+  }
+  .header__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .header__mono {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    padding: 5px;
+  }
+  .header__mono :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+  .header__name {
+    font-size: 1.35rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .header__name .script {
+    font-size: 1.5em;
+    text-transform: none;
+    margin-right: 0.04em;
+    vertical-align: -0.08em;
+  }
+  .header__nav {
+    display: flex;
+    gap: clamp(1.2rem, 2.6vw, 2.8rem);
+  }
+  .header__link span {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+  }
+  .header__link span::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    color: var(--honey);
+  }
+  .header__link span {
+    transition: transform 0.5s var(--ease);
+  }
+  .header__link:hover span {
+    transform: translateY(-100%);
+  }
+  .header__link:hover span::after {
+    color: var(--honey);
+  }
+  .header__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .header__cart {
+    display: flex;
+    align-items: center;
+    gap: 0.7em;
+    padding: 0.75em 0.8em 0.75em 1.3em;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px currentColor;
+    transition:
+      background 0.4s var(--ease),
+      color 0.4s var(--ease);
+  }
+  .header__cart:hover {
+    background: var(--ink);
+    color: var(--ivory);
+  }
+  :global(.header.is-dark) .header__cart:hover {
+    background: var(--cream);
+    color: var(--ink);
+  }
+  .header__cart-count {
+    min-width: 2em;
+    height: 2em;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--honey);
+    color: var(--ink);
+    letter-spacing: 0;
+  }
+  :global(.header__cart-count.bump) {
+    animation: bump 0.6s var(--ease);
+  }
+  @keyframes bump {
+    40% {
+      transform: scale(1.45);
+    }
+  }
+  .header__burger {
+    display: none;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px currentColor;
+    position: relative;
+  }
+  .header__burger span {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    height: 1.2px;
+    background: currentColor;
+    transition: transform 0.5s var(--ease);
+  }
+  .header__burger span:first-child {
+    top: 19px;
+  }
+  .header__burger span:last-child {
+    top: 26px;
+  }
+  :global(.menu-open) .header__burger span:first-child {
+    transform: translateY(3.5px) rotate(45deg);
+  }
+  :global(.menu-open) .header__burger span:last-child {
+    transform: translateY(-3.5px) rotate(-45deg);
+  }
+
+  /* Menu mobile */
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 110px var(--gutter) calc(28px + env(safe-area-inset-bottom));
+    color: var(--cream);
+    visibility: hidden;
+  }
+  .menu__bg {
+    position: absolute;
+    inset: 0;
+    background: var(--night);
+    clip-path: circle(0% at calc(100% - 40px) 40px);
+  }
+  .menu__nav {
+    position: relative;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .menu__link {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    overflow: hidden;
+    padding: 0.15em 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--cream) 18%, transparent);
+  }
+  .menu__num {
+    color: var(--gold);
+  }
+  .menu__txt {
+    display: inline-block;
+    font-size: clamp(2.6rem, 12vw, 4.2rem);
+    line-height: 1.1;
+    font-style: italic;
+    font-weight: 350;
+  }
+  .menu__foot {
+    position: relative;
+    margin-top: 2.2rem;
+    color: color-mix(in srgb, var(--cream) 60%, transparent);
+  }
+  :global(.menu-open) .header {
+    color: var(--cream);
+  }
+  :global(.menu-open) .header::before {
+    opacity: 0 !important;
+  }
+
+  @media (max-width: 900px) {
+    .header__nav {
+      display: none;
+    }
+    .header__burger {
+      display: block;
+    }
+    .header__cart-txt {
+      display: none;
+    }
+    .header__cart {
+      padding: 0.45em;
+    }
+  }
+  @media (max-width: 420px) {
+    .header__name {
+      font-size: 1.1rem;
+    }
+    .header__mono {
+      display: none;
+    }
+  }
+</style>
