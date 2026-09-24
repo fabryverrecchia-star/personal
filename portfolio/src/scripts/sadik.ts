@@ -410,8 +410,9 @@ export class SadikComposer {
         stage.style.transform = `translate3d(0, ${this.stageY.toFixed(1)}px, 0)`;
         this.target = clamp01(y / travel / 0.8);
       }
-      this.progress += (this.target - this.progress) * 0.14;
-      if (Math.abs(this.target - this.progress) < 1e-4) this.progress = this.target;
+      // Rattrapage lent : la composition suit le défilement avec de l'inertie
+      this.progress += (this.target - this.progress) * 0.055;
+      if (Math.abs(this.target - this.progress) < 2e-4) this.progress = this.target;
       this.render();
       // Le SVG (net, avec son grain) prend le relais une fois le logo composé
       logoEl.style.opacity = String(clamp01((this.progress - 0.985) / 0.015));

@@ -17,7 +17,7 @@ const EASE_IN_OUT = 'expo.inOut';
 /* ------------------------------------------------------------------------ */
 let lenis: Lenis | null = null;
 if (!reduceMotion) {
-  lenis = new Lenis({ autoRaf: false, lerp: 0.1 });
+  lenis = new Lenis({ autoRaf: false, lerp: 0.07, wheelMultiplier: 0.8 });
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((time) => lenis?.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);

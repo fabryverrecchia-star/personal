@@ -28,7 +28,7 @@ const svg = sadikSvg({ id, attrs: 'class="sadik__svg" preserveAspectRatio="xMidY
   }
   /* Piste de défilement : n'existe que lorsque la composition WebGL est active */
   .sadik.is-live {
-    height: calc(var(--sadik-vh, 100svh) * 3.2);
+    height: calc(var(--sadik-vh, 100svh) * 5);
   }
 
   .sadik__stage {
@@ -127,7 +127,7 @@ const svg = sadikSvg({ id, attrs: 'class="sadik__svg" preserveAspectRatio="xMidY
 
   @media (max-width: 800px), (orientation: portrait) {
     .sadik.is-live {
-      height: calc(var(--sadik-vh, 100svh) * 2.6);
+      height: calc(var(--sadik-vh, 100svh) * 4.2);
     }
     .sadik__stage {
       padding-inline: 16px;
