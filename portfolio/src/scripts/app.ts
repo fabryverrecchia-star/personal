@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import Lenis from 'lenis';
 import { GL, type GLItem } from './gl';
+import { SadikComposer } from './sadik';
 
 gsap.registerPlugin(Flip, ScrollTrigger, SplitText);
 
@@ -320,6 +321,17 @@ function initClock() {
   onCleanup(() => clearInterval(id));
 }
 
+function initSadik() {
+  const section = document.querySelector<HTMLElement>('[data-sadik]');
+  if (!section || reduceMotion) return;
+  const composer = SadikComposer.create(section);
+  if (!composer) return;
+  onCleanup(() => composer.dispose());
+  // La piste de défilement vient d'apparaître : on remet les mesures à jour
+  lenis?.resize();
+  ScrollTrigger.refresh();
+}
+
 function initScrollTop() {
   document.querySelectorAll<HTMLElement>('[data-scroll-top]').forEach((btn) => {
     const onClick = () =>
@@ -338,6 +350,7 @@ document.addEventListener('astro:page-load', async () => {
   initClock();
   initScrollTop();
   initWorkToggle();
+  initSadik();
 
   const current = mode;
   mode = 'curtain';

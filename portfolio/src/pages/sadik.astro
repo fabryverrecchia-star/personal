@@ -1,0 +1,73 @@
+---
+import Base from '../layouts/Base.astro';
+import SadikLogo from '../components/SadikLogo.astro';
+import { COLORS } from '../brand/sadik';
+
+const swatches = [
+  COLORS.orange,
+  COLORS.red,
+  COLORS.tangerine,
+  COLORS.amber,
+  COLORS.yellow,
+  COLORS.teal,
+  COLORS.petrol,
+  COLORS.mint,
+  COLORS.sage,
+  COLORS.cream,
+];
+---
+
+<Base title="SADIK" description="Logo SADIK — vectoriel, composé au défilement en WebGL.">
+  <SadikLogo />
+
+  <section class="sadik-info container grid">
+    <h1 class="sadik-info__title display" data-reveal="lines">SADIK</h1>
+    <p class="sadik-info__text" data-reveal="lines">
+      Logo redessiné en vectoriel à partir de l’original : lettres, aplats et arcs de cercle mesurés au pixel,
+      proportions 1662 × 442 conservées.
+    </p>
+    <ul class="sadik-info__swatches" aria-label="Palette" data-reveal>
+      {swatches.map((c) => <li style={`background:${c}`} title={c}><span class="sr-only">{c}</span></li>)}
+    </ul>
+    <p class="sadik-info__links" data-reveal>
+      <a class="link" href="/brand/sadik.svg" download="sadik.svg">Télécharger le SVG</a>
+    </p>
+  </section>
+</Base>
+
+<style>
+  .sadik-info {
+    padding-block: clamp(4rem, 12vh, 9rem);
+    row-gap: 2rem;
+  }
+  .sadik-info__title {
+    grid-column: 1 / span 6;
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: var(--fs-xl);
+    line-height: 1;
+  }
+  .sadik-info__text {
+    grid-column: 7 / span 5;
+    align-self: end;
+    color: var(--muted);
+  }
+  .sadik-info__swatches {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 0;
+    height: 3rem;
+  }
+  .sadik-info__swatches li {
+    flex: 1;
+  }
+  .sadik-info__links {
+    grid-column: 1 / -1;
+  }
+  @media (max-width: 800px) {
+    .sadik-info__title,
+    .sadik-info__text {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
