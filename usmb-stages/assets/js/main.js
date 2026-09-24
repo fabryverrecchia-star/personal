@@ -39,6 +39,8 @@ const STAGES = {
 // Catégories de la saison 2026-2027 : Uxx = né(e) en 2027 - xx
 const SEASON_END = 2027;
 
+// Version du site : à augmenter avec les ?v= de index.html à chaque mise à jour
+const VERSION = "6";
 const diag = { init: "", errors: [] };
 window.addEventListener("error", (e) => diag.errors.push(e.message));
 const $ = (s, c = document) => c.querySelector(s);
@@ -619,6 +621,8 @@ function showDiag() {
   document.body.appendChild(box);
   const render = () => {
     box.textContent = [
+      "Version du site : " + VERSION,
+      "Navigateur : " + navigator.userAgent.replace(/^Mozilla\/5\.0 /, "").slice(0, 90),
       "GSAP : " + (window.gsap ? window.gsap.version : "NON CHARGÉ"),
       "ScrollTrigger : " + (window.ScrollTrigger ? window.ScrollTrigger.getAll().length + " déclencheurs" : "NON CHARGÉ"),
       "Lenis : " + (window.Lenis ? "chargé" : "non chargé"),

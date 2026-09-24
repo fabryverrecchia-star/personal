@@ -22,3 +22,9 @@ cd usmb-stages && python3 -m http.server 8000
 ```
 
 Mise en ligne : déposer le dossier tel quel sur n'importe quel hébergement statique (Netlify, GitHub Pages, OVH…).
+
+## Mettre à jour le site
+
+À chaque nouvelle version, augmentez le numéro `?v=` des fichiers CSS/JS dans `index.html` et `VERSION` dans `assets/js/main.js`. Sinon Safari peut continuer d'afficher l'ancienne version depuis son cache. `.htaccess` (Apache : OVH, o2switch…) et `_headers` (Netlify) empêchent la mise en cache de la page elle-même.
+
+`#diag` à la fin de l'adresse affiche la version chargée, le navigateur et l'état des animations.
