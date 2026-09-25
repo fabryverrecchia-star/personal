@@ -201,9 +201,33 @@ function loadProgress(onProgress: (p: number) => void) {
 
 function runLoader() {
   const loader = $('[data-loader]');
-  if (!loader || reduced) {
-    loader?.remove();
-    heroIntro().progress(reduced ? 1 : 0);
+  if (!loader) {
+    heroIntro();
+    return;
+  }
+  const ghost = $('[data-mono-ghost]', loader);
+  if (ghost) ghost.style.animation = 'none';
+  const centerBox = $('.loader__center', loader)!;
+  const logoEl = $('[data-loader-logo]', loader)!;
+  const recenter = () => -(logoEl.offsetHeight + parseFloat(getComputedStyle(logoEl).top) - centerBox.offsetHeight) / 2;
+  if (reduced) {
+    // animations réduites (réglage du téléphone) : même ouverture, en simples fondus
+    lock(true);
+    gsap.set($$('.glyph', loader), { opacity: 0 });
+    gsap
+      .timeline({
+        onComplete: () => {
+          loader.remove();
+          lock(false);
+          heroIntro().progress(1);
+        },
+      })
+      .set('[data-mono-ghost]', { opacity: 0 })
+      .to('[data-mono-fill]', { opacity: 1, duration: 0.8 }, 0.2)
+      .set(centerBox, { y: recenter })
+      .to($$('.glyph', loader), { opacity: 1, duration: 0.8 }, 0.9)
+      .to('.loader__foot', { opacity: 0, duration: 0.4 }, 0.9)
+      .to(loader, { opacity: 0, duration: 0.8 }, 2.4);
     return;
   }
   lock(true);
@@ -247,6 +271,7 @@ function runLoader() {
       })
       // le monogramme se remplit d'encre
       .to(fill, { opacity: 1, duration: 0.9, ease: 'power2.out' }, 0)
+      .to('[data-mono-ghost]', { opacity: 0, duration: 0.6 }, 0)
       .to(stroke, { opacity: 0, duration: 0.9, ease: 'power2.out' }, 0.2)
       .fromTo('[data-loader-mono]', { scale: 1 }, { scale: 0.86, duration: 1.4, ease: 'expo.inOut' }, 0.3)
       .to('.loader__foot', { opacity: 0, duration: 0.5 }, 0.3)

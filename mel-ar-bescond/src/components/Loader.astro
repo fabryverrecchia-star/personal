@@ -10,6 +10,7 @@ const d = mono.match(/ d="([^"]+)"/)![1];
 <div class="loader" data-loader aria-hidden="true">
   <div class="loader__center">
     <svg class="loader__mono" viewBox={vb} data-loader-mono>
+      <path class="loader__ghost" d={d} data-mono-ghost></path>
       <path class="loader__fill" d={d} data-mono-fill></path>
       <path class="loader__stroke" d={d} pathLength="1" data-mono-stroke></path>
     </svg>
@@ -55,6 +56,17 @@ const d = mono.match(/ d="([^"]+)"/)![1];
   .loader__fill {
     fill: var(--ink);
     opacity: 0;
+  }
+  /* empreinte du monogramme, visible dès l'affichage de la page, avant même le script */
+  .loader__ghost {
+    fill: var(--ink);
+    opacity: 0.07;
+    animation: breathe 2.4s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    50% {
+      opacity: 0.14;
+    }
   }
   .loader__logo {
     position: absolute;

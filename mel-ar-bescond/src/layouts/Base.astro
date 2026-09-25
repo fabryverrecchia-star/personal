@@ -24,10 +24,13 @@ const { title = `${site.name} — ${site.tagline}`, description = site.descripti
     <meta property="og:locale" content="fr_FR" />
     <script is:inline>
       document.documentElement.classList.add('js');
-      // filet de sécurité : si le script du site n'a pas démarré, on n'affiche jamais un écran blanc
-      setTimeout(function () {
-        if (!document.documentElement.classList.contains('js-ready')) document.documentElement.classList.remove('js');
-      }, 6000);
+      // filet de sécurité : si le script du site a planté, on n'affiche jamais un écran blanc.
+      // On attend la fin du chargement de la page (même lent sur mobile) avant de juger.
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          if (!document.documentElement.classList.contains('js-ready')) document.documentElement.classList.remove('js');
+        }, 2500);
+      });
     </script>
   </head>
   <body>
