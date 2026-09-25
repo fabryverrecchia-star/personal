@@ -30,7 +30,14 @@ En `file://`, la page reste fonctionnelle : les photos repassent en images DOM (
 | 09 | Processus | Brouillons |
 | — | Grazie / Merci | Crédits & contact |
 
-Mêmes animations sur desktop et mobile ; smooth scroll Lenis avec `syncTouch` sur mobile.
+Mêmes animations sur desktop et mobile.
+
+### Smooth scroll
+
+- Lenis (`js/main.js`, objet `SCROLL`) : molette amortie (`lerp` 0.072, molette à 0.85), inertie tactile longue (`syncTouch`), actif même avec « Réduire les animations ».
+- Clavier : flèches, espace, Page ↑/↓, Début/Fin glissent avec un easing expo.
+- L'indicateur « Scroll » du hero amène en douceur à la section 01.
+- Toutes les animations liées au scroll ont un `scrub` avec inertie (0.8 à 1.2 s) : elles suivent le défilement sans à-coups.
 
 ## Structure
 

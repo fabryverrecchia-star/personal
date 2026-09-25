@@ -85,14 +85,26 @@
   /* ------------------------------------------------------------------
      3. Smooth scroll — identique desktop / mobile (syncTouch)
      ------------------------------------------------------------------ */
+  /* Réglages identiques desktop et mobile : défilement amorti, inertie longue
+     au doigt (syncTouch), molette légèrement ralentie pour plus de contrôle. */
+  var SCROLL = {
+    lerp: 0.072,
+    wheelMultiplier: 0.85,
+    syncTouchLerp: 0.072,
+    touchInertiaExponent: 1.8,
+    touchMultiplier: 1.15
+  };
   var lenis = new Lenis({
-    lerp: 0.085,
+    lerp: SCROLL.lerp,
     smoothWheel: true,
     syncTouch: true,
-    syncTouchLerp: 0.085,
-    touchInertiaExponent: 1.6,
-    touchMultiplier: 1.1,
-    wheelMultiplier: 1
+    syncTouchLerp: SCROLL.syncTouchLerp,
+    touchInertiaExponent: SCROLL.touchInertiaExponent,
+    touchMultiplier: SCROLL.touchMultiplier,
+    wheelMultiplier: SCROLL.wheelMultiplier,
+    anchors: false,
+    /* forcé : la page reste fluide même si « Réduire les animations » est actif */
+    respectReducedMotion: false
   });
   lenis.stop();
   window.__lenis = lenis;
@@ -100,14 +112,50 @@
   gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
   gsap.ticker.lagSmoothing(0);
 
+  var easeScroll = function (t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); };
+  function glide(target, duration) {
+    lenis.scrollTo(target, { duration: duration || 1.4, easing: easeScroll });
+  }
+
   $$('a[href^="#"]').forEach(function (a) {
     a.addEventListener("click", function (e) {
       var id = a.getAttribute("href");
       if (id.length < 2) return;
       e.preventDefault();
-      lenis.scrollTo(id === "#top" ? 0 : id, { duration: 1.6 });
+      glide(id === "#top" ? 0 : id, 1.8);
     });
   });
+
+  /* Clavier : flèches, espace, pages, début/fin glissent au lieu de sauter */
+  window.addEventListener("keydown", function (e) {
+    if (lenis.isStopped || e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+    var t = e.target;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    var vh = window.innerHeight, base = lenis.targetScroll, to = null, dur = 1.1;
+    switch (e.key) {
+      case "ArrowDown": to = base + vh * 0.18; dur = 0.8; break;
+      case "ArrowUp": to = base - vh * 0.18; dur = 0.8; break;
+      case "PageDown": to = base + vh * 0.85; break;
+      case "PageUp": to = base - vh * 0.85; break;
+      case " ": to = base + (e.shiftKey ? -1 : 1) * vh * 0.85; break;
+      case "Home": to = 0; dur = 2; break;
+      case "End": to = lenis.limit; dur = 2; break;
+    }
+    if (to === null) return;
+    e.preventDefault();
+    glide(Math.max(0, Math.min(lenis.limit, to)), dur);
+  });
+
+  /* L'indicateur « Scroll » du hero amène à la première section */
+  var hint = $("[data-scroll-hint]");
+  if (hint) {
+    hint.setAttribute("role", "button");
+    hint.setAttribute("tabindex", "0");
+    hint.setAttribute("aria-label", "Descendre vers la suite");
+    var goNext = function () { glide(".manifesto", 2); };
+    hint.addEventListener("click", goNext);
+    hint.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); goNext(); } });
+  }
 
   /* ------------------------------------------------------------------
      4. WebGL
@@ -254,7 +302,7 @@
   function setupScroll() {
     /* HERO : le pictogramme se disperse en particules, le logotype s'élargit */
     gsap.timeline({
-      scrollTrigger: { trigger: "[data-hero]", start: "top top", end: "+=75%", pin: true, scrub: true }
+      scrollTrigger: { trigger: "[data-hero]", start: "top top", end: "+=75%", pin: true, scrub: 1 }
     })
       .to(heroState, { disperse: 1, ease: "none", duration: 1 }, 0)
       .to(".hero__logo", { scale: 1.18, yPercent: -40, opacity: 0, ease: "power1.in", duration: 0.8 }, 0.1)
@@ -287,7 +335,7 @@
         onSplit: function (self) {
           return gsap.fromTo(self.words, { opacity: 0.13 }, {
             opacity: 1, ease: "none", stagger: 0.1,
-            scrollTrigger: { trigger: el, start: "top 80%", end: "bottom 50%", scrub: true }
+            scrollTrigger: { trigger: el, start: "top 80%", end: "bottom 50%", scrub: 0.8 }
           });
         }
       });
@@ -298,7 +346,7 @@
       var k = parseFloat(el.getAttribute("data-parallax")) || 0.1;
       gsap.fromTo(el, { yPercent: k * 100 }, {
         yPercent: -k * 100, ease: "none",
-        scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true }
+        scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: 1.2 }
       });
     });
 
@@ -321,7 +369,7 @@
     /* ADN : trois mots, un pin */
     var words = $$("[data-adn-word]");
     var adn = gsap.timeline({
-      scrollTrigger: { trigger: "[data-adn]", start: "top top", end: "+=220%", pin: true, scrub: true }
+      scrollTrigger: { trigger: "[data-adn]", start: "top top", end: "+=220%", pin: true, scrub: 1 }
     });
     gsap.set(words, { opacity: 0, x: function () { return window.innerWidth * 0.18; } });
     words.forEach(function (w, i) {
@@ -336,7 +384,7 @@
     var stage = $(".walk__stage");
     var walk = gsap.timeline({
       scrollTrigger: {
-        trigger: "[data-walk]", start: "top top", end: "+=260%", pin: true, scrub: true, invalidateOnRefresh: true
+        trigger: "[data-walk]", start: "top top", end: "+=260%", pin: true, scrub: 1.2, invalidateOnRefresh: true
       }
     });
     walk.fromTo(wolfEl, { x: function () { return -wolfEl.offsetWidth * 1.05; } },
@@ -367,7 +415,7 @@
     });
 
     /* Dynamisme : Romolo / Remo */
-    gsap.timeline({ scrollTrigger: { trigger: "[data-duo]", start: "top top", end: "+=130%", pin: true, scrub: true } })
+    gsap.timeline({ scrollTrigger: { trigger: "[data-duo]", start: "top top", end: "+=130%", pin: true, scrub: 1 } })
       .fromTo("[data-duo-a]", { xPercent: -120 }, { xPercent: 0, ease: "power2.out", duration: 1 }, 0)
       .fromTo("[data-duo-b]", { xPercent: 120 }, { xPercent: 0, ease: "power2.out", duration: 1 }, 0)
       .fromTo("[data-duo-key]", { rotate: -180, scale: 0 }, { rotate: 0, scale: 1, ease: "power2.out", duration: 1 }, 0.2)
@@ -381,14 +429,14 @@
       x: function () { return -dist(); }, ease: "none",
       scrollTrigger: {
         trigger: "[data-gallery]", start: "top top", end: function () { return "+=" + dist(); },
-        pin: true, scrub: true, invalidateOnRefresh: true
+        pin: true, scrub: 1, invalidateOnRefresh: true
       }
     });
 
     /* Processus */
     gsap.fromTo(".process__img", { xPercent: 4 }, {
       xPercent: -4, ease: "none",
-      scrollTrigger: { trigger: ".process__img", start: "top bottom", end: "bottom top", scrub: true }
+      scrollTrigger: { trigger: ".process__img", start: "top bottom", end: "bottom top", scrub: 1.2 }
     });
 
     /* Fin */
