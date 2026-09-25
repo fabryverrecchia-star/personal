@@ -9,7 +9,8 @@ Astro + GSAP (ScrollTrigger, SplitText) + Lenis + OGL (images en WebGL). Directi
 npm install
 npm run dev            # http://localhost:4321
 npm run build          # site statique dans dist/
-npm run preview:file   # page autonome artifact/mel-ar-bescond.html (aperçu à partager)
+npm run preview:file   # site en un seul fichier : artifact/mel-ar-bescond-site/index.html (à mettre en ligne)
+                       # et artifact/mel-ar-bescond.html (version artefact)
 ```
 
 ## Ce qu’il y a dans la page
