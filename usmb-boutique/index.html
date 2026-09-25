@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Boutique USMB Louargat</title>
+  <meta name="description" content="La boutique de l'US Méné-Bré Louargat : maillots, sweats, vestes, pantalons et sacs Kappa aux couleurs du club, en tailles adulte et enfant. Faites votre demande d'achat en ligne.">
+  <meta name="theme-color" content="#06110b">
+  <meta property="og:title" content="Boutique USMB Louargat">
+  <meta property="og:description" content="Maillots, sweats, doudounes, parkas… la collection Kappa du club, adultes et enfants. Demande d'achat en ligne.">
+  <meta property="og:image" content="assets/img/produits/maillot-vert.jpg">
+  <link rel="icon" href="assets/img/logo-usmb.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,500;1,6..96,700&family=Inter+Tight:wght@400;500;600;700&family=Unbounded:wght@500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=1">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+  <!-- Préchargement -->
+  <div class="loader" aria-hidden="true">
+    <div class="loader__crest">
+      <img class="loader__ghost" src="assets/img/logo-usmb.svg" alt="">
+      <img class="loader__fill" src="assets/img/logo-usmb.svg" alt="">
+    </div>
+    <div class="loader__meta">
+      <span>La boutique · USMB</span>
+      <span class="loader__count"><b>0</b>%</span>
+    </div>
+  </div>
+
+  <div class="grain" aria-hidden="true"></div>
+  <div class="cursor" aria-hidden="true"><span class="cursor__label"></span></div>
+
+  <!-- En-tête -->
+  <header class="nav">
+    <a class="nav__brand" href="#top" aria-label="US Méné-Bré Louargat — haut de page">
+      <img src="assets/img/logo-usmb.svg" alt="" width="40" height="46">
+      <span><b>US Méné-Bré</b><small>La boutique du club</small></span>
+    </a>
+    <nav class="nav__links" aria-label="Navigation principale">
+      <a href="#collection">Collection</a>
+      <a href="#tarifs">Tarifs</a>
+      <a href="#commande">Commander</a>
+    </nav>
+    <a class="cart-btn magnetic" href="#commande" data-cursor="Panier" aria-label="Voir mon panier">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-bag"/></svg>
+      <span class="cart-btn__label">Panier</span>
+      <span class="cart-btn__count" data-cart-count>0</span>
+    </a>
+  </header>
+
+  <main id="top">
+
+    <!-- HERO -->
+    <section class="hero hero--shop" aria-labelledby="hero-title">
+      <svg class="hero__arc" viewBox="0 0 1000 1000" aria-hidden="true"><circle cx="500" cy="500" r="496"/></svg>
+      <div class="hero__glow" aria-hidden="true"></div>
+
+      <div class="hero__floats" aria-hidden="true">
+        <figure class="float float--1" data-depth="0.6"><img src="assets/img/produits/maillot-vert.jpg" alt=""></figure>
+        <figure class="float float--2" data-depth="1"><img src="assets/img/produits/doudoune.jpg" alt=""></figure>
+        <figure class="float float--3" data-depth="0.8"><img src="assets/img/produits/maillot-noir.jpg" alt=""></figure>
+        <figure class="float float--4" data-depth="1.3"><img src="assets/img/produits/sac-a-dos.jpg" alt=""></figure>
+      </div>
+
+      <div class="hero__inner">
+        <p class="eyebrow hero__eyebrow"><span class="dot"></span> Collection Kappa × USMB</p>
+        <h1 id="hero-title" class="hero__title">
+          <span class="hero__stage" data-split>Boutique</span>
+          <span class="hero__autumn" data-split>du club</span>
+        </h1>
+        <div class="hero__glowline" aria-hidden="true"><span></span><em>Adultes &amp; enfants</em><span></span></div>
+        <div class="hero__cta">
+          <a class="btn magnetic" href="#collection" data-cursor="Voir"><span class="btn__label">Voir la collection</span><span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span></a>
+          <a class="link-btn" href="#tarifs">Tous les tarifs</a>
+        </div>
+      </div>
+
+      <div class="hero__foot">
+        <p class="hero__facts"><b>14</b> articles <i>·</i> dès <b>12 €</b> <i>·</i> aux couleurs du club</p>
+        <a class="scroll-cue" href="#collection"><span>Défiler</span><i aria-hidden="true"></i></a>
+      </div>
+    </section>
+
+    <!-- MARQUEE -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>Maillots</span><i>✦</i><span class="serif">Sweats</span><i>✦</i><span>Doudounes</span><i>✦</i><span class="serif">Parkas</span><i>✦</i><span>Softshells</span><i>✦</i><span class="serif">Sacs à dos</span><i>✦</i><span>Kappa × USMB</span><i>✦</i>
+        <span>Maillots</span><i>✦</i><span class="serif">Sweats</span><i>✦</i><span>Doudounes</span><i>✦</i><span class="serif">Parkas</span><i>✦</i><span>Softshells</span><i>✦</i><span class="serif">Sacs à dos</span><i>✦</i><span>Kappa × USMB</span><i>✦</i>
+      </div>
+    </div>
+
+    <!-- COLLECTION -->
+    <section class="collection" id="collection" aria-labelledby="collection-title">
+      <header class="collection__head">
+        <div>
+          <p class="eyebrow">Saison 2026 – 2027</p>
+          <h2 id="collection-title" class="section-title"><span data-split>La</span> <em class="serif" data-split>collection</em></h2>
+        </div>
+        <div class="filters" role="group" aria-label="Filtrer les articles">
+          <button type="button" class="filter is-active" data-filter="tout" aria-pressed="true">Tout</button>
+          <button type="button" class="filter" data-filter="hauts" aria-pressed="false">Maillots &amp; sweats</button>
+          <button type="button" class="filter" data-filter="vestes" aria-pressed="false">Vestes</button>
+          <button type="button" class="filter" data-filter="pantalons" aria-pressed="false">Pantalons</button>
+          <button type="button" class="filter" data-filter="accessoires" aria-pressed="false">Sac</button>
+        </div>
+      </header>
+      <div class="grid" data-grid>
+        <noscript><p class="note">Activez JavaScript pour voir la collection et faire votre demande.</p></noscript>
+      </div>
+    </section>
+
+    <!-- TARIFS -->
+    <section class="tarifs" id="tarifs" aria-labelledby="tarifs-title">
+      <header class="section-head">
+        <p class="eyebrow">Le prix de chaque article</p>
+        <h2 id="tarifs-title" class="section-title"><span data-split>Les</span> <em class="serif" data-split>tarifs</em></h2>
+      </header>
+      <div class="price-table-wrap">
+        <table class="price-table">
+          <thead><tr><th scope="col">Article</th><th scope="col">Adulte</th><th scope="col">Enfant</th></tr></thead>
+          <tbody data-price-table></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- COMMANDE -->
+    <section class="order" id="commande" aria-labelledby="order-title">
+      <div class="order__intro">
+        <p class="eyebrow">Demande d'achat</p>
+        <h2 id="order-title" class="section-title"><span data-split>Votre</span> <em class="serif" data-split>commande</em></h2>
+        <p class="order__lead">Vérifiez votre panier et laissez vos coordonnées. Votre demande est envoyée au club, qui vous recontacte pour la confirmer.</p>
+
+        <div class="basket" aria-live="polite">
+          <ul class="basket__list" data-basket data-lenis-prevent></ul>
+          <div class="basket__empty" data-basket-empty>
+            <p>Votre panier est vide.</p>
+            <a class="link-btn" href="#collection">+ Choisir des articles</a>
+          </div>
+          <div class="basket__total">
+            <span>Total</span>
+            <b><span data-total>0</span> €</b>
+          </div>
+        </div>
+      </div>
+
+      <form class="form" novalidate>
+        <fieldset class="form__group">
+          <legend>Vos coordonnées</legend>
+          <label class="field"><input id="nom" name="nom" required autocomplete="name" placeholder=" "><span>Nom et prénom</span></label>
+          <div class="field-row">
+            <label class="field"><input id="tel" name="tel" type="tel" required autocomplete="tel" placeholder=" "><span>Téléphone</span></label>
+            <label class="field"><input id="email" name="email" type="email" required autocomplete="email" placeholder=" "><span>E-mail</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="form__group">
+          <legend>Pour qui&nbsp;? <small>(facultatif)</small></legend>
+          <div class="field-row">
+            <label class="field"><input id="joueur" name="joueur" autocomplete="off" placeholder=" "><span>Nom du joueur / de la joueuse</span></label>
+            <label class="field"><input id="categorie" name="categorie" autocomplete="off" placeholder=" "><span>Catégorie (U11, Seniors…)</span></label>
+          </div>
+          <label class="field field--area"><textarea id="message" name="message" rows="2" placeholder=" "></textarea><span>Un message pour le club</span></label>
+        </fieldset>
+
+        <p class="form__error" role="alert" hidden></p>
+        <button class="btn btn--xl magnetic" type="submit" data-cursor="Go">
+          <span class="btn__label">Envoyer ma demande d'achat</span>
+          <span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </button>
+        <p class="form__legal">Aucun paiement en ligne : le règlement se fait directement auprès du club.</p>
+      </form>
+
+      <div class="success" hidden tabindex="-1">
+        <svg class="success__check" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="M15 27l7 7 15-16"/></svg>
+        <h3 data-success-title>Merci&nbsp;! <em class="serif">Demande envoyée.</em></h3>
+        <p class="success__msg"></p>
+        <pre class="success__recap"></pre>
+        <div class="success__actions">
+          <button class="btn btn--sm" type="button" data-copy><span class="btn__label">Copier le récapitulatif</span></button>
+          <button class="link-btn" type="button" data-reset>+ Nouvelle demande</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Barre panier mobile -->
+  <a class="cart-bar" href="#commande" data-cart-bar hidden>
+    <span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-bag"/></svg> <b data-cart-count>0</b> article(s)</span>
+    <span><b data-cart-total>0</b> € · Commander →</span>
+  </a>
+
+  <!-- Configurateur d'article -->
+  <div class="sheet" data-sheet hidden>
+    <div class="sheet__backdrop" data-close></div>
+    <div class="sheet__panel" data-lenis-prevent role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <button class="sheet__close" type="button" data-close aria-label="Fermer">×</button>
+      <figure class="sheet__media"><img data-sheet-img src="" alt=""></figure>
+      <div class="sheet__body">
+        <p class="eyebrow" data-sheet-cat></p>
+        <h3 id="sheet-title" class="sheet__title" data-sheet-title></h3>
+        <div class="opt" data-opt-gamme>
+          <p class="opt__label">Version</p>
+          <div class="seg" role="radiogroup" aria-label="Adulte ou enfant">
+            <label><input type="radio" name="gamme" value="adulte" checked><span>Adulte</span></label>
+            <label><input type="radio" name="gamme" value="enfant"><span>Enfant</span></label>
+          </div>
+        </div>
+        <div class="opt" data-opt-couleur hidden>
+          <p class="opt__label">Couleur</p>
+          <div class="chips" data-couleurs role="radiogroup" aria-label="Couleur"></div>
+        </div>
+        <div class="opt" data-opt-taille>
+          <p class="opt__label">Taille <span data-taille-hint></span></p>
+          <div class="chips" data-tailles role="radiogroup" aria-label="Taille"></div>
+        </div>
+        <div class="opt opt--row">
+          <div>
+            <p class="opt__label">Quantité</p>
+            <div class="qty">
+              <button type="button" data-qty="-1" aria-label="Retirer un">−</button>
+              <output data-qty-value>1</output>
+              <button type="button" data-qty="1" aria-label="Ajouter un">+</button>
+            </div>
+          </div>
+          <p class="sheet__price"><b data-sheet-price>0</b> €</p>
+        </div>
+        <p class="sheet__error" role="alert" hidden>Choisissez une taille.</p>
+        <button class="btn btn--xl" type="button" data-add>
+          <span class="btn__label">Ajouter au panier</span>
+          <span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIED DE PAGE -->
+  <footer class="footer">
+    <div class="footer__big" aria-hidden="true"><span>Allez</span> <em class="serif">Louargat</em></div>
+    <div class="footer__row">
+      <img class="footer__logo" src="assets/img/logo-usmb.svg" alt="Écusson de l'US Méné-Bré Louargat" width="120" height="138">
+      <div>
+        <p><b>Union Sportive Méné-Bré</b><br>Louargat · Côtes-d'Armor · depuis 1956</p>
+      </div>
+      <a class="btn magnetic" href="#collection" data-cursor="Go"><span class="btn__label">Voir la collection</span><span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+    </div>
+    <p class="footer__legal">© <span data-year>2026</span> US Méné-Bré Louargat · Articles Kappa personnalisés aux couleurs du club</p>
+  </footer>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1.2 12.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V4.5h4V7M7 7l1 13h8l1-13"/></symbol>
+    </defs>
+  </svg>
+
+  <script src="assets/vendor/gsap.min.js?v=1" defer></script>
+  <script src="assets/vendor/ScrollTrigger.min.js?v=1" defer></script>
+  <script src="assets/vendor/lenis.min.js?v=1" defer></script>
+  <script src="assets/js/main.js?v=1" defer></script>
+</body>
+</html>
