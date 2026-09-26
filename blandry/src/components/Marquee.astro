@@ -1,0 +1,71 @@
+---
+interface Props {
+  items: string[];
+  label: string;
+}
+const { items, label } = Astro.props;
+---
+
+<div class="marquee" data-marquee>
+  <p class="sr-only">{label} : {items.join(', ')}.</p>
+  <div class="marquee__track" aria-hidden="true">
+    {
+      [0, 1].map(() => (
+        <div class="marquee__group">
+          {items.map((c) => (
+            <span class="marquee__item">
+              <span class="serif">{c}</span>
+              <svg viewBox="0 0 20 20">
+                <path d="M10 0v20M0 10h20M3 3l14 14M17 3 3 17" stroke="currentColor" stroke-width="1.4" />
+              </svg>
+            </span>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .marquee {
+    overflow: hidden;
+    border-block: 1px solid var(--line);
+    padding-block: 18px;
+  }
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    animation: marquee 60s linear infinite;
+  }
+  .marquee:hover .marquee__track {
+    animation-play-state: paused;
+  }
+  .marquee__group {
+    display: flex;
+    flex: none;
+  }
+  .marquee__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 28px;
+    padding-right: 28px;
+    font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  .marquee__item svg {
+    width: 0.45em;
+    height: 0.45em;
+    color: var(--limagne);
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track {
+      animation: none;
+    }
+  }
+</style>

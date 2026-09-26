@@ -1,10 +1,11 @@
 ---
-import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import BeforeAfter from '../components/BeforeAfter.astro';
 import Fan from '../components/Fan.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
+import Marquee from '../components/Marquee.astro';
+import BeforeAfter from '../components/BeforeAfter.astro';
+import { Image } from 'astro:assets';
 import { site, services, nuancier, zones, etapes, realisations, faqGenerale, teinte } from '../data/site';
 import { u } from '../lib/url';
 
@@ -17,163 +18,203 @@ const faqLd = {
     acceptedAnswer: { '@type': 'Answer', text: f.r },
   })),
 };
-const engagements = [
-  { t: 'Visite et devis gratuits', d: 'Un devis détaillé poste par poste, sans engagement.' },
-  { t: 'Un interlocuteur unique', d: 'La même personne du premier échange à la livraison.' },
-  { t: 'Garantie décennale', d: 'Attestation d’assurance jointe à chaque devis.' },
-  { t: 'Logement protégé', d: 'Sols et mobilier protégés, chantier rangé chaque soir.' },
+const savoirFaire = [
+  'Peinture intérieure', 'Enduits & préparation', 'Façades', 'Boiseries & volets', 'Conseil couleur', 'Finitions soignées',
 ];
+// Une teinte du nuancier par réalisation et par étape
+const teintesChantiers = ['sioule', 'limagne', 'puys'];
+const teintesEtapes = ['chaux', 'puys', 'limagne', 'sioule', 'tuile', 'volvic'];
 const n2 = (i: number) => String(i + 1).padStart(2, '0');
 ---
 
 <Base
-  title={`${site.nom} — Peintre en bâtiment, peinture et finitions intérieures | Puy-de-Dôme`}
+  title={`${site.nom} — Peintre en bâtiment, peinture et finitions | Puy-de-Dôme`}
   description="Artisan peintre à Saint-Georges-de-Mons : peinture intérieure, préparation des supports, façades et boiseries. Interventions dans les Combrailles, à Riom et à Clermont-Ferrand. Visite et devis gratuits."
   schema={[faqLd]}
 >
   <!-- ─── Hero ─────────────────────────────────── -->
   <section class="hero" data-hero>
     <div class="wrap hero__grid">
-      <div class="hero__text">
-        <p class="eyebrow eyebrow--dot hero__eye" data-hero-fade>
-          Artisan peintre · {site.adresse.ville} (63)
-        </p>
-        <h1 class="hero__t serif" data-hero-title>
-          <span class="line"><span class="line-inner">Peinture</span></span>
-          <span class="line"><span class="line-inner">&amp; finitions,</span></span>
-          <span class="line"><span class="line-inner"><em>du sol au plafond.</em></span></span>
-        </h1>
-        <p class="hero__lede" data-hero-fade>
+      <p class="eyebrow eyebrow--dot hero__eye" data-hero-fade>
+        Artisan peintre · Puy-de-Dôme
+      </p>
+
+      <h1 class="hero__t serif" data-hero-title>
+        <span class="line"><span class="line-inner">Peinture</span></span>
+        <span class="line hero__brushline">
+          <span class="line-inner">
+            <em class="hero__brushword">
+              &amp; finitions,
+              <svg class="brush" viewBox="0 0 600 70" preserveAspectRatio="none" aria-hidden="true">
+                <path
+                  data-brush
+                  d="M8 44 C 90 30, 170 52, 260 38 S 430 30, 520 40 S 580 36, 592 34"
+                  pathLength="1"></path>
+              </svg>
+            </em>
+          </span>
+        </span>
+        <span class="line"><span class="line-inner">du sol au plafond.</span></span>
+      </h1>
+
+      <div class="hero__fan" data-hero-fan>
+        <Fan />
+      </div>
+
+      <div class="hero__foot" data-hero-fade>
+        <p class="hero__lede">
           Nous préparons, protégeons et mettons en peinture votre intérieur avec la rigueur d’un artisan.
-          Un seul interlocuteur, du premier échange à la livraison du chantier.
+          Un seul interlocuteur, de la demande de devis à la livraison du chantier.
         </p>
-        <div class="hero__ctas" data-hero-fade>
+        <div class="hero__ctas">
           <a href="#contact" class="btn" data-magnetic>
             Demander un devis gratuit
             <svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>
           </a>
-          <a href="#realisations" class="btn btn--ghost">Voir nos réalisations</a>
+          <a href="#avant-apres" class="btn btn--ghost">Avant / après</a>
         </div>
-        <ul class="hero__proof" data-hero-fade>
-          <li>Devis gratuit</li>
-          <li>Garantie décennale</li>
-          <li>{site.delaiReponse}</li>
-        </ul>
-      </div>
-      <div class="hero__ba" data-hero-fade>
-        <BeforeAfter eager />
       </div>
     </div>
   </section>
 
-  <!-- ─── Réalisations ─────────────────────────── -->
-  <section class="works section" id="realisations" aria-labelledby="works-t">
-    <div class="wrap">
-      <div class="head">
-        <p class="eyebrow eyebrow--dot muted">Réalisations</p>
-        <h2 id="works-t" class="serif head__t" data-split>
-          Des chantiers <em>livrés avec soin.</em>
+  <Marquee items={savoirFaire} label="Nos savoir-faire" />
+
+  <!-- ─── Avant / après ────────────────────────── -->
+  <section class="bas section" id="avant-apres" data-ba-scope aria-labelledby="bas-t">
+    <p class="bas__word bas__word--l serif" aria-hidden="true">Avant</p>
+    <p class="bas__word bas__word--r serif" aria-hidden="true"><em>Après</em></p>
+    <div class="wrap bas__grid">
+      <div class="bas__head">
+        <p class="eyebrow eyebrow--dot">Avant / après</p>
+        <h2 id="bas-t" class="serif bas__t" data-split>
+          La différence, <em>au curseur.</em>
         </h2>
-        <p class="head__lede muted" data-reveal="fade">
-          Une sélection de travaux récents. D’autres références peuvent vous être présentées lors de la
-          visite.
+        <p class="bas__p" data-reveal="fade">
+          Faites glisser pour comparer. Préparation des supports, reprise des murs et des plafonds :
+          la qualité d’une peinture se joue avant la première couche.
         </p>
+        <a href="#realisations" class="btn btn--light bas__cta" data-reveal="fade">Voir nos réalisations</a>
       </div>
-      <ul class="works__grid">
+      <div class="bas__slider" data-reveal="fade">
+        <BeforeAfter />
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Réalisations : cartes-échantillons ───── -->
+  <section class="works section" id="realisations" aria-labelledby="works-t" data-works>
+    <div class="wrap works__head">
+      <p class="eyebrow eyebrow--dot muted">Réalisations</p>
+      <h2 id="works-t" class="serif works__t" data-split>
+        Des chantiers <em>livrés avec soin.</em>
+      </h2>
+    </div>
+    <div class="works__viewport" data-works-viewport>
+      <ul class="works__track" data-works-track>
         {
-          realisations.map((r, i) => (
-            <li class={`work work--${i}`} data-work>
-              <div class="work__media" data-work-media>
-                <Image src={r.image} alt={r.alt} widths={[400, 800]} sizes="(min-width: 1024px) 45vw, 100vw" class="work__img" />
-              </div>
-              <div class="work__cap">
-                <h3 class="work__t">{r.titre}</h3>
-                {r.lieu && <p class="work__lieu muted">{r.lieu}</p>}
-                <ul class="work__tags">
-                  {r.travaux.map((t) => (
-                    <li>{t}</li>
-                  ))}
-                </ul>
-              </div>
-            </li>
-          ))
+          realisations.map((r, i) => {
+            const t = teinte(teintesChantiers[i % teintesChantiers.length]);
+            return (
+              <li class="wcard" style={`--c:${t.hex};--ink:${t.ink};--r:${i % 2 ? 1.6 : -1.8}deg`}>
+                <div class="wcard__media">
+                  <Image src={r.image} alt={r.alt} widths={[400, 800]} sizes="(min-width: 1024px) 34vw, 82vw" class="wcard__img" />
+                </div>
+                <div class="wcard__band">
+                  <span class="wcard__n">N° {n2(i)}{r.lieu && ` — ${r.lieu}`}</span>
+                  <h3 class="wcard__t serif">{r.titre}</h3>
+                  <p class="wcard__tags">{r.travaux.join(' · ')}</p>
+                </div>
+              </li>
+            );
+          })
         }
+        <li class="wcard wcard--cta" style="--r:1.2deg">
+          <a href="#contact" class="wcard__ctalink">
+            <span class="serif">Votre projet <em>sera le prochain ?</em></span>
+            <span class="btn">Demander un devis gratuit</span>
+          </a>
+        </li>
       </ul>
     </div>
   </section>
 
-  <!-- ─── Étapes ───────────────────────────────── -->
-  <section class="steps section" id="etapes" aria-labelledby="steps-t" data-steps>
-    <div class="wrap steps__grid">
-      <div class="steps__head">
+  <!-- ─── Déroulement ──────────────────────────── -->
+  <section class="proc section" id="etapes" aria-labelledby="proc-t" data-proc>
+    <div class="wrap proc__grid">
+      <div class="proc__aside">
         <p class="eyebrow eyebrow--dot">Déroulement</p>
-        <h2 id="steps-t" class="serif head__t" data-split>
-          De votre demande <em>à la livraison du chantier.</em>
+        <h2 id="proc-t" class="serif proc__t" data-split>
+          De la demande de devis <em>à la livraison.</em>
         </h2>
-        <p class="steps__lede" data-reveal="fade">
-          Six étapes claires, pour savoir à chaque instant où en est votre projet.
-        </p>
-        <a href="#contact" class="btn btn--light steps__cta" data-reveal="fade">Commencer par l’étape 1</a>
+        <div class="proc__pot" aria-hidden="true" data-proc-pot style={`--pc:${teinte(teintesEtapes[0]).hex};--pi:${teinte(teintesEtapes[0]).ink}`}>
+          <span class="proc__num serif" data-proc-num>01</span>
+          <span class="proc__of">/ {n2(etapes.length - 1)}</span>
+        </div>
       </div>
-      <div class="steps__list">
-        <span class="steps__rail" aria-hidden="true"><span data-steps-line></span></span>
-        <ol class="steps__ol">
+      <ol class="proc__list">
         {
-          etapes.map((e, i) => (
-            <li class="step" data-step>
-              <span class="step__dot" aria-hidden="true" />
-              <div class="step__top">
-                <span class="step__n serif">{n2(i)}</span>
-                <span class="step__badge">{e.duree}</span>
-              </div>
-              <h3 class="step__t">{e.titre}</h3>
-              <p class="step__p">{e.texte}</p>
-            </li>
-          ))
+          etapes.map((e, i) => {
+            const t = teinte(teintesEtapes[i]);
+            return (
+              <li class="pstep" data-pstep data-pc={t.hex} data-pi={t.ink} style={`--c:${t.hex};--pi-ink:${t.ink}`}>
+                <div class="pstep__top">
+                  <span class="pstep__n serif">{n2(i)}</span>
+                  <span class="pstep__badge">{e.duree}</span>
+                </div>
+                <h3 class="pstep__t serif">{e.titre}</h3>
+                <p class="pstep__p">{e.texte}</p>
+              </li>
+            );
+          })
         }
-        </ol>
-      </div>
+      </ol>
     </div>
   </section>
 
-  <!-- ─── Engagements ──────────────────────────── -->
-  <section class="engage" aria-label="Nos engagements">
-    <ul class="wrap engage__list">
-      {
-        engagements.map((e) => (
-          <li data-reveal="fade">
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5 8 14.5 16 5.5" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
-            <strong>{e.t}</strong>
-            <span class="muted">{e.d}</span>
-          </li>
-        ))
-      }
-    </ul>
+  <!-- ─── Manifeste ────────────────────────────── -->
+  <section class="manifesto section" aria-label="Notre approche">
+    <div class="wrap grid">
+      <p class="eyebrow eyebrow--dot muted manifesto__eye">Notre métier</p>
+      <p class="manifesto__t serif" data-words>
+        Notre spécialité n’est pas la rénovation générale : <em>notre métier est la peinture.</em>
+        Nous préparons, protégeons et mettons en couleur chaque pièce avec l’exigence d’un artisan,
+        du sol au plafond.
+      </p>
+    </div>
   </section>
 
   <!-- ─── Services ─────────────────────────────── -->
-  <section class="services section" id="services" aria-labelledby="services-t">
-    <div class="wrap head">
+  <section class="services" id="services" aria-labelledby="services-t">
+    <div class="wrap services__head">
       <p class="eyebrow eyebrow--dot muted">Savoir-faire</p>
-      <h2 id="services-t" class="serif head__t" data-split>
+      <h2 id="services-t" class="serif services__t" data-split>
         La peinture, <em>et tout ce qui la prépare.</em>
       </h2>
     </div>
-    <div class="wrap stack">
+    <div class="wrap stack" data-stack>
       {
         services.map((s, i) => {
           const t = teinte(s.teinte);
           return (
-            <article class="card" id={s.id} data-card style={`--c:${t.hex};--i:${i}`}>
+            <article
+              class="card"
+              id={s.id}
+              data-card
+              style={`--c:${t.hex};--ink:${t.ink};--i:${i}`}
+            >
               <div class="card__in">
-                <span class="card__band" aria-hidden="true" />
                 <div class="card__top">
-                  <span>{n2(i)} / {n2(services.length - 1)}</span>
-                  <span>{s.court}</span>
+                  <span class="card__n">0{i + 1} / 0{services.length}</span>
+                  <span class="card__swatch">
+                    <i />
+                    {t.nom}
+                  </span>
                 </div>
+                <span class="card__big serif" aria-hidden="true">{i + 1}</span>
                 <div class="card__body">
                   <h3 class="serif card__t">{s.titre}</h3>
                   <div class="card__text">
+                    <p class="card__court">{s.court}</p>
                     <p>{s.texte}</p>
                     <ul class="card__pts">
                       {s.points.map((p) => (
@@ -190,67 +231,84 @@ const n2 = (i: number) => String(i + 1).padStart(2, '0');
     </div>
   </section>
 
-  <!-- ─── Conseil couleur (secondaire) ─────────── -->
-  <section class="color section" id="nuancier" data-nuancier aria-labelledby="color-t">
-    <div class="wrap color__grid">
-      <div class="color__fan" aria-hidden="true">
-        <Fan />
-      </div>
-      <div class="color__body">
+  <!-- ─── Nuancier ─────────────────────────────── -->
+  <section class="nuancier section" id="nuancier" data-nuancier aria-labelledby="nuancier-t">
+    <div class="wrap">
+      <div class="nuancier__head">
         <p class="eyebrow eyebrow--dot">Conseil couleur</p>
-        <h2 id="color-t" class="serif color__t" data-split>
-          Choisir la teinte <em>dans la lumière de la pièce.</em>
+        <h2 id="nuancier-t" class="serif nuancier__t" data-split>
+          Des teintes inspirées <em>des matériaux de la région.</em>
         </h2>
-        <p class="color__p">
-          Nous apportons de vrais échantillons et les posons chez vous. Voici quelques teintes de
-          référence, inspirées des matériaux de la région.
-        </p>
-        <p class="color__name serif" data-nu-name aria-live="polite">{nuancier[1].nom}</p>
-        <p class="color__meta"><span data-nu-lieu>{nuancier[1].lieu}</span> · <span data-nu-hex>{nuancier[1].hex}</span></p>
-        <div class="color__row" role="radiogroup" aria-label="Choisir une teinte">
-          {
-            nuancier.map((t, i) => (
-              <button
-                class="nu"
-                role="radio"
-                aria-checked={i === 1 ? 'true' : 'false'}
-                aria-label={t.nom}
-                data-nu
-                data-hex={t.hex}
-                data-ink={t.ink}
-                data-nom={t.nom}
-                data-lieu={t.lieu}
-                style={`--c:${t.hex}`}
-              />
-            ))
-          }
-        </div>
       </div>
+
+      <div class="nuancier__stage" aria-live="polite">
+        <p class="nuancier__name serif" data-nu-name>{nuancier[1].nom}</p>
+        <p class="nuancier__meta">
+          <span data-nu-lieu>{nuancier[1].lieu}</span>
+          <span data-nu-hex>{nuancier[1].hex}</span>
+        </p>
+      </div>
+
+      <div class="nuancier__row" role="radiogroup" aria-label="Choisir une teinte">
+        {
+          nuancier.map((t, i) => (
+            <button
+              class="nu"
+              role="radio"
+              aria-checked={i === 1 ? 'true' : 'false'}
+              data-nu
+              data-hex={t.hex}
+              data-ink={t.ink}
+              data-nom={t.nom}
+              data-lieu={t.lieu}
+              style={`--c:${t.hex}`}
+            >
+              <span class="nu__dot" />
+              <span class="nu__lab">{t.nom}</span>
+            </button>
+          ))
+        }
+      </div>
+      <p class="nuancier__note">
+        Nous apportons de vrais échantillons et les posons chez vous : une couleur se choisit dans la
+        lumière réelle de la pièce.
+      </p>
     </div>
   </section>
 
-  <!-- ─── Zone d'intervention ──────────────────── -->
+  <!-- ─── Secteurs ─────────────────────────────── -->
   <section class="zones section" id="secteurs" aria-labelledby="zones-t">
-    <div class="wrap zones__grid">
-      <div>
-        <p class="eyebrow eyebrow--dot muted">Zone d’intervention</p>
-        <h2 id="zones-t" class="serif head__t" data-split>Où nous <em>intervenons.</em></h2>
-        <p class="head__lede muted" data-reveal="fade">
-          Installés à {site.adresse.ville}, nous intervenons dans un rayon d’environ quarante
-          kilomètres. Le déplacement pour la visite est gratuit.
+    <div class="wrap">
+      <div class="zones__head grid">
+        <p class="eyebrow eyebrow--dot muted zones__eye">Zone d’intervention</p>
+        <h2 id="zones-t" class="serif zones__t" data-split>
+          Où nous <em>intervenons.</em>
+        </h2>
+        <p class="zones__lede" data-reveal="fade">
+          Installés à {site.adresse.ville}, nous intervenons dans un rayon d’environ quarante kilomètres.
+          Le déplacement pour la visite et le devis est gratuit.
         </p>
       </div>
+
       <ul class="zlist">
         {
-          zones.map((z) => (
-            <li style={`--c:${teinte(z.teinte).hex}`} data-reveal="fade">
-              <a href={u(`/${z.slug}/`)} class="zrow">
-                <span class="zrow__name serif">{z.nom}</span>
-                <span class="zrow__court muted">{z.court}</span>
-                <svg class="zrow__go" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8" fill="none" stroke="currentColor" stroke-width="1.4" /></svg>
-              </a>
-            </li>
-          ))
+          zones.map((z, i) => {
+            const t = teinte(z.teinte);
+            return (
+              <li style={`--c:${t.hex};--ink:${t.ink}`}>
+                <a href={u(`/${z.slug}/`)} class="zrow" data-zrow>
+                  <span class="zrow__fill" aria-hidden="true" />
+                  <span class="zrow__n">0{i + 1}</span>
+                  <span class="zrow__name serif">{z.nom}</span>
+                  <span class="zrow__court">{z.court}</span>
+                  <span class="zrow__go" aria-hidden="true">
+                    <svg viewBox="0 0 16 16"><path d="M3 13 13 3M5 3h8v8" fill="none" stroke="currentColor" stroke-width="1.4" /></svg>
+                  </span>
+                  <span class="sr-only">— voir la page peintre {z.nom}</span>
+                </a>
+              </li>
+            );
+          })
         }
       </ul>
     </div>
@@ -261,48 +319,75 @@ const n2 = (i: number) => String(i + 1).padStart(2, '0');
 </Base>
 
 <style>
-  .head {
-    display: grid;
-    gap: 16px;
-    margin-bottom: clamp(40px, 6vw, 72px);
-  }
-  .head__t {
-    font-size: var(--fs-xl);
-    max-width: 16ch;
-    text-wrap: balance;
-  }
-  .head__lede {
-    max-width: 46ch;
-  }
-
   /* Hero */
   .hero {
-    padding-top: calc(100px + env(safe-area-inset-top));
-    padding-bottom: clamp(48px, 8vw, 96px);
+    position: relative;
+    min-height: 100svh;
+    padding-top: calc(96px + env(safe-area-inset-top));
+    padding-bottom: 32px;
+    display: flex;
   }
   .hero__grid {
     display: grid;
-    gap: 40px;
-  }
-  .hero__text {
-    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
     gap: 24px;
-    align-content: center;
   }
   .hero__eye {
     color: var(--muted);
   }
   .hero__t {
-    font-size: clamp(3rem, 12vw, 8.4rem);
-    line-height: 0.92;
-    letter-spacing: -0.03em;
+    font-size: clamp(3.1rem, 12.4vw, 11.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.035em;
   }
-  .hero__t em {
-    color: var(--tuile);
+  .hero__brushline {
+    overflow: visible;
+  }
+  .hero__brushline .line-inner {
+    clip-path: inset(-10% -10% 0 -10%);
+  }
+  .hero__brushword {
+    position: relative;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .brush {
+    position: absolute;
+    left: -2%;
+    right: -3%;
+    bottom: 0.02em;
+    width: 105%;
+    height: 0.34em;
+    z-index: -1;
+    overflow: visible;
+  }
+  .brush path {
+    fill: none;
+    stroke: var(--limagne);
+    stroke-width: 26;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    opacity: 0.9;
+  }
+  .js .brush path {
+    stroke-dashoffset: 1;
+  }
+  .hero__fan {
+    display: grid;
+    place-items: center;
+    padding-top: 12px;
+    min-height: clamp(240px, 58vw, 460px);
+  }
+  .hero__foot {
+    display: grid;
+    gap: 22px;
+    align-self: end;
   }
   .hero__lede {
-    max-width: 44ch;
-    font-size: 1.08rem;
+    max-width: 38ch;
+    font-size: 1.05rem;
     color: var(--muted);
   }
   .hero__ctas {
@@ -310,353 +395,174 @@ const n2 = (i: number) => String(i + 1).padStart(2, '0');
     flex-wrap: wrap;
     gap: 10px;
   }
-  .hero__proof {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 20px;
-    font-size: var(--fs-s);
-    color: var(--muted);
-  }
-  .hero__proof li::before {
-    content: '✓';
-    margin-right: 6px;
-    color: var(--sioule);
-    font-weight: 700;
-  }
   @media (min-width: 1024px) {
-    .hero {
-      min-height: 100svh;
-      display: flex;
-      align-items: center;
-    }
     .hero__grid {
-      grid-template-columns: 1.25fr 1fr;
-      gap: clamp(40px, 6vw, 96px);
-      align-items: center;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: auto 1fr auto;
+      column-gap: 28px;
+    }
+    .hero__eye {
+      grid-column: 1 / -1;
     }
     .hero__t {
-      font-size: min(6.4vw, 7.6rem);
+      grid-column: 1 / 9;
+      grid-row: 2;
+      align-self: center;
+      font-size: min(9.6vw, 11rem);
     }
-    .hero__ba {
-      max-width: 520px;
-      justify-self: end;
-      width: 100%;
+    .hero__fan {
+      grid-column: 9 / -1;
+      grid-row: 2;
+      min-height: 0;
     }
-  }
-
-  /* Réalisations */
-  .works__grid {
-    display: grid;
-    gap: 40px 24px;
-  }
-  .work {
-    display: grid;
-    gap: 16px;
-    align-content: start;
-  }
-  .work__media {
-    overflow: hidden;
-    border-radius: var(--radius);
-    background: var(--chaux-2);
-    aspect-ratio: 4 / 5;
-    max-width: 100%;
-  }
-  .work--2 .work__media {
-    aspect-ratio: 16 / 9;
-  }
-  .work__media :global(.work__img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 1.2s var(--ease-out);
-  }
-  @media (hover: hover) {
-    .work:hover :global(.work__img) {
-      transform: scale(1.04);
+    .hero__fan :global(.fan) {
+      --w: min(6.4vw, 96px);
+      --h: min(29vw, 420px);
     }
-  }
-  .work__cap {
-    display: grid;
-    gap: 8px;
-  }
-  .work__t {
-    font-size: var(--fs-m);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-  }
-  .work__lieu {
-    font-size: var(--fs-s);
-  }
-  .work__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .work__tags li {
-    font-size: var(--fs-xs);
-    padding: 5px 10px;
-    border-radius: 999px;
-    box-shadow: inset 0 0 0 1px var(--line);
-  }
-  @media (min-width: 800px) {
-    .works__grid {
-      grid-template-columns: repeat(12, 1fr);
-    }
-    .work--0 {
-      grid-column: 1 / 7;
-    }
-    .work--1 {
-      grid-column: 8 / -1;
-      margin-top: 18vw;
-    }
-    .work--2 {
-      grid-column: 3 / 11;
+    .hero__foot {
+      grid-column: 1 / -1;
+      grid-template-columns: 1fr auto;
+      align-items: end;
     }
   }
 
-  /* Étapes */
-  .steps {
-    background: var(--ink);
-    color: var(--chaux);
-    --line: rgb(255 255 255 / 0.14);
-    --muted: rgb(255 255 255 / 0.62);
+  /* Manifeste */
+  .manifesto__eye {
+    grid-column: 1 / -1;
+    margin-bottom: 28px;
   }
-  .steps__grid {
-    display: grid;
-    gap: 48px;
+  .manifesto__t {
+    grid-column: 1 / -1;
+    font-size: clamp(2rem, 5.2vw, 4.6rem);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
   }
-  .steps__head {
-    display: grid;
-    gap: 18px;
-    align-content: start;
-  }
-  .steps__head .head__t em {
-    color: var(--limagne);
-  }
-  .steps__lede {
-    color: var(--muted);
-    max-width: 36ch;
-  }
-  .steps__cta {
-    justify-self: start;
-    --b-bg: var(--chaux);
-    --b-fg: var(--ink);
-  }
-  .steps__list {
-    position: relative;
-    padding-left: 36px;
-  }
-  .steps__ol {
-    display: grid;
-    gap: 44px;
-  }
-  .steps__rail {
-    position: absolute;
-    left: 7px;
-    top: 10px;
-    bottom: 10px;
-    width: 1px;
-    background: var(--line);
-  }
-  .steps__rail span {
-    position: absolute;
-    inset: 0;
-    background: var(--limagne);
-    transform-origin: 0 0;
-    transform: scaleY(var(--p, 1));
-  }
-  .step {
-    position: relative;
-    display: grid;
-    gap: 10px;
-  }
-  .step__dot {
-    position: absolute;
-    left: -36px;
-    top: 10px;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    background: var(--ink);
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35);
-    transition: background 0.5s, box-shadow 0.5s;
-  }
-  .step.is-on .step__dot {
-    background: var(--limagne);
-    box-shadow: 0 0 0 5px rgb(192 138 62 / 0.22);
-  }
-  .step__top {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .step__n {
-    font-size: 2.2rem;
-    line-height: 1;
-    font-style: italic;
-    color: var(--limagne);
-  }
-  .step__badge {
-    font-size: var(--fs-xs);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 5px 10px;
-    border-radius: 999px;
-    box-shadow: inset 0 0 0 1px var(--line);
-    color: var(--muted);
-  }
-  .step__t {
-    font-size: var(--fs-m);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-  }
-  .step__p {
-    color: var(--muted);
-    max-width: 52ch;
-  }
-  .js .step {
-    opacity: 0.4;
-    transition: opacity 0.6s;
-  }
-  .js .step.is-on {
-    opacity: 1;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .js .step {
-      opacity: 1;
-    }
+  .manifesto__t em {
+    color: var(--tuile);
   }
   @media (min-width: 1024px) {
-    .steps__grid {
-      grid-template-columns: 5fr 7fr;
-      gap: 80px;
+    .manifesto__eye {
+      grid-column: 1 / 3;
+      margin-top: 1.2em;
     }
-    .steps__head {
-      position: sticky;
-      top: 120px;
-      align-self: start;
-    }
-    .steps__ol {
-      gap: 64px;
+    .manifesto__t {
+      grid-column: 3 / -1;
     }
   }
 
-  /* Engagements */
-  .engage {
-    padding-block: clamp(48px, 7vw, 88px);
-    border-bottom: 1px solid var(--line);
+  /* Services : cartes empilées */
+  .services {
+    padding-bottom: clamp(80px, 12vw, 160px);
   }
-  .engage__list {
-    display: grid;
-    gap: 28px;
+  .services__head {
+    margin-bottom: clamp(40px, 6vw, 80px);
   }
-  .engage__list li {
-    display: grid;
-    gap: 6px;
-    font-size: var(--fs-s);
+  .services__t {
+    font-size: var(--fs-xl);
+    margin-top: 16px;
+    max-width: 14ch;
   }
-  .engage__list svg {
-    width: 22px;
-    height: 22px;
-    color: var(--sioule);
-    margin-bottom: 4px;
-  }
-  .engage__list strong {
-    font-size: 1.05rem;
-    font-weight: 550;
-  }
-  @media (min-width: 700px) {
-    .engage__list {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  @media (min-width: 1100px) {
-    .engage__list {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-
-  /* Services : cartes empilées sobres */
   .stack {
     display: grid;
     gap: 16px;
   }
   .card {
     position: sticky;
-    top: calc(90px + var(--i) * 10px);
+    top: calc(84px + var(--i) * 12px);
     scroll-margin-top: 90px;
+  }
+  .card__in {
+    background: var(--c);
+    color: var(--ink);
+    border-radius: calc(var(--radius) * 1.6);
+    padding: clamp(22px, 4vw, 56px);
+    min-height: min(640px, calc(100svh - 120px));
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 40px;
+    transform-origin: 50% 0;
+    box-shadow: 0 -20px 60px -30px rgb(0 0 0 / 0.35);
+    will-change: transform;
   }
   .card__in {
     position: relative;
     overflow: hidden;
-    background: #f7f4ee;
-    border-radius: calc(var(--radius) * 1.5);
-    padding: clamp(24px, 4vw, 56px);
-    padding-top: clamp(36px, 5vw, 64px);
-    min-height: min(520px, calc(100svh - 140px));
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 36px;
-    transform-origin: 50% 0;
-    box-shadow:
-      0 0 0 1px var(--line),
-      0 -24px 60px -36px rgb(31 29 26 / 0.35);
-    will-change: transform;
   }
-  .card__band {
+  .card__big {
     position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    height: 8px;
-    background: var(--c);
+    right: -0.04em;
+    top: -0.12em;
+    font-size: clamp(14rem, 44vw, 34rem);
+    line-height: 1;
+    font-style: italic;
+    opacity: 0.12;
+    pointer-events: none;
   }
   .card__top {
     display: flex;
     justify-content: space-between;
-    gap: 16px;
+    align-items: center;
     font-size: var(--fs-xs);
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--muted);
+    opacity: 0.75;
+  }
+  .card__swatch {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card__swatch i {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--c);
+    box-shadow: 0 0 0 1px currentColor;
   }
   .card__body {
     display: grid;
-    gap: 24px;
+    gap: 28px;
   }
   .card__t {
-    font-size: clamp(2.4rem, 7vw, 5.6rem);
-    line-height: 0.95;
-    letter-spacing: -0.03em;
+    font-size: clamp(2.6rem, 8.4vw, 7.4rem);
+    line-height: 0.92;
+    letter-spacing: -0.035em;
   }
   .card__text {
     display: grid;
-    gap: 18px;
-    max-width: 50ch;
-    color: var(--muted);
+    gap: 16px;
+    max-width: 46ch;
+  }
+  .card__court {
+    font-size: var(--fs-m);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  .card__text > p:not(.card__court) {
+    opacity: 0.8;
   }
   .card__pts {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+    margin-top: 6px;
   }
   .card__pts li {
     font-size: var(--fs-s);
-    color: var(--fg);
     padding: 7px 12px;
     border-radius: 999px;
-    box-shadow: inset 0 0 0 1px var(--line);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent);
   }
   @media (min-width: 1024px) {
     .card__body {
-      grid-template-columns: 1.2fr 1fr;
+      grid-template-columns: 1.3fr 1fr;
       align-items: end;
     }
   }
 
-  /* Conseil couleur */
-  .color {
+  /* Nuancier */
+  .nuancier {
     --nu: #56595c;
     --nu-ink: #f3efe7;
     background: var(--nu);
@@ -664,124 +570,563 @@ const n2 = (i: number) => String(i + 1).padStart(2, '0');
     transition: background-color 0.9s var(--ease), color 0.9s var(--ease);
     overflow: hidden;
   }
-  .color__grid {
-    display: grid;
-    gap: 48px;
-    align-items: center;
-  }
-  .color__fan {
-    display: grid;
-    place-items: center;
-    padding-top: 20px;
-  }
-  .color__fan :global(.fan) {
-    --w: clamp(48px, 10vw, 76px);
-    --h: clamp(210px, 44vw, 340px);
-  }
-  .color__body {
-    display: grid;
-    gap: 18px;
-  }
-  .color__t {
+  .nuancier__t {
     font-size: var(--fs-l);
+    margin-top: 16px;
     max-width: 18ch;
   }
-  .color__p {
-    max-width: 44ch;
-    opacity: 0.8;
+  .nuancier__stage {
+    margin-top: clamp(48px, 9vw, 120px);
+    min-height: 1.8em;
   }
-  .color__name {
-    margin-top: 12px;
-    font-size: clamp(2.6rem, 7vw, 5rem);
-    line-height: 1;
+  .nuancier__name {
+    font-size: clamp(3.6rem, 15vw, 15rem);
+    line-height: 0.85;
+    letter-spacing: -0.045em;
     font-style: italic;
   }
-  .color__meta {
-    font-size: var(--fs-s);
-    opacity: 0.75;
-  }
-  .color__row {
+  .nuancier__meta {
     display: flex;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    font-size: var(--fs-s);
+  }
+  .nuancier__meta [data-nu-hex] {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
+  }
+  .nuancier__row {
+    display: flex;
     gap: 10px;
-    margin-top: 6px;
+    margin: 40px calc(var(--gutter) * -1) 0;
+    padding: 4px var(--gutter) 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .nuancier__row::-webkit-scrollbar {
+    display: none;
   }
   .nu {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--c);
-    box-shadow: 0 0 0 1.5px color-mix(in srgb, currentColor 40%, transparent);
-    transition: box-shadow 0.3s, transform 0.3s var(--ease-out);
+    flex: none;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px 8px 8px;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 28%, transparent);
+    font-size: var(--fs-s);
+    transition: background-color 0.4s, box-shadow 0.4s;
   }
   .nu[aria-checked='true'] {
-    box-shadow:
-      0 0 0 3px var(--nu),
-      0 0 0 5px currentColor;
-    transform: scale(1.06);
+    background: color-mix(in srgb, currentColor 14%, transparent);
+    box-shadow: inset 0 0 0 1.5px currentColor;
   }
-  @media (min-width: 1024px) {
-    .color__grid {
-      grid-template-columns: 1fr 1.2fr;
-      gap: 80px;
-    }
+  .nu__dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--c);
+    box-shadow: 0 0 0 1.5px color-mix(in srgb, currentColor 50%, transparent);
+  }
+  .nuancier__note {
+    margin-top: 32px;
+    max-width: 44ch;
+    opacity: 0.75;
   }
 
-  /* Zone d'intervention */
-  .zones__grid {
-    display: grid;
-    gap: 40px;
+  /* Secteurs */
+  .zones__eye {
+    grid-column: 1 / -1;
+  }
+  .zones__t {
+    grid-column: 1 / -1;
+    font-size: var(--fs-xxl);
+    margin-top: 16px;
+  }
+  .zones__lede {
+    grid-column: 1 / -1;
+    margin-top: 24px;
+    max-width: 44ch;
+    color: var(--muted);
+  }
+  @media (min-width: 1024px) {
+    .zones__t {
+      grid-column: 1 / 8;
+    }
+    .zones__lede {
+      grid-column: 9 / -1;
+      align-self: end;
+    }
   }
   .zlist {
+    margin-top: clamp(48px, 7vw, 96px);
     border-top: 1px solid var(--line);
-    align-self: end;
   }
   .zrow {
+    position: relative;
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'n name go' 'n court go';
     align-items: center;
     column-gap: 16px;
     padding: 22px 0;
     border-bottom: 1px solid var(--line);
-    transition: padding 0.5s var(--ease);
+    isolation: isolate;
+    overflow: hidden;
+    transition: color 0.5s var(--ease), padding 0.6s var(--ease);
+  }
+  .zrow__fill {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--c);
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 0.6s var(--ease);
+  }
+  .zrow__n {
+    grid-area: n;
+    align-self: start;
+    font-size: var(--fs-xs);
+    padding-top: 0.8em;
+    color: var(--muted);
   }
   .zrow__name {
-    font-size: clamp(1.9rem, 4vw, 2.8rem);
-    line-height: 1.05;
-  }
-  .zrow__name::before {
-    content: '';
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    margin-right: 14px;
-    border-radius: 50%;
-    background: var(--c);
-    vertical-align: 0.3em;
+    grid-area: name;
+    font-size: clamp(2.6rem, 9.5vw, 8.6rem);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
   }
   .zrow__court {
-    grid-column: 1;
+    grid-area: court;
+    color: var(--muted);
     font-size: var(--fs-s);
-    margin-top: 4px;
+    margin-top: 6px;
   }
   .zrow__go {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    width: 18px;
-    transition: transform 0.5s var(--ease);
+    grid-area: go;
+    width: clamp(44px, 6vw, 72px);
+    height: clamp(44px, 6vw, 72px);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition: transform 0.6s var(--ease), background 0.4s;
+  }
+  .zrow__go svg {
+    width: 38%;
+  }
+  .zrow__n::before {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    margin-bottom: 8px;
+    border-radius: 50%;
+    background: var(--c);
+  }
+  @media (min-width: 1024px) {
+    .zrow {
+      grid-template-columns: 80px 1fr 320px auto;
+      grid-template-areas: 'n name court go';
+      column-gap: 24px;
+      padding: 30px 0;
+    }
+    .zrow__court {
+      margin: 0;
+    }
   }
   @media (hover: hover) {
     .zrow:hover {
-      padding-left: 12px;
+      color: var(--ink);
+      padding-inline: 24px;
+    }
+    .zrow:hover .zrow__fill {
+      clip-path: inset(0 0 0 0);
+    }
+    .zrow:hover .zrow__n,
+    .zrow:hover .zrow__court {
+      color: inherit;
+      opacity: 0.75;
     }
     .zrow:hover .zrow__go {
       transform: rotate(45deg);
+      background: var(--ink);
+      color: var(--c);
     }
   }
+
+  .zrow__name {
+    font-size: clamp(2.2rem, 6vw, 5.4rem) !important;
+  }
+
+  /* Avant / après — plein cadre basalte */
+  .bas {
+    --xp: 50;
+    position: relative;
+    background: var(--ink);
+    color: var(--chaux);
+    --line: rgb(255 255 255 / 0.16);
+    --muted: rgb(255 255 255 / 0.62);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .bas__word {
+    position: absolute;
+    z-index: -1;
+    font-size: clamp(7rem, 30vw, 30rem);
+    line-height: 0.8;
+    letter-spacing: -0.05em;
+    pointer-events: none;
+    white-space: nowrap;
+    transition: opacity 0.2s linear;
+  }
+  .bas__word--l {
+    left: -0.04em;
+    top: 0.18em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(255 255 255 / 0.28);
+    opacity: calc(0.25 + var(--xp) / 100);
+  }
+  .bas__word--r {
+    right: -0.04em;
+    bottom: 0.02em;
+    color: var(--limagne);
+    opacity: calc(1.25 - var(--xp) / 100);
+  }
+  .bas__grid {
+    display: grid;
+    gap: 44px;
+    align-items: center;
+  }
+  .bas__head {
+    display: grid;
+    gap: 20px;
+    align-content: start;
+  }
+  .bas__t {
+    font-size: var(--fs-xl);
+    max-width: 12ch;
+  }
+  .bas__t em {
+    color: var(--limagne);
+  }
+  .bas__p {
+    color: var(--muted);
+    max-width: 40ch;
+  }
+  .bas__cta {
+    justify-self: start;
+  }
+  .bas__slider :global(.ba__cap span) {
+    color: var(--muted);
+  }
+  .bas__slider :global(.ba__knob) {
+    background: var(--limagne);
+  }
+  .bas__slider :global(.ba__frame) {
+    box-shadow: 0 40px 80px -30px rgb(0 0 0 / 0.7);
+  }
   @media (min-width: 1024px) {
-    .zones__grid {
+    .bas__grid {
       grid-template-columns: 1fr 1fr;
-      gap: 80px;
+      gap: 96px;
+    }
+    .bas__slider {
+      max-width: 500px;
+      width: 100%;
+      justify-self: center;
+      transform: rotate(1.5deg);
+    }
+  }
+
+  /* Réalisations : cartes-échantillons */
+  .works {
+    overflow: hidden;
+  }
+  .works__head {
+    margin-bottom: clamp(40px, 6vw, 72px);
+  }
+  .works__t {
+    font-size: var(--fs-xl);
+    margin-top: 16px;
+    max-width: 14ch;
+  }
+  .works__viewport {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-block: 24px 40px;
+  }
+  .works__viewport::-webkit-scrollbar {
+    display: none;
+  }
+  .works__track {
+    display: flex;
+    gap: clamp(18px, 3vw, 44px);
+    width: max-content;
+    padding-inline: var(--gutter);
+  }
+  .wcard {
+    flex: none;
+    width: min(82vw, 440px);
+    scroll-snap-align: center;
+    background: #fbf9f5;
+    border-radius: 14px;
+    padding: 10px 10px 0;
+    box-shadow:
+      0 30px 60px -30px rgb(31 29 26 / 0.45),
+      0 2px 8px -2px rgb(31 29 26 / 0.15);
+    transform: rotate(var(--r));
+    transition: transform 0.7s var(--ease-out);
+  }
+  @media (hover: hover) {
+    .wcard:hover {
+      transform: rotate(0deg) translateY(-8px);
+    }
+  }
+  .wcard__media {
+    aspect-ratio: 4 / 5;
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 8px 8px 0 0;
+    background: var(--chaux-2);
+  }
+  .wcard__media :global(.wcard__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .wcard__band {
+    display: grid;
+    gap: 6px;
+    margin: 0 -10px;
+    padding: 18px 20px 22px;
+    background: var(--c);
+    color: var(--ink);
+    border-radius: 0 0 14px 14px;
+  }
+  .wcard__n {
+    font-size: var(--fs-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+  .wcard__t {
+    font-size: clamp(1.9rem, 3vw, 2.6rem);
+    line-height: 1;
+  }
+  .wcard__tags {
+    font-size: var(--fs-s);
+    opacity: 0.8;
+  }
+  .wcard--cta {
+    background: var(--ink);
+    color: var(--chaux);
+    display: flex;
+    padding: 0;
+  }
+  .wcard__ctalink {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 40px;
+    padding: clamp(28px, 4vw, 44px);
+    min-height: 100%;
+  }
+  .wcard__ctalink .serif {
+    font-size: clamp(2.6rem, 5vw, 4.2rem);
+    line-height: 0.95;
+  }
+  .wcard__ctalink em {
+    color: var(--limagne);
+  }
+  .wcard__ctalink .btn {
+    --b-bg: var(--chaux);
+    --b-fg: var(--ink);
+    align-self: flex-start;
+  }
+  @media (min-width: 1024px) {
+    .works {
+      min-height: 100vh;
+      padding-block: 110px 40px;
+    }
+    .works__head {
+      margin-bottom: 28px;
+    }
+    .works__viewport {
+      overflow: visible;
+      padding-block: 12px 20px;
+    }
+    .wcard {
+      width: min(25vw, 360px);
+    }
+  }
+
+  /* Déroulement : pot de peinture qui change de teinte */
+  .proc {
+    background: var(--ink);
+    color: var(--chaux);
+    --line: rgb(255 255 255 / 0.14);
+    --muted: rgb(255 255 255 / 0.6);
+  }
+  .proc__grid {
+    display: grid;
+    gap: 48px;
+  }
+  .proc__aside {
+    display: grid;
+    gap: 20px;
+    align-content: start;
+  }
+  .proc__t {
+    font-size: var(--fs-xl);
+    max-width: 13ch;
+  }
+  .proc__t em {
+    color: var(--limagne);
+  }
+  .proc__pot {
+    display: none;
+  }
+  .proc__list {
+    display: grid;
+    gap: 14px;
+  }
+  .pstep {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    padding: 26px 24px 28px;
+    border-radius: calc(var(--radius) * 1.3);
+    box-shadow: inset 0 0 0 1px var(--line);
+    overflow: hidden;
+    isolation: isolate;
+    transition: color 0.6s var(--ease);
+  }
+  .pstep::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--c);
+    clip-path: circle(0% at 0% 0%);
+    transition: clip-path 1s var(--ease);
+  }
+  .pstep__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .pstep__n {
+    font-size: 2.6rem;
+    line-height: 1;
+    font-style: italic;
+    color: var(--c);
+    transition: color 0.6s;
+  }
+  .pstep__badge {
+    font-size: var(--fs-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 11px;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .pstep__t {
+    font-size: clamp(2rem, 4.4vw, 3.4rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .pstep__p {
+    color: var(--muted);
+    max-width: 48ch;
+    transition: color 0.6s;
+  }
+  /* Étape active : la carte se remplit de sa teinte (mobile) */
+  .pstep.is-on::before {
+    clip-path: circle(150% at 0% 0%);
+  }
+  .pstep.is-on {
+    color: var(--pi-ink, var(--ink));
+    --line: color-mix(in srgb, currentColor 25%, transparent);
+  }
+  .pstep.is-on .pstep__n {
+    color: inherit;
+  }
+  .pstep.is-on .pstep__p {
+    color: inherit;
+    opacity: 0.8;
+  }
+  @media (min-width: 1024px) {
+    .proc__grid {
+      grid-template-columns: 5fr 7fr;
+      gap: 96px;
+    }
+    .proc__aside {
+      position: sticky;
+      top: 110px;
+      align-self: start;
+    }
+    .proc__pot {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: min(26vw, 340px);
+      aspect-ratio: 1;
+      margin-top: 24px;
+      border-radius: 50%;
+      background: var(--pc);
+      color: var(--pi);
+      box-shadow:
+        inset 0 0 0 14px rgb(255 255 255 / 0.08),
+        inset 0 -30px 60px rgb(0 0 0 / 0.18);
+      transition: background-color 0.8s var(--ease), color 0.8s var(--ease);
+    }
+    .proc__num {
+      font-size: min(12vw, 10rem);
+      line-height: 1;
+      font-style: italic;
+      letter-spacing: -0.04em;
+    }
+    .proc__of {
+      position: absolute;
+      bottom: 22%;
+      font-size: var(--fs-s);
+      letter-spacing: 0.1em;
+      opacity: 0.7;
+    }
+    .proc__list {
+      gap: 0;
+    }
+    .pstep {
+      padding: 44px 0;
+      border-radius: 0;
+      box-shadow: none;
+      border-top: 1px solid var(--line);
+      opacity: 0.35;
+      transition: opacity 0.6s;
+    }
+    .pstep::before {
+      display: none;
+    }
+    .pstep.is-on {
+      opacity: 1;
+      color: inherit;
+    }
+    .pstep.is-on .pstep__n {
+      color: var(--c);
+    }
+    .pstep.is-on .pstep__p {
+      color: var(--muted);
+      opacity: 1;
     }
   }
 </style>
