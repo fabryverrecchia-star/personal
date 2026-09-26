@@ -10,14 +10,14 @@ const communes = zones.flatMap((z) => z.communes);
 <section class="contact section" id="contact" data-bg="ink" aria-labelledby="contact-t">
   <div class="wrap grid">
     <div class="contact__head">
-      <p class="eyebrow eyebrow--dot">Devis gratuit · {site.delaiReponse.split(',')[0]}</p>
+      <p class="eyebrow eyebrow--dot">Devis gratuit · {site.delaiReponse}</p>
       <h2 id="contact-t" class="serif contact__t" data-split>
-        Parlons <em>couleur.</em>
+        Parlons de <em>votre projet.</em>
       </h2>
       <a href={telHref} class="contact__tel serif" data-magnetic>{site.telephone}</a>
       <p class="contact__lede">
-        Un appel suffit pour fixer une visite{zone ? ` ${zone}` : ''}. On vient voir, on écoute, on chiffre —
-        sans engagement.
+        Décrivez-nous vos travaux : nous vous rappelons pour convenir d’une visite{zone ? ` ${zone}` : ''}.
+        La visite et le devis détaillé sont gratuits et sans engagement.
       </p>
       <p class="contact__mail"><a href={`mailto:${site.email}`} class="link-u">{site.email}</a></p>
     </div>
@@ -33,7 +33,7 @@ const communes = zones.flatMap((z) => z.communes);
       </div>
       <div class="field field--full">
         <label for="f-commune">Commune du chantier</label>
-        <input id="f-commune" name="commune" list="communes" autocomplete="address-level2" placeholder="Ex. Pontaumur, Riom, Chamalières…" />
+        <input id="f-commune" name="commune" list="communes" autocomplete="address-level2" placeholder="Votre commune" />
         <datalist id="communes">{communes.map((c) => <option value={c} />)}</datalist>
       </div>
       <fieldset class="field field--full">

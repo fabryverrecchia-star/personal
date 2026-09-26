@@ -1,6 +1,6 @@
 // Aperçu autonome (polices et scripts intégrés, liens relatifs à plat) pour un artefact claude.ai.
 // Usage : npx astro build --base / --outDir .preview-dist && node scripts/build-preview.mjs
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, copyFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const root = new URL('..', import.meta.url).pathname;
@@ -28,6 +28,12 @@ for (const file of pages) {
   html = html.replace(/href="(\/[^"#]*)(#[^"]*)?"/g, (m, path, hash = '') => {
     if (path.startsWith('/_astro') || path.endsWith('.svg') || path.endsWith('.xml')) return m;
     return `href="${flat(path)}${hash}"`;
+  });
+  // Images : chemins relatifs, fichiers copiés à côté des pages
+  html = html.replace(/(["\s,])\/_astro\/([^"\s,]+\.(?:webp|jpg|png|avif))/g, (_, pre, name) => {
+    mkdirSync(join(out, 'img'), { recursive: true });
+    copyFileSync(join(dist, '_astro', name), join(out, 'img', name));
+    return `${pre}img/${name}`;
   });
   const rel = '/' + relative(dist, file).replace(/index\.html$/, '');
   writeFileSync(join(out, flat(rel)), html);

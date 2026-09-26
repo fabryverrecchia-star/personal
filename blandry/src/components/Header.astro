@@ -2,9 +2,9 @@
 import { site, zones, telHref } from '../data/site';
 import { u } from '../lib/url';
 const nav = [
-  { href: u('/#services'), label: 'Services' },
-  { href: u('/#nuancier'), label: 'Nuancier' },
-  { href: u('/#secteurs'), label: 'Secteurs' },
+  { href: u('/#realisations'), label: 'Réalisations' },
+  { href: u('/#etapes'), label: 'Déroulement' },
+  { href: u('/#services'), label: 'Savoir-faire' },
   { href: u('/#contact'), label: 'Contact' },
 ];
 ---
@@ -12,9 +12,8 @@ const nav = [
 <header class="header" data-header>
   <div class="header__in wrap">
     <a href={u('/')} class="logo" aria-label={`${site.nom}, accueil`}>
-      <span class="logo__mark" aria-hidden="true"></span>
-      <span class="logo__name serif"><em>{site.nom}</em></span>
-      <span class="logo__sub">Peintre · 63</span>
+      <span class="logo__mono" aria-hidden="true">{site.monogramme}</span>
+      <span class="logo__sub">Peinture<br />&amp; finitions</span>
     </a>
 
     <nav class="header__nav" aria-label="Navigation principale">
@@ -50,7 +49,7 @@ const nav = [
           ))
         }
       </ul>
-      <p class="eyebrow menu__lab" data-menu-link>Peintre dans votre secteur</p>
+      <p class="eyebrow menu__lab" data-menu-link>Zone d’intervention</p>
       <ul class="menu__zones">
         {
           zones.map((z) => (
@@ -118,33 +117,20 @@ const nav = [
     position: relative;
     z-index: 2;
   }
-  .logo__mark {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: conic-gradient(
-      var(--limagne) 0 25%,
-      var(--sioule) 0 50%,
-      var(--tuile) 0 75%,
-      var(--puys) 0
-    );
-    animation: spin 14s linear infinite;
-  }
-  @keyframes spin {
-    to {
-      transform: rotate(1turn);
-    }
-  }
-  .logo__name {
-    font-size: 1.75rem;
+  .logo__mono {
+    font-family: 'Pinyon Script', cursive;
+    font-size: 2.6rem;
     line-height: 1;
+    padding-top: 0.12em;
+    letter-spacing: -0.06em;
   }
   .logo__sub {
     font-size: var(--fs-xs);
     letter-spacing: 0.12em;
+    line-height: 1.3;
     text-transform: uppercase;
     color: var(--muted);
-    padding-left: 10px;
+    padding-left: 12px;
     border-left: 1px solid var(--line);
   }
   .header__nav {

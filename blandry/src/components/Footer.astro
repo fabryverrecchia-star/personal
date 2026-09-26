@@ -8,7 +8,7 @@ const annee = new Date().getFullYear();
   <div class="wrap">
     <div class="footer__top">
       <p class="footer__big serif" aria-hidden="true">
-        <span>{site.nom}</span><em>peinture</em>
+        <span>{site.nom}</span><em>peinture &amp; finitions</em>
       </p>
     </div>
 
@@ -25,9 +25,9 @@ const annee = new Date().getFullYear();
         <p><a href={`mailto:${site.email}`} class="link-u">{site.email}</a></p>
       </div>
       <div>
-        <p class="eyebrow muted-inv">Secteurs</p>
+        <p class="eyebrow muted-inv">Zone d’intervention</p>
         <ul>
-          {zones.map((z) => <li><a href={u(`/${z.slug}/`)} class="link-u">Peintre {z.nom === 'Combrailles' ? 'dans les Combrailles' : `à ${z.nom}`}</a></li>)}
+          {zones.map((z) => <li><a href={u(`/${z.slug}/`)} class="link-u">Peintre {z.dans}</a></li>)}
         </ul>
       </div>
       <div>
@@ -69,7 +69,7 @@ const annee = new Date().getFullYear();
     flex-wrap: wrap;
     align-items: baseline;
     gap: 0 0.18em;
-    font-size: clamp(4.5rem, 21vw, 22rem);
+    font-size: clamp(3.6rem, 13vw, 13rem);
     line-height: 0.8;
     letter-spacing: -0.04em;
   }

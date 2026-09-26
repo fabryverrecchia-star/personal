@@ -1,6 +1,7 @@
 @import '@fontsource/instrument-serif/400.css';
 @import '@fontsource/instrument-serif/400-italic.css';
 @import '@fontsource-variable/inter-tight/index.css';
+@import '@fontsource/pinyon-script/400.css';
 
 :root {
   --chaux: #efeae0;
@@ -240,6 +241,10 @@ ol {
 }
 .btn:hover {
   color: var(--ink);
+}
+.btn--light {
+  --b-bg: var(--chaux);
+  --b-fg: var(--ink);
 }
 .btn--ghost {
   --b-bg: transparent;

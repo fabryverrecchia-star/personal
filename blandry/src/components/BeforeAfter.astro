@@ -1,0 +1,140 @@
+---
+import { Image } from 'astro:assets';
+import { avantApres } from '../data/site';
+interface Props {
+  eager?: boolean;
+}
+const { eager = false } = Astro.props;
+const { avant, apres } = avantApres;
+---
+
+<figure class="ba" data-ba>
+  <div class="ba__frame" style="--x:50%">
+    <Image src={apres.src} alt={apres.alt} class="ba__img" widths={[400, 800]} sizes="(min-width: 1024px) 40vw, 100vw" loading={eager ? 'eager' : 'lazy'} />
+    <div class="ba__before">
+      <Image src={avant.src} alt={avant.alt} class="ba__img" widths={[400, 800]} sizes="(min-width: 1024px) 40vw, 100vw" loading={eager ? 'eager' : 'lazy'} />
+    </div>
+    <span class="ba__tag ba__tag--l">Avant</span>
+    <span class="ba__tag ba__tag--r">Après</span>
+    <input class="ba__range" type="range" min="0" max="100" value="50" step="0.5" aria-label="Comparer avant et après travaux" data-ba-range />
+    <span class="ba__line" aria-hidden="true">
+      <span class="ba__knob">
+        <svg viewBox="0 0 24 24"><path d="M9 6 3 12l6 6M15 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"></path></svg>
+      </span>
+    </span>
+  </div>
+  <figcaption class="ba__cap">
+    <strong>{avantApres.titre}</strong>
+    <span>{avantApres.texte}</span>
+  </figcaption>
+</figure>
+
+<style>
+  .ba {
+    display: grid;
+    gap: 14px;
+  }
+  .ba__frame {
+    position: relative;
+    aspect-ratio: 445 / 640;
+    max-width: 100%;
+    border-radius: calc(var(--radius) * 1.2);
+    overflow: hidden;
+    background: var(--chaux-2);
+    touch-action: pan-y;
+    user-select: none;
+    cursor: ew-resize;
+  }
+  .ba__frame :global(.ba__img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+  .ba__before {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(0 calc(100% - var(--x)) 0 0);
+  }
+  .ba__tag {
+    position: absolute;
+    top: 14px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    background: rgb(251 249 245 / 0.9);
+    color: var(--ink);
+    backdrop-filter: blur(6px);
+    pointer-events: none;
+  }
+  .ba__tag--l {
+    left: 14px;
+  }
+  .ba__tag--r {
+    right: 14px;
+    background: var(--ink);
+    color: var(--chaux);
+  }
+  .ba__line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--x);
+    width: 2px;
+    margin-left: -1px;
+    background: #fbf9f5;
+    box-shadow: 0 0 20px rgb(0 0 0 / 0.25);
+    pointer-events: none;
+  }
+  .ba__knob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 52px;
+    height: 52px;
+    margin: -26px 0 0 -26px;
+    border-radius: 50%;
+    background: #fbf9f5;
+    color: var(--ink);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
+    transition: transform 0.4s var(--ease-out);
+  }
+  .ba__knob svg {
+    width: 22px;
+  }
+  .ba__frame:hover .ba__knob,
+  .ba__range:focus-visible ~ .ba__line .ba__knob {
+    transform: scale(1.1);
+  }
+  .ba__range {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: ew-resize;
+    pointer-events: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .ba__range:focus-visible ~ .ba__line .ba__knob {
+    outline: 2px solid var(--limagne);
+    outline-offset: 3px;
+  }
+  .ba__cap {
+    display: grid;
+    gap: 2px;
+    font-size: var(--fs-s);
+  }
+  .ba__cap span {
+    color: var(--muted);
+  }
+</style>

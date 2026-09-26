@@ -294,49 +294,65 @@ function heroIn() {
   if (brush) tl.to(brush, { strokeDashoffset: 0, duration: 1.3, ease: 'power3.inOut' }, 0.55);
   tl.to($$('[data-hero-fade]'), { y: 0, opacity: 1, duration: 1.2, stagger: 0.1 }, 0.35);
 
-  const chip = $('[data-zchip]');
-  if (chip) tl.from(chip, { yPercent: 60, rotation: -14, opacity: 0, duration: 1.6 }, 0.25);
-
-  const strips = $$('[data-fan-strip]');
-  if (strips.length) {
-    tl.fromTo(
-      strips,
-      { rotation: 0, yPercent: 30, opacity: 0 },
-      {
-        rotation: (_i: number, el: HTMLElement) => parseFloat(el.style.getPropertyValue('--a')),
-        yPercent: 0,
-        opacity: 1,
-        duration: 1.6,
-        stagger: { each: 0.05, from: 'center' },
-        ease: 'expo.out',
-      },
-      0.2,
-    );
-  }
   return tl;
 }
 
-function heroScroll() {
-  const fan = $('[data-fan]');
-  const hero = $('[data-hero]');
-  if (!fan || !hero) return;
-  const strips = $$('[data-fan-strip]', fan);
-  gsap.set(fan, { transformPerspective: 900 });
-  // Au défilement, l'éventail se referme doucement et pivote
-  gsap
-    .timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6 } })
-    .to(strips, { rotation: (_i: number, el: HTMLElement) => parseFloat(el.style.getPropertyValue('--a')) * 0.25, ease: 'none' }, 0)
-    .to(fan, { rotation: -18, yPercent: 18, ease: 'none' }, 0);
-
-  if (finePointer) {
-    const rx = gsap.quickTo(fan, 'rotationY', { duration: 1, ease: 'power3' });
-    const rz = gsap.quickTo(fan.parentElement!, 'rotation', { duration: 1.2, ease: 'power3' });
-    hero.addEventListener('pointermove', (e) => {
-      const nx = e.clientX / innerWidth - 0.5;
-      rx(nx * 16);
-      rz(nx * 6);
+function beforeAfter() {
+  $$('[data-ba]').forEach((ba) => {
+    const frame = $('.ba__frame', ba)!;
+    const range = $<HTMLInputElement>('[data-ba-range]', ba)!;
+    const state = { x: 50 };
+    const set = (x: number) => {
+      state.x = Math.max(0, Math.min(100, x));
+      frame.style.setProperty('--x', state.x + '%');
+      range.value = String(state.x);
+    };
+    range.addEventListener('input', () => set(+range.value));
+    let dragging = false;
+    const fromEvent = (e: PointerEvent) => {
+      const r = frame.getBoundingClientRect();
+      set(((e.clientX - r.left) / r.width) * 100);
+    };
+    frame.addEventListener('pointerdown', (e) => {
+      dragging = true;
+      gsap.killTweensOf(state);
+      frame.setPointerCapture(e.pointerId);
+      fromEvent(e);
     });
-  }
+    frame.addEventListener('pointermove', (e) => dragging && fromEvent(e));
+    const stop = () => (dragging = false);
+    frame.addEventListener('pointerup', stop);
+    frame.addEventListener('pointercancel', stop);
+    // Petite démonstration du geste à l'apparition
+    if (!reduced) {
+      ScrollTrigger.create({
+        trigger: frame,
+        start: 'top 75%',
+        once: true,
+        onEnter: () =>
+          gsap
+            .timeline({ delay: 0.6, onUpdate: () => set(state.x) })
+            .to(state, { x: 22, duration: 0.9, ease: 'power2.inOut' })
+            .to(state, { x: 72, duration: 1.1, ease: 'power2.inOut' })
+            .to(state, { x: 50, duration: 0.8, ease: 'power2.out' }),
+      });
+    }
+  });
+}
+
+function fanReveal() {
+  const strips = $$('[data-fan-strip]');
+  if (!strips.length) return;
+  const angle = (_i: number, el: HTMLElement) => parseFloat(el.style.getPropertyValue('--a'));
+  if (reduced) return void gsap.set(strips, { rotation: angle, opacity: 1 });
+  gsap.set(strips, { rotation: 0, yPercent: 20, opacity: 0 });
+  ScrollTrigger.create({
+    trigger: strips[0].closest('[data-fan]'),
+    start: 'top 80%',
+    once: true,
+    onEnter: () =>
+      gsap.to(strips, { rotation: angle, yPercent: 0, opacity: 1, duration: 1.6, stagger: { each: 0.05, from: 'center' }, ease: 'expo.out' }),
+  });
 }
 
 /* ─── Apparitions au défilement ─────────────────────── */
@@ -378,14 +394,33 @@ function reveals() {
     const next = cards[i + 1];
     if (!next) return;
     gsap.to($('.card__in', card), {
-      scale: 0.92,
-      rotation: i % 2 ? 1.2 : -1.2,
+      scale: 0.95,
       ease: 'none',
       scrollTrigger: { trigger: next, start: 'top bottom', end: 'top 25%', scrub: true },
     });
   });
 
-  // Ligne de progression de la méthode
+  $$('[data-step]').forEach((st) => {
+    ScrollTrigger.create({
+      trigger: st,
+      start: 'top 72%',
+      onEnter: () => st.classList.add('is-on'),
+      onLeaveBack: () => st.classList.remove('is-on'),
+    });
+  });
+
+  if (!reduced) {
+    $$('[data-work-media]').forEach((m) => {
+      gsap.fromTo(
+        m,
+        { clipPath: 'inset(12% 8% 12% 8% round 14px)' },
+        { clipPath: 'inset(0% 0% 0% 0% round 14px)', ease: 'none', scrollTrigger: { trigger: m, start: 'top 95%', end: 'top 45%', scrub: true } },
+      );
+      gsap.fromTo($('img', m), { scale: 1.2 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: m, start: 'top bottom', end: 'bottom top', scrub: true } });
+    });
+  }
+
+  // Ligne de progression des étapes
   const steps = $('[data-steps]');
   const line = $('[data-steps-line]');
   if (steps && line) {
@@ -431,7 +466,6 @@ function nuancier() {
       .timeline()
       .to(name, { yPercent: -30, opacity: 0, duration: 0.3, ease: 'power2.in', onComplete: swap })
       .fromTo(name, { yPercent: 30, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.8, ease: EASE });
-    b.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
   };
   const stop = () => clearInterval(auto);
   btns.forEach((b, i) => {
@@ -531,12 +565,11 @@ function init() {
   const title = $('[data-hero-title]');
   if (title && !reduced) gsap.set($$('.line-inner', title), { y: '105%' });
   if (!reduced) gsap.set($$('[data-hero-fade]'), { y: 30, opacity: 0 });
-  gsap.set($$('[data-fan-strip]'), { opacity: reduced ? 1 : 0, rotation: (_i: number, el: HTMLElement) => parseFloat(el.style.getPropertyValue('--a')) });
-  if (reduced) $('[data-brush]')?.setAttribute('style', 'stroke-dashoffset:0');
 
   document.documentElement.classList.add('ready');
   reveals();
-  heroScroll();
+  beforeAfter();
+  fanReveal();
   nuancier();
   faq();
   form();
