@@ -3,11 +3,18 @@
 //  Les lignes marquées « À COMPLÉTER » doivent être vérifiées
 //  avant la mise en ligne (elles servent aussi au référencement).
 // ─────────────────────────────────────────────────────────────
-import avant from '../assets/chantiers/avant.jpg';
-import apres from '../assets/chantiers/apres.jpg';
+import combleAvant from '../assets/chantiers/combles-avant.jpg';
+import combleApres from '../assets/chantiers/combles-apres.jpg';
+import pieceAvant from '../assets/chantiers/piece-de-vie-avant.jpg';
 import sejourVoute from '../assets/chantiers/sejour-voute.jpg';
 import cheminee from '../assets/chantiers/cheminee.jpg';
-import combles from '../assets/chantiers/combles.jpg';
+import artisan from '../assets/chantiers/artisan-poncage.jpg';
+import finition from '../assets/chantiers/finition-lumiere.jpg';
+
+export const photos = {
+  artisan: { src: artisan, alt: 'Artisan Blandry ponçant un plafond à la ponceuse girafe' },
+  finition: { src: finition, alt: 'Angle de mur arrondi, enduit lisse baigné de lumière' },
+};
 
 export const site = {
   url: 'https://18h22.com/blandry', // À COMPLÉTER : domaine définitif
@@ -39,13 +46,26 @@ export const site = {
 export const telHref = `tel:${site.telephone.replace(/\s/g, '').replace(/^0/, '+33')}`;
 
 // ── Avant / après ─────────────────────────────────────────────
-// À REMPLACER par les photos originales en haute définition (même cadrage avant et après).
-export const avantApres = {
-  titre: 'Pièce de vie, reprise complète',
-  texte: 'Dépose, préparation des supports, murs et plafonds remis à neuf, sols posés.',
-  avant: { src: avant, alt: 'Pièce avant travaux : murs abîmés, poutres apparentes, pièce encombrée' },
-  apres: { src: apres, alt: 'La même pièce après travaux : murs et plafonds blancs, arche dégagée, sol carrelé' },
-};
+// Idéalement : même cadrage avant et après.
+export const comparaisons = [
+  {
+    id: 'combles',
+    onglet: 'Combles',
+    titre: 'Combles aménagés en chambre',
+    texte: 'Préparation des supports, plafonds rampants, poutres mises en valeur, peinture.',
+    avant: { src: combleAvant, alt: 'Combles avant travaux : charpente brute, murs en pierre abîmés, isolant apparent' },
+    apres: { src: combleApres, alt: 'Les combles après travaux : chambre lumineuse aux murs blancs, poutres apparentes, velux' },
+  },
+  {
+    id: 'piece',
+    onglet: 'Pièce de vie',
+    titre: 'Pièce de vie, reprise complète',
+    texte: 'Dépose, reprise des murs et plafonds, arche dégagée, sol posé.',
+    avant: { src: pieceAvant, alt: 'Pièce de vie avant travaux : murs abîmés, poutres sombres, pièce encombrée' },
+    // À REMPLACER par la photo « après » prise sous le même angle
+    apres: { src: sejourVoute, alt: 'La même pièce après travaux : murs blancs, arche dégagée, carrelage neuf' },
+  },
+];
 
 // ── Réalisations ──────────────────────────────────────────────
 // À COMPLÉTER : commune de chaque chantier, photos originales en HD.
@@ -68,7 +88,7 @@ export const realisations = [
     titre: 'Chambre sous combles',
     lieu: '',
     travaux: ['Plafonds rampants', 'Mise en valeur des poutres', 'Peinture'],
-    image: combles,
+    image: combleApres,
     alt: 'Chambre mansardée aux murs blancs, poutres en bois apparentes et velux',
   },
 ];

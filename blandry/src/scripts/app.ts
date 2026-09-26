@@ -527,7 +527,8 @@ function form() {
 
 /* ─── Avant / après ─────────────────────────────────── */
 function beforeAfter() {
-  $$('[data-ba]').forEach((ba) => {
+  const demos: Record<number, () => void> = {};
+  $$('[data-ba]').forEach((ba, idx) => {
     const frame = $('.ba__frame', ba)!;
     const range = $<HTMLInputElement>('[data-ba-range]', ba)!;
     const scope = ba.closest<HTMLElement>('[data-ba-scope]');
@@ -554,19 +555,50 @@ function beforeAfter() {
     const stop = () => (dragging = false);
     frame.addEventListener('pointerup', stop);
     frame.addEventListener('pointercancel', stop);
-    if (!reduced) {
-      ScrollTrigger.create({
-        trigger: frame,
-        start: 'top 70%',
-        once: true,
-        onEnter: () =>
-          gsap
-            .timeline({ delay: 0.4, onUpdate: () => set(state.x) })
-            .to(state, { x: 12, duration: 1, ease: 'power2.inOut' })
-            .to(state, { x: 88, duration: 1.3, ease: 'power2.inOut' })
-            .to(state, { x: 50, duration: 0.9, ease: 'power3.out' }),
+    const demo = () => {
+      if (reduced) return;
+      gsap.killTweensOf(state);
+      gsap
+        .timeline({ delay: 0.3, onUpdate: () => set(state.x) })
+        .to(state, { x: 12, duration: 1, ease: 'power2.inOut' })
+        .to(state, { x: 88, duration: 1.3, ease: 'power2.inOut' })
+        .to(state, { x: 50, duration: 0.9, ease: 'power3.out' });
+    };
+    demos[idx] = demo;
+    if (idx === 0) ScrollTrigger.create({ trigger: frame, start: 'top 70%', once: true, onEnter: demo });
+  });
+
+  // Onglets entre chantiers
+  $$('[data-bax]').forEach((box) => {
+    const tabs = $$<HTMLButtonElement>('[data-ba-tab]', box);
+    const panels = $$('[data-ba]', box);
+    const show = (i: number, focus = false) => {
+      tabs.forEach((t, j) => {
+        t.setAttribute('aria-selected', String(j === i));
+        t.tabIndex = j === i ? 0 : -1;
       });
-    }
+      panels.forEach((p, j) => (p.hidden = j !== i));
+      if (focus) tabs[i].focus();
+      if (!reduced) gsap.fromTo(panels[i], { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, ease: EASE });
+      demos[$$('[data-ba]').indexOf(panels[i])]?.();
+      ScrollTrigger.refresh();
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => show(i));
+      t.addEventListener('keydown', (e) => {
+        const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (d) show((i + d + tabs.length) % tabs.length, true);
+      });
+    });
+  });
+}
+
+/* ─── Parallaxe douce des photos ────────────────────── */
+function parallax() {
+  if (reduced) return;
+  $$('[data-parallax]').forEach((img) => {
+    const wrap = img.closest('[data-parallax-wrap]') ?? img.parentElement!;
+    gsap.fromTo(img, { yPercent: -8 }, { yPercent: 8, ease: 'none', scrollTrigger: { trigger: wrap, start: 'top bottom', end: 'bottom top', scrub: true } });
   });
 }
 
@@ -652,6 +684,7 @@ function init() {
   document.documentElement.classList.add('ready');
   reveals();
   beforeAfter();
+  parallax();
   works();
   process();
   heroScroll();
