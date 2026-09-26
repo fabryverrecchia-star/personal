@@ -1,0 +1,115 @@
+---
+// Nuancier en éventail : l'objet signature du site.
+import { nuancier } from '../data/site';
+const strips = [...nuancier];
+const n = strips.length;
+---
+
+<div class="fan" data-fan aria-hidden="true">
+  {
+    strips.map((t, i) => (
+      <div
+        class="fan__strip"
+        data-fan-strip
+        style={`--c:${t.hex};--ink:${t.ink};--i:${i};--a:${(i - (n - 1) / 2) * 13}deg;z-index:${i + 1}`}
+      >
+        <div class="fan__tints">
+          <span />
+          <span />
+          <span />
+          <span />
+        </div>
+        <div class="fan__label">
+          <span class="fan__name">{t.nom}</span>
+          <span class="fan__code">{t.hex.slice(1)}</span>
+        </div>
+      </div>
+    ))
+  }
+  <span class="fan__rivet"></span>
+</div>
+
+<style>
+  .fan {
+    --w: clamp(58px, 12vw, 96px);
+    --h: clamp(250px, 52vw, 440px);
+    position: relative;
+    width: var(--w);
+    height: var(--h);
+  }
+  .fan__strip {
+    position: absolute;
+    inset: 0;
+    transform-origin: 50% calc(100% - var(--w) * 0.3);
+    transform: rotate(var(--a));
+    border-radius: 10px;
+    background: #fbf9f5;
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.6) inset,
+      0 18px 40px -18px rgb(31 29 26 / 0.45),
+      0 2px 6px -2px rgb(31 29 26 / 0.2);
+    padding: 6px 6px 0;
+    display: flex;
+    flex-direction: column;
+    transition: translate 0.5s var(--ease-out);
+    will-change: transform;
+  }
+  .fan__tints {
+    flex: 1;
+    display: grid;
+    grid-template-rows: 1.6fr 1fr 1fr 1fr;
+    gap: 3px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .fan__tints span:nth-child(1) {
+    background: var(--c);
+  }
+  .fan__tints span:nth-child(2) {
+    background: color-mix(in srgb, var(--c) 72%, #fbf9f5);
+  }
+  .fan__tints span:nth-child(3) {
+    background: color-mix(in srgb, var(--c) 46%, #fbf9f5);
+  }
+  .fan__tints span:nth-child(4) {
+    background: color-mix(in srgb, var(--c) 24%, #fbf9f5);
+  }
+  .fan__label {
+    height: calc(var(--w) * 0.62);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 2px;
+    font-size: clamp(7px, 1.4vw, 10px);
+    line-height: 1.2;
+    color: #1f1d1a;
+  }
+  .fan__name {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fan__code {
+    opacity: 0.5;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .fan__rivet {
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--w) * 0.3);
+    z-index: 20;
+    width: 12px;
+    height: 12px;
+    margin: 0 0 -6px -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #d8d2c6, #7a746a);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+  }
+  @media (hover: hover) {
+    .fan__strip:hover {
+      translate: 0 -14px;
+    }
+  }
+</style>

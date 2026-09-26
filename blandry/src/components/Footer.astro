@@ -1,0 +1,123 @@
+---
+import { site, zones, services, telHref } from '../data/site';
+import { u } from '../lib/url';
+const annee = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__top">
+      <p class="footer__big serif" aria-hidden="true">
+        <span>{site.nom}</span><em>peinture</em>
+      </p>
+    </div>
+
+    <div class="footer__cols">
+      <div>
+        <p class="eyebrow muted-inv">Entreprise</p>
+        <address>
+          <strong>{site.nom}</strong> — {site.metier}<br />
+          {site.adresse.rue && <>{site.adresse.rue}<br /></>}
+          {site.adresse.codePostal} {site.adresse.ville}<br />
+          Puy-de-Dôme, Auvergne
+        </address>
+        <p><a href={telHref} class="link-u">{site.telephone}</a></p>
+        <p><a href={`mailto:${site.email}`} class="link-u">{site.email}</a></p>
+      </div>
+      <div>
+        <p class="eyebrow muted-inv">Secteurs</p>
+        <ul>
+          {zones.map((z) => <li><a href={u(`/${z.slug}/`)} class="link-u">Peintre {z.nom === 'Combrailles' ? 'dans les Combrailles' : `à ${z.nom}`}</a></li>)}
+        </ul>
+      </div>
+      <div>
+        <p class="eyebrow muted-inv">Services</p>
+        <ul>
+          {services.map((s) => <li><a href={u(`/#${s.id}`)} class="link-u">{s.titre}</a></li>)}
+        </ul>
+      </div>
+      <div>
+        <p class="eyebrow muted-inv">Horaires</p>
+        <p>{site.horaires}</p>
+        <p class="muted-inv">{site.delaiReponse}</p>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <p>© {annee} {site.nom}{site.siret && <> · SIRET {site.siret}</>} · {site.assurance}</p>
+      <p><a href={u('/mentions-legales/')} class="link-u">Mentions légales</a></p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    position: relative;
+    background: var(--ink);
+    color: var(--chaux);
+    padding-top: clamp(60px, 10vw, 120px);
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    overflow: hidden;
+  }
+  @media (min-width: 1024px) {
+    .footer {
+      padding-bottom: 32px;
+    }
+  }
+  .footer__big {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.18em;
+    font-size: clamp(4.5rem, 21vw, 22rem);
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+  }
+  .footer__big em {
+    color: var(--limagne);
+  }
+  .footer__cols {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 36px;
+    margin-top: clamp(48px, 8vw, 100px);
+    padding-top: 36px;
+    border-top: 1px solid rgb(255 255 255 / 0.14);
+    font-size: 0.95rem;
+  }
+  .footer__cols > div {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+  }
+  .footer__cols address {
+    font-style: normal;
+    line-height: 1.6;
+  }
+  .footer__cols ul {
+    display: grid;
+    gap: 6px;
+  }
+  .muted-inv {
+    color: rgb(255 255 255 / 0.5);
+  }
+  .footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 56px;
+    font-size: var(--fs-xs);
+    color: rgb(255 255 255 / 0.5);
+  }
+  @media (min-width: 700px) {
+    .footer__cols {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1100px) {
+    .footer__cols {
+      grid-template-columns: 1.3fr 1fr 1fr 1fr;
+    }
+  }
+</style>

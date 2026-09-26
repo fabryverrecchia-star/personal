@@ -1,0 +1,66 @@
+---
+import { telHref } from '../data/site';
+import { u } from '../lib/url';
+---
+
+<div class="mbar" data-mbar>
+  <a href={telHref} class="mbar__call">
+    <svg viewBox="0 0 24 24" aria-hidden="true"
+      ><path
+        d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"
+        fill="currentColor"></path></svg
+    >
+    Appeler
+  </a>
+  <a href={u('/#contact')} class="mbar__quote">Devis gratuit</a>
+</div>
+
+<style>
+  .mbar {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    z-index: 100;
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 6px;
+    padding: 6px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ink) 88%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 10px 40px -10px rgb(0 0 0 / 0.35);
+    transform: translateY(calc(100% + 30px));
+    transition: transform 0.7s var(--ease-out);
+  }
+  .mbar.is-visible {
+    transform: none;
+  }
+  .mbar a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 48px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 550;
+  }
+  .mbar svg {
+    width: 16px;
+    height: 16px;
+  }
+  .mbar__call {
+    color: var(--chaux);
+  }
+  .mbar__quote {
+    background: var(--limagne);
+    color: var(--ink);
+  }
+  @media (min-width: 1024px) {
+    .mbar {
+      display: none;
+    }
+  }
+</style>

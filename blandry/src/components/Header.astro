@@ -1,0 +1,272 @@
+---
+import { site, zones, telHref } from '../data/site';
+import { u } from '../lib/url';
+const nav = [
+  { href: u('/#services'), label: 'Services' },
+  { href: u('/#nuancier'), label: 'Nuancier' },
+  { href: u('/#secteurs'), label: 'Secteurs' },
+  { href: u('/#contact'), label: 'Contact' },
+];
+---
+
+<header class="header" data-header>
+  <div class="header__in wrap">
+    <a href={u('/')} class="logo" aria-label={`${site.nom}, accueil`}>
+      <span class="logo__mark" aria-hidden="true"></span>
+      <span class="logo__name serif"><em>{site.nom}</em></span>
+      <span class="logo__sub">Peintre · 63</span>
+    </a>
+
+    <nav class="header__nav" aria-label="Navigation principale">
+      {nav.map((l) => <a href={l.href} class="link-u">{l.label}</a>)}
+    </nav>
+
+    <div class="header__cta">
+      <a href={telHref} class="header__tel link-u">{site.telephone}</a>
+      <a href={u('/#contact')} class="btn" data-magnetic>Devis gratuit</a>
+    </div>
+
+    <button class="burger" data-burger aria-expanded="false" aria-controls="menu">
+      <span class="sr-only">Menu</span>
+      <span class="burger__l"></span>
+      <span class="burger__l"></span>
+    </button>
+  </div>
+</header>
+
+<div class="menu" id="menu" data-menu aria-hidden="true">
+  <div class="menu__bg" data-menu-bg></div>
+  <div class="menu__in wrap">
+    <nav aria-label="Menu mobile">
+      <ul class="menu__main">
+        {
+          nav.map((l, i) => (
+            <li>
+              <a href={l.href} data-menu-link>
+                <span class="menu__n">0{i + 1}</span>
+                <span class="serif">{l.label}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="eyebrow menu__lab" data-menu-link>Peintre dans votre secteur</p>
+      <ul class="menu__zones">
+        {
+          zones.map((z) => (
+            <li data-menu-link>
+              <a href={u(`/${z.slug}/`)} class="link-u">{z.nom}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <div class="menu__foot" data-menu-link>
+      <a href={telHref} class="serif menu__tel">{site.telephone}</a>
+      <a href={`mailto:${site.email}`} class="link-u">{site.email}</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 120;
+    padding-top: env(safe-area-inset-top);
+    transition: transform 0.7s var(--ease), color 0.4s;
+  }
+  .header.is-light {
+    color: var(--chaux);
+  }
+  .header.is-light .logo__sub {
+    color: rgb(255 255 255 / 0.6);
+    border-color: rgb(255 255 255 / 0.25);
+  }
+  .header.is-light .btn {
+    --b-bg: var(--chaux);
+    --b-fg: var(--ink);
+  }
+  .header.is-hidden {
+    transform: translateY(-110%);
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  .header.is-scrolled::before {
+    opacity: 1;
+  }
+  .header__in {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    height: 72px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    z-index: 2;
+  }
+  .logo__mark {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: conic-gradient(
+      var(--limagne) 0 25%,
+      var(--sioule) 0 50%,
+      var(--tuile) 0 75%,
+      var(--puys) 0
+    );
+    animation: spin 14s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+  .logo__name {
+    font-size: 1.75rem;
+    line-height: 1;
+  }
+  .logo__sub {
+    font-size: var(--fs-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-left: 10px;
+    border-left: 1px solid var(--line);
+  }
+  .header__nav {
+    display: none;
+    gap: 32px;
+    font-size: var(--fs-s);
+    font-weight: 500;
+  }
+  .header__cta {
+    display: none;
+    align-items: center;
+    gap: 24px;
+    font-size: var(--fs-s);
+    font-weight: 500;
+  }
+  .burger {
+    position: relative;
+    z-index: 2;
+    width: 48px;
+    height: 48px;
+    margin-right: -10px;
+    display: grid;
+    place-content: center;
+    gap: 7px;
+  }
+  .burger__l {
+    display: block;
+    width: 26px;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform 0.6s var(--ease);
+  }
+  :global(.menu-open) .burger__l:first-of-type {
+    transform: translateY(4.25px) rotate(45deg);
+  }
+  :global(.menu-open) .burger__l:last-of-type {
+    transform: translateY(-4.25px) rotate(-45deg);
+  }
+  :global(.menu-open) .header {
+    color: var(--chaux);
+  }
+  :global(.menu-open) .header::before {
+    opacity: 0;
+  }
+  :global(.menu-open) .logo__sub {
+    border-color: rgb(255 255 255 / 0.2);
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  @media (min-width: 1024px) {
+    .header__nav,
+    .header__cta {
+      display: flex;
+    }
+    .burger {
+      display: none;
+    }
+  }
+
+  /* Menu plein écran */
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    color: var(--chaux);
+    visibility: hidden;
+    pointer-events: none;
+  }
+  :global(.menu-open) .menu {
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .menu__bg {
+    position: absolute;
+    inset: 0;
+    background: var(--ink);
+    clip-path: circle(0% at calc(100% - 40px) 36px);
+  }
+  .menu__in {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: calc(110px + env(safe-area-inset-top));
+    padding-bottom: calc(32px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+  .menu__main a {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 6px 0;
+  }
+  .menu__main .serif {
+    font-size: clamp(3rem, 14vw, 5rem);
+    line-height: 1;
+  }
+  .menu__n {
+    font-size: var(--fs-xs);
+    color: rgb(255 255 255 / 0.45);
+    width: 2ch;
+  }
+  .menu__lab {
+    margin-top: 40px;
+    color: rgb(255 255 255 / 0.45);
+  }
+  .menu__zones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+    margin-top: 14px;
+    font-size: 1.1rem;
+  }
+  .menu__foot {
+    display: grid;
+    gap: 6px;
+    margin-top: 40px;
+    color: rgb(255 255 255 / 0.7);
+  }
+  .menu__tel {
+    font-size: 2.4rem;
+    color: var(--limagne);
+  }
+</style>

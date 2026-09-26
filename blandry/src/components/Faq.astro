@@ -1,0 +1,114 @@
+---
+interface Props {
+  items: readonly { q: string; r: string }[];
+  titre?: string;
+}
+const { items, titre = 'Questions fréquentes' } = Astro.props;
+---
+
+<section class="faq section" aria-labelledby="faq-t">
+  <div class="wrap grid">
+    <div class="faq__head">
+      <p class="eyebrow eyebrow--dot muted">FAQ</p>
+      <h2 id="faq-t" class="serif faq__t" data-split>{titre}</h2>
+    </div>
+    <div class="faq__list">
+      {
+        items.map((it) => (
+          <details class="faq__item" data-reveal="fade">
+            <summary>
+              <h3>{it.q}</h3>
+              <span class="faq__plus" aria-hidden="true" />
+            </summary>
+            <div class="faq__a">
+              <p>{it.r}</p>
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq__head {
+    grid-column: 1 / -1;
+    margin-bottom: 40px;
+  }
+  .faq__t {
+    font-size: var(--fs-xl);
+    margin-top: 16px;
+  }
+  .faq__list {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--line);
+  }
+  @media (min-width: 1024px) {
+    .faq__head {
+      grid-column: 1 / 6;
+      position: sticky;
+      top: 120px;
+      align-self: start;
+    }
+    .faq__list {
+      grid-column: 6 / -1;
+    }
+  }
+  .faq__item {
+    border-bottom: 1px solid var(--line);
+  }
+  summary {
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    padding: 26px 0;
+    cursor: pointer;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary h3 {
+    font-size: var(--fs-m);
+    font-weight: 450;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+  }
+  .faq__plus {
+    position: relative;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition: background 0.4s, transform 0.6s var(--ease);
+  }
+  .faq__plus::before,
+  .faq__plus::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12px;
+    height: 1.5px;
+    margin: -0.75px 0 0 -6px;
+    background: currentColor;
+  }
+  .faq__plus::after {
+    transform: rotate(90deg);
+  }
+  details.is-open .faq__plus,
+  html:not(.js) details[open] .faq__plus {
+    transform: rotate(135deg);
+    background: var(--limagne);
+  }
+  .faq__a {
+    overflow: hidden;
+  }
+  .faq__a > p {
+    max-width: 60ch;
+    padding-bottom: 28px;
+    color: var(--muted);
+  }
+</style>

@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+---
+
+<Base title={`Mentions légales | ${site.nom}`} description={`Mentions légales du site ${site.nom}, peintre en bâtiment dans le Puy-de-Dôme.`}>
+  <section class="legal section">
+    <div class="wrap">
+      <h1 class="serif legal__t" data-hero-title>
+        <span class="line"><span class="line-inner">Mentions <em>légales</em></span></span>
+      </h1>
+      <div class="legal__body" data-hero-fade>
+        <h2>Éditeur</h2>
+        <p>
+          {site.nom} — {site.metier}<br />
+          {site.adresse.rue && <>{site.adresse.rue}<br /></>}
+          {site.adresse.codePostal} {site.adresse.ville}, {site.adresse.departement}<br />
+          Téléphone : {site.telephone} · Courriel : {site.email}<br />
+          {site.siret ? <>SIRET : {site.siret}</> : <>SIRET : à compléter</>}<br />
+          Responsable de la publication : {site.gerant}
+        </p>
+        <h2>Assurance</h2>
+        <p>{site.assurance}. Attestation fournie sur simple demande et jointe à chaque devis.</p>
+        <h2>Hébergement</h2>
+        <p>À compléter : nom, adresse et téléphone de l’hébergeur du site.</p>
+        <h2>Données personnelles</h2>
+        <p>
+          Le formulaire de contact ouvre votre messagerie : aucune donnée n’est enregistrée par le site.
+          Les informations que vous nous envoyez servent uniquement à établir votre devis. Vous pouvez
+          demander leur suppression à tout moment à l’adresse {site.email}.
+        </p>
+        <h2>Cookies</h2>
+        <p>Ce site n’utilise aucun cookie de suivi.</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .legal {
+    padding-top: 160px;
+  }
+  .legal__t {
+    font-size: var(--fs-xl);
+  }
+  .legal__body {
+    margin-top: 56px;
+    max-width: 64ch;
+    display: grid;
+    gap: 12px;
+  }
+  .legal__body h2 {
+    margin-top: 28px;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .legal__body p {
+    color: var(--muted);
+  }
+</style>
