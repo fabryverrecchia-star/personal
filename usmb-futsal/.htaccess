@@ -1,0 +1,7 @@
+# La page est toujours revérifiée : les navigateurs (Safari compris) voient chaque mise à jour.
+# Les fichiers CSS/JS/images changent d'adresse à chaque version (?v=…) et peuvent rester en cache.
+<IfModule mod_headers.c>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
