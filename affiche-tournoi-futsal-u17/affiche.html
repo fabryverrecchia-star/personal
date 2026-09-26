@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Affiche Tournoi Futsal U17</title>
+<style>
+  @font-face { font-family: "Lexend"; font-weight: 300; src: url(fonts/Lexend-300.woff2) format("woff2"); }
+  @font-face { font-family: "Lexend"; font-weight: 500; src: url(fonts/Lexend-500.woff2) format("woff2"); }
+  @page { size: A4; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 210mm; height: 297mm; background: #1b2626; }
+  body { font-family: 'Lexend', sans-serif; color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { position: relative; width: 210mm; height: 297mm; overflow: hidden;
+          background: linear-gradient(90deg, #2a3430 0%, #1c2a27 30%, #16221f 50%, #16222a 75%, #1c2636 100%); }
+  .visuel { display: block; width: 210mm; height: 262.5mm; }
+  /* fondu entre le visuel et le bandeau */
+  .fade { position: absolute; left: 0; top: 240mm; width: 210mm; height: 23mm;
+          background: linear-gradient(90deg, #2a3430 0%, #1c2a27 30%, #16221f 50%, #16222a 75%, #1c2636 100%);
+          -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 100%); mask-image: linear-gradient(180deg, transparent 0%, #000 100%); }
+  .badge { position: absolute; top: 44mm; left: 50%; transform: translateX(-50%);
+           font-size: 3.4mm; font-weight: 500; letter-spacing: .5mm; text-transform: uppercase;
+           padding: 1.6mm 4.5mm; border: .35mm solid rgba(255,255,255,.85); border-radius: 10mm;
+           background: rgba(0,0,0,.28); white-space: nowrap; }
+  .badge sup { font-size: 2.2mm; letter-spacing: 0; }
+  .infos { position: absolute; left: 0; right: 0; top: 262.5mm; bottom: 0;
+           display: flex; align-items: center; justify-content: center; gap: 9mm; padding: 0 14mm; }
+  .bloc { text-align: center; }
+  .label { font-size: 2.9mm; font-weight: 300; letter-spacing: .45mm; text-transform: uppercase; opacity: .8; margin-bottom: 1.4mm; }
+  .val { font-size: 4.6mm; font-weight: 500; letter-spacing: .15mm; }
+  .sep { width: .3mm; height: 17mm; background: rgba(255,255,255,.35); }
+  .mail { font-size: 4.6mm; font-weight: 500; }
+  .reseau { position: absolute; bottom: 3.2mm; left: 0; right: 0; text-align: center; font-size: 2.6mm; font-weight: 300; letter-spacing: .3mm; opacity: .65; }
+</style>
+</head>
+<body>
+<div class="page">
+  <img class="visuel" src="visuel-original.jpg" alt="">
+  <div class="fade"></div>
+  <div class="badge">1<sup>er</sup> tournoi futsal de l'USMB · 2026</div>
+  <div class="infos">
+    <div class="bloc">
+      <div class="label">Équipes acceptées</div>
+      <div class="val">U16 &amp; U17</div>
+    </div>
+    <div class="sep"></div>
+    <div class="bloc">
+      <div class="label">Informations &amp; inscriptions</div>
+      <div class="mail">usmenebre.ecoledefoot@gmail.com</div>
+    </div>
+  </div>
+  <div class="reseau">Mercredi 28 octobre 2026 · Gymnase de Louargat · Instagram @usmb_louargat</div>
+</div>
+</body>
+</html>
