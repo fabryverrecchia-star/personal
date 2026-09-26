@@ -92,20 +92,38 @@ function splitLines(el: HTMLElement) {
   return $$('.line-inner', el);
 }
 
+const store = {
+  get: (k: string) => {
+    try {
+      return sessionStorage.getItem(k);
+    } catch {
+      return null;
+    }
+  },
+  set: (k: string, v: string) => {
+    try {
+      sessionStorage.setItem(k, v);
+    } catch {}
+  },
+  del: (k: string) => {
+    try {
+      sessionStorage.removeItem(k);
+    } catch {}
+  },
+};
+
 /* ─── Rideau de peinture (intro + transitions) ──────── */
 const curtain = $('[data-curtain]')!;
 const paint = $('.curtain__paint', curtain)!;
 const label = $('.curtain__label', curtain)!;
 
 function introCurtain() {
-  const first = !sessionStorage.getItem('bl-seen');
-  try {
-    sessionStorage.setItem('bl-seen', '1');
-  } catch {}
-  const next = sessionStorage.getItem('bl-next');
+  const first = !store.get('bl-seen');
+  store.set('bl-seen', '1');
+  const next = store.get('bl-next');
   if (next) {
     curtain.style.setProperty('--curtain', next);
-    sessionStorage.removeItem('bl-next');
+    store.del('bl-next');
   }
   if (reduced) {
     gsap.set(curtain, { autoAlpha: 0 });
@@ -131,9 +149,7 @@ function leaveTo(href: string, color?: string) {
   }
   const c = color || getComputedStyle(document.documentElement).getPropertyValue('--ink');
   curtain.style.setProperty('--curtain', c);
-  try {
-    sessionStorage.setItem('bl-next', c);
-  } catch {}
+  store.set('bl-next', c);
   gsap.set(label, { opacity: 0 });
   gsap.set(curtain, { autoAlpha: 1 });
   gsap.fromTo(
