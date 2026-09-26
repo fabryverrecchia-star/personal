@@ -15,7 +15,7 @@ export const site = {
   monogramme: 'BL',
   metier: 'Peintre en bâtiment',
   gerant: 'B. Landry', // À COMPLÉTER
-  telephone: '06 00 00 00 00', // À COMPLÉTER
+  telephone: '06 58 38 78 37',
   email: 'contact@blandry.fr', // À COMPLÉTER
   // Commune du siège : c'est elle qui ancre l'entreprise localement pour Google.
   adresse: {
