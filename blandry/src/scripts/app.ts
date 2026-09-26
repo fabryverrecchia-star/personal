@@ -593,6 +593,30 @@ function beforeAfter() {
   });
 }
 
+/* ─── Vidéos d'ambiance : lecture seulement à l'écran ── */
+function autoVideos() {
+  $$<HTMLVideoElement>('[data-autovideo]').forEach((v) => {
+    if (reduced) return; // l'affiche reste visible
+    new IntersectionObserver(
+      ([en]) => {
+        if (en.isIntersecting) {
+          if (v.preload === 'none') {
+            // Version allégée sur mobile
+            const src = v.querySelector<HTMLSourceElement>('source');
+            if (src?.dataset.srcSm && innerWidth <= 800) {
+              src.src = src.dataset.srcSm;
+              v.load();
+            }
+            v.preload = 'auto';
+          }
+          v.play().catch(() => {});
+        } else v.pause();
+      },
+      { threshold: 0.2 },
+    ).observe(v);
+  });
+}
+
 /* ─── Parallaxe douce des photos ────────────────────── */
 function parallax() {
   if (reduced) return;
@@ -685,6 +709,7 @@ function init() {
   reveals();
   beforeAfter();
   parallax();
+  autoVideos();
   works();
   process();
   heroScroll();

@@ -177,7 +177,19 @@ const n2 = (i: number) => String(i + 1).padStart(2, '0');
   <section class="manifesto section" aria-label="Notre approche">
     <div class="wrap grid">
       <figure class="manifesto__photo" data-parallax-wrap>
-        <Image src={photos.artisan.src} alt={photos.artisan.alt} widths={[600, 1200, 1587]} sizes="(min-width: 1024px) 40vw, 92vw" class="manifesto__img" data-parallax />
+        <video
+          class="manifesto__img"
+          data-parallax
+          data-autovideo
+          muted
+          loop
+          playsinline
+          preload="none"
+          poster={u('/videos/metier-poster.jpg')}
+          aria-label="Blandry au travail : ponçage d’un plafond, application d’enduit, reprise des joints"
+        >
+          <source src={u('/videos/metier-1280.mp4')} type="video/mp4" data-src-sm={u('/videos/metier-720.mp4')} />
+        </video>
       </figure>
       <p class="eyebrow eyebrow--dot muted manifesto__eye">Notre métier</p>
       <p class="manifesto__t serif" data-words>
@@ -1154,7 +1166,7 @@ const n2 = (i: number) => String(i + 1).padStart(2, '0');
     overflow: hidden;
     border-radius: calc(var(--radius) * 1.4);
   }
-  .manifesto__photo :global(.manifesto__img) {
+  .manifesto__photo .manifesto__img {
     width: 100%;
     height: 118%;
     object-fit: cover;

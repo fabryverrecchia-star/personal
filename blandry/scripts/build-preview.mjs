@@ -35,6 +35,12 @@ for (const file of pages) {
     copyFileSync(join(dist, '_astro', name), join(out, 'img', name));
     return `${pre}img/${name}`;
   });
+  // Vidéos : chemins relatifs, fichiers copiés
+  html = html.replace(/(src|poster|data-src-sm)="\/videos\/([^"]+)"/g, (_, attr, name) => {
+    mkdirSync(join(out, 'videos'), { recursive: true });
+    copyFileSync(join(dist, 'videos', name), join(out, 'videos', name));
+    return `${attr}="videos/${name}"`;
+  });
   const rel = '/' + relative(dist, file).replace(/index\.html$/, '');
   writeFileSync(join(out, flat(rel)), html);
   console.log(flat(rel), Math.round(html.length / 1024) + ' KB');
