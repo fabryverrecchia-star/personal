@@ -17,7 +17,7 @@ const CONFIG = {
 };
 
 // Version du site : à augmenter avec les ?v= de index.html à chaque mise à jour
-const VERSION = "1";
+const VERSION = "2";
 
 /* ---------- Catalogue (prix de la liste du club) ---------- */
 const TAILLES = {
@@ -65,7 +65,7 @@ $$("[data-year]").forEach((el) => (el.textContent = new Date().getFullYear()));
   grid.innerHTML = PRODUCTS.map((p, i) => `
     <article class="product" data-cat="${p.cat}">
       <button class="product__media" type="button" data-open="${p.id}" aria-label="Choisir : ${p.nom}">
-        <img src="${IMG(p.img)}" alt="${p.nom} aux couleurs de l'USMB" loading="lazy" width="560" height="560">
+        <img src="${IMG(p.img)}" alt="${p.nom} aux couleurs de l'USMB" loading="lazy" width="800" height="800">
         ${p.tag ? `<span class="product__tag">${p.tag}</span>` : ""}
         <span class="product__num">${String(i + 1).padStart(2, "0")}</span>
       </button>
