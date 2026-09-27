@@ -47,6 +47,10 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
+html.menu-open,
+html.menu-open body {
+  overflow: hidden;
+}
 html.lenis,
 html.lenis body {
   height: auto;

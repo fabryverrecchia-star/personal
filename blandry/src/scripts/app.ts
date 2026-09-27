@@ -3,6 +3,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 
 gsap.registerPlugin(ScrollTrigger);
+// Évite les sauts quand la barre d'adresse mobile apparaît / disparaît
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 const $ = <T extends Element = HTMLElement>(s: string, root: ParentNode = document) => root.querySelector<T>(s);
 const $$ = <T extends Element = HTMLElement>(s: string, root: ParentNode = document) =>
@@ -31,7 +33,7 @@ const store = {
 /* ─── Défilement doux ─────────────────────────────── */
 let lenis: Lenis | null = null;
 if (!reduced) {
-  lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 0.9, syncTouch: true, syncTouchLerp: 0.085, touchMultiplier: 1.4 });
+  lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 0.9 }); // doigt : défilement natif du téléphone
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((t) => lenis!.raf(t * 1000));
   gsap.ticker.lagSmoothing(0);
@@ -112,73 +114,127 @@ const mono = $('[data-loader-mono]', loader)!;
 const count = $('[data-loader-count]', loader)!;
 const foot = $('.loader__foot', loader)!;
 
-function preload() {
-  const tl = gsap.timeline();
+/* Préchargement réel : toutes les images de la page, la vidéo et les polices */
+function loadAssets(onProgress: (p: number) => void) {
+  const imgs = $$<HTMLImageElement>('img');
+  const video = $<HTMLVideoElement>('[data-autovideo]');
+  let done = 0;
+  const total = imgs.length + (video ? 1 : 0) + 1;
+  const tick = () => onProgress(++done / total);
+  const jobs: Promise<unknown>[] = imgs.map((img) => {
+    img.loading = 'eager';
+    const p =
+      img.complete && img.naturalWidth
+        ? Promise.resolve()
+        : new Promise<void>((res) => {
+            img.addEventListener('load', () => res(), { once: true });
+            img.addEventListener('error', () => res(), { once: true });
+          });
+    return p.then(() => img.decode?.().catch(() => {})).then(tick);
+  });
+  if (video) {
+    prepareVideo(video);
+    jobs.push(
+      new Promise<void>((res) => {
+        if (video.readyState >= 3) return res();
+        video.addEventListener('canplay', () => res(), { once: true });
+        video.addEventListener('error', () => res(), { once: true });
+        setTimeout(res, 5000);
+      }).then(tick),
+    );
+  }
+  jobs.push((document.fonts?.ready ?? Promise.resolve()).then(tick));
+  // Sécurité : on n’attend jamais plus de 12 s
+  return Promise.race([Promise.all(jobs), new Promise((r) => setTimeout(r, 12000))]);
+}
+
+function prepareVideo(v: HTMLVideoElement) {
+  if (v.dataset.ready) return;
+  v.dataset.ready = '1';
+  const src = v.querySelector<HTMLSourceElement>('source');
+  if (src?.dataset.srcSm && innerWidth <= 800) src.src = src.dataset.srcSm;
+  v.preload = 'auto';
+  v.load();
+}
+
+function preload(onDone: () => void) {
   const floats = $$('[data-float]');
   const imgs = $$('img', stack);
   const home = floats.length > 0;
+  const started = performance.now();
+  const minTime = home ? 2600 : 1200;
+
+  // Compteur qui suit la progression réelle
   const c = { v: 0 };
+  const show = () => (count.textContent = String(Math.round(c.v)).padStart(3, '0'));
+  let target = 0;
+  const onProgress = (p: number) => {
+    target = Math.max(target, p * 96);
+    gsap.to(c, { v: target, duration: 0.6, ease: 'power2.out', onUpdate: show, overwrite: true });
+  };
+
   gsap.set(mono, { opacity: 0, yPercent: 20, clipPath: 'inset(100% 0 0 0)' });
-  tl.to(mono, { opacity: 1, yPercent: 0, clipPath: 'inset(0% 0 0 0)', duration: 1.1, ease: 'expo.out' }, 0).to(
-    c,
-    {
-      v: 100,
-      duration: home ? 2.6 : 1.3,
-      ease: 'power2.inOut',
-      onUpdate: () => (count.textContent = String(Math.round(c.v)).padStart(3, '0')),
-    },
-    0,
-  );
+  gsap.to(mono, { opacity: 1, yPercent: 0, clipPath: 'inset(0% 0 0 0)', duration: 1.1, ease: 'expo.out' });
 
-  if (!home) {
-    gsap.set(stack, { opacity: 0 });
-    tl.to([mono, foot], { opacity: 0, duration: 0.35 })
-      .to(loaderBg, { clipPath: 'inset(0 0 100% 0)', duration: 0.9, ease: 'expo.inOut' })
-      .set(loader, { autoAlpha: 0 });
-    return tl;
-  }
-
-  // Feuilletage des photos au centre
-  imgs.forEach((img, i) => {
-    tl.fromTo(
-      img,
-      { opacity: 0, clipPath: 'inset(100% 0 0 0)', scale: 1.15 },
-      { opacity: 1, clipPath: 'inset(0% 0 0 0)', scale: 1, duration: 0.6, ease: 'power3.out' },
-      0.3 + i * 0.32,
-    );
-  });
-
-  // Les photos du préchargement rejoignent leur place dans l'ouverture
-  tl.to([mono, foot], { opacity: 0, duration: 0.4 }, '+=0.15');
-  tl.add(() => {
-    const sr = stack.getBoundingClientRect();
+  // Feuilletage des photos en boucle tant que le contenu charge
+  let flip: gsap.core.Timeline | null = null;
+  if (home) {
+    flip = gsap.timeline({ repeat: -1 });
     imgs.forEach((img, i) => {
-      const f = floats[i];
-      const visible = f && f.offsetParent !== null && getComputedStyle(f).display !== 'none';
-      gsap.set(img, { clipPath: 'none' });
-      if (!visible) return void gsap.to(img, { opacity: 0, duration: 0.5 });
-      const tr = f.getBoundingClientRect();
-      gsap.to(img, {
-        x: tr.left - sr.left,
-        y: tr.top - sr.top,
-        scaleX: tr.width / sr.width,
-        scaleY: tr.height / sr.height,
-        transformOrigin: '0 0',
-        duration: 1.4,
-        delay: (imgs.length - 1 - i) * 0.05,
-        ease: 'expo.inOut',
+      flip!.fromTo(
+        img,
+        { opacity: 0, clipPath: 'inset(100% 0 0 0)', scale: 1.15, zIndex: i + 1 },
+        { opacity: 1, clipPath: 'inset(0% 0 0 0)', scale: 1, duration: 0.6, ease: 'power3.out' },
+        0.3 + i * 0.34,
+      );
+    });
+  } else gsap.set(stack, { opacity: 0 });
+
+  const minDelay = new Promise((r) => setTimeout(r, minTime));
+  Promise.all([loadAssets(onProgress), minDelay]).then(() => {
+    const exit = gsap.timeline({ onComplete: onDone });
+    exit.to(c, { v: 100, duration: 0.5, ease: 'power2.out', onUpdate: show, overwrite: true });
+    if (!home) {
+      exit
+        .to([mono, foot], { opacity: 0, duration: 0.35 })
+        .to(loaderBg, { clipPath: 'inset(0 0 100% 0)', duration: 0.9, ease: 'expo.inOut' })
+        .set(loader, { autoAlpha: 0 });
+      return;
+    }
+    // Termine le feuilletage sur la dernière photo, puis envol vers l'ouverture
+    exit.add(() => {
+      flip?.pause();
+      imgs.forEach((img) => gsap.set(img, { opacity: 1, scale: 1, clipPath: 'none' }));
+    });
+    exit.to([mono, foot], { opacity: 0, duration: 0.4 });
+    exit.add(() => {
+      const sr = stack.getBoundingClientRect();
+      imgs.forEach((img, i) => {
+        const f = floats[i];
+        const visible = f && f.offsetParent !== null && getComputedStyle(f).display !== 'none';
+        if (!visible) return void gsap.to(img, { opacity: 0, duration: 0.5 });
+        const tr = f.getBoundingClientRect();
+        gsap.to(img, {
+          x: tr.left - sr.left,
+          y: tr.top - sr.top,
+          scaleX: tr.width / sr.width,
+          scaleY: tr.height / sr.height,
+          transformOrigin: '0 0',
+          duration: 1.4,
+          delay: (imgs.length - 1 - i) * 0.05,
+          ease: 'expo.inOut',
+        });
       });
     });
+    exit.to(loaderBg, { opacity: 0, duration: 1.1, ease: 'power2.inOut' }, '<0.25');
+    exit.add(() => {
+      floats.forEach((f, i) => {
+        if (i < imgs.length) gsap.set(f, { opacity: 1 });
+        else gsap.fromTo(f, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 1.2, ease: EASE });
+      });
+      gsap.set(loader, { autoAlpha: 0 });
+    }, '>+0.35');
   });
-  tl.to(loaderBg, { opacity: 0, duration: 1.1, ease: 'power2.inOut' }, '<0.25');
-  tl.add(() => {
-    floats.forEach((f, i) => {
-      if (i < imgs.length) gsap.set(f, { opacity: 1 });
-      else gsap.fromTo(f, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 1.2, ease: EASE });
-    });
-    gsap.set(loader, { autoAlpha: 0 });
-  }, '>+0.35');
-  return tl;
 }
 
 function leaveTo(href: string) {
@@ -200,8 +256,9 @@ document.addEventListener('click', (e) => {
   const samePage = url.pathname === location.pathname;
   if (samePage && url.hash) {
     e.preventDefault();
-    closeMenu(true);
-    if (scrollToHash(url.hash)) history.replaceState(null, '', url.hash);
+    const wasOpen = document.documentElement.classList.contains('menu-open');
+    closeMenu();
+    setTimeout(() => scrollToHash(url.hash) && history.replaceState(null, '', url.hash), wasOpen ? 250 : 0);
     return;
   }
   if (samePage) return;
@@ -249,7 +306,18 @@ const burger = $('[data-burger]');
 const burgerLabel = $('[data-burger-label]');
 const menu = $('[data-menu]')!;
 const menuBg = $('[data-menu-bg]')!;
-let menuTl: gsap.core.Timeline | null = null;
+const menuTl = gsap
+  .timeline({
+    paused: true,
+    onReverseComplete: () => {
+      document.documentElement.classList.remove('menu-open');
+      headerTheme();
+    },
+  })
+  .fromTo(menuBg, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 0.6, ease: 'expo.inOut' })
+  .fromTo($$('.menu__t', menu), { yPercent: 105 }, { yPercent: 0, duration: 0.7, stagger: 0.04, ease: 'expo.out' }, '-=0.25')
+  .fromTo($$('.menu__n, .menu__foot, .menu__media', menu), { opacity: 0 }, { opacity: 1, duration: 0.4 }, '-=0.5');
+const isOpen = () => document.documentElement.classList.contains('menu-open') && !menuTl.reversed();
 function openMenu() {
   document.documentElement.classList.add('menu-open');
   header.classList.remove('is-hidden', 'is-light');
@@ -257,12 +325,7 @@ function openMenu() {
   if (burgerLabel) burgerLabel.textContent = 'Fermer';
   menu.setAttribute('aria-hidden', 'false');
   lenis?.stop();
-  menuTl?.kill();
-  menuTl = gsap
-    .timeline()
-    .fromTo(menuBg, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 0.65, ease: 'expo.inOut' })
-    .fromTo($$('.menu__t', menu), { yPercent: 105 }, { yPercent: 0, duration: 0.8, stagger: 0.05, ease: EASE }, '-=0.3')
-    .fromTo($$('.menu__n, .menu__foot, .menu__media', menu), { opacity: 0 }, { opacity: 1, duration: 0.5 }, '-=0.6');
+  menuTl.timeScale(1).play();
 }
 function closeMenu(instant = false) {
   if (!document.documentElement.classList.contains('menu-open')) return;
@@ -270,18 +333,15 @@ function closeMenu(instant = false) {
   if (burgerLabel) burgerLabel.textContent = 'Menu';
   menu.setAttribute('aria-hidden', 'true');
   lenis?.start();
-  menuTl?.kill();
-  const done = () => {
+  if (instant) {
+    menuTl.pause(0);
     document.documentElement.classList.remove('menu-open');
     headerTheme();
-  };
-  if (instant || reduced) return done();
-  menuTl = gsap
-    .timeline({ onComplete: done })
-    .to($$('.menu__t', menu), { yPercent: -110, duration: 0.45, stagger: 0.03, ease: 'power2.in' })
-    .to(menuBg, { clipPath: 'inset(100% 0 0% 0)', duration: 0.8, ease: 'expo.inOut' }, 0.15);
+    return;
+  }
+  menuTl.timeScale(1.6).reverse();
 }
-burger?.addEventListener('click', () => (document.documentElement.classList.contains('menu-open') ? closeMenu() : openMenu()));
+burger?.addEventListener('click', () => (isOpen() ? closeMenu() : openMenu()));
 addEventListener('keydown', (e) => e.key === 'Escape' && closeMenu());
 $$('[data-menu-i]').forEach((a) =>
   a.addEventListener('pointerenter', () => {
@@ -715,18 +775,10 @@ function parallax() {
 }
 function autoVideos() {
   $$<HTMLVideoElement>('[data-autovideo]').forEach((v) => {
-    if (reduced) return;
     new IntersectionObserver(
       ([en]) => {
         if (en.isIntersecting) {
-          if (v.preload === 'none') {
-            const src = v.querySelector<HTMLSourceElement>('source');
-            if (src?.dataset.srcSm && innerWidth <= 800) {
-              src.src = src.dataset.srcSm;
-              v.load();
-            }
-            v.preload = 'auto';
-          }
+          prepareVideo(v);
           v.play().catch(() => {});
         } else v.pause();
       },
@@ -812,9 +864,10 @@ function init() {
   form();
   onScroll();
 
-  const intro = preload();
-  intro.add(() => heroIn(), '-=1.3');
-  intro.add(() => heroFloats());
+  preload(() => heroFloats());
+  // Le titre apparaît pendant l'envol des photos
+  const waitHero = () => (getComputedStyle(loader).visibility === 'hidden' || +getComputedStyle(loaderBg).opacity < 0.6 ? heroIn() : requestAnimationFrame(waitHero));
+  requestAnimationFrame(waitHero);
 
   if (location.hash) requestAnimationFrame(() => scrollToHash(location.hash, true));
 
