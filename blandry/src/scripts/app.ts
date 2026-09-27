@@ -1,7 +1,6 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import { initPaint } from './paint';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,26 +12,6 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
 const EASE = 'expo.out';
 
-const store = {
-  get: (k: string) => {
-    try {
-      return sessionStorage.getItem(k);
-    } catch {
-      return null;
-    }
-  },
-  set: (k: string, v: string) => {
-    try {
-      sessionStorage.setItem(k, v);
-    } catch {}
-  },
-  del: (k: string) => {
-    try {
-      sessionStorage.removeItem(k);
-    } catch {}
-  },
-};
-
 /* ─── Défilement doux ─────────────────────────────── */
 let lenis: Lenis | null = null;
 if (!reduced) {
@@ -41,15 +20,16 @@ if (!reduced) {
   gsap.ticker.add((t) => lenis!.raf(t * 1000));
   gsap.ticker.lagSmoothing(0);
 }
+
 const scrollToHash = (hash: string, immediate = false) => {
   const target = hash.length > 1 ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
   if (!target) return false;
-  if (lenis) lenis.scrollTo(target, { offset: 0, immediate, duration: 1.4 });
+  if (lenis) lenis.scrollTo(target, { offset: -20, immediate, duration: 1.4 });
   else target.scrollIntoView({ behavior: reduced || immediate ? 'auto' : 'smooth' });
   return true;
 };
 
-/* ─── Découpe du texte (<em> conservé) ─────────────── */
+/* ─── Découpe du texte (lignes / mots), <em> conservé ── */
 function wrapWords(el: HTMLElement) {
   const words: HTMLElement[] = [];
   const frag = document.createDocumentFragment();
@@ -71,7 +51,9 @@ function wrapWords(el: HTMLElement) {
           words.push(w);
           frag.appendChild(w);
         });
-      } else if (child instanceof Element) walk(child, [...tags, child]);
+      } else if (child instanceof Element) {
+        walk(child, [...tags, child]);
+      }
     });
   };
   walk(el, []);
@@ -79,12 +61,13 @@ function wrapWords(el: HTMLElement) {
   el.appendChild(frag);
   return words;
 }
+
 function splitLines(el: HTMLElement) {
   if (!el.dataset.src) el.dataset.src = el.innerHTML;
   el.innerHTML = el.dataset.src;
   const words = wrapWords(el);
   const lines: HTMLElement[][] = [];
-  let top = -1e9;
+  let top = -1;
   words.forEach((w) => {
     const t = w.offsetTop;
     if (Math.abs(t - top) > 4) {
@@ -109,11 +92,30 @@ function splitLines(el: HTMLElement) {
   return $$('.line-inner', el);
 }
 
-/* ─── Rideau : compteur au premier chargement, transitions ── */
+const store = {
+  get: (k: string) => {
+    try {
+      return sessionStorage.getItem(k);
+    } catch {
+      return null;
+    }
+  },
+  set: (k: string, v: string) => {
+    try {
+      sessionStorage.setItem(k, v);
+    } catch {}
+  },
+  del: (k: string) => {
+    try {
+      sessionStorage.removeItem(k);
+    } catch {}
+  },
+};
+
+/* ─── Rideau de peinture (intro + transitions) ──────── */
 const curtain = $('[data-curtain]')!;
-const paintEl = $('.curtain__paint', curtain)!;
-const inner = $('.curtain__in', curtain)!;
-const count = $('[data-count]', curtain)!;
+const paint = $('.curtain__paint', curtain)!;
+const label = $('.curtain__label', curtain)!;
 
 function introCurtain() {
   const first = !store.get('bl-seen');
@@ -129,33 +131,31 @@ function introCurtain() {
   }
   const tl = gsap.timeline({ defaults: { ease: 'expo.inOut' } });
   if (first) {
-    const c = { v: 0 };
-    tl.to(c, {
-      v: 100,
-      duration: 1.3,
-      ease: 'power2.inOut',
-      onUpdate: () => (count.textContent = String(Math.round(c.v)).padStart(2, '0')),
-    }).to(inner, { yPercent: 30, opacity: 0, duration: 0.5, ease: 'power2.in' });
-  } else gsap.set(inner, { opacity: 0 });
+    tl.fromTo(label, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, ease: EASE })
+      .to(label, { opacity: 0, y: -20, duration: 0.5, ease: 'power2.in' }, '+=0.25');
+  }
   tl.fromTo(
-    paintEl,
-    { clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)' },
-    { clipPath: 'polygon(0 0, 100% 0, 100% 0%, 0 0%)', duration: 1 },
+    paint,
+    { clipPath: 'inset(0% 0% 0% 0%)' },
+    { clipPath: 'inset(0% 0% 100% 0%)', duration: first ? 1.1 : 0.9 },
   ).set(curtain, { autoAlpha: 0 });
   return tl;
 }
 
 function leaveTo(href: string, color?: string) {
-  if (reduced) return void (location.href = href);
-  const c = color || '#6b1f2a';
+  if (reduced) {
+    location.href = href;
+    return;
+  }
+  const c = color || getComputedStyle(document.documentElement).getPropertyValue('--ink');
   curtain.style.setProperty('--curtain', c);
   store.set('bl-next', c);
-  gsap.set(inner, { opacity: 0 });
+  gsap.set(label, { opacity: 0 });
   gsap.set(curtain, { autoAlpha: 1 });
   gsap.fromTo(
-    paintEl,
-    { clipPath: 'polygon(0 100%, 100% 100%, 100% 100%, 0 100%)' },
-    { clipPath: 'polygon(0 0%, 100% 0%, 100% 100%, 0 100%)', duration: 0.8, ease: 'expo.inOut', onComplete: () => (location.href = href) },
+    paint,
+    { clipPath: 'inset(100% 0% 0% 0%)' },
+    { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.75, ease: 'expo.inOut', onComplete: () => (location.href = href) },
   );
 }
 
@@ -163,24 +163,27 @@ document.addEventListener('click', (e) => {
   const a = (e.target as HTMLElement).closest('a');
   if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank') return;
   const url = new URL(a.href, location.href);
-  if (url.origin !== location.origin || !/^https?:$/.test(url.protocol)) return;
+  if (url.origin !== location.origin) return;
   const samePage = url.pathname === location.pathname;
   if (samePage && url.hash) {
     e.preventDefault();
-    closeMenu(true);
+    closeMenu();
     if (scrollToHash(url.hash)) history.replaceState(null, '', url.hash);
     return;
   }
   if (samePage) return;
   e.preventDefault();
   closeMenu(true);
-  leaveTo(url.href);
+  const color = getComputedStyle(a).getPropertyValue('--c').trim();
+  leaveTo(url.href, color || undefined);
 });
+
+// Retour arrière (bfcache) : on retire le rideau
 addEventListener('pageshow', (e) => {
   if ((e as PageTransitionEvent).persisted) gsap.set(curtain, { autoAlpha: 0 });
 });
 
-/* ─── En-tête (clair sur fonds sombres), barre mobile ── */
+/* ─── En-tête, barre mobile ─────────────────────────── */
 const header = $('[data-header]')!;
 const mbar = $('[data-mbar]');
 const contact = $('#contact');
@@ -192,86 +195,88 @@ if (contact && mbar) {
     onScroll();
   }).observe(contact);
 }
-function headerTheme() {
-  const y = 38;
-  const el = document.elementsFromPoint(innerWidth / 2, y).find((n) => !header.contains(n) && !n.closest('.cursor, .curtain, .menu'));
-  const dark = !!el?.closest('.dark, .wine, [data-dark-hero]');
-  header.classList.toggle('is-light', dark);
-}
+const darkHero = $('[data-dark-hero]');
 function onScroll() {
   const y = scrollY;
+  header.classList.toggle('is-scrolled', y > 20);
+  header.classList.toggle('is-light', !!darkHero && y <= 20);
   if (!document.documentElement.classList.contains('menu-open')) {
-    header.classList.toggle('is-hidden', y > 500 && y > lastY + 2);
+    header.classList.toggle('is-hidden', y > 400 && y > lastY + 2);
     if (y < lastY - 2) header.classList.remove('is-hidden');
   }
-  mbar?.classList.toggle('is-visible', y > innerHeight * 0.7 && !contactVisible);
-  headerTheme();
+  mbar?.classList.toggle('is-visible', y > innerHeight * 0.55 && !contactVisible);
   lastY = y;
 }
 addEventListener('scroll', onScroll, { passive: true });
+onScroll();
 
-/* ─── Menu ──────────────────────────────────────────── */
+/* ─── Menu mobile ───────────────────────────────────── */
 const burger = $('[data-burger]');
-const burgerLabel = $('[data-burger-label]');
 const menu = $('[data-menu]')!;
 const menuBg = $('[data-menu-bg]')!;
 let menuTl: gsap.core.Timeline | null = null;
+
 function openMenu() {
   document.documentElement.classList.add('menu-open');
   header.classList.remove('is-hidden');
   burger?.setAttribute('aria-expanded', 'true');
-  if (burgerLabel) burgerLabel.textContent = 'Fermer';
   menu.setAttribute('aria-hidden', 'false');
   lenis?.stop();
   menuTl?.kill();
   menuTl = gsap
     .timeline()
-    .fromTo(menuBg, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: reduced ? 0 : 0.8, ease: 'expo.inOut' })
-    .fromTo($$('.menu__a .display', menu), { yPercent: 110 }, { yPercent: 0, duration: reduced ? 0 : 0.9, stagger: 0.05, ease: EASE }, '-=0.35')
-    .fromTo($$('.menu__n, .menu__foot', menu), { opacity: 0 }, { opacity: 1, duration: 0.5 }, '-=0.6');
+    .fromTo(menuBg, { clipPath: 'circle(0% at calc(100% - 40px) 36px)' }, { clipPath: 'circle(150% at calc(100% - 40px) 36px)', duration: reduced ? 0 : 0.9, ease: 'expo.inOut' })
+    .fromTo($$('[data-menu-link]', menu), { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: reduced ? 0 : 0.8, stagger: 0.05, ease: EASE }, '-=0.45');
 }
 function closeMenu(instant = false) {
   if (!document.documentElement.classList.contains('menu-open')) return;
   burger?.setAttribute('aria-expanded', 'false');
-  if (burgerLabel) burgerLabel.textContent = 'Menu';
   menu.setAttribute('aria-hidden', 'true');
   lenis?.start();
   menuTl?.kill();
   const done = () => document.documentElement.classList.remove('menu-open');
-  if (instant || reduced) return done();
+  if (instant || reduced) {
+    done();
+    return;
+  }
   menuTl = gsap
     .timeline({ onComplete: done })
-    .to($$('.menu__a .display', menu), { yPercent: -110, duration: 0.4, stagger: 0.03, ease: 'power2.in' })
-    .to(menuBg, { clipPath: 'inset(100% 0 0% 0)', duration: 0.7, ease: 'expo.inOut' }, 0.15);
+    .to($$('[data-menu-link]', menu), { opacity: 0, duration: 0.25 })
+    .to(menuBg, { clipPath: 'circle(0% at calc(100% - 40px) 36px)', duration: 0.7, ease: 'expo.inOut' }, 0.05);
 }
-burger?.addEventListener('click', () => (document.documentElement.classList.contains('menu-open') ? closeMenu() : openMenu()));
+burger?.addEventListener('click', () =>
+  document.documentElement.classList.contains('menu-open') ? closeMenu() : openMenu(),
+);
 addEventListener('keydown', (e) => e.key === 'Escape' && closeMenu());
 
-/* ─── Curseur & aimants ─────────────────────────────── */
+/* ─── Curseur & boutons magnétiques ─────────────────── */
 if (finePointer && !reduced) {
   document.documentElement.classList.add('has-cursor');
   const cur = $('[data-cursor]')!;
-  const xTo = gsap.quickTo(cur, 'x', { duration: 0.45, ease: 'power3' });
-  const yTo = gsap.quickTo(cur, 'y', { duration: 0.45, ease: 'power3' });
+  const dot = cur.firstElementChild as HTMLElement;
+  const xTo = gsap.quickTo(cur, 'x', { duration: 0.5, ease: 'power3' });
+  const yTo = gsap.quickTo(cur, 'y', { duration: 0.5, ease: 'power3' });
+  document.addEventListener('pointerleave', () => cur.classList.remove('is-on'));
   addEventListener('pointermove', (e) => {
     cur.classList.add('is-on');
     xTo(e.clientX);
     yTo(e.clientY);
   });
-  document.addEventListener('pointerleave', () => cur.classList.remove('is-on'));
   document.addEventListener('pointerover', (e) => {
     const t = e.target as HTMLElement;
-    const link = !!t.closest('a, button, summary, label, .ba__frame');
-    cur.classList.toggle('is-link', link);
-    cur.classList.toggle('is-brush', !link && !!t.closest('[data-phero]'));
+    const link = t.closest('a, button, summary, label');
+    cur.classList.toggle('is-link', !!link);
+    const c = t.closest<HTMLElement>('[data-zrow], [data-card], .nu, .fan__strip');
+    dot.style.backgroundColor = c ? getComputedStyle(c).getPropertyValue('--c') : '';
   });
+
   $$('[data-magnetic]').forEach((el) => {
-    const x = gsap.quickTo(el, 'x', { duration: 0.6, ease: 'elastic.out(1, 0.45)' });
-    const y = gsap.quickTo(el, 'y', { duration: 0.6, ease: 'elastic.out(1, 0.45)' });
+    const x = gsap.quickTo(el, 'x', { duration: 0.6, ease: 'elastic.out(1, 0.4)' });
+    const y = gsap.quickTo(el, 'y', { duration: 0.6, ease: 'elastic.out(1, 0.4)' });
     el.addEventListener('pointermove', (e) => {
       const r = el.getBoundingClientRect();
-      x((e.clientX - r.left - r.width / 2) * 0.2);
-      y((e.clientY - r.top - r.height / 2) * 0.3);
+      x((e.clientX - r.left - r.width / 2) * 0.25);
+      y((e.clientY - r.top - r.height / 2) * 0.35);
     });
     el.addEventListener('pointerleave', () => {
       x(0);
@@ -280,16 +285,61 @@ if (finePointer && !reduced) {
   });
 }
 
-/* ─── Hero ─────────────────────────────────────────── */
+/* ─── Hero ──────────────────────────────────────────── */
 function heroIn() {
   const tl = gsap.timeline({ defaults: { ease: EASE } });
   const title = $('[data-hero-title]');
-  if (title) tl.to($$('.line-inner', title), { y: 0, duration: 1.5, stagger: 0.1 }, 0);
-  tl.to($$('[data-hero-fade]'), { y: 0, opacity: 1, duration: 1.2, stagger: 0.08 }, 0.3);
+  if (title) tl.to($$('.line-inner', title), { y: 0, duration: 1.4, stagger: 0.09 }, 0);
+  const brush = $('[data-brush]');
+  if (brush) tl.to(brush, { strokeDashoffset: 0, duration: 1.3, ease: 'power3.inOut' }, 0.55);
+  tl.to($$('[data-hero-fade]'), { y: 0, opacity: 1, duration: 1.2, stagger: 0.1 }, 0.35);
+
+  const chip = $('[data-zchip]');
+  if (chip) tl.from(chip, { yPercent: 60, rotation: -14, opacity: 0, duration: 1.6 }, 0.25);
+
+  const strips = $$('[data-fan-strip]');
+  if (strips.length) {
+    tl.fromTo(
+      strips,
+      { rotation: 0, yPercent: 30, opacity: 0 },
+      {
+        rotation: (_i: number, el: HTMLElement) => parseFloat(el.style.getPropertyValue('--a')),
+        yPercent: 0,
+        opacity: 1,
+        duration: 1.6,
+        stagger: { each: 0.05, from: 'center' },
+        ease: 'expo.out',
+      },
+      0.2,
+    );
+  }
   return tl;
 }
 
-/* ─── Apparitions ──────────────────────────────────── */
+function heroScroll() {
+  const fan = $('[data-fan]');
+  const hero = $('[data-hero]');
+  if (!fan || !hero) return;
+  const strips = $$('[data-fan-strip]', fan);
+  gsap.set(fan, { transformPerspective: 900 });
+  // Au défilement, l'éventail se referme doucement et pivote
+  gsap
+    .timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6 } })
+    .to(strips, { rotation: (_i: number, el: HTMLElement) => parseFloat(el.style.getPropertyValue('--a')) * 0.25, ease: 'none' }, 0)
+    .to(fan, { rotation: -18, yPercent: 18, ease: 'none' }, 0);
+
+  if (finePointer) {
+    const rx = gsap.quickTo(fan, 'rotationY', { duration: 1, ease: 'power3' });
+    const rz = gsap.quickTo(fan.parentElement!, 'rotation', { duration: 1.2, ease: 'power3' });
+    hero.addEventListener('pointermove', (e) => {
+      const nx = e.clientX / innerWidth - 0.5;
+      rx(nx * 16);
+      rz(nx * 6);
+    });
+  }
+}
+
+/* ─── Apparitions au défilement ─────────────────────── */
 function reveals() {
   $$('[data-split]').forEach((el) => {
     const lines = splitLines(el);
@@ -301,70 +351,192 @@ function reveals() {
       onEnter: () => gsap.to($$('.line-inner', el), { y: 0, duration: 1.3, stagger: 0.08, ease: EASE }),
     });
   });
+
   ScrollTrigger.batch('[data-reveal="fade"]', {
     start: 'top 92%',
     once: true,
-    onEnter: (els) => gsap.to(els, { y: 0, opacity: 1, duration: 1.1, stagger: 0.07, ease: EASE }),
+    onEnter: (els) => gsap.to(els, { y: 0, opacity: 1, duration: 1.1, stagger: 0.08, ease: EASE }),
   });
+
   $$('[data-words]').forEach((el) => {
     const words = wrapWords(el);
     gsap.fromTo(
       words,
-      { opacity: 0.12 },
-      { opacity: 1, stagger: 0.1, ease: 'none', scrollTrigger: { trigger: el, start: 'top 80%', end: 'bottom 50%', scrub: true } },
+      { opacity: 0.14 },
+      {
+        opacity: 1,
+        stagger: 0.1,
+        ease: 'none',
+        scrollTrigger: { trigger: el, start: 'top 80%', end: 'bottom 55%', scrub: true },
+      },
     );
   });
+
+  // Cartes empilées
+  const cards = $$('[data-card]');
+  cards.forEach((card, i) => {
+    const next = cards[i + 1];
+    if (!next) return;
+    gsap.to($('.card__in', card), {
+      scale: 0.92,
+      rotation: i % 2 ? 1.2 : -1.2,
+      ease: 'none',
+      scrollTrigger: { trigger: next, start: 'top bottom', end: 'top 25%', scrub: true },
+    });
+  });
+
+  // Ligne de progression de la méthode
+  const steps = $('[data-steps]');
+  const line = $('[data-steps-line]');
+  if (steps && line) {
+    gsap.fromTo(
+      line,
+      { '--p': 0 },
+      { '--p': 1, ease: 'none', scrollTrigger: { trigger: steps, start: 'top 75%', end: 'bottom 60%', scrub: true } },
+    );
+  }
 }
 
-/* ─── Bandeau défilant, accéléré par le scroll ─────── */
-function marquee() {
-  $$('[data-marquee-track]').forEach((track) => {
-    let x = 0;
-    let boost = 0;
-    const speed = 0.6;
-    const half = () => track.scrollWidth / 2;
-    ScrollTrigger.create({
-      trigger: track,
-      start: 'top bottom',
-      end: 'bottom top',
-      onUpdate: (self) => (boost = Math.min(Math.abs(self.getVelocity()) / 120, 14) * self.direction),
+/* ─── Nuancier interactif ───────────────────────────── */
+function nuancier() {
+  const sec = $('[data-nuancier]');
+  if (!sec) return;
+  const btns = $$<HTMLButtonElement>('[data-nu]', sec);
+  const name = $('[data-nu-name]', sec)!;
+  const lieu = $('[data-nu-lieu]', sec)!;
+  const hex = $('[data-nu-hex]', sec)!;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  let idx = btns.findIndex((b) => b.getAttribute('aria-checked') === 'true');
+  let auto: number | undefined;
+  let inView = false;
+
+  const select = (i: number, focus = false) => {
+    idx = (i + btns.length) % btns.length;
+    const b = btns[idx];
+    btns.forEach((o) => {
+      o.setAttribute('aria-checked', String(o === b));
+      o.tabIndex = o === b ? 0 : -1;
     });
-    gsap.ticker.add(() => {
-      if (reduced) return;
-      boost *= 0.92;
-      x -= speed + boost;
-      const h = half();
-      if (x <= -h) x += h;
-      if (x > 0) x -= h;
-      track.style.transform = `translate3d(${x}px,0,0)`;
+    if (focus) b.focus();
+    sec.style.setProperty('--nu', b.dataset.hex!);
+    sec.style.setProperty('--nu-ink', b.dataset.ink!);
+    if (inView) meta?.setAttribute('content', b.dataset.hex!);
+    const swap = () => {
+      name.textContent = b.dataset.nom!;
+      lieu.textContent = b.dataset.lieu!;
+      hex.textContent = b.dataset.hex!;
+    };
+    if (reduced) return swap();
+    gsap
+      .timeline()
+      .to(name, { yPercent: -30, opacity: 0, duration: 0.3, ease: 'power2.in', onComplete: swap })
+      .fromTo(name, { yPercent: 30, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.8, ease: EASE });
+    b.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+  };
+  const stop = () => clearInterval(auto);
+  btns.forEach((b, i) => {
+    b.tabIndex = i === idx ? 0 : -1;
+    b.addEventListener('click', () => {
+      stop();
+      select(i);
+    });
+    b.addEventListener('keydown', (e) => {
+      const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+      if (!d) return;
+      e.preventDefault();
+      stop();
+      select(idx + d, true);
+    });
+  });
+  let touched = false;
+  sec.addEventListener('pointerdown', () => (touched = true), { once: true });
+  new IntersectionObserver(
+    ([en]) => {
+      inView = en.isIntersecting;
+      stop();
+      if (inView && !reduced && !touched) auto = window.setInterval(() => select(idx + 1), 2600);
+      if (!inView) meta?.setAttribute('content', '#efeae0');
+    },
+    { threshold: 0.45 },
+  ).observe(sec);
+}
+
+/* ─── FAQ animée ────────────────────────────────────── */
+function faq() {
+  $$<HTMLDetailsElement>('.faq__item').forEach((d) => {
+    const sum = $('summary', d)!;
+    const body = $('.faq__a', d)!;
+    sum.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (d.open) {
+        gsap.to(body, {
+          height: 0,
+          duration: reduced ? 0 : 0.5,
+          ease: 'power3.inOut',
+          onComplete: () => {
+            d.open = false;
+            ScrollTrigger.refresh();
+          },
+        });
+        d.classList.remove('is-open');
+      } else {
+        d.open = true;
+        d.classList.add('is-open');
+        gsap.fromTo(body, { height: 0 }, { height: 'auto', duration: reduced ? 0 : 0.6, ease: 'power3.out', onComplete: () => ScrollTrigger.refresh() });
+      }
     });
   });
 }
 
-/* ─── 02 · Le geste : la vidéo s'ouvre plein écran ─── */
-function geste() {
-  const sec = $('[data-geste]');
-  if (!sec || reduced) {
-    if (sec) gsap.set($('[data-geste-frame]', sec), { clipPath: 'inset(0% 0% 0% 0%)' });
-    return;
-  }
-  gsap
-    .timeline({ scrollTrigger: { trigger: sec, start: 'top top', end: 'bottom bottom', scrub: 0.6 } })
-    .fromTo($('[data-geste-frame]', sec), { clipPath: 'inset(22% 18% 22% 18%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none' }, 0)
-    .fromTo($('[data-geste-l]', sec), { xPercent: 0 }, { xPercent: -80, ease: 'none' }, 0)
-    .fromTo($('[data-geste-r]', sec), { xPercent: 0 }, { xPercent: 60, ease: 'none' }, 0);
+/* ─── Formulaire → messagerie pré-remplie ───────────── */
+function form() {
+  const f = $<HTMLFormElement>('[data-form]');
+  if (!f) return;
+  const note = $('[data-form-note]', f)!;
+  f.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let ok = true;
+    $$<HTMLInputElement>('[required]', f).forEach((i) => {
+      const bad = !i.value.trim();
+      i.setAttribute('aria-invalid', String(bad));
+      if (bad && ok) {
+        i.focus();
+        ok = false;
+      }
+    });
+    if (!ok) {
+      note.textContent = 'Merci d’indiquer votre nom et votre téléphone.';
+      return;
+    }
+    const data = new FormData(f);
+    const travaux = data.getAll('travaux').join(', ') || 'non précisé';
+    const commune = (data.get('commune') as string) || 'non précisée';
+    const body = [
+      `Nom : ${data.get('nom')}`,
+      `Téléphone : ${data.get('tel')}`,
+      `Commune : ${commune}`,
+      `Travaux : ${travaux}`,
+      '',
+      (data.get('message') as string) || '',
+    ].join('\n');
+    const to = $<HTMLAnchorElement>('.contact__mail a')?.href.replace('mailto:', '') ?? '';
+    location.href = `mailto:${to}?subject=${encodeURIComponent(`Demande de devis peinture — ${commune}`)}&body=${encodeURIComponent(body)}`;
+    note.textContent = 'Merci ! Votre messagerie s’ouvre : il ne reste qu’à envoyer.';
+  });
 }
 
-/* ─── 03 · Avant / après ───────────────────────────── */
+/* ─── Avant / après ─────────────────────────────────── */
 function beforeAfter() {
-  const demos: (() => void)[] = [];
+  const demos: Record<number, () => void> = {};
   $$('[data-ba]').forEach((ba, idx) => {
     const frame = $('.ba__frame', ba)!;
     const range = $<HTMLInputElement>('[data-ba-range]', ba)!;
+    const scope = ba.closest<HTMLElement>('[data-ba-scope]');
     const state = { x: 50 };
     const set = (x: number) => {
       state.x = Math.max(0, Math.min(100, x));
       frame.style.setProperty('--x', state.x + '%');
+      scope?.style.setProperty('--xp', String(state.x));
       range.value = String(state.x);
     };
     range.addEventListener('input', () => set(+range.value));
@@ -395,10 +567,11 @@ function beforeAfter() {
     demos[idx] = demo;
     if (idx === 0) ScrollTrigger.create({ trigger: frame, start: 'top 70%', once: true, onEnter: demo });
   });
+
+  // Onglets entre chantiers
   $$('[data-bax]').forEach((box) => {
     const tabs = $$<HTMLButtonElement>('[data-ba-tab]', box);
     const panels = $$('[data-ba]', box);
-    const all = $$('[data-ba]');
     const show = (i: number, focus = false) => {
       tabs.forEach((t, j) => {
         t.setAttribute('aria-selected', String(j === i));
@@ -406,8 +579,8 @@ function beforeAfter() {
       });
       panels.forEach((p, j) => (p.hidden = j !== i));
       if (focus) tabs[i].focus();
-      if (!reduced) gsap.fromTo(panels[i], { opacity: 0 }, { opacity: 1, duration: 0.5 });
-      demos[all.indexOf(panels[i])]?.();
+      if (!reduced) gsap.fromTo(panels[i], { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, ease: EASE });
+      demos[$$('[data-ba]').indexOf(panels[i])]?.();
       ScrollTrigger.refresh();
     };
     tabs.forEach((t, i) => {
@@ -420,66 +593,15 @@ function beforeAfter() {
   });
 }
 
-/* ─── 04 · Réalisations : image qui suit le curseur ── */
-function works() {
-  const float = $('[data-works-float]');
-  const items = $$('[data-work]');
-  if (!float || !items.length || !finePointer) return;
-  const imgs = $$('img', float);
-  const xTo = gsap.quickTo(float, 'x', { duration: 0.7, ease: 'power3' });
-  const yTo = gsap.quickTo(float, 'y', { duration: 0.7, ease: 'power3' });
-  const rTo = gsap.quickTo(float, 'rotation', { duration: 0.9, ease: 'power3' });
-  let px = 0;
-  items.forEach((it, i) => {
-    it.addEventListener('pointerenter', () => {
-      float.classList.add('is-on');
-      imgs.forEach((im, j) => im.classList.toggle('is-on', j === i));
-    });
-    it.addEventListener('pointerleave', () => float.classList.remove('is-on'));
-    it.addEventListener('pointermove', (e) => {
-      const w = float.offsetWidth;
-      const h = float.offsetHeight;
-      xTo(e.clientX - w / 2);
-      yTo(e.clientY - h / 2);
-      rTo(Math.max(-8, Math.min(8, (e.clientX - px) * 0.4)));
-      px = e.clientX;
-    });
-  });
-}
-
-/* ─── 06 · Déroulement : piste horizontale (bureau) ── */
-function steps() {
-  const sec = $('[data-steps]');
-  const track = $('[data-steps-track]');
-  const bar = $('[data-steps-bar]');
-  if (!sec || !track || reduced) return;
-  ScrollTrigger.matchMedia({
-    '(min-width: 1024px)': () => {
-      const dist = () => Math.max(0, track.scrollWidth - innerWidth);
-      const tl = gsap.timeline({
-        scrollTrigger: { trigger: sec, start: 'top top', end: () => '+=' + dist(), pin: $('.steps__pin', sec), scrub: 0.6, invalidateOnRefresh: true },
-      });
-      tl.to(track, { x: () => -dist(), ease: 'none' }, 0);
-      if (bar) tl.fromTo(bar, { scaleX: 0 }, { scaleX: 1, ease: 'none' }, 0);
-    },
-  });
-}
-
-/* ─── Parallaxe & vidéos ───────────────────────────── */
-function parallax() {
-  if (reduced) return;
-  $$('[data-parallax]').forEach((img) => {
-    const wrap = img.closest('[data-parallax-wrap]') ?? img.parentElement!;
-    gsap.fromTo(img, { yPercent: -8 }, { yPercent: 8, ease: 'none', scrollTrigger: { trigger: wrap, start: 'top bottom', end: 'bottom top', scrub: true } });
-  });
-}
+/* ─── Vidéos d'ambiance : lecture seulement à l'écran ── */
 function autoVideos() {
   $$<HTMLVideoElement>('[data-autovideo]').forEach((v) => {
-    if (reduced) return;
+    if (reduced) return; // l'affiche reste visible
     new IntersectionObserver(
       ([en]) => {
         if (en.isIntersecting) {
           if (v.preload === 'none') {
+            // Version allégée sur mobile
             const src = v.querySelector<HTMLSourceElement>('source');
             if (src?.dataset.srcSm && innerWidth <= 800) {
               src.src = src.dataset.srcSm;
@@ -490,93 +612,117 @@ function autoVideos() {
           v.play().catch(() => {});
         } else v.pause();
       },
-      { threshold: 0.1 },
+      { threshold: 0.2 },
     ).observe(v);
   });
 }
 
-/* ─── FAQ ──────────────────────────────────────────── */
-function faq() {
-  $$<HTMLDetailsElement>('.faq__item').forEach((d) => {
-    const sum = $('summary', d)!;
-    const body = $('.faq__a', d)!;
-    sum.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (d.open) {
-        d.classList.remove('is-open');
-        gsap.to(body, {
-          height: 0,
-          duration: reduced ? 0 : 0.5,
-          ease: 'power3.inOut',
-          onComplete: () => {
-            d.open = false;
-            ScrollTrigger.refresh();
-          },
-        });
-      } else {
-        d.open = true;
-        d.classList.add('is-open');
-        gsap.fromTo(body, { height: 0 }, { height: 'auto', duration: reduced ? 0 : 0.6, ease: 'power3.out', onComplete: () => ScrollTrigger.refresh() });
-      }
+/* ─── Parallaxe douce des photos ────────────────────── */
+function parallax() {
+  if (reduced) return;
+  $$('[data-parallax]').forEach((img) => {
+    const wrap = img.closest('[data-parallax-wrap]') ?? img.parentElement!;
+    gsap.fromTo(img, { yPercent: -8 }, { yPercent: 8, ease: 'none', scrollTrigger: { trigger: wrap, start: 'top bottom', end: 'bottom top', scrub: true } });
+  });
+}
+
+/* ─── Réalisations : défilement horizontal (bureau) ─── */
+function works() {
+  const sec = $('[data-works]');
+  const track = $('[data-works-track]');
+  if (!sec || !track || reduced) return;
+  const cards = $$('.wcard', track);
+  gsap.from(cards, {
+    y: 80,
+    opacity: 0,
+    rotation: 0,
+    duration: 1.2,
+    stagger: 0.1,
+    ease: EASE,
+    scrollTrigger: { trigger: track, start: 'top 85%', once: true },
+  });
+  ScrollTrigger.matchMedia({
+    '(min-width: 1024px)': () => {
+      const dist = () => Math.max(0, track.scrollWidth - innerWidth);
+      gsap.to(track, {
+        x: () => -dist(),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sec,
+          start: 'top top',
+          end: () => '+=' + dist(),
+          pin: true,
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+        },
+      });
+    },
+  });
+}
+
+/* ─── Déroulement : étapes actives + pot de peinture ── */
+function process() {
+  const steps = $$('[data-pstep]');
+  if (!steps.length) return;
+  const pot = $('[data-proc-pot]');
+  const num = $('[data-proc-num]');
+  let current = -1;
+  const activate = (i: number) => {
+    if (i === current) return;
+    current = i;
+    steps.forEach((st, j) => st.classList.toggle('is-on', j === i || (innerWidth < 1024 && j < i)));
+    const st = steps[i];
+    if (pot) {
+      pot.style.setProperty('--pc', st.dataset.pc!);
+      pot.style.setProperty('--pi', st.dataset.pi!);
+    }
+    if (num) {
+      const txt = String(i + 1).padStart(2, '0');
+      if (reduced) num.textContent = txt;
+      else
+        gsap
+          .timeline()
+          .to(num, { yPercent: -40, opacity: 0, duration: 0.25, ease: 'power2.in', onComplete: () => (num.textContent = txt) })
+          .fromTo(num, { yPercent: 40, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.6, ease: EASE });
+    }
+  };
+  steps.forEach((st, i) => {
+    ScrollTrigger.create({
+      trigger: st,
+      start: 'top 62%',
+      end: 'bottom 62%',
+      onToggle: (self) => self.isActive && activate(i),
     });
   });
 }
 
-/* ─── Formulaire → messagerie pré-remplie ──────────── */
-function form() {
-  const f = $<HTMLFormElement>('[data-form]');
-  if (!f) return;
-  const note = $('[data-form-note]', f)!;
-  f.addEventListener('submit', (e) => {
-    e.preventDefault();
-    let ok = true;
-    $$<HTMLInputElement>('[required]', f).forEach((i) => {
-      const bad = !i.value.trim();
-      i.setAttribute('aria-invalid', String(bad));
-      if (bad && ok) {
-        i.focus();
-        ok = false;
-      }
-    });
-    if (!ok) return void (note.textContent = 'Merci d’indiquer votre nom et votre téléphone.');
-    const data = new FormData(f);
-    const travaux = data.getAll('travaux').join(', ') || 'non précisé';
-    const commune = (data.get('commune') as string) || 'non précisée';
-    const body = [`Nom : ${data.get('nom')}`, `Téléphone : ${data.get('tel')}`, `Commune : ${commune}`, `Travaux : ${travaux}`, '', (data.get('message') as string) || ''].join('\n');
-    const to = $<HTMLAnchorElement>('.contact__mail a')?.href.replace('mailto:', '') ?? '';
-    location.href = `mailto:${to}?subject=${encodeURIComponent(`Demande de devis peinture — ${commune}`)}&body=${encodeURIComponent(body)}`;
-    note.textContent = 'Votre messagerie s’ouvre : il ne reste qu’à envoyer.';
-  });
-}
-
-/* ─── Lancement ────────────────────────────────────── */
+/* ─── Lancement ─────────────────────────────────────── */
 function init() {
-  document.documentElement.classList.add('ready');
+  // État initial des éléments du hero
   const title = $('[data-hero-title]');
   if (title && !reduced) gsap.set($$('.line-inner', title), { y: '105%' });
-  if (!reduced) gsap.set($$('[data-hero-fade]'), { y: 24, opacity: 0 });
+  if (!reduced) gsap.set($$('[data-hero-fade]'), { y: 30, opacity: 0 });
+  gsap.set($$('[data-fan-strip]'), { opacity: reduced ? 1 : 0, rotation: (_i: number, el: HTMLElement) => parseFloat(el.style.getPropertyValue('--a')) });
+  if (reduced) $('[data-brush]')?.setAttribute('style', 'stroke-dashoffset:0');
 
-  const phero = $('[data-phero]');
-  const paint = phero ? initPaint(phero, reduced) : null;
-
+  document.documentElement.classList.add('ready');
   reveals();
-  marquee();
-  geste();
   beforeAfter();
-  works();
-  steps();
   parallax();
   autoVideos();
+  works();
+  process();
+  heroScroll();
+  nuancier();
   faq();
   form();
-  onScroll();
 
   const intro = introCurtain();
-  if (!reduced) intro.add(heroIn(), '-=0.6');
-  intro.call(() => paint?.intro(), [], '-=0.9');
+  if (!reduced) intro.add(heroIn(), '-=0.55');
 
   if (location.hash) requestAnimationFrame(() => scrollToHash(location.hash, true));
 
+  // Recalcul des lignes quand la largeur change
   let w = innerWidth;
   let to: number | undefined;
   addEventListener('resize', () => {
@@ -584,7 +730,10 @@ function init() {
     w = innerWidth;
     clearTimeout(to);
     to = window.setTimeout(() => {
-      $$('[data-split]').forEach((el) => gsap.set(splitLines(el), { y: 0 }));
+      $$('[data-split]').forEach((el) => {
+        const lines = splitLines(el);
+        gsap.set(lines, { y: 0 });
+      });
       ScrollTrigger.refresh();
     }, 200);
   });

@@ -1,12 +1,14 @@
 ---
-import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import PaintHero from '../components/PaintHero.astro';
-import BeforeAfter from '../components/BeforeAfter.astro';
-import Marquee from '../components/Marquee.astro';
+import Fan from '../components/Fan.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
-import { site, services, zones, etapes, realisations as reals, photos, faqGenerale } from '../data/site';
+import Marquee from '../components/Marquee.astro';
+import BeforeAfter from '../components/BeforeAfter.astro';
+import { Image } from 'astro:assets';
+import { site, services, nuancier, zones, etapes, realisations as reals, photos, faqGenerale, teinte } from '../data/site';
+// La chambre sous combles (photo HD) en premier
+const realisations = [...reals].sort((a, b) => Number(b.titre.includes('combles')) - Number(a.titre.includes('combles')));
 import { u } from '../lib/url';
 
 const faqLd = {
@@ -18,10 +20,13 @@ const faqLd = {
     acceptedAnswer: { '@type': 'Answer', text: f.r },
   })),
 };
-// La chambre sous combles (photo HD) en premier
-const realisations = [...reals].sort((a, b) => Number(b.titre.includes('combles')) - Number(a.titre.includes('combles')));
+const savoirFaire = [
+  'Peinture intérieure', 'Enduits & préparation', 'Façades', 'Boiseries & volets', 'Conseil couleur', 'Finitions soignées',
+];
+// Une teinte du nuancier par réalisation et par étape
+const teintesChantiers = ['sioule', 'limagne', 'puys'];
+const teintesEtapes = ['chaux', 'puys', 'limagne', 'sioule', 'tuile', 'volvic'];
 const n2 = (i: number) => String(i + 1).padStart(2, '0');
-const engagements = ['Visite & devis gratuits', 'Garantie décennale', 'Réponse sous 48 h', 'Un seul interlocuteur'];
 ---
 
 <Base
@@ -29,34 +34,152 @@ const engagements = ['Visite & devis gratuits', 'Garantie décennale', 'Réponse
   description="Artisan peintre à Saint-Georges-de-Mons : peinture intérieure, préparation des supports, façades et boiseries. Interventions dans les Combrailles, à Riom et à Clermont-Ferrand. Visite et devis gratuits."
   schema={[faqLd]}
 >
-  <PaintHero />
-
-  <Marquee items={['Poncer', 'Enduire', 'Protéger', 'Peindre', 'Livrer']} label="Les gestes du métier" />
-
-  <!-- 01 · Le métier -->
-  <section class="intro section" aria-labelledby="intro-t">
-    <div class="wrap">
-      <div class="row-head label">
-        <span>(01) Le métier</span>
-        <span class="muted">{site.adresse.ville} · Puy-de-Dôme</span>
-      </div>
-      <h2 id="intro-t" class="sr-only">Notre métier : la peinture</h2>
-      <p class="intro__t" data-words>
-        Notre spécialité n’est pas la rénovation générale&nbsp;: <em>notre métier est la peinture.</em> Nous
-        préparons, protégeons et mettons en couleur chaque pièce avec l’exigence d’un artisan, du sol au plafond.
+  <!-- ─── Hero ─────────────────────────────────── -->
+  <section class="hero" data-hero>
+    <div class="wrap hero__grid">
+      <p class="eyebrow eyebrow--dot hero__eye" data-hero-fade>
+        Artisan peintre · Puy-de-Dôme
       </p>
-      <ul class="intro__facts label">
-        {engagements.map((e) => <li data-reveal="fade">{e}</li>)}
+
+      <h1 class="hero__t serif" data-hero-title>
+        <span class="line"><span class="line-inner">Peinture</span></span>
+        <span class="line hero__brushline">
+          <span class="line-inner">
+            <em class="hero__brushword">
+              &amp; finitions,
+              <svg class="brush" viewBox="0 0 600 70" preserveAspectRatio="none" aria-hidden="true">
+                <path
+                  data-brush
+                  d="M8 44 C 90 30, 170 52, 260 38 S 430 30, 520 40 S 580 36, 592 34"
+                  pathLength="1"></path>
+              </svg>
+            </em>
+          </span>
+        </span>
+        <span class="line"><span class="line-inner">du sol au plafond.</span></span>
+      </h1>
+
+      <div class="hero__fan" data-hero-fan>
+        <Fan />
+      </div>
+
+      <div class="hero__foot" data-hero-fade>
+        <p class="hero__lede">
+          Nous préparons, protégeons et mettons en peinture votre intérieur avec la rigueur d’un artisan.
+          Un seul interlocuteur, de la demande de devis à la livraison du chantier.
+        </p>
+        <div class="hero__ctas">
+          <a href="#contact" class="btn" data-magnetic>
+            Demander un devis gratuit
+            <svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>
+          </a>
+          <a href="#avant-apres" class="btn btn--ghost">Avant / après</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Marquee items={savoirFaire} label="Nos savoir-faire" />
+
+  <!-- ─── Avant / après ────────────────────────── -->
+  <section class="bas section" id="avant-apres" data-ba-scope aria-labelledby="bas-t">
+    <p class="bas__word bas__word--l serif" aria-hidden="true">Avant</p>
+    <p class="bas__word bas__word--r serif" aria-hidden="true"><em>Après</em></p>
+    <div class="wrap bas__grid">
+      <div class="bas__head">
+        <p class="eyebrow eyebrow--dot">Avant / après</p>
+        <h2 id="bas-t" class="serif bas__t" data-split>
+          La différence, <em>au curseur.</em>
+        </h2>
+        <p class="bas__p" data-reveal="fade">
+          Faites glisser pour comparer. Préparation des supports, reprise des murs et des plafonds :
+          la qualité d’une peinture se joue avant la première couche.
+        </p>
+        <a href="#realisations" class="btn btn--light bas__cta" data-reveal="fade">Voir nos réalisations</a>
+      </div>
+      <div class="bas__slider" data-reveal="fade">
+        <BeforeAfter />
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Réalisations : cartes-échantillons ───── -->
+  <section class="works section" id="realisations" aria-labelledby="works-t" data-works>
+    <div class="wrap works__head">
+      <p class="eyebrow eyebrow--dot muted">Réalisations</p>
+      <h2 id="works-t" class="serif works__t" data-split>
+        Des chantiers <em>livrés avec soin.</em>
+      </h2>
+    </div>
+    <div class="works__viewport" data-works-viewport>
+      <ul class="works__track" data-works-track>
+        {
+          realisations.map((r, i) => {
+            const t = teinte(teintesChantiers[i % teintesChantiers.length]);
+            return (
+              <li class="wcard" style={`--c:${t.hex};--ink:${t.ink};--r:${i % 2 ? 1.6 : -1.8}deg`}>
+                <div class="wcard__media">
+                  <Image src={r.image} alt={r.alt} widths={[400, 800]} sizes="(min-width: 1024px) 34vw, 82vw" class="wcard__img" />
+                </div>
+                <div class="wcard__band">
+                  <span class="wcard__n">N° {n2(i)}{r.lieu && ` — ${r.lieu}`}</span>
+                  <h3 class="wcard__t serif">{r.titre}</h3>
+                  <p class="wcard__tags">{r.travaux.join(' · ')}</p>
+                </div>
+              </li>
+            );
+          })
+        }
+        <li class="wcard wcard--cta" style="--r:1.2deg">
+          <a href="#contact" class="wcard__ctalink">
+            <span class="serif">Votre projet <em>sera le prochain ?</em></span>
+            <span class="btn">Demander un devis gratuit</span>
+          </a>
+        </li>
       </ul>
     </div>
   </section>
 
-  <!-- 02 · Le geste (vidéo qui s'ouvre au défilement) -->
-  <section class="geste dark" data-geste aria-labelledby="geste-t">
-    <div class="geste__sticky">
-      <div class="geste__frame" data-geste-frame>
+  <!-- ─── Déroulement ──────────────────────────── -->
+  <section class="proc section" id="etapes" aria-labelledby="proc-t" data-proc>
+    <div class="wrap proc__grid">
+      <div class="proc__aside">
+        <p class="eyebrow eyebrow--dot">Déroulement</p>
+        <h2 id="proc-t" class="serif proc__t" data-split>
+          De la demande de devis <em>à la livraison.</em>
+        </h2>
+        <div class="proc__pot" aria-hidden="true" data-proc-pot style={`--pc:${teinte(teintesEtapes[0]).hex};--pi:${teinte(teintesEtapes[0]).ink}`}>
+          <span class="proc__num serif" data-proc-num>01</span>
+          <span class="proc__of">/ {n2(etapes.length - 1)}</span>
+        </div>
+      </div>
+      <ol class="proc__list">
+        {
+          etapes.map((e, i) => {
+            const t = teinte(teintesEtapes[i]);
+            return (
+              <li class="pstep" data-pstep data-pc={t.hex} data-pi={t.ink} style={`--c:${t.hex};--pi-ink:${t.ink}`}>
+                <div class="pstep__top">
+                  <span class="pstep__n serif">{n2(i)}</span>
+                  <span class="pstep__badge">{e.duree}</span>
+                </div>
+                <h3 class="pstep__t serif">{e.titre}</h3>
+                <p class="pstep__p">{e.texte}</p>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- ─── Manifeste ────────────────────────────── -->
+  <section class="manifesto section" aria-label="Notre approche">
+    <div class="wrap grid">
+      <figure class="manifesto__photo" data-parallax-wrap>
         <video
-          class="geste__video"
+          class="manifesto__img"
+          data-parallax
           data-autovideo
           muted
           loop
@@ -67,424 +190,1014 @@ const engagements = ['Visite & devis gratuits', 'Garantie décennale', 'Réponse
         >
           <source src={u('/videos/metier-1280.mp4')} type="video/mp4" data-src-sm={u('/videos/metier-720.mp4')} />
         </video>
-      </div>
-      <div class="geste__words display" aria-hidden="true">
-        <span data-geste-l>Le</span>
-        <span data-geste-r>geste</span>
-      </div>
-      <div class="geste__cap wrap label">
-        <h2 id="geste-t">(02) Le geste</h2>
-        <span>Ponçage · Enduit · Joints</span>
-      </div>
+      </figure>
+      <p class="eyebrow eyebrow--dot muted manifesto__eye">Notre métier</p>
+      <p class="manifesto__t serif" data-words>
+        Notre spécialité n’est pas la rénovation générale : <em>notre métier est la peinture.</em>
+        Nous préparons, protégeons et mettons en couleur chaque pièce avec l’exigence d’un artisan,
+        du sol au plafond.
+      </p>
     </div>
   </section>
 
-  <!-- 03 · Avant / après -->
-  <section class="ba-sec section dark" id="avant-apres" aria-labelledby="ba-t">
-    <div class="wrap">
-      <div class="row-head label">
-        <span>(03) Avant / après</span>
-        <span class="muted">Faites glisser</span>
-      </div>
-      <div class="ba-sec__grid">
-        <div class="ba-sec__head">
-          <h2 id="ba-t" class="display ba-sec__t" data-split>La preuve <em>par l’image.</em></h2>
-          <p class="ba-sec__p" data-reveal="fade">
-            La qualité d’une peinture se joue avant la première couche : préparation des supports, reprise des
-            murs et des plafonds, protection du logement.
-          </p>
-        </div>
-        <div class="ba-sec__slider" data-reveal="fade">
-          <BeforeAfter />
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 04 · Réalisations -->
-  <section class="works section" id="realisations" aria-labelledby="works-t" data-works>
-    <div class="wrap">
-      <div class="row-head label">
-        <span>(04) Réalisations</span>
-        <span class="muted">{String(realisations.length).padStart(2, '0')} chantiers récents</span>
-      </div>
-      <h2 id="works-t" class="display works__t" data-split>Chantiers <em>livrés.</em></h2>
-      <ul class="works__list">
-        {
-          realisations.map((r, i) => (
-            <li class="work" data-work>
-              <div class="work__media">
-                <Image src={r.image} alt={r.alt} widths={[600, 1080]} sizes="(min-width: 1024px) 30vw, 92vw" class="work__img" />
-              </div>
-              <div class="work__row">
-                <span class="label work__n">({n2(i)})</span>
-                <h3 class="display work__title">{r.titre}</h3>
-                <p class="label work__tags">{r.travaux.join(' · ')}</p>
-              </div>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-    <div class="works__float" data-works-float aria-hidden="true">
-      {realisations.map((r) => <Image src={r.image} alt="" widths={[600]} sizes="30vw" class="works__fimg" />)}
-    </div>
-  </section>
-
-  <!-- 05 · Savoir-faire -->
-  <section class="skills section" id="savoir-faire" aria-labelledby="skills-t">
-    <div class="wrap">
-      <div class="row-head label">
-        <span>(05) Savoir-faire</span>
-        <span class="muted">{String(services.length).padStart(2, '0')} prestations</span>
-      </div>
-      <h2 id="skills-t" class="display skills__t" data-split>La peinture <em>et tout ce qui la prépare.</em></h2>
-      <ul class="skills__list">
-        {
-          services.map((s, i) => (
-            <li class="skill" data-reveal="fade">
-              <span class="label skill__n">({n2(i)})</span>
-              <h3 class="display skill__title">{s.titre}</h3>
-              <div class="skill__body">
-                <p>{s.texte}</p>
-                <p class="label skill__pts">{s.points.join(' · ')}</p>
-              </div>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
-
-  <!-- Bande lumière -->
+  <!-- ─── Bande : la lumière révèle tout ───────── -->
   <section class="band" aria-label="Finitions" data-parallax-wrap>
     <Image src={photos.finition.src} alt={photos.finition.alt} widths={[800, 1587]} sizes="100vw" class="band__img" data-parallax />
-    <p class="band__t display wrap" data-split>La lumière révèle <em>chaque défaut.</em></p>
+    <div class="wrap band__in">
+      <p class="band__t serif" data-split>
+        La lumière révèle chaque défaut. <em>Nous préparons en conséquence.</em>
+      </p>
+    </div>
   </section>
 
-  <!-- 06 · Déroulement -->
-  <section class="steps dark" id="etapes" aria-labelledby="steps-t" data-steps>
-    <div class="steps__pin">
-      <div class="wrap steps__head">
-        <div class="row-head label">
-          <span>(06) Déroulement</span>
-          <span class="muted">De la demande de devis à la livraison</span>
-        </div>
-        <h2 id="steps-t" class="display steps__t" data-split>Six étapes, <em>zéro surprise.</em></h2>
-      </div>
-      <ol class="steps__track" data-steps-track>
-        {
-          etapes.map((e, i) => (
-            <li class="step">
-              <span class="step__n display" aria-hidden="true">{n2(i)}</span>
-              <div class="step__body">
-                <span class="label step__d">{e.duree}</span>
-                <h3 class="step__t">{e.titre}</h3>
-                <p class="step__p">{e.texte}</p>
+  <!-- ─── Services ─────────────────────────────── -->
+  <section class="services" id="services" aria-labelledby="services-t">
+    <div class="wrap services__head">
+      <p class="eyebrow eyebrow--dot muted">Savoir-faire</p>
+      <h2 id="services-t" class="serif services__t" data-split>
+        La peinture, <em>et tout ce qui la prépare.</em>
+      </h2>
+    </div>
+    <div class="wrap stack" data-stack>
+      {
+        services.map((s, i) => {
+          const t = teinte(s.teinte);
+          return (
+            <article
+              class="card"
+              id={s.id}
+              data-card
+              style={`--c:${t.hex};--ink:${t.ink};--i:${i}`}
+            >
+              <div class="card__in">
+                <div class="card__top">
+                  <span class="card__n">0{i + 1} / 0{services.length}</span>
+                  <span class="card__swatch">
+                    <i />
+                    {t.nom}
+                  </span>
+                </div>
+                <span class="card__big serif" aria-hidden="true">{i + 1}</span>
+                <div class="card__body">
+                  <h3 class="serif card__t">{s.titre}</h3>
+                  <div class="card__text">
+                    <p class="card__court">{s.court}</p>
+                    <p>{s.texte}</p>
+                    <ul class="card__pts">
+                      {s.points.map((p) => (
+                        <li>{p}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </div>
-            </li>
+            </article>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <!-- ─── Nuancier ─────────────────────────────── -->
+  <section class="nuancier section" id="nuancier" data-nuancier aria-labelledby="nuancier-t">
+    <div class="wrap">
+      <div class="nuancier__head">
+        <p class="eyebrow eyebrow--dot">Conseil couleur</p>
+        <h2 id="nuancier-t" class="serif nuancier__t" data-split>
+          Des teintes inspirées <em>des matériaux de la région.</em>
+        </h2>
+      </div>
+
+      <div class="nuancier__stage" aria-live="polite">
+        <p class="nuancier__name serif" data-nu-name>{nuancier[1].nom}</p>
+        <p class="nuancier__meta">
+          <span data-nu-lieu>{nuancier[1].lieu}</span>
+          <span data-nu-hex>{nuancier[1].hex}</span>
+        </p>
+      </div>
+
+      <div class="nuancier__row" role="radiogroup" aria-label="Choisir une teinte">
+        {
+          nuancier.map((t, i) => (
+            <button
+              class="nu"
+              role="radio"
+              aria-checked={i === 1 ? 'true' : 'false'}
+              data-nu
+              data-hex={t.hex}
+              data-ink={t.ink}
+              data-nom={t.nom}
+              data-lieu={t.lieu}
+              style={`--c:${t.hex}`}
+            >
+              <span class="nu__dot" />
+              <span class="nu__lab">{t.nom}</span>
+            </button>
           ))
         }
-      </ol>
-      <div class="wrap steps__bar" aria-hidden="true"><span data-steps-bar></span></div>
+      </div>
+      <p class="nuancier__note">
+        Nous apportons de vrais échantillons et les posons chez vous : une couleur se choisit dans la
+        lumière réelle de la pièce.
+      </p>
     </div>
   </section>
 
-  <!-- 07 · Zone -->
+  <!-- ─── Secteurs ─────────────────────────────── -->
   <section class="zones section" id="secteurs" aria-labelledby="zones-t">
     <div class="wrap">
-      <div class="row-head label">
-        <span>(07) Zone d’intervention</span>
-        <span class="muted">~ 40 km autour de {site.adresse.ville}</span>
+      <div class="zones__head grid">
+        <p class="eyebrow eyebrow--dot muted zones__eye">Zone d’intervention</p>
+        <h2 id="zones-t" class="serif zones__t" data-split>
+          Où nous <em>intervenons.</em>
+        </h2>
+        <p class="zones__lede" data-reveal="fade">
+          Installés à {site.adresse.ville}, nous intervenons dans un rayon d’environ quarante kilomètres.
+          Le déplacement pour la visite et le devis est gratuit.
+        </p>
       </div>
-      <div class="zones__grid">
-        <h2 id="zones-t" class="display zones__t" data-split>Où nous <em>intervenons.</em></h2>
-        <div>
-          <p class="zones__p" data-reveal="fade">
-            Installés à {site.adresse.ville}, nous intervenons dans les Combrailles, à Riom, à Clermont-Ferrand et
-            dans leurs environs. Le déplacement pour la visite et le devis est gratuit.
-          </p>
-          <ul class="zlist">
-            {
-              zones.map((z) => (
-                <li data-reveal="fade">
-                  <a href={u(`/${z.slug}/`)} class="zrow">
-                    <span class="display zrow__name">{z.nom}</span>
-                    <span class="label zrow__c">{z.court}</span>
-                    <svg class="zrow__go" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8" fill="none" stroke="currentColor" stroke-width="1.4" /></svg>
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </div>
-      </div>
+
+      <ul class="zlist">
+        {
+          zones.map((z, i) => {
+            const t = teinte(z.teinte);
+            return (
+              <li style={`--c:${t.hex};--ink:${t.ink}`}>
+                <a href={u(`/${z.slug}/`)} class="zrow" data-zrow>
+                  <span class="zrow__fill" aria-hidden="true" />
+                  <span class="zrow__n">0{i + 1}</span>
+                  <span class="zrow__name serif">{z.nom}</span>
+                  <span class="zrow__court">{z.court}</span>
+                  <span class="zrow__go" aria-hidden="true">
+                    <svg viewBox="0 0 16 16"><path d="M3 13 13 3M5 3h8v8" fill="none" stroke="currentColor" stroke-width="1.4" /></svg>
+                  </span>
+                  <span class="sr-only">— voir la page peintre {z.nom}</span>
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
     </div>
   </section>
 
-  <Faq items={faqGenerale} num="08" />
-  <Contact num="09" />
+  <Faq items={faqGenerale} />
+  <Contact />
 </Base>
 
 <style>
-  /* 01 · Intro */
-  .intro__t {
-    font-size: clamp(1.9rem, 4.6vw, 4.4rem);
-    font-weight: 500;
-    font-stretch: 88%;
-    line-height: 1.02;
-    letter-spacing: -0.03em;
-    max-width: 22ch;
-    text-wrap: balance;
-  }
-  .intro__t em {
-    font-style: normal;
-    color: var(--bordeaux);
-  }
-  .intro__facts {
+  /* Hero */
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    padding-top: calc(96px + env(safe-area-inset-top));
+    padding-bottom: 32px;
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: clamp(36px, 5vw, 64px);
   }
-  .intro__facts li {
-    padding: 10px 14px;
-    box-shadow: inset 0 0 0 1px var(--line);
+  .hero__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
+    gap: 24px;
   }
-
-  /* 02 · Le geste */
-  .geste {
-    height: 240vh;
+  .hero__eye {
+    color: var(--muted);
   }
-  .geste__sticky {
-    position: sticky;
-    top: 0;
-    height: 100svh;
-    overflow: hidden;
+  .hero__t {
+    font-size: clamp(3.1rem, 12.4vw, 11.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.035em;
+  }
+  .hero__brushline {
+    overflow: visible;
+  }
+  .hero__brushline .line-inner {
+    clip-path: inset(-10% -10% 0 -10%);
+  }
+  .hero__brushword {
+    position: relative;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .brush {
+    position: absolute;
+    left: -2%;
+    right: -3%;
+    bottom: 0.02em;
+    width: 105%;
+    height: 0.34em;
+    z-index: -1;
+    overflow: visible;
+  }
+  .brush path {
+    fill: none;
+    stroke: var(--limagne);
+    stroke-width: 26;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    opacity: 0.9;
+  }
+  .js .brush path {
+    stroke-dashoffset: 1;
+  }
+  .hero__fan {
     display: grid;
     place-items: center;
+    padding-top: 12px;
+    min-height: clamp(240px, 58vw, 460px);
   }
-  .geste__frame {
+  .hero__foot {
+    display: grid;
+    gap: 22px;
+    align-self: end;
+  }
+  .hero__lede {
+    max-width: 38ch;
+    font-size: 1.05rem;
+    color: var(--muted);
+  }
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  @media (min-width: 1024px) {
+    .hero__grid {
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: auto 1fr auto;
+      column-gap: 28px;
+    }
+    .hero__eye {
+      grid-column: 1 / -1;
+    }
+    .hero__t {
+      grid-column: 1 / 9;
+      grid-row: 2;
+      align-self: center;
+      font-size: min(9.6vw, 11rem);
+    }
+    .hero__fan {
+      grid-column: 9 / -1;
+      grid-row: 2;
+      min-height: 0;
+    }
+    .hero__fan :global(.fan) {
+      --w: min(6.4vw, 96px);
+      --h: min(29vw, 420px);
+    }
+    .hero__foot {
+      grid-column: 1 / -1;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+    }
+  }
+
+  /* Manifeste */
+  .manifesto__eye {
+    grid-column: 1 / -1;
+    margin-bottom: 28px;
+  }
+  .manifesto__t {
+    grid-column: 1 / -1;
+    font-size: clamp(2rem, 5.2vw, 4.6rem);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+  }
+  .manifesto__t em {
+    color: var(--tuile);
+  }
+  @media (min-width: 1024px) {
+    .manifesto__eye {
+      grid-column: 1 / 3;
+      margin-top: 1.2em;
+    }
+    .manifesto__t {
+      grid-column: 3 / -1;
+    }
+  }
+
+  /* Services : cartes empilées */
+  .services {
+    padding-bottom: clamp(80px, 12vw, 160px);
+  }
+  .services__head {
+    margin-bottom: clamp(40px, 6vw, 80px);
+  }
+  .services__t {
+    font-size: var(--fs-xl);
+    margin-top: 16px;
+    max-width: 14ch;
+  }
+  .stack {
+    display: grid;
+    gap: 16px;
+  }
+  .card {
+    position: sticky;
+    top: calc(84px + var(--i) * 12px);
+    scroll-margin-top: 90px;
+  }
+  .card__in {
+    background: var(--c);
+    color: var(--ink);
+    border-radius: calc(var(--radius) * 1.6);
+    padding: clamp(22px, 4vw, 56px);
+    min-height: min(640px, calc(100svh - 120px));
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 40px;
+    transform-origin: 50% 0;
+    box-shadow: 0 -20px 60px -30px rgb(0 0 0 / 0.35);
+    will-change: transform;
+  }
+  .card__in {
+    position: relative;
+    overflow: hidden;
+  }
+  .card__big {
+    position: absolute;
+    right: -0.04em;
+    top: -0.12em;
+    font-size: clamp(14rem, 44vw, 34rem);
+    line-height: 1;
+    font-style: italic;
+    opacity: 0.12;
+    pointer-events: none;
+  }
+  .card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+  .card__swatch {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card__swatch i {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--c);
+    box-shadow: 0 0 0 1px currentColor;
+  }
+  .card__body {
+    display: grid;
+    gap: 28px;
+  }
+  .card__t {
+    font-size: clamp(2.6rem, 8.4vw, 7.4rem);
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+  }
+  .card__text {
+    display: grid;
+    gap: 16px;
+    max-width: 46ch;
+  }
+  .card__court {
+    font-size: var(--fs-m);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  .card__text > p:not(.card__court) {
+    opacity: 0.8;
+  }
+  .card__pts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .card__pts li {
+    font-size: var(--fs-s);
+    padding: 7px 12px;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent);
+  }
+  @media (min-width: 1024px) {
+    .card__body {
+      grid-template-columns: 1.3fr 1fr;
+      align-items: end;
+    }
+  }
+
+  /* Nuancier */
+  .nuancier {
+    --nu: #56595c;
+    --nu-ink: #f3efe7;
+    background: var(--nu);
+    color: var(--nu-ink);
+    transition: background-color 0.9s var(--ease), color 0.9s var(--ease);
+    overflow: hidden;
+  }
+  .nuancier__t {
+    font-size: var(--fs-l);
+    margin-top: 16px;
+    max-width: 18ch;
+  }
+  .nuancier__stage {
+    margin-top: clamp(48px, 9vw, 120px);
+    min-height: 1.8em;
+  }
+  .nuancier__name {
+    font-size: clamp(3.6rem, 15vw, 15rem);
+    line-height: 0.85;
+    letter-spacing: -0.045em;
+    font-style: italic;
+  }
+  .nuancier__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    font-size: var(--fs-s);
+  }
+  .nuancier__meta [data-nu-hex] {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
+  }
+  .nuancier__row {
+    display: flex;
+    gap: 10px;
+    margin: 40px calc(var(--gutter) * -1) 0;
+    padding: 4px var(--gutter) 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .nuancier__row::-webkit-scrollbar {
+    display: none;
+  }
+  .nu {
+    flex: none;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px 8px 8px;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 28%, transparent);
+    font-size: var(--fs-s);
+    transition: background-color 0.4s, box-shadow 0.4s;
+  }
+  .nu[aria-checked='true'] {
+    background: color-mix(in srgb, currentColor 14%, transparent);
+    box-shadow: inset 0 0 0 1.5px currentColor;
+  }
+  .nu__dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--c);
+    box-shadow: 0 0 0 1.5px color-mix(in srgb, currentColor 50%, transparent);
+  }
+  .nuancier__note {
+    margin-top: 32px;
+    max-width: 44ch;
+    opacity: 0.75;
+  }
+
+  /* Secteurs */
+  .zones__eye {
+    grid-column: 1 / -1;
+  }
+  .zones__t {
+    grid-column: 1 / -1;
+    font-size: var(--fs-xxl);
+    margin-top: 16px;
+  }
+  .zones__lede {
+    grid-column: 1 / -1;
+    margin-top: 24px;
+    max-width: 44ch;
+    color: var(--muted);
+  }
+  @media (min-width: 1024px) {
+    .zones__t {
+      grid-column: 1 / 8;
+    }
+    .zones__lede {
+      grid-column: 9 / -1;
+      align-self: end;
+    }
+  }
+  .zlist {
+    margin-top: clamp(48px, 7vw, 96px);
+    border-top: 1px solid var(--line);
+  }
+  .zrow {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'n name go' 'n court go';
+    align-items: center;
+    column-gap: 16px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--line);
+    isolation: isolate;
+    overflow: hidden;
+    transition: color 0.5s var(--ease), padding 0.6s var(--ease);
+  }
+  .zrow__fill {
     position: absolute;
     inset: 0;
-    clip-path: inset(22% 18% 22% 18%);
-    will-change: clip-path;
+    z-index: -1;
+    background: var(--c);
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 0.6s var(--ease);
   }
-  .geste__video {
+  .zrow__n {
+    grid-area: n;
+    align-self: start;
+    font-size: var(--fs-xs);
+    padding-top: 0.8em;
+    color: var(--muted);
+  }
+  .zrow__name {
+    grid-area: name;
+    font-size: clamp(2.6rem, 9.5vw, 8.6rem);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+  }
+  .zrow__court {
+    grid-area: court;
+    color: var(--muted);
+    font-size: var(--fs-s);
+    margin-top: 6px;
+  }
+  .zrow__go {
+    grid-area: go;
+    width: clamp(44px, 6vw, 72px);
+    height: clamp(44px, 6vw, 72px);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition: transform 0.6s var(--ease), background 0.4s;
+  }
+  .zrow__go svg {
+    width: 38%;
+  }
+  .zrow__n::before {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    margin-bottom: 8px;
+    border-radius: 50%;
+    background: var(--c);
+  }
+  @media (min-width: 1024px) {
+    .zrow {
+      grid-template-columns: 80px 1fr 320px auto;
+      grid-template-areas: 'n name court go';
+      column-gap: 24px;
+      padding: 30px 0;
+    }
+    .zrow__court {
+      margin: 0;
+    }
+  }
+  @media (hover: hover) {
+    .zrow:hover {
+      color: var(--ink);
+      padding-inline: 24px;
+    }
+    .zrow:hover .zrow__fill {
+      clip-path: inset(0 0 0 0);
+    }
+    .zrow:hover .zrow__n,
+    .zrow:hover .zrow__court {
+      color: inherit;
+      opacity: 0.75;
+    }
+    .zrow:hover .zrow__go {
+      transform: rotate(45deg);
+      background: var(--ink);
+      color: var(--c);
+    }
+  }
+
+  .zrow__name {
+    font-size: clamp(2.2rem, 6vw, 5.4rem) !important;
+  }
+
+  /* Avant / après — plein cadre basalte */
+  .bas {
+    --xp: 50;
+    position: relative;
+    background: var(--ink);
+    color: var(--chaux);
+    --line: rgb(255 255 255 / 0.16);
+    --muted: rgb(255 255 255 / 0.62);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .bas__word {
+    position: absolute;
+    z-index: -1;
+    font-size: clamp(7rem, 30vw, 30rem);
+    line-height: 0.8;
+    letter-spacing: -0.05em;
+    pointer-events: none;
+    white-space: nowrap;
+    transition: opacity 0.2s linear;
+  }
+  .bas__word--l {
+    left: -0.04em;
+    top: 0.18em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(255 255 255 / 0.28);
+    opacity: calc(0.25 + var(--xp) / 100);
+  }
+  .bas__word--r {
+    right: -0.04em;
+    bottom: 0.02em;
+    color: var(--limagne);
+    opacity: calc(1.25 - var(--xp) / 100);
+  }
+  .bas__grid {
+    display: grid;
+    gap: 44px;
+    align-items: center;
+  }
+  .bas__head {
+    display: grid;
+    gap: 20px;
+    align-content: start;
+  }
+  .bas__t {
+    font-size: var(--fs-xl);
+    max-width: 12ch;
+  }
+  .bas__t em {
+    color: var(--limagne);
+  }
+  .bas__p {
+    color: var(--muted);
+    max-width: 40ch;
+  }
+  .bas__cta {
+    justify-self: start;
+  }
+  .bas__slider :global(.ba__cap span) {
+    color: var(--muted);
+  }
+  .bas__slider :global(.ba__knob) {
+    background: var(--limagne);
+  }
+  .bas__slider :global(.ba__frame) {
+    box-shadow: 0 40px 80px -30px rgb(0 0 0 / 0.7);
+  }
+  @media (min-width: 1024px) {
+    .bas__grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 96px;
+    }
+    .bas__slider {
+      max-width: 500px;
+      width: 100%;
+      justify-self: center;
+    }
+  }
+
+  /* Réalisations : cartes-échantillons */
+  .works {
+    overflow: hidden;
+  }
+  .works__head {
+    margin-bottom: clamp(40px, 6vw, 72px);
+  }
+  .works__t {
+    font-size: var(--fs-xl);
+    margin-top: 16px;
+    max-width: 14ch;
+  }
+  .works__viewport {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-block: 24px 40px;
+  }
+  .works__viewport::-webkit-scrollbar {
+    display: none;
+  }
+  .works__track {
+    display: flex;
+    gap: clamp(18px, 3vw, 44px);
+    width: max-content;
+    padding-inline: var(--gutter);
+  }
+  .wcard {
+    flex: none;
+    width: min(82vw, 440px);
+    scroll-snap-align: center;
+    background: #fbf9f5;
+    border-radius: 14px;
+    padding: 10px 10px 0;
+    box-shadow:
+      0 30px 60px -30px rgb(31 29 26 / 0.45),
+      0 2px 8px -2px rgb(31 29 26 / 0.15);
+    transition: transform 0.7s var(--ease-out);
+  }
+  @media (hover: hover) {
+    .wcard:hover {
+      transform: translateY(-8px);
+    }
+  }
+  .wcard__media {
+    aspect-ratio: 4 / 5;
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 8px 8px 0 0;
+    background: var(--chaux-2);
+  }
+  .wcard__media :global(.wcard__img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  .geste__frame::after {
+  .wcard__band {
+    display: grid;
+    gap: 6px;
+    margin: 0 -10px;
+    padding: 18px 20px 22px;
+    background: var(--c);
+    color: var(--ink);
+    border-radius: 0 0 14px 14px;
+  }
+  .wcard__n {
+    font-size: var(--fs-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+  .wcard__t {
+    font-size: clamp(1.9rem, 3vw, 2.6rem);
+    line-height: 1;
+  }
+  .wcard__tags {
+    font-size: var(--fs-s);
+    opacity: 0.8;
+  }
+  .wcard--cta {
+    background: var(--ink);
+    color: var(--chaux);
+    display: flex;
+    padding: 0;
+  }
+  .wcard__ctalink {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 40px;
+    padding: clamp(28px, 4vw, 44px);
+    min-height: 100%;
+  }
+  .wcard__ctalink .serif {
+    font-size: clamp(2.6rem, 5vw, 4.2rem);
+    line-height: 0.95;
+  }
+  .wcard__ctalink em {
+    color: var(--limagne);
+  }
+  .wcard__ctalink .btn {
+    --b-bg: var(--chaux);
+    --b-fg: var(--ink);
+    align-self: flex-start;
+  }
+  @media (min-width: 1024px) {
+    .works {
+      min-height: 100vh;
+      padding-block: 110px 40px;
+    }
+    .works__head {
+      margin-bottom: 28px;
+    }
+    .works__viewport {
+      overflow: visible;
+      padding-block: 12px 20px;
+    }
+    .wcard {
+      width: min(25vw, 360px);
+    }
+  }
+
+  /* Déroulement : pot de peinture qui change de teinte */
+  .proc {
+    background: var(--ink);
+    color: var(--chaux);
+    --line: rgb(255 255 255 / 0.14);
+    --muted: rgb(255 255 255 / 0.6);
+  }
+  .proc__grid {
+    display: grid;
+    gap: 48px;
+  }
+  .proc__aside {
+    display: grid;
+    gap: 20px;
+    align-content: start;
+  }
+  .proc__t {
+    font-size: var(--fs-xl);
+    max-width: 13ch;
+  }
+  .proc__t em {
+    color: var(--limagne);
+  }
+  .proc__pot {
+    display: none;
+  }
+  .proc__list {
+    display: grid;
+    gap: 14px;
+  }
+  .pstep {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    padding: 26px 24px 28px;
+    border-radius: calc(var(--radius) * 1.3);
+    box-shadow: inset 0 0 0 1px var(--line);
+    overflow: hidden;
+    isolation: isolate;
+    transition: color 0.6s var(--ease);
+  }
+  .pstep::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: rgb(14 13 12 / 0.25);
+    z-index: -1;
+    background: var(--c);
+    clip-path: circle(0% at 0% 0%);
+    transition: clip-path 1s var(--ease);
   }
-  .geste__words {
-    position: relative;
-    z-index: 2;
+  .pstep__top {
     display: flex;
-    gap: 0.18em;
-    font-size: clamp(4.6rem, 20vw, 20rem);
-    color: var(--craie);
-    text-shadow: 0 10px 60px rgb(0 0 0 / 0.35);
-    pointer-events: none;
-  }
-  .geste__cap {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: calc(22px + env(safe-area-inset-bottom));
-    z-index: 2;
-    display: flex;
+    align-items: center;
     justify-content: space-between;
+    gap: 12px;
   }
-  .geste__cap h2 {
-    font: inherit;
+  .pstep__n {
+    font-size: 2.6rem;
+    line-height: 1;
+    font-style: italic;
+    color: var(--c);
+    transition: color 0.6s;
   }
-
-  /* 03 · Avant / après */
-  .ba-sec {
-    --line: rgb(255 255 255 / 0.16);
-    --muted: rgb(255 255 255 / 0.62);
+  .pstep__badge {
+    font-size: var(--fs-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 11px;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px var(--line);
   }
-  .ba-sec__grid {
-    display: grid;
-    gap: 36px;
+  .pstep__t {
+    font-size: clamp(2rem, 4.4vw, 3.4rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
   }
-  .ba-sec__head {
-    display: grid;
-    gap: 22px;
-    align-content: start;
-  }
-  .ba-sec__t {
-    font-size: var(--fs-xl);
-  }
-  .ba-sec__p {
+  .pstep__p {
     color: var(--muted);
-    max-width: 40ch;
+    max-width: 48ch;
+    transition: color 0.6s;
+  }
+  /* Étape active : la carte se remplit de sa teinte (mobile) */
+  .pstep.is-on::before {
+    clip-path: circle(150% at 0% 0%);
+  }
+  .pstep.is-on {
+    color: var(--pi-ink, var(--ink));
+    --line: color-mix(in srgb, currentColor 25%, transparent);
+  }
+  .pstep.is-on .pstep__n {
+    color: inherit;
+  }
+  .pstep.is-on .pstep__p {
+    color: inherit;
+    opacity: 0.8;
   }
   @media (min-width: 1024px) {
-    .ba-sec__grid {
-      grid-template-columns: 1fr 1fr;
-      gap: 64px;
+    .proc__grid {
+      grid-template-columns: 5fr 7fr;
+      gap: 96px;
     }
-    .ba-sec__head {
+    .proc__aside {
       position: sticky;
       top: 110px;
       align-self: start;
     }
-    .ba-sec__slider {
-      max-width: 620px;
-      width: 100%;
-      justify-self: end;
+    .proc__pot {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: min(26vw, 340px);
+      aspect-ratio: 1;
+      margin-top: 24px;
+      border-radius: 50%;
+      background: var(--pc);
+      color: var(--pi);
+      box-shadow:
+        inset 0 0 0 14px rgb(255 255 255 / 0.08),
+        inset 0 -30px 60px rgb(0 0 0 / 0.18);
+      transition: background-color 0.8s var(--ease), color 0.8s var(--ease);
     }
-  }
-
-  /* 04 · Réalisations : liste + image flottante */
-  .works__t {
-    font-size: var(--fs-xxl);
-    margin-bottom: clamp(32px, 5vw, 64px);
-  }
-  .works__list {
-    border-top: 1px solid var(--line);
-  }
-  .work {
-    border-bottom: 1px solid var(--line);
-    padding: 20px 0 24px;
-    display: grid;
-    gap: 16px;
-  }
-  .work__media {
-    aspect-ratio: 4 / 5;
-    max-width: 100%;
-    overflow: hidden;
-  }
-  .work__media :global(.work__img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .work__row {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 4px 14px;
-    align-items: baseline;
-  }
-  .work__title {
-    font-size: clamp(2.4rem, 9vw, 7.4rem);
-    transition:
-      transform 0.6s var(--ease),
-      color 0.4s;
-  }
-  .work__tags {
-    grid-column: 2;
-    color: var(--muted);
-  }
-  .works__float {
-    display: none;
-  }
-  @media (hover: hover) and (min-width: 1024px) {
-    .work {
-      padding: 26px 0;
+    .proc__num {
+      font-size: min(12vw, 10rem);
+      line-height: 1;
+      font-style: italic;
+      letter-spacing: -0.04em;
     }
-    .work__media {
+    .proc__of {
+      position: absolute;
+      bottom: 22%;
+      font-size: var(--fs-s);
+      letter-spacing: 0.1em;
+      opacity: 0.7;
+    }
+    .proc__list {
+      gap: 0;
+    }
+    .pstep {
+      padding: 44px 0;
+      border-radius: 0;
+      box-shadow: none;
+      border-top: 1px solid var(--line);
+      opacity: 0.35;
+      transition: opacity 0.6s;
+    }
+    .pstep::before {
       display: none;
     }
-    .work__row {
-      grid-template-columns: 6rem 1fr auto;
+    .pstep.is-on {
+      opacity: 1;
+      color: inherit;
     }
-    .work__tags {
-      grid-column: 3;
-      text-align: right;
+    .pstep.is-on .pstep__n {
+      color: var(--c);
     }
-    .work:hover .work__title {
-      color: var(--bordeaux);
-      transform: translateX(24px);
-    }
-    .works__float {
-      display: block;
-      position: fixed;
-      left: 0;
-      top: 0;
-      z-index: 50;
-      width: 22vw;
-      aspect-ratio: 4 / 5;
-      pointer-events: none;
-      overflow: hidden;
-      clip-path: inset(50% 50% 50% 50%);
-      transition: clip-path 0.6s var(--ease);
-    }
-    .works__float.is-on {
-      clip-path: inset(0 0 0 0);
-    }
-    .works__float :global(.works__fimg) {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .works__float :global(.works__fimg.is-on) {
+    .pstep.is-on .pstep__p {
+      color: var(--muted);
       opacity: 1;
     }
   }
 
-  /* 05 · Savoir-faire */
-  .skills__t {
-    font-size: var(--fs-xl);
-    max-width: 14ch;
-    margin-bottom: clamp(32px, 5vw, 64px);
+  /* Photo artisan (manifeste) */
+  .manifesto__photo {
+    grid-column: 1 / -1;
+    margin-bottom: 40px;
+    aspect-ratio: 3 / 2;
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: calc(var(--radius) * 1.4);
   }
-  .skills__list {
-    border-top: 1px solid var(--line);
-  }
-  .skill {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 10px 14px;
-    padding: 24px 0 28px;
-    border-bottom: 1px solid var(--line);
-  }
-  .skill__n {
-    padding-top: 0.5em;
-    color: var(--bordeaux);
-  }
-  .skill__title {
-    font-size: clamp(2.2rem, 7vw, 5.6rem);
-  }
-  .skill__body {
-    grid-column: 2;
-    display: grid;
-    gap: 12px;
-    max-width: 52ch;
-    color: var(--muted);
-  }
-  .skill__pts {
-    color: var(--fg);
+  .manifesto__photo .manifesto__img {
+    width: 100%;
+    height: 118%;
+    object-fit: cover;
+    will-change: transform;
   }
   @media (min-width: 1024px) {
-    .skill {
-      grid-template-columns: 6rem 1.2fr 1fr;
-      align-items: start;
-      padding: 32px 0;
+    .manifesto__photo {
+      grid-column: 1 / 6;
+      grid-row: 1 / span 2;
+      margin: 0;
+      aspect-ratio: 4 / 5;
     }
-    .skill__body {
-      grid-column: 3;
-      padding-top: 0.4em;
+    .manifesto__eye {
+      grid-column: 7 / -1 !important;
+      grid-row: 1;
+      align-self: end;
+      margin: 0 0 24px !important;
+    }
+    .manifesto__t {
+      grid-column: 7 / -1 !important;
+      grid-row: 2;
+      font-size: clamp(2rem, 3.6vw, 3.6rem) !important;
     }
   }
 
   /* Bande lumière */
   .band {
     position: relative;
-    height: clamp(460px, 95svh, 900px);
+    height: clamp(420px, 90svh, 820px);
     overflow: hidden;
     display: flex;
     align-items: flex-end;
+    color: var(--ink);
   }
   .band :global(.band__img) {
     position: absolute;
@@ -492,148 +1205,19 @@ const engagements = ['Visite & devis gratuits', 'Garantie décennale', 'Réponse
     width: 100%;
     height: 120%;
     object-fit: cover;
+    will-change: transform;
+  }
+  .band__in {
+    position: relative;
+    padding-block: clamp(40px, 8vw, 96px);
   }
   .band__t {
-    position: relative;
-    font-size: clamp(3.2rem, 12vw, 12rem);
-    padding-bottom: clamp(24px, 4vw, 48px);
-    color: var(--noir);
+    font-size: clamp(2.4rem, 7vw, 6.6rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    max-width: 14ch;
   }
-
-  /* 06 · Déroulement : piste horizontale au bureau */
-  .steps {
-    --line: rgb(255 255 255 / 0.16);
-    --muted: rgb(255 255 255 / 0.6);
-    padding-block: clamp(88px, 12vw, 140px) clamp(64px, 8vw, 100px);
-    overflow: hidden;
-  }
-  .steps__t {
-    font-size: var(--fs-xl);
-    margin-bottom: clamp(32px, 5vw, 56px);
-  }
-  .steps__track {
-    display: grid;
-    gap: 0;
-    padding-inline: var(--gutter);
-  }
-  .step {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 16px;
-    padding: 24px 0;
-    border-top: 1px solid var(--line);
-  }
-  .step__n {
-    font-size: clamp(4rem, 18vw, 11rem);
-    line-height: 0.78;
-    color: transparent;
-    -webkit-text-stroke: 1px rgb(255 255 255 / 0.5);
-    min-width: 1.1em;
-  }
-  .step__body {
-    display: grid;
-    gap: 8px;
-    align-content: start;
-  }
-  .step__d {
-    color: var(--bordeaux-vif);
-  }
-  .step__t {
-    font-size: var(--fs-m);
-    font-weight: 600;
-    letter-spacing: -0.01em;
-  }
-  .step__p {
-    color: var(--muted);
-    max-width: 40ch;
-  }
-  .steps__bar {
-    display: none;
-  }
-  @media (min-width: 1024px) {
-    .steps {
-      padding-block: 0;
-    }
-    .steps__pin {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .steps__track {
-      display: flex;
-      width: max-content;
-      gap: 0;
-    }
-    .step {
-      width: 34vw;
-      grid-template-columns: 1fr;
-      padding: 28px 40px 0 0;
-      margin-right: 3vw;
-    }
-    .step__n {
-      font-size: 12vw;
-    }
-    .steps__bar {
-      display: block;
-      margin-top: 40px;
-    }
-    .steps__bar span {
-      display: block;
-      height: 2px;
-      background: var(--bordeaux-vif);
-      transform-origin: 0 0;
-      transform: scaleX(0);
-    }
-  }
-
-  /* 07 · Zone */
-  .zones__grid {
-    display: grid;
-    gap: 32px;
-  }
-  .zones__t {
-    font-size: var(--fs-xl);
-  }
-  .zones__p {
-    max-width: 44ch;
-    color: var(--muted);
-    margin-bottom: 24px;
-  }
-  .zlist {
-    border-top: 1px solid var(--line);
-  }
-  .zrow {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 2px 16px;
-    align-items: center;
-    padding: 18px 0;
-    border-bottom: 1px solid var(--line);
-    transition: color 0.3s;
-  }
-  .zrow__name {
-    font-size: clamp(2rem, 5vw, 3.6rem);
-  }
-  .zrow__c {
-    color: var(--muted);
-  }
-  .zrow__go {
-    grid-row: 1 / span 2;
-    grid-column: 2;
-    width: 18px;
-    transition: transform 0.5s var(--ease);
-  }
-  .zrow:hover {
-    color: var(--bordeaux);
-  }
-  .zrow:hover .zrow__go {
-    transform: rotate(45deg);
-  }
-  @media (min-width: 1024px) {
-    .zones__grid {
-      grid-template-columns: 1fr 1fr;
-      gap: 64px;
-    }
+  .band__t em {
+    color: var(--tuile);
   }
 </style>

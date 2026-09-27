@@ -12,7 +12,7 @@ interface Props {
   schema?: object[];
   theme?: string;
 }
-const { title, description, schema = [], theme = '#0e0d0c' } = Astro.props;
+const { title, description, schema = [], theme = '#efeae0' } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 
 const business = {
@@ -90,12 +90,9 @@ const ld = [business, ...schema];
     <a href="#main" class="skip">Aller au contenu</a>
     <div class="curtain" data-curtain aria-hidden="true">
       <div class="curtain__paint"></div>
-      <div class="curtain__in">
-        <span class="curtain__mono">{site.monogramme}</span>
-        <span class="curtain__count display" data-count>00</span>
-      </div>
+      <p class="curtain__label serif"><em>{site.nom}</em></p>
     </div>
-    <div class="cursor" data-cursor aria-hidden="true"><span></span><em class="label">Peindre</em></div>
+    <div class="cursor" data-cursor aria-hidden="true"><span></span></div>
     <Header />
     <main id="main">
       <slot />
@@ -114,27 +111,30 @@ const ld = [business, ...schema];
     top: 12px;
     left: 12px;
     z-index: 500;
-    padding: 0.7em 1em;
-    background: var(--noir);
-    color: var(--craie);
+    padding: 0.6em 1em;
+    background: var(--ink);
+    color: var(--chaux);
+    border-radius: 999px;
     transform: translateY(-200%);
   }
   .skip:focus {
     transform: none;
   }
 
-  /* Rideau : chargement (compteur) et transitions de page */
+  /* Rideau de peinture : chargement et transitions de page */
   .curtain {
     position: fixed;
     inset: 0;
     z-index: 400;
     pointer-events: none;
+    display: grid;
+    place-items: center;
     visibility: hidden;
-    color: var(--craie);
   }
   .js .curtain {
     visibility: visible;
   }
+  /* Sécurité : si le script ne se charge pas, le rideau s'efface seul */
   .js:not(.ready) .curtain {
     animation: curtain-safety 0s 4s forwards;
   }
@@ -146,73 +146,42 @@ const ld = [business, ...schema];
   .curtain__paint {
     position: absolute;
     inset: -2px;
-    background: var(--curtain, var(--noir));
+    background: var(--curtain, var(--ink));
+    clip-path: inset(0 0 0 0);
   }
-  .curtain__in {
-    position: absolute;
-    inset: auto var(--gutter) calc(var(--gutter) + env(safe-area-inset-bottom));
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-  }
-  .curtain__mono {
-    font-family: var(--script);
-    font-size: clamp(3rem, 8vw, 5.5rem);
-    line-height: 1;
-    color: var(--bordeaux-vif);
-  }
-  .curtain__count {
-    font-size: clamp(6rem, 26vw, 22rem);
-    font-variant-numeric: tabular-nums;
+  .curtain__label {
+    position: relative;
+    font-size: clamp(2.4rem, 8vw, 5rem);
+    color: var(--chaux);
+    opacity: 0;
   }
 
-  /* Curseur (souris uniquement) */
+  /* Curseur (pointeur fin uniquement) */
   .cursor {
+    opacity: 0;
+    transition: opacity 0.4s;
     position: fixed;
     left: 0;
     top: 0;
     z-index: 350;
     pointer-events: none;
     display: none;
-    opacity: 0;
-    transition: opacity 0.3s;
+  }
+  .cursor span {
+    display: block;
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border-radius: 50%;
+    background: var(--limagne);
+    mix-blend-mode: multiply;
+    transition: transform 0.45s var(--ease-out), background-color 0.3s;
   }
   .cursor.is-on {
     opacity: 1;
   }
-  .cursor span {
-    display: block;
-    width: 10px;
-    height: 10px;
-    margin: -5px 0 0 -5px;
-    border-radius: 50%;
-    background: var(--bordeaux-vif);
-    transition:
-      transform 0.5s var(--ease-out),
-      background-color 0.3s,
-      border-color 0.3s;
-  }
-  .cursor em {
-    position: absolute;
-    left: 18px;
-    top: -6px;
-    font-style: normal;
-    color: var(--craie);
-    opacity: 0;
-    transition: opacity 0.3s;
-    white-space: nowrap;
-  }
   .cursor.is-link span {
-    transform: scale(3.6);
-  }
-  .cursor.is-brush span {
-    transform: scale(7);
-    background: transparent;
-    border: 1px solid var(--craie);
-  }
-  .cursor.is-brush em {
-    opacity: 1;
-    left: 44px;
+    transform: scale(4.2);
   }
   @media (hover: hover) and (pointer: fine) {
     .has-cursor .cursor {

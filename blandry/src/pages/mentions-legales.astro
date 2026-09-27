@@ -6,7 +6,7 @@ import { site } from '../data/site';
 <Base title={`Mentions légales | ${site.nom}`} description={`Mentions légales du site ${site.nom}, peintre en bâtiment dans le Puy-de-Dôme.`}>
   <section class="legal section">
     <div class="wrap">
-      <h1 class="display legal__t" data-hero-title>
+      <h1 class="serif legal__t" data-hero-title>
         <span class="line"><span class="line-inner">Mentions <em>légales</em></span></span>
       </h1>
       <div class="legal__body" data-hero-fade>
@@ -42,7 +42,6 @@ import { site } from '../data/site';
   }
   .legal__t {
     font-size: var(--fs-xl);
-    margin-top: 24px;
   }
   .legal__body {
     margin-top: 56px;
@@ -52,11 +51,10 @@ import { site } from '../data/site';
   }
   .legal__body h2 {
     margin-top: 28px;
-    font-family: var(--mono);
     font-size: var(--fs-xs);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    font-weight: 450;
+    font-weight: 600;
   }
   .legal__body p {
     color: var(--muted);
