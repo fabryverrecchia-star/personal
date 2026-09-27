@@ -15,9 +15,9 @@ const faqLd = {
 const roman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 // Positions des photos flottantes : bureau (x, y, largeur en vw) puis mobile
 const spots = [
-  { x: 3, y: 12, w: 10, mx: -4, my: 10, mw: 30, d: 0.6 },
-  { x: 9, y: 60, w: 9, mx: 72, my: 8, mw: 27, d: 1.1 },
-  { x: 76, y: 9, w: 13, mx: -6, my: 78, mw: 34, d: 0.8 },
+  { x: 3, y: 12, w: 10, mx: -6, my: 7, mw: 24, d: 0.6 },
+  { x: 9, y: 60, w: 9, mx: 76, my: 6, mw: 24, d: 1.1 },
+  { x: 79, y: 10, w: 12, mx: -6, my: 78, mw: 34, d: 0.8 },
   { x: 85, y: 55, w: 10, mx: 74, my: 80, mw: 26, d: 1.3 },
   { x: 19, y: 84, w: 8, mx: -99, my: 0, mw: 0, d: 0.9 },
   { x: 71, y: 83, w: 8, mx: -99, my: 0, mw: 0, d: 1.2 },
@@ -217,7 +217,7 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
         <ol class="proc__list">
           {
             etapes.map((e, i) => (
-              <li class:list={['pstep', { 'is-on': i === 0 }]} data-pstep={i}>
+              <li class:list={['pstep', { 'is-on': i === 0 }]} data-pstep={i} style={`--i:${i}`}>
                 <span class="pstep__n display" aria-hidden="true">{roman[i]}</span>
                 <div class="pstep__body">
                   <span class="label pstep__d">{e.duree}</span>
@@ -232,34 +232,51 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     </div>
   </section>
 
-  <!-- ─── Territoire ─────────────────────────── -->
-  <section class="terre section" aria-labelledby="terre-t">
-    <div class="wrap terre__grid">
-      <div class="terre__text">
-        <p class="label muted" data-reveal="fade">Territoire</p>
-        <h2 id="terre-t" class="title terre__t" data-split>Une palette née <em>du Puy-de-Dôme</em></h2>
-        <p class="prose" data-reveal="fade">
-          Basalte des volcans, pierre de Volvic, terres de Limagne, enduits à la chaux des Combrailles : les teintes
-          que nous proposons s’accordent au bâti de la région. Nous intervenons depuis {site.adresse.ville} dans un
-          rayon d’une quarantaine de kilomètres.
-        </p>
-        <p class="terre__zones" data-reveal="fade">
-          {zones.map((z) => <a href={u(`/${z.slug}/`)} class="cta">Peintre {z.dans}</a>)}
-        </p>
+  <!-- ─── Territoire : nuancier du Puy-de-Dôme ─── -->
+  <section class="terre" aria-labelledby="terre-t" data-terre>
+    <div class="terre__pin">
+      <div class="wrap terre__head">
+        <div>
+          <p class="label muted" data-reveal="fade">Territoire</p>
+          <h2 id="terre-t" class="title terre__t" data-split>Un nuancier né <em>du Puy-de-Dôme</em></h2>
+        </div>
+        <div class="terre__side">
+          <p class="prose" data-reveal="fade">
+            Pierre de Volvic, gorges de la Sioule, terres de Limagne, ciel des Puys : nos teintes de référence
+            s’accordent au bâti et aux paysages de la région. Nous intervenons depuis {site.adresse.ville}, dans un
+            rayon d’une quarantaine de kilomètres.
+          </p>
+          <p class="terre__zones" data-reveal="fade">
+            {zones.map((z) => <a href={u(`/${z.slug}/`)} class="cta">Peintre {z.dans}</a>)}
+          </p>
+        </div>
       </div>
-      <ul class="swatches" data-reveal="fade">
-        {
-          palette.map((c) => (
-            <li class="swatch" style={`--c:${c.hex}`} tabindex="0">
-              <span class="swatch__chip" />
-              <span class="swatch__txt">
-                <span class="title swatch__n">{c.nom}</span>
-                <span class="label swatch__o">{c.origine}</span>
-              </span>
-            </li>
-          ))
-        }
-      </ul>
+      <div class="terre__rail" data-terre-rail>
+        <ul class="tcards" data-terre-track>
+          {
+            palette.map((c, i) => (
+              <li class="tcard" style={`--c:${c.hex};--ink:${c.ink}`}>
+                <div class="tcard__media">
+                  {c.photo ? (
+                    <Image src={c.photo} alt={c.origine} widths={[500, 900]} sizes="(min-width: 1024px) 26vw, 74vw" class="tcard__img" />
+                  ) : (
+                    <span class="tcard__fill" aria-hidden="true">
+                      <span class="display">{c.nom}</span>
+                    </span>
+                  )}
+                  <span class="tcard__chip" aria-hidden="true" />
+                </div>
+                <div class="tcard__txt">
+                  <span class="label muted">N° {String(i + 1).padStart(2, '0')} · {c.hex}</span>
+                  <h3 class="title tcard__n">{c.nom}</h3>
+                  <p class="muted">{c.origine}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="wrap terre__bar" aria-hidden="true"><span data-terre-bar></span></div>
     </div>
   </section>
 
@@ -321,7 +338,7 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     color: var(--muted);
   }
   .hero__t {
-    font-size: clamp(2.5rem, 9.6vw, 6.6rem);
+    font-size: clamp(2.3rem, 9.2vw, 5.4rem);
     line-height: 0.95;
   }
   .hero__t em {
@@ -647,12 +664,6 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 1.4s var(--ease-out);
-  }
-  @media (hover: hover) {
-    .work:hover :global(.work__img) {
-      transform: scale(1.04);
-    }
   }
   .work__cap {
     display: grid;
@@ -732,6 +743,30 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     gap: 16px;
     padding: 26px 0;
     border-bottom: 1px solid var(--line);
+  }
+  /* Mobile : cartes qui s'empilent au défilement */
+  @media (max-width: 1023px) {
+    .proc__list {
+      border: 0;
+      gap: 14px;
+    }
+    .pstep {
+      position: sticky;
+      top: calc(88px + var(--i) * 12px);
+      grid-template-columns: 1fr;
+      min-height: 46svh;
+      align-content: space-between;
+      padding: 26px 22px 28px;
+      background: var(--basalte-2);
+      border: 1px solid var(--line);
+      transform-origin: 50% 0;
+      will-change: transform;
+    }
+    .pstep__n {
+      font-size: 4.6rem;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--argile);
+    }
   }
   .pstep__n {
     font-size: 2.4rem;
@@ -841,85 +876,135 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
   }
 
   /* ─── Territoire ─── */
-  .terre__grid {
-    display: grid;
-    gap: 48px;
+  .terre {
+    padding-block: clamp(96px, 12vw, 140px) clamp(72px, 9vw, 110px);
+    overflow: hidden;
   }
-  .terre__text {
+  .terre__head {
     display: grid;
     gap: 22px;
-    align-content: start;
+    margin-bottom: clamp(36px, 5vw, 56px);
   }
   .terre__t {
     font-size: var(--fs-l);
     max-width: 14ch;
+    margin-top: 14px;
+  }
+  .terre__side {
+    display: grid;
+    gap: 18px;
+    align-content: end;
   }
   .terre__zones {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 26px;
+    gap: 2px 24px;
   }
-  .swatches {
+  .terre__rail {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .terre__rail::-webkit-scrollbar {
+    display: none;
+  }
+  .tcards {
+    display: flex;
+    gap: 14px;
+    width: max-content;
+    padding-inline: var(--gutter);
+  }
+  .tcard {
+    flex: none;
+    width: min(72vw, 330px);
+    scroll-snap-align: center;
     display: grid;
-    gap: 8px;
+    gap: 14px;
   }
-  .swatch {
-    display: grid;
-    grid-template-columns: 76px 1fr;
-    align-items: center;
-    gap: 18px;
-    outline: none;
-  }
-  .swatch__chip {
-    height: 76px;
+  .tcard__media {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
     background: var(--c);
-    box-shadow: inset 0 0 0 1px var(--line);
   }
-  .swatch__txt {
+  .tcard__media :global(.tcard__img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .tcard__fill {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    padding: 18px;
+    color: var(--ink);
+    background:
+      radial-gradient(120% 80% at 20% 10%, rgb(255 255 255 / 0.14), transparent 60%),
+      linear-gradient(to top, rgb(0 0 0 / 0.12), transparent 50%),
+      var(--c);
+  }
+  .tcard__fill .display {
+    font-size: clamp(1.6rem, 6vw, 2.4rem);
+    line-height: 1;
+    opacity: 0.9;
+  }
+  .tcard__chip {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    width: 34%;
+    aspect-ratio: 1;
+    background: var(--c);
+    box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  }
+  .tcard__fill + .tcard__chip {
+    display: none;
+  }
+  .tcard__txt {
     display: grid;
-    gap: 2px;
+    gap: 4px;
   }
-  .swatch__n {
-    font-size: 1.35rem;
+  .tcard__n {
+    font-size: 1.5rem;
   }
-  .swatch__o {
-    color: var(--muted);
+  .terre__bar {
+    margin-top: 28px;
+  }
+  .terre__bar span {
+    display: block;
+    height: 1px;
+    background: var(--fg);
+    transform-origin: 0 0;
+    transform: scaleX(0.1);
   }
   @media (min-width: 1024px) {
-    .terre__grid {
-      grid-template-columns: 5fr 7fr;
-      gap: 7vw;
-      align-items: center;
+    .terre {
+      padding-block: 0;
     }
-    .swatches {
-      display: flex;
-      height: 58vh;
-      gap: 8px;
-    }
-    .swatch {
-      flex: 1;
+    .terre__pin {
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: stretch;
-      gap: 14px;
-      transition: flex 0.9s var(--ease);
-      cursor: default;
+      justify-content: center;
     }
-    .swatch:hover,
-    .swatch:focus-visible {
-      flex: 2.4;
+    .terre__head {
+      grid-template-columns: 5fr 6fr;
+      gap: 7vw;
+      align-items: end;
     }
-    .swatch__chip {
-      flex: 1;
-      height: auto;
+    .terre__rail {
+      overflow: visible;
     }
-    .swatch__o {
-      opacity: 0;
-      transition: opacity 0.5s;
+    .tcard {
+      width: 24vw;
     }
-    .swatch:hover .swatch__o,
-    .swatch:focus-visible .swatch__o {
-      opacity: 1;
+    .tcard__media {
+      aspect-ratio: 4 / 5;
+      max-height: 48vh;
     }
   }
 </style>

@@ -44,13 +44,21 @@ export const photos = {
   arche: { src: g('pierre-poutres'), alt: 'Mur de pierre, poutres et enduit clair' },
 };
 
-// ── Palette : inspirée des matières du Puy-de-Dôme ───────────
+// ── Nuancier du territoire ────────────────────────────────────
+// Photos facultatives : déposer src/assets/region/<id>.jpg (ex. volvic.jpg)
+const regionFiles = import.meta.glob<{ default: ImageMetadata }>('../assets/region/*.{jpg,jpeg,png,webp}', { eager: true });
+const regionPhoto = (id: string) =>
+  Object.entries(regionFiles).find(([k]) => k.split('/').pop()!.split('.')[0] === id)?.[1].default;
+
 export const palette = [
-  { nom: 'Basalte', origine: 'Coulées de la Chaîne des Puys', hex: '#1A1917' },
-  { nom: 'Pierre de Volvic', origine: 'Andésite des façades riomoises', hex: '#7D766D' },
-  { nom: 'Argile de Limagne', origine: 'Terres de la plaine', hex: '#A27B5C' },
-  { nom: 'Lin', origine: 'Enduits à la chaux des Combrailles', hex: '#E6DFD3' },
-];
+  { id: 'chaux', nom: 'Blanc de chaux', origine: 'Enduits des maisons de bourg', hex: '#E2DACB', ink: '#1A1917' },
+  { id: 'volvic', nom: 'Gris Volvic', origine: 'Pierre de lave de Volvic et de Riom', hex: '#56595C', ink: '#F3EFE8' },
+  { id: 'sioule', nom: 'Vert Sioule', origine: 'Gorges de la Sioule, Combrailles', hex: '#3F5A45', ink: '#F3EFE8' },
+  { id: 'limagne', nom: 'Ocre Limagne', origine: 'Terres de la plaine de Limagne', hex: '#C08A3E', ink: '#1A1917' },
+  { id: 'tuile', nom: 'Rouge tuile', origine: 'Toitures des villages', hex: '#9B4B34', ink: '#F3EFE8' },
+  { id: 'puys', nom: 'Bleu des Puys', origine: 'Ciel de la Chaîne des Puys', hex: '#8DA3B3', ink: '#1A1917' },
+  { id: 'basalte', nom: 'Noir basalte', origine: 'Coulées volcaniques', hex: '#1F1D1A', ink: '#F3EFE8' },
+].map((c) => ({ ...c, photo: regionPhoto(c.id) }));
 
 // ── Avant / après ─────────────────────────────────────────────
 export const comparaisons = [
@@ -310,6 +318,6 @@ export const faqGenerale = [
 
 // Compatibilité (anciens composants)
 export const realisations = selection.map((p) => ({ titre: p.titre, lieu: '', travaux: [p.cat], image: p.src, alt: p.titre }));
-export const nuancier = palette.map((p) => ({ id: p.nom, nom: p.nom, lieu: p.origine, hex: p.hex, ink: '#F3EFE8' }));
+export const nuancier = palette.map((p) => ({ id: p.id, nom: p.nom, lieu: p.origine, hex: p.hex, ink: p.ink }));
 export const teinte = (_id: string) => nuancier[0];
 export const zoneBySlug = (slug: string) => zones.find((z) => z.slug === slug)!;
