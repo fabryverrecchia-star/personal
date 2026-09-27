@@ -3,3 +3,4 @@ dist/
 .astro/
 preview/
 .preview-dist/
+.dist-racine/
