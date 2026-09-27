@@ -6,6 +6,7 @@ import MobileBar from '../components/MobileBar.astro';
 import { Image } from 'astro:assets';
 import { site, zones, services, heroPhotos } from '../data/site';
 import { u } from '../lib/url';
+import Logo from '../components/Logo.astro';
 
 interface Props {
   title: string;
@@ -81,7 +82,7 @@ const ld = [business, ...schema];
     <meta property="og:image" content={`${site.url}/og.png`} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content={theme} />
-    <link rel="icon" href={u('/favicon.svg')} type="image/svg+xml" />
+    <link rel="icon" href={u('/favicon.png')} type="image/png" />
     <script is:inline>
       document.documentElement.classList.add('js');
     </script>
@@ -99,7 +100,7 @@ const ld = [business, ...schema];
           ))
         }
       </div>
-      <p class="loader__mono script" data-loader-mono>{site.monogramme}</p>
+      <p class="loader__mono" data-loader-mono><Logo class="loader__logo" /></p>
       <div class="loader__foot label">
         <span>{site.nom} — Peinture &amp; finitions</span>
         <span class="loader__count" data-loader-count>000</span>
@@ -176,10 +177,14 @@ const ld = [business, ...schema];
   }
   .loader__mono {
     position: absolute;
-    font-size: clamp(5rem, 22vw, 11rem);
+    z-index: 2;
+    font-size: clamp(6rem, 30vw, 13rem);
     line-height: 1;
     mix-blend-mode: difference;
     color: var(--lin);
+  }
+  .loader__mono :global(.loader__logo) {
+    display: block;
   }
   .loader__foot {
     position: absolute;

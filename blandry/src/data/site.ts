@@ -15,10 +15,10 @@ const g = (slug: string) => galerieFiles[`../assets/galerie/${slug}.jpg`].defaul
 
 export const site = {
   url: 'https://18h22.com/blandry', // À COMPLÉTER : domaine définitif
-  nom: 'Blandry',
+  nom: 'Benjamin Landry',
   monogramme: 'BL',
   metier: 'Peintre en bâtiment',
-  gerant: 'B. Landry', // À COMPLÉTER
+  gerant: 'Benjamin Landry',
   telephone: '06 58 38 78 37',
   email: 'contact@blandry.fr', // À COMPLÉTER
   adresse: {

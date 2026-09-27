@@ -26,7 +26,7 @@ for (const file of pages) {
       : 'url(data:,)',
   );
   html = html.replace(/href="(\/[^"#]*)(#[^"]*)?"/g, (m, path, hash = '') => {
-    if (path.startsWith('/_astro') || path.endsWith('.svg') || path.endsWith('.xml')) return m;
+    if (path.startsWith('/_astro') || /\.(svg|xml|png|jpg|webp|ico)$/.test(path)) return m;
     return `href="${flat(path)}${hash}"`;
   });
   // Images : chemins relatifs, fichiers copiés à côté des pages
@@ -40,6 +40,11 @@ for (const file of pages) {
     mkdirSync(join(out, 'videos'), { recursive: true });
     copyFileSync(join(dist, 'videos', name), join(out, 'videos', name));
     return `${attr}="videos/${name}"`;
+  });
+  // Logo et favicon : chemins relatifs, fichiers copiés
+  html = html.replace(/(url\(|href=")\/(logo-bl\.png|favicon\.png)/g, (_, pre, name) => {
+    copyFileSync(join(dist, name), join(out, name));
+    return `${pre}${name}`;
   });
   const rel = '/' + relative(dist, file).replace(/index\.html$/, '');
   writeFileSync(join(out, flat(rel)), html);

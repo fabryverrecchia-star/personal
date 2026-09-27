@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import { site, zones, telHref, selection } from '../data/site';
 import { u } from '../lib/url';
+import Logo from './Logo.astro';
 const nav = [
   { href: u('/#atelier'), label: 'L’atelier' },
   { href: u('/#savoir-faire'), label: 'Savoir-faire' },
@@ -14,7 +15,7 @@ const nav = [
 <header class="header" data-header>
   <div class="header__in wrap">
     <a href={u('/')} class="logo" aria-label={`${site.nom}, accueil`}>
-      <span class="logo__mono script" aria-hidden="true">{site.monogramme}</span>
+      <Logo class="logo__mark" />
       <span class="logo__name label">{site.nom}</span>
     </a>
 
@@ -123,11 +124,8 @@ const nav = [
     position: relative;
     z-index: 2;
   }
-  .logo__mono {
+  .logo :global(.logo__mark) {
     font-size: 2.3rem;
-    line-height: 1;
-    padding-top: 0.12em;
-    letter-spacing: -0.06em;
   }
   .logo__name {
     padding-left: 14px;

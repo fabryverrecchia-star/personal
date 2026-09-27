@@ -98,8 +98,10 @@ const communes = zones.flatMap((z) => z.communes);
     padding-bottom: 6px;
     transition: color 0.4s;
   }
-  .contact__tel:hover {
-    color: var(--argile);
+  @media (hover: hover) and (pointer: fine) {
+    .contact__tel:hover {
+      color: var(--argile);
+    }
   }
   .contact__mail {
     font-size: var(--fs-s);

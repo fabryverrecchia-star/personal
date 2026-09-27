@@ -178,7 +178,12 @@ import { comparaisons } from '../data/site';
   .ba__knob svg {
     width: 20px;
   }
-  .ba__frame:hover .ba__knob {
+  @media (hover: hover) and (pointer: fine) {
+    .ba__frame:hover .ba__knob {
+      transform: scale(1.12);
+    }
+  }
+  .ba__frame:active .ba__knob {
     transform: scale(1.12);
   }
   .ba__range:focus-visible ~ .ba__line .ba__knob {

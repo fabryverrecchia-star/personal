@@ -1,0 +1,21 @@
+---
+// Monogramme BL (fichier public/logo-bl.png utilisé comme masque : prend la couleur du texte)
+import { u } from '../lib/url';
+interface Props {
+  class?: string;
+}
+const { class: cls } = Astro.props;
+---
+
+<span class:list={['bl-logo', cls]} style={`--logo:url(${u('/logo-bl.png')})`} aria-hidden="true"></span>
+
+<style>
+  .bl-logo {
+    display: inline-block;
+    height: 1em;
+    aspect-ratio: 659 / 806;
+    background: currentColor;
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    mask: var(--logo) center / contain no-repeat;
+  }
+</style>

@@ -1,6 +1,7 @@
 ---
 import { site, zones, services, telHref } from '../data/site';
 import { u } from '../lib/url';
+import Logo from './Logo.astro';
 const annee = new Date().getFullYear();
 ---
 
@@ -40,7 +41,7 @@ const annee = new Date().getFullYear();
 
     <div class="footer__bottom label">
       <span>© {annee} {site.nom}{site.siret && <> · SIRET {site.siret}</>} · {site.assurance}</span>
-      <span class="script footer__mono" aria-hidden="true">{site.monogramme}</span>
+      <Logo class="footer__mono" />
       <a href={u('/mentions-legales/')} class="link-u">Mentions légales</a>
     </div>
   </div>
@@ -61,8 +62,8 @@ const annee = new Date().getFullYear();
     position: relative;
   }
   .footer__name {
-    font-size: clamp(4rem, 19vw, 17rem);
-    line-height: 0.9;
+    font-size: clamp(3rem, 11.5vw, 11rem);
+    line-height: 0.95;
     letter-spacing: 0.02em;
   }
   .footer__sign {
@@ -110,11 +111,9 @@ const annee = new Date().getFullYear();
     border-top: 1px solid var(--line);
     color: var(--muted);
   }
-  .footer__mono {
-    font-size: 2rem;
-    letter-spacing: -0.05em;
+  .footer__bottom :global(.footer__mono) {
+    font-size: 2.4rem;
     color: var(--lin);
-    text-transform: none;
   }
   @media (min-width: 900px) {
     .footer__bottom {

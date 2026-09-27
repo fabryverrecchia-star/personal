@@ -8,7 +8,8 @@ const $ = <T extends Element = HTMLElement>(s: string, root: ParentNode = docume
 const $$ = <T extends Element = HTMLElement>(s: string, root: ParentNode = document) =>
   Array.from(root.querySelectorAll<T>(s));
 
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Animations voulues sur tous les appareils (demande du client)
+const reduced = false;
 const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
 const EASE = 'expo.out';
 
@@ -30,7 +31,7 @@ const store = {
 /* ─── Défilement doux ─────────────────────────────── */
 let lenis: Lenis | null = null;
 if (!reduced) {
-  lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 0.9 });
+  lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 0.9, syncTouch: true, syncTouchLerp: 0.085, touchMultiplier: 1.4 });
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((t) => lenis!.raf(t * 1000));
   gsap.ticker.lagSmoothing(0);
@@ -112,36 +113,71 @@ const count = $('[data-loader-count]', loader)!;
 const foot = $('.loader__foot', loader)!;
 
 function preload() {
-  const first = !store.get('bl-seen');
-  store.set('bl-seen', '1');
   const tl = gsap.timeline();
-  if (reduced) {
-    gsap.set(loader, { autoAlpha: 0 });
+  const floats = $$('[data-float]');
+  const imgs = $$('img', stack);
+  const home = floats.length > 0;
+  const c = { v: 0 };
+  gsap.set(mono, { opacity: 0, yPercent: 20, clipPath: 'inset(100% 0 0 0)' });
+  tl.to(mono, { opacity: 1, yPercent: 0, clipPath: 'inset(0% 0 0 0)', duration: 1.1, ease: 'expo.out' }, 0).to(
+    c,
+    {
+      v: 100,
+      duration: home ? 2.6 : 1.3,
+      ease: 'power2.inOut',
+      onUpdate: () => (count.textContent = String(Math.round(c.v)).padStart(3, '0')),
+    },
+    0,
+  );
+
+  if (!home) {
+    gsap.set(stack, { opacity: 0 });
+    tl.to([mono, foot], { opacity: 0, duration: 0.35 })
+      .to(loaderBg, { clipPath: 'inset(0 0 100% 0)', duration: 0.9, ease: 'expo.inOut' })
+      .set(loader, { autoAlpha: 0 });
     return tl;
   }
-  if (first) {
-    const imgs = $$('img', stack);
-    const c = { v: 0 };
-    gsap.set(mono, { opacity: 0, yPercent: 20 });
-    tl.to(mono, { opacity: 1, yPercent: 0, duration: 0.9, ease: EASE }, 0)
-      .to(c, { v: 100, duration: 2.2, ease: 'power2.inOut', onUpdate: () => (count.textContent = String(Math.round(c.v)).padStart(3, '0')) }, 0);
-    // Feuilletage des photos au centre
+
+  // Feuilletage des photos au centre
+  imgs.forEach((img, i) => {
+    tl.fromTo(
+      img,
+      { opacity: 0, clipPath: 'inset(100% 0 0 0)', scale: 1.15 },
+      { opacity: 1, clipPath: 'inset(0% 0 0 0)', scale: 1, duration: 0.6, ease: 'power3.out' },
+      0.3 + i * 0.32,
+    );
+  });
+
+  // Les photos du préchargement rejoignent leur place dans l'ouverture
+  tl.to([mono, foot], { opacity: 0, duration: 0.4 }, '+=0.15');
+  tl.add(() => {
+    const sr = stack.getBoundingClientRect();
     imgs.forEach((img, i) => {
-      tl.fromTo(
-        img,
-        { opacity: 0, clipPath: 'inset(100% 0 0 0)', scale: 1.15 },
-        { opacity: 1, clipPath: 'inset(0% 0 0 0)', scale: 1, duration: 0.55, ease: 'power3.out' },
-        0.25 + i * 0.3,
-      );
+      const f = floats[i];
+      const visible = f && f.offsetParent !== null && getComputedStyle(f).display !== 'none';
+      gsap.set(img, { clipPath: 'none' });
+      if (!visible) return void gsap.to(img, { opacity: 0, duration: 0.5 });
+      const tr = f.getBoundingClientRect();
+      gsap.to(img, {
+        x: tr.left - sr.left,
+        y: tr.top - sr.top,
+        scaleX: tr.width / sr.width,
+        scaleY: tr.height / sr.height,
+        transformOrigin: '0 0',
+        duration: 1.4,
+        delay: (imgs.length - 1 - i) * 0.05,
+        ease: 'expo.inOut',
+      });
     });
-    tl.to([mono, foot], { opacity: 0, duration: 0.4 }, '+=0.1')
-      .to(stack, { scale: 0.6, opacity: 0, duration: 0.7, ease: 'power3.in' }, '<')
-      .to(loaderBg, { clipPath: 'inset(0 0 100% 0)', duration: 1, ease: 'expo.inOut' }, '-=0.25')
-      .set(loader, { autoAlpha: 0 });
-  } else {
-    gsap.set([mono, foot, stack], { opacity: 0 });
-    tl.fromTo(loaderBg, { clipPath: 'inset(0 0 0% 0)' }, { clipPath: 'inset(0 0 100% 0)', duration: 0.9, ease: 'expo.inOut' }).set(loader, { autoAlpha: 0 });
-  }
+  });
+  tl.to(loaderBg, { opacity: 0, duration: 1.1, ease: 'power2.inOut' }, '<0.25');
+  tl.add(() => {
+    floats.forEach((f, i) => {
+      if (i < imgs.length) gsap.set(f, { opacity: 1 });
+      else gsap.fromTo(f, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 1.2, ease: EASE });
+    });
+    gsap.set(loader, { autoAlpha: 0 });
+  }, '>+0.35');
   return tl;
 }
 
@@ -295,20 +331,6 @@ function heroIn() {
   const title = $('[data-hero-title]');
   if (title) tl.to($$('.line-inner', title), { y: 0, duration: 1.6, stagger: 0.12 }, 0.1);
   tl.to($$('[data-hero-fade]'), { y: 0, opacity: 1, duration: 1.3, stagger: 0.08 }, 0.35);
-  const floats = $$('[data-float]');
-  if (floats.length) {
-    tl.fromTo(
-      floats,
-      {
-        x: (_i: number, el: HTMLElement) => innerWidth / 2 - (el.getBoundingClientRect().left + el.offsetWidth / 2),
-        y: (_i: number, el: HTMLElement) => innerHeight / 2 - (el.getBoundingClientRect().top + el.offsetHeight / 2),
-        scale: 0.5,
-        opacity: 0,
-      },
-      { x: 0, y: 0, scale: 1, opacity: 1, duration: 1.8, stagger: { each: 0.06, from: 'random' }, ease: 'expo.out' },
-      0,
-    );
-  }
   return tl;
 }
 function heroFloats() {
@@ -335,7 +357,7 @@ function heroFloats() {
       ease: 'sine.inOut',
       yoyo: true,
       repeat: -1,
-      delay: 2.2 + i * 0.1,
+      delay: 0.3 + i * 0.1,
     });
   });
   gsap.to($('.hero__center', hero), {
@@ -772,10 +794,8 @@ function init() {
   document.documentElement.classList.add('ready');
   const title = $('[data-hero-title]');
   if (title && !reduced) gsap.set($$('.line-inner', title), { y: '110%' });
-  if (!reduced) {
-    gsap.set($$('[data-hero-fade]'), { y: 24, opacity: 0 });
-    gsap.set($$('[data-float]'), { opacity: 0 });
-  }
+  gsap.set($$('[data-hero-fade]'), { y: 24, opacity: 0 });
+  gsap.set($$('[data-float]'), { opacity: 0 });
 
   reveals();
   giant();
@@ -793,11 +813,8 @@ function init() {
   onScroll();
 
   const intro = preload();
-  if (!reduced)
-    intro.add(() => {
-      heroIn();
-      heroFloats();
-    }, '-=0.7');
+  intro.add(() => heroIn(), '-=1.3');
+  intro.add(() => heroFloats());
 
   if (location.hash) requestAnimationFrame(() => scrollToHash(location.hash, true));
 
