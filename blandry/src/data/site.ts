@@ -9,6 +9,7 @@ import pieceAvant from '../assets/chantiers/piece-de-vie-avant.jpg';
 import sejourVoute from '../assets/chantiers/sejour-voute.jpg';
 import artisan from '../assets/chantiers/artisan-poncage.jpg';
 import finition from '../assets/chantiers/finition-lumiere.jpg';
+import applique from '../assets/chantiers/applique-lumiere.jpg';
 
 const galerieFiles = import.meta.glob<{ default: ImageMetadata }>('../assets/galerie/*.jpg', { eager: true });
 const g = (slug: string) => galerieFiles[`../assets/galerie/${slug}.jpg`].default;
@@ -40,6 +41,7 @@ export const telHref = `tel:${site.telephone.replace(/\s/g, '').replace(/^0/, '+
 
 export const photos = {
   artisan: { src: artisan, alt: 'Ponçage d’un plafond à la ponceuse girafe, sous une lumière rasante' },
+  detail: { src: applique, alt: 'Applique murale sur un mur parfaitement lissé, sous un plafond rampant' },
   finition: { src: finition, alt: 'Angle de mur arrondi, enduit parfaitement lisse baigné de lumière' },
   arche: { src: g('pierre-poutres'), alt: 'Mur de pierre, poutres et enduit clair' },
 };

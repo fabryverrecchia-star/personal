@@ -109,14 +109,15 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
   <section class="light dark" aria-labelledby="light-t" data-light>
     <div class="light__sticky">
       <figure class="light__img" data-light-img aria-hidden="true">
-        <Image src={photos.finition.src} alt="" widths={[800, 1587]} sizes="100vw" class="light__photo" />
+        <Image src={photos.detail.src} alt="" widths={[800, 1500]} sizes="100vw" class="light__photo" />
       </figure>
       <div class="light__txt wrap">
-        <p class="label light__k">Lumière rasante</p>
-        <h2 id="light-t" class="display light__t" data-light-t>La lumière<br />ne pardonne rien</h2>
+        <p class="label light__k">Le souci du détail</p>
+        <h2 id="light-t" class="display light__t" data-light-t>La qualité<br />se joue au millimètre</h2>
         <p class="light__p" data-light-p>
-          Une lumière rasante révèle la moindre reprise, le moindre défaut de ponçage. C’est pourquoi nous
-          consacrons à la préparation des supports autant de soin qu’à la peinture elle-même.
+          Un angle net, un mur parfaitement plan, une découpe impeccable au ras d’un plafond ou d’une applique :
+          ce sont ces détails, souvent invisibles au premier regard, qui distinguent un travail d’artisan. Ils
+          demandent du temps, de la méthode et l’habitude du geste juste.
         </p>
       </div>
     </div>
@@ -511,9 +512,9 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     }
   }
 
-  /* ─── Lumière rasante ─── */
+  /* ─── Le souci du détail ─── */
   .light {
-    height: 260vh;
+    height: 240vh;
   }
   .light__sticky {
     position: sticky;
@@ -521,43 +522,42 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     height: 100svh;
     overflow: hidden;
     display: grid;
-    place-items: center;
+    grid-template-rows: 58% 1fr;
   }
   .light__img {
-    position: absolute;
-    inset: 0;
-    clip-path: inset(30% 30% 30% 30%);
+    position: relative;
+    overflow: hidden;
+    clip-path: inset(12% 10% 12% 10%);
     will-change: clip-path;
   }
   .light__img :global(.light__photo) {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: 50% 55%;
     transform: scale(1.25);
     will-change: transform;
-  }
-  .light__img::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, rgb(26 25 23 / 0.55), rgb(26 25 23 / 0.35) 50%, rgb(26 25 23 / 0.75));
   }
   .light__txt {
     position: relative;
     z-index: 2;
     display: grid;
+    align-content: center;
     justify-items: center;
-    gap: 26px;
+    gap: 16px;
     text-align: center;
+    padding-block: 18px calc(80px + env(safe-area-inset-bottom));
   }
   .light__k {
     color: rgb(243 239 232 / 0.6);
   }
-  /* Le titre s'éclaire comme sous un faisceau de lumière rasante */
+  /* Le titre s'éclaire comme sous un faisceau de lumière */
   .light__t {
     --lx: -40%;
     --base: 0.14;
-    font-size: clamp(2.6rem, 10vw, 8.6rem);
+    font-size: clamp(1.9rem, 8vw, 6rem);
     line-height: 1.02;
     color: transparent;
     background-image:
@@ -568,8 +568,27 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
   }
   .light__p {
     max-width: 44ch;
-    color: rgb(243 239 232 / 0.78);
+    font-size: var(--fs-s);
+    color: rgb(243 239 232 / 0.75);
     opacity: 0;
+  }
+  @media (min-width: 1024px) {
+    .light__sticky {
+      grid-template-rows: none;
+      grid-template-columns: 5fr 6fr;
+    }
+    .light__img {
+      order: 2;
+    }
+    .light__txt {
+      justify-items: start;
+      text-align: left;
+      padding: 0 5vw 0 var(--gutter);
+      gap: 26px;
+    }
+    .light__p {
+      font-size: var(--fs-body);
+    }
   }
 
   /* ─── Savoir-faire ─── */

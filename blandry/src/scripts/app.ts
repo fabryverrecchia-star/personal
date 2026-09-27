@@ -643,7 +643,7 @@ function light() {
   const t = $('[data-light-t]', sec)!;
   gsap
     .timeline({ scrollTrigger: { trigger: sec, start: 'top top', end: 'bottom bottom', scrub: 0.8 } })
-    .fromTo($('[data-light-img]', sec), { clipPath: 'inset(30% 30% 30% 30%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', duration: 0.55 }, 0)
+    .fromTo($('[data-light-img]', sec), { clipPath: 'inset(12% 10% 12% 10%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', duration: 0.4 }, 0)
     .fromTo($('.light__photo', sec), { scale: 1.25 }, { scale: 1, ease: 'none', duration: 0.8 }, 0)
     .fromTo(t, { '--lx': '-40%' }, { '--lx': '140%', ease: 'none', duration: 0.7 }, 0.05)
     .to(t, { '--base': 1, ease: 'none', duration: 0.25 }, 0.6)
