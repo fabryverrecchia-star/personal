@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 import BeforeAfter from '../components/BeforeAfter.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
-import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale } from '../data/site';
+import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale, equipe, garanties } from '../data/site';
 import { u } from '../lib/url';
 
 const faqLd = {
@@ -105,17 +105,20 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     </figure>
   </section>
 
-  <!-- ─── Philosophie ────────────────────────── -->
-  <section class="philo section alt" aria-labelledby="philo-t">
-    <div class="wrap philo__in">
-      <figure class="philo__img" data-reveal="img">
-        <Image src={photos.finition.src} alt={photos.finition.alt} widths={[400, 700]} sizes="(min-width: 900px) 18vw, 48vw" />
+  <!-- ─── Lumière rasante ────────────────────── -->
+  <section class="light dark" aria-labelledby="light-t" data-light>
+    <div class="light__sticky">
+      <figure class="light__img" data-light-img aria-hidden="true">
+        <Image src={photos.finition.src} alt="" widths={[800, 1587]} sizes="100vw" class="light__photo" />
       </figure>
-      <h2 id="philo-t" class="title philo__t" data-split>La lumière ne pardonne rien</h2>
-      <p class="philo__p" data-reveal="fade">
-        Une lumière rasante révèle la moindre reprise, le moindre défaut de ponçage. C’est pourquoi nous consacrons à la
-        préparation des supports autant de soin qu’à la peinture elle-même.
-      </p>
+      <div class="light__txt wrap">
+        <p class="label light__k">Lumière rasante</p>
+        <h2 id="light-t" class="display light__t" data-light-t>La lumière<br />ne pardonne rien</h2>
+        <p class="light__p" data-light-p>
+          Une lumière rasante révèle la moindre reprise, le moindre défaut de ponçage. C’est pourquoi nous
+          consacrons à la préparation des supports autant de soin qu’à la peinture elle-même.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -200,6 +203,57 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
       <div class="works__more" data-reveal="fade">
         <a href={u('/realisations/')} class="btn" data-magnetic>Voir toutes les réalisations</a>
       </div>
+    </div>
+  </section>
+
+  <!-- ─── L'équipe ───────────────────────────── -->
+  <section class="team alt" id="equipe" aria-labelledby="team-t">
+    <figure class="team__media" data-parallax-wrap data-reveal="img">
+      <Image src={photos.artisan.src} alt={photos.artisan.alt} widths={[600, 1200]} sizes="(min-width: 1024px) 50vw, 100vw" class="team__img" data-parallax />
+    </figure>
+    <div class="team__body">
+      <p class="label muted" data-reveal="fade">L’équipe</p>
+      <h2 id="team-t" class="title team__t" data-split>{equipe.titre}</h2>
+      <p class="team__p" data-reveal="fade">{equipe.texte}</p>
+      <ol class="team__list">
+        {
+          equipe.points.map((pt, i) => (
+            <li data-reveal="fade">
+              <span class="team__n">{roman[i]}.</span>
+              <div>
+                <h3 class="team__h">{pt.titre}</h3>
+                <p class="muted">{pt.texte}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="script team__sign" aria-hidden="true">{site.nom}</p>
+    </div>
+  </section>
+
+  <!-- ─── Garanties ──────────────────────────── -->
+  <section class="guar section" id="garanties" aria-labelledby="guar-t">
+    <div class="wrap">
+      <div class="guar__head">
+        <p class="label muted" data-reveal="fade">Garanties et engagements</p>
+        <h2 id="guar-t" class="display guar__t" data-split>Des travaux <em>garantis</em></h2>
+        <p class="prose" data-reveal="fade">
+          Faire appel à un artisan assuré, c’est la certitude d’être couvert pendant et après le chantier. Voici ce
+          qui vous est acquis dès la signature du devis.
+        </p>
+      </div>
+      <ul class="guar__grid">
+        {
+          garanties.map((g, i) => (
+            <li class="gcard" data-reveal="fade">
+              <span class="gcard__n">{roman[i]}.</span>
+              <h3 class="title gcard__t">{g.titre}</h3>
+              <p class="muted">{g.texte}</p>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
@@ -457,30 +511,65 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     }
   }
 
-  /* ─── Philosophie ─── */
-  .philo__in {
-    display: grid;
-    justify-items: center;
-    text-align: center;
-    gap: 28px;
+  /* ─── Lumière rasante ─── */
+  .light {
+    height: 260vh;
   }
-  .philo__img {
-    width: clamp(160px, 20vw, 260px);
-    aspect-ratio: 4 / 5;
+  .light__sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
     overflow: hidden;
+    display: grid;
+    place-items: center;
   }
-  .philo__img :global(img) {
+  .light__img {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(30% 30% 30% 30%);
+    will-change: clip-path;
+  }
+  .light__img :global(.light__photo) {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transform: scale(1.25);
+    will-change: transform;
   }
-  .philo__t {
-    font-size: var(--fs-l);
-    max-width: 16ch;
+  .light__img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgb(26 25 23 / 0.55), rgb(26 25 23 / 0.35) 50%, rgb(26 25 23 / 0.75));
   }
-  .philo__p {
-    max-width: 50ch;
-    color: var(--muted);
+  .light__txt {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    justify-items: center;
+    gap: 26px;
+    text-align: center;
+  }
+  .light__k {
+    color: rgb(243 239 232 / 0.6);
+  }
+  /* Le titre s'éclaire comme sous un faisceau de lumière rasante */
+  .light__t {
+    --lx: -40%;
+    --base: 0.14;
+    font-size: clamp(2.6rem, 10vw, 8.6rem);
+    line-height: 1.02;
+    color: transparent;
+    background-image:
+      radial-gradient(38% 140% at var(--lx) 55%, #fffdf8 0%, rgb(243 239 232 / 0.95) 35%, rgb(243 239 232 / 0) 72%),
+      linear-gradient(rgb(243 239 232 / var(--base)), rgb(243 239 232 / var(--base)));
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  .light__p {
+    max-width: 44ch;
+    color: rgb(243 239 232 / 0.78);
+    opacity: 0;
   }
 
   /* ─── Savoir-faire ─── */
@@ -713,6 +802,123 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     display: flex;
     justify-content: center;
     margin-top: clamp(56px, 8vw, 110px);
+  }
+
+  /* ─── L'équipe ─── */
+  .team {
+    display: grid;
+  }
+  .team__media {
+    position: relative;
+    height: 70svh;
+    overflow: hidden;
+  }
+  .team__media :global(.team__img) {
+    position: absolute;
+    inset: -8% 0;
+    width: 100%;
+    height: 116%;
+    object-fit: cover;
+  }
+  .team__body {
+    display: grid;
+    gap: 22px;
+    align-content: center;
+    padding: clamp(64px, 10vw, 140px) var(--gutter);
+  }
+  .team__t {
+    font-size: var(--fs-l);
+    max-width: 16ch;
+  }
+  .team__p {
+    max-width: 50ch;
+    color: var(--muted);
+  }
+  .team__list {
+    border-top: 1px solid var(--line);
+    margin-top: 6px;
+  }
+  .team__list li {
+    display: grid;
+    grid-template-columns: 2.8rem 1fr;
+    gap: 10px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .team__n {
+    font-family: var(--serif);
+    color: var(--argile);
+  }
+  .team__h {
+    font-family: var(--serif);
+    font-weight: 450;
+    font-size: 1.25rem;
+    margin-bottom: 2px;
+  }
+  .team__sign {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    line-height: 1;
+    color: var(--argile);
+    margin-top: 8px;
+  }
+  @media (min-width: 1024px) {
+    .team {
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+    }
+    .team__media {
+      height: auto;
+    }
+    .team__body {
+      padding-inline: 6vw var(--gutter);
+    }
+  }
+
+  /* ─── Garanties ─── */
+  .guar__head {
+    display: grid;
+    gap: 20px;
+    justify-items: start;
+    margin-bottom: clamp(44px, 6vw, 80px);
+  }
+  .guar__t {
+    font-size: var(--fs-xl);
+  }
+  .guar__grid {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .gcard {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+    padding: 28px 0 32px;
+    border-bottom: 1px solid var(--line);
+  }
+  .gcard__n {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    color: var(--argile);
+  }
+  .gcard__t {
+    font-size: clamp(1.45rem, 2.2vw, 1.9rem);
+  }
+  .gcard p {
+    max-width: 40ch;
+  }
+  @media (min-width: 800px) {
+    .guar__grid {
+      grid-template-columns: repeat(2, 1fr);
+      column-gap: 48px;
+    }
+  }
+  @media (min-width: 1100px) {
+    .guar__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .gcard {
+      padding: 36px 32px 40px 0;
+    }
   }
 
   /* ─── Déroulement ─── */

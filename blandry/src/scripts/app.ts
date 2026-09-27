@@ -306,40 +306,50 @@ const burger = $('[data-burger]');
 const burgerLabel = $('[data-burger-label]');
 const menu = $('[data-menu]')!;
 const menuBg = $('[data-menu-bg]')!;
-const menuTl = gsap
-  .timeline({
-    paused: true,
-    onReverseComplete: () => {
-      document.documentElement.classList.remove('menu-open');
-      headerTheme();
-    },
-  })
-  .fromTo(menuBg, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 0.6, ease: 'expo.inOut' })
-  .fromTo($$('.menu__t', menu), { yPercent: 105 }, { yPercent: 0, duration: 0.7, stagger: 0.04, ease: 'expo.out' }, '-=0.25')
-  .fromTo($$('.menu__n, .menu__foot, .menu__media', menu), { opacity: 0 }, { opacity: 1, duration: 0.4 }, '-=0.5');
-const isOpen = () => document.documentElement.classList.contains('menu-open') && !menuTl.reversed();
+let menuTl: gsap.core.Timeline | null = null;
+let menuOpen = false;
+const menuTitles = $$('.menu__t', menu);
+const menuRest = $$('.menu__n, .menu__foot, .menu__media', menu);
+gsap.set(menu, { clipPath: 'inset(0% 0% 100% 0%)' });
+const isOpen = () => menuOpen;
 function openMenu() {
+  menuOpen = true;
+  menuTl?.kill();
   document.documentElement.classList.add('menu-open');
   header.classList.remove('is-hidden', 'is-light');
   burger?.setAttribute('aria-expanded', 'true');
   if (burgerLabel) burgerLabel.textContent = 'Fermer';
   menu.setAttribute('aria-hidden', 'false');
   lenis?.stop();
-  menuTl.timeScale(1).play();
+  // Le panneau descend et les titres montent en même temps
+  menuTl = gsap
+    .timeline()
+    .to(menu, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.75, ease: 'expo.inOut' }, 0)
+    .fromTo(menuTitles, { yPercent: 110 }, { yPercent: 0, duration: 0.95, ease: 'expo.out', stagger: 0.045 }, 0.22)
+    .fromTo(menuRest, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', stagger: 0.03 }, 0.4);
 }
 function closeMenu(instant = false) {
-  if (!document.documentElement.classList.contains('menu-open')) return;
+  if (!menuOpen) return;
+  menuOpen = false;
+  menuTl?.kill();
   burger?.setAttribute('aria-expanded', 'false');
   if (burgerLabel) burgerLabel.textContent = 'Menu';
   menu.setAttribute('aria-hidden', 'true');
   lenis?.start();
-  if (instant) {
-    menuTl.pause(0);
+  const done = () => {
     document.documentElement.classList.remove('menu-open');
     headerTheme();
-    return;
+  };
+  if (instant) {
+    gsap.set(menu, { clipPath: 'inset(0% 0% 100% 0%)' });
+    return done();
   }
-  menuTl.timeScale(1.6).reverse();
+  // Les titres s'effacent, puis le panneau remonte d'un seul geste
+  menuTl = gsap
+    .timeline({ onComplete: done })
+    .to(menuTitles, { yPercent: -110, duration: 0.4, ease: 'power3.in', stagger: 0.025 }, 0)
+    .to(menuRest, { opacity: 0, duration: 0.25 }, 0)
+    .to(menu, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.6, ease: 'expo.inOut' }, 0.18);
 }
 burger?.addEventListener('click', () => (isOpen() ? closeMenu() : openMenu()));
 addEventListener('keydown', (e) => e.key === 'Escape' && closeMenu());
@@ -626,6 +636,20 @@ function process() {
   });
 }
 
+/* ─── Lumière rasante : la photo s'ouvre, un faisceau éclaire le titre ─── */
+function light() {
+  const sec = $('[data-light]');
+  if (!sec) return;
+  const t = $('[data-light-t]', sec)!;
+  gsap
+    .timeline({ scrollTrigger: { trigger: sec, start: 'top top', end: 'bottom bottom', scrub: 0.8 } })
+    .fromTo($('[data-light-img]', sec), { clipPath: 'inset(30% 30% 30% 30%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', duration: 0.55 }, 0)
+    .fromTo($('.light__photo', sec), { scale: 1.25 }, { scale: 1, ease: 'none', duration: 0.8 }, 0)
+    .fromTo(t, { '--lx': '-40%' }, { '--lx': '140%', ease: 'none', duration: 0.7 }, 0.05)
+    .to(t, { '--base': 1, ease: 'none', duration: 0.25 }, 0.6)
+    .fromTo($('[data-light-p]', sec), { opacity: 0, y: 30 }, { opacity: 1, y: 0, ease: 'none', duration: 0.2 }, 0.72);
+}
+
 /* ─── Profondeur des photos au défilement ─────────── */
 function depth() {
   if (reduced) return;
@@ -855,6 +879,7 @@ function init() {
   beforeAfter();
   process();
   stackSteps();
+  light();
   terre();
   depth();
   gallery();

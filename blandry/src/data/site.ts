@@ -142,6 +142,48 @@ export const heroPhotos: Photo[] = [
   P('wc-noir-graphique', '', 'Commerce'),
 ];
 
+// ── L'équipe ──────────────────────────────────────────────────
+// À VÉRIFIER : composition de l'équipe (nombre de compagnons, années d'expérience)
+export const equipe = {
+  titre: 'Une équipe à taille humaine, un seul responsable',
+  texte:
+    'Benjamin Landry dirige l’entreprise et suit personnellement chaque chantier : il réalise la visite, établit le devis, organise le planning et procède à la réception avec vous. Sur le terrain, il s’entoure de peintres qualifiés, formés aux mêmes méthodes de préparation et au même niveau de finition.',
+  points: [
+    { titre: 'Un interlocuteur unique', texte: 'Le même responsable, de la première visite à la remise des clés.' },
+    { titre: 'Des peintres qualifiés', texte: 'Une équipe formée aux mêmes exigences de préparation et de finition.' },
+    { titre: 'Une présence régulière', texte: 'Un point d’avancement à chaque étape, en personne ou par photographies.' },
+  ],
+};
+
+// ── Garanties et engagements (également utiles au référencement) ─
+// À VÉRIFIER : nom de l'assureur décennale à indiquer dans site.assurance
+export const garanties = [
+  {
+    titre: 'Garantie décennale',
+    texte: 'Nos travaux sont couverts par une assurance décennale. L’attestation, au nom de l’entreprise, est jointe à chaque devis.',
+  },
+  {
+    titre: 'Responsabilité civile professionnelle',
+    texte: 'Votre logement, votre mobilier et les parties communes sont assurés pendant toute la durée du chantier.',
+  },
+  {
+    titre: 'Garantie de parfait achèvement',
+    texte: 'Pendant un an après la réception, tout désordre signalé est repris à nos frais, conformément au Code civil.',
+  },
+  {
+    titre: 'Devis détaillé, prix ferme',
+    texte: 'Surfaces, préparation, produits et nombre de couches sont chiffrés poste par poste. Le prix accepté est celui facturé.',
+  },
+  {
+    titre: 'Produits professionnels A+',
+    texte: 'Peintures en phase aqueuse, faiblement émissives, pour une qualité de l’air intérieur préservée dès la fin du chantier.',
+  },
+  {
+    titre: 'TVA à taux réduit',
+    texte: 'Pour un logement achevé depuis plus de deux ans, les travaux de peinture bénéficient d’une TVA à 10 % au lieu de 20 %.',
+  },
+];
+
 // ── Savoir-faire ──────────────────────────────────────────────
 export const services = [
   {
@@ -312,7 +354,9 @@ export const faqGenerale = [
   { q: 'La visite et le devis sont-ils gratuits ?', r: 'Oui. La visite sur place et le devis détaillé sont gratuits et sans engagement.' },
   { q: 'Réalisez-vous des rénovations complètes ?', r: 'Notre métier est la peinture et tout ce qui la prépare : enduits, reprises de plâtre, toile de verre, ainsi que certains revêtements de sol. Pour les autres corps de métier, nous pouvons vous orienter vers des artisans de confiance.' },
   { q: 'Quels produits utilisez-vous ?', r: 'Des peintures professionnelles en phase aqueuse, classées A+ pour l’intérieur, minérales ou siloxanes pour l’extérieur. Les marques et références figurent sur le devis.' },
-  { q: 'Êtes-vous assurés ?', r: 'Oui. Responsabilité civile professionnelle et garantie décennale ; l’attestation est jointe à chaque devis.' },
+  { q: 'Quelles garanties couvrent vos travaux ?', r: 'Nos travaux sont couverts par une garantie décennale et une assurance responsabilité civile professionnelle, dont l’attestation est jointe au devis. S’y ajoute la garantie de parfait achèvement : pendant un an après la réception, tout désordre signalé est repris à nos frais.' },
+  { q: 'Puis-je bénéficier d’une TVA réduite ?', r: 'Oui, si votre logement est achevé depuis plus de deux ans : les travaux de peinture sont alors facturés avec une TVA à 10 %. Une simple attestation à signer suffit, nous vous la fournissons avec le devis.' },
+  { q: 'Qui réalise les travaux ?', r: 'Benjamin Landry suit personnellement chaque chantier, de la visite à la réception, et s’entoure de peintres qualifiés formés aux mêmes méthodes. Vous avez un seul interlocuteur du début à la fin.' },
   { q: 'Comment votre logement est-il protégé ?', r: 'Sols, mobilier et menuiseries sont protégés avant toute intervention. Le chantier est rangé chaque soir et remis propre à la livraison.' },
 ];
 
