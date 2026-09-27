@@ -1,341 +1,263 @@
 ---
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import Fan from '../components/Fan.astro';
+import BeforeAfter from '../components/BeforeAfter.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
-import Marquee from '../components/Marquee.astro';
-import BeforeAfter from '../components/BeforeAfter.astro';
-import { Image } from 'astro:assets';
-import { site, services, nuancier, zones, etapes, realisations as reals, photos, faqGenerale, teinte } from '../data/site';
-// La chambre sous combles (photo HD) en premier
-const realisations = [...reals].sort((a, b) => Number(b.titre.includes('combles')) - Number(a.titre.includes('combles')));
+import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale } from '../data/site';
 import { u } from '../lib/url';
 
 const faqLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
-  mainEntity: faqGenerale.map((f) => ({
-    '@type': 'Question',
-    name: f.q,
-    acceptedAnswer: { '@type': 'Answer', text: f.r },
-  })),
+  mainEntity: faqGenerale.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.r } })),
 };
-const savoirFaire = [
-  'Peinture intérieure', 'Enduits & préparation', 'Façades', 'Boiseries & volets', 'Conseil couleur', 'Finitions soignées',
+const roman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+// Positions des photos flottantes : bureau (x, y, largeur en vw) puis mobile
+const spots = [
+  { x: 3, y: 12, w: 10, mx: -4, my: 10, mw: 30, d: 0.6 },
+  { x: 9, y: 60, w: 9, mx: 72, my: 8, mw: 27, d: 1.1 },
+  { x: 76, y: 9, w: 13, mx: -6, my: 78, mw: 34, d: 0.8 },
+  { x: 85, y: 55, w: 10, mx: 74, my: 80, mw: 26, d: 1.3 },
+  { x: 19, y: 84, w: 8, mx: -99, my: 0, mw: 0, d: 0.9 },
+  { x: 71, y: 83, w: 8, mx: -99, my: 0, mw: 0, d: 1.2 },
+  { x: 21, y: 12, w: 6, mx: -99, my: 0, mw: 0, d: 0.7 },
+  { x: 62, y: 11, w: 6, mx: -99, my: 0, mw: 0, d: 1 },
 ];
-// Une teinte du nuancier par réalisation et par étape
-const teintesChantiers = ['sioule', 'limagne', 'puys'];
-const teintesEtapes = ['chaux', 'puys', 'limagne', 'sioule', 'tuile', 'volvic'];
-const n2 = (i: number) => String(i + 1).padStart(2, '0');
+const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) ?? galerie[0]).src;
 ---
 
 <Base
   title={`${site.nom} — Peintre en bâtiment, peinture et finitions | Puy-de-Dôme`}
-  description="Artisan peintre à Saint-Georges-de-Mons : peinture intérieure, préparation des supports, façades et boiseries. Interventions dans les Combrailles, à Riom et à Clermont-Ferrand. Visite et devis gratuits."
+  description="Artisan peintre à Saint-Georges-de-Mons : peinture intérieure et extérieure, préparation des supports, boiseries et décoration. Interventions dans les Combrailles, à Riom et à Clermont-Ferrand. Visite et devis gratuits."
   schema={[faqLd]}
 >
-  <!-- ─── Hero ─────────────────────────────────── -->
+  <!-- ─── Ouverture ──────────────────────────── -->
   <section class="hero" data-hero>
-    <div class="wrap hero__grid">
-      <p class="eyebrow eyebrow--dot hero__eye" data-hero-fade>
-        Artisan peintre · Puy-de-Dôme
-      </p>
-
-      <h1 class="hero__t serif" data-hero-title>
-        <span class="line"><span class="line-inner">Peinture</span></span>
-        <span class="line hero__brushline">
-          <span class="line-inner">
-            <em class="hero__brushword">
-              &amp; finitions,
-              <svg class="brush" viewBox="0 0 600 70" preserveAspectRatio="none" aria-hidden="true">
-                <path
-                  data-brush
-                  d="M8 44 C 90 30, 170 52, 260 38 S 430 30, 520 40 S 580 36, 592 34"
-                  pathLength="1"></path>
-              </svg>
-            </em>
-          </span>
-        </span>
-        <span class="line"><span class="line-inner">du sol au plafond.</span></span>
-      </h1>
-
-      <div class="hero__fan" data-hero-fan>
-        <Fan />
-      </div>
-
-      <div class="hero__foot" data-hero-fade>
-        <p class="hero__lede">
-          Nous préparons, protégeons et mettons en peinture votre intérieur avec la rigueur d’un artisan.
-          Un seul interlocuteur, de la demande de devis à la livraison du chantier.
-        </p>
-        <div class="hero__ctas">
-          <a href="#contact" class="btn" data-magnetic>
-            Demander un devis gratuit
-            <svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>
-          </a>
-          <a href="#avant-apres" class="btn btn--ghost">Avant / après</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <Marquee items={savoirFaire} label="Nos savoir-faire" />
-
-  <!-- ─── Avant / après ────────────────────────── -->
-  <section class="bas section" id="avant-apres" data-ba-scope aria-labelledby="bas-t">
-    <p class="bas__word bas__word--l serif" aria-hidden="true">Avant</p>
-    <p class="bas__word bas__word--r serif" aria-hidden="true"><em>Après</em></p>
-    <div class="wrap bas__grid">
-      <div class="bas__head">
-        <p class="eyebrow eyebrow--dot">Avant / après</p>
-        <h2 id="bas-t" class="serif bas__t" data-split>
-          La différence, <em>au curseur.</em>
-        </h2>
-        <p class="bas__p" data-reveal="fade">
-          Faites glisser pour comparer. Préparation des supports, reprise des murs et des plafonds :
-          la qualité d’une peinture se joue avant la première couche.
-        </p>
-        <a href="#realisations" class="btn btn--light bas__cta" data-reveal="fade">Voir nos réalisations</a>
-      </div>
-      <div class="bas__slider" data-reveal="fade">
-        <BeforeAfter />
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── Réalisations : cartes-échantillons ───── -->
-  <section class="works section" id="realisations" aria-labelledby="works-t" data-works>
-    <div class="wrap works__head">
-      <p class="eyebrow eyebrow--dot muted">Réalisations</p>
-      <h2 id="works-t" class="serif works__t" data-split>
-        Des chantiers <em>livrés avec soin.</em>
-      </h2>
-    </div>
-    <div class="works__viewport" data-works-viewport>
-      <ul class="works__track" data-works-track>
-        {
-          realisations.map((r, i) => {
-            const t = teinte(teintesChantiers[i % teintesChantiers.length]);
-            return (
-              <li class="wcard" style={`--c:${t.hex};--ink:${t.ink};--r:${i % 2 ? 1.6 : -1.8}deg`}>
-                <div class="wcard__media">
-                  <Image src={r.image} alt={r.alt} widths={[400, 800]} sizes="(min-width: 1024px) 34vw, 82vw" class="wcard__img" />
-                </div>
-                <div class="wcard__band">
-                  <span class="wcard__n">N° {n2(i)}{r.lieu && ` — ${r.lieu}`}</span>
-                  <h3 class="wcard__t serif">{r.titre}</h3>
-                  <p class="wcard__tags">{r.travaux.join(' · ')}</p>
-                </div>
-              </li>
-            );
-          })
-        }
-        <li class="wcard wcard--cta" style="--r:1.2deg">
-          <a href="#contact" class="wcard__ctalink">
-            <span class="serif">Votre projet <em>sera le prochain ?</em></span>
-            <span class="btn">Demander un devis gratuit</span>
-          </a>
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- ─── Déroulement ──────────────────────────── -->
-  <section class="proc section" id="etapes" aria-labelledby="proc-t" data-proc>
-    <div class="wrap proc__grid">
-      <div class="proc__aside">
-        <p class="eyebrow eyebrow--dot">Déroulement</p>
-        <h2 id="proc-t" class="serif proc__t" data-split>
-          De la demande de devis <em>à la livraison.</em>
-        </h2>
-        <div class="proc__pot" aria-hidden="true" data-proc-pot style={`--pc:${teinte(teintesEtapes[0]).hex};--pi:${teinte(teintesEtapes[0]).ink}`}>
-          <span class="proc__num serif" data-proc-num>01</span>
-          <span class="proc__of">/ {n2(etapes.length - 1)}</span>
-        </div>
-      </div>
-      <ol class="proc__list">
-        {
-          etapes.map((e, i) => {
-            const t = teinte(teintesEtapes[i]);
-            return (
-              <li class="pstep" data-pstep data-pc={t.hex} data-pi={t.ink} style={`--c:${t.hex};--pi-ink:${t.ink}`}>
-                <div class="pstep__top">
-                  <span class="pstep__n serif">{n2(i)}</span>
-                  <span class="pstep__badge">{e.duree}</span>
-                </div>
-                <h3 class="pstep__t serif">{e.titre}</h3>
-                <p class="pstep__p">{e.texte}</p>
-              </li>
-            );
-          })
-        }
-      </ol>
-    </div>
-  </section>
-
-  <!-- ─── Manifeste ────────────────────────────── -->
-  <section class="manifesto section" aria-label="Notre approche">
-    <div class="wrap grid">
-      <figure class="manifesto__photo" data-parallax-wrap>
-        <video
-          class="manifesto__img"
-          data-parallax
-          data-autovideo
-          muted
-          loop
-          playsinline
-          preload="none"
-          poster={u('/videos/metier-poster.jpg')}
-          aria-label="Blandry au travail : ponçage d’un plafond, application d’enduit, reprise des joints"
-        >
-          <source src={u('/videos/metier-1280.mp4')} type="video/mp4" data-src-sm={u('/videos/metier-720.mp4')} />
-        </video>
-      </figure>
-      <p class="eyebrow eyebrow--dot muted manifesto__eye">Notre métier</p>
-      <p class="manifesto__t serif" data-words>
-        Notre spécialité n’est pas la rénovation générale : <em>notre métier est la peinture.</em>
-        Nous préparons, protégeons et mettons en couleur chaque pièce avec l’exigence d’un artisan,
-        du sol au plafond.
-      </p>
-    </div>
-  </section>
-
-  <!-- ─── Bande : la lumière révèle tout ───────── -->
-  <section class="band" aria-label="Finitions" data-parallax-wrap>
-    <Image src={photos.finition.src} alt={photos.finition.alt} widths={[800, 1587]} sizes="100vw" class="band__img" data-parallax />
-    <div class="wrap band__in">
-      <p class="band__t serif" data-split>
-        La lumière révèle chaque défaut. <em>Nous préparons en conséquence.</em>
-      </p>
-    </div>
-  </section>
-
-  <!-- ─── Services ─────────────────────────────── -->
-  <section class="services" id="services" aria-labelledby="services-t">
-    <div class="wrap services__head">
-      <p class="eyebrow eyebrow--dot muted">Savoir-faire</p>
-      <h2 id="services-t" class="serif services__t" data-split>
-        La peinture, <em>et tout ce qui la prépare.</em>
-      </h2>
-    </div>
-    <div class="wrap stack" data-stack>
+    <div class="hero__floats" aria-hidden="true">
       {
-        services.map((s, i) => {
-          const t = teinte(s.teinte);
+        heroPhotos.map((p, i) => {
+          const s = spots[i];
           return (
-            <article
-              class="card"
-              id={s.id}
-              data-card
-              style={`--c:${t.hex};--ink:${t.ink};--i:${i}`}
+            <div
+              class:list={['float', { 'float--desk': s.mw === 0 }]}
+              data-float
+              data-depth={s.d}
+              style={`--x:${s.x}%;--y:${s.y}%;--w:${s.w}vw;--mx:${s.mx}%;--my:${s.my}%;--mw:${s.mw}vw`}
             >
-              <div class="card__in">
-                <div class="card__top">
-                  <span class="card__n">0{i + 1} / 0{services.length}</span>
-                  <span class="card__swatch">
-                    <i />
-                    {t.nom}
-                  </span>
-                </div>
-                <span class="card__big serif" aria-hidden="true">{i + 1}</span>
-                <div class="card__body">
-                  <h3 class="serif card__t">{s.titre}</h3>
-                  <div class="card__text">
-                    <p class="card__court">{s.court}</p>
-                    <p>{s.texte}</p>
-                    <ul class="card__pts">
-                      {s.points.map((p) => (
-                        <li>{p}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </article>
+              <Image src={p.src} alt="" widths={[320, 520]} sizes="(min-width: 900px) 14vw, 34vw" loading="eager" class="float__img" />
+            </div>
           );
         })
       }
     </div>
+
+    <div class="hero__center">
+      <p class="label hero__kicker" data-hero-fade>{site.nom} · Peintre en bâtiment · Puy-de-Dôme</p>
+      <h1 class="display hero__t" data-hero-title>
+        <span class="line"><span class="line-inner">La peinture,</span></span>
+        <span class="line"><span class="line-inner"><em>sans</em> approximation</span></span>
+      </h1>
+      <p class="hero__p" data-hero-fade>
+        Peinture intérieure et extérieure, préparation des supports et finitions, pour les particuliers et les
+        professionnels du Puy-de-Dôme.
+      </p>
+      <div class="hero__ctas" data-hero-fade>
+        <a href="#contact" class="btn btn--solid" data-magnetic>Demander un devis</a>
+        <a href="#atelier" class="cta">Découvrir l’atelier</a>
+      </div>
+    </div>
+
+    <p class="hero__scroll label" data-hero-fade aria-hidden="true"><span></span>Défiler</p>
   </section>
 
-  <!-- ─── Nuancier ─────────────────────────────── -->
-  <section class="nuancier section" id="nuancier" data-nuancier aria-labelledby="nuancier-t">
-    <div class="wrap">
-      <div class="nuancier__head">
-        <p class="eyebrow eyebrow--dot">Conseil couleur</p>
-        <h2 id="nuancier-t" class="serif nuancier__t" data-split>
-          Des teintes inspirées <em>des matériaux de la région.</em>
-        </h2>
-      </div>
+  <!-- ─── L'atelier ──────────────────────────── -->
+  <section class="atelier" id="atelier" aria-labelledby="atelier-t">
+    <div class="atelier__text">
+      <p class="label muted" data-reveal="fade">L’atelier</p>
+      <h2 id="atelier-t" class="title atelier__t" data-split>Un artisan, une exigence, <em>chaque mètre carré.</em></h2>
+      <p class="atelier__p" data-reveal="fade">
+        Blandry est une entreprise de peinture en bâtiment installée à {site.adresse.ville}. Nous intervenons chez
+        les particuliers comme chez les professionnels, avec une conviction : la qualité d’une finition se décide
+        bien avant la dernière couche.
+      </p>
+      <ul class="atelier__list">
+        <li data-reveal="fade"><span>I.</span> Visite et devis détaillé, gratuits</li>
+        <li data-reveal="fade"><span>II.</span> Un seul interlocuteur, du devis à la réception</li>
+        <li data-reveal="fade"><span>III.</span> Garantie décennale, attestation jointe au devis</li>
+      </ul>
+    </div>
+    <figure class="atelier__media" data-parallax-wrap data-reveal="img">
+      <video
+        class="atelier__video"
+        data-autovideo
+        data-parallax
+        muted
+        loop
+        playsinline
+        preload="none"
+        poster={u('/videos/metier-poster.jpg')}
+        aria-label="Au travail : ponçage d’un plafond, application d’enduit, reprise des joints"
+      >
+        <source src={u('/videos/metier-1280.mp4')} type="video/mp4" data-src-sm={u('/videos/metier-720.mp4')} />
+      </video>
+      <figcaption class="label atelier__cap">Ponçage, enduit, reprise des joints</figcaption>
+    </figure>
+  </section>
 
-      <div class="nuancier__stage" aria-live="polite">
-        <p class="nuancier__name serif" data-nu-name>{nuancier[1].nom}</p>
-        <p class="nuancier__meta">
-          <span data-nu-lieu>{nuancier[1].lieu}</span>
-          <span data-nu-hex>{nuancier[1].hex}</span>
-        </p>
-      </div>
-
-      <div class="nuancier__row" role="radiogroup" aria-label="Choisir une teinte">
-        {
-          nuancier.map((t, i) => (
-            <button
-              class="nu"
-              role="radio"
-              aria-checked={i === 1 ? 'true' : 'false'}
-              data-nu
-              data-hex={t.hex}
-              data-ink={t.ink}
-              data-nom={t.nom}
-              data-lieu={t.lieu}
-              style={`--c:${t.hex}`}
-            >
-              <span class="nu__dot" />
-              <span class="nu__lab">{t.nom}</span>
-            </button>
-          ))
-        }
-      </div>
-      <p class="nuancier__note">
-        Nous apportons de vrais échantillons et les posons chez vous : une couleur se choisit dans la
-        lumière réelle de la pièce.
+  <!-- ─── Philosophie ────────────────────────── -->
+  <section class="philo section alt" aria-labelledby="philo-t">
+    <div class="wrap philo__in">
+      <figure class="philo__img" data-reveal="img">
+        <Image src={photos.finition.src} alt={photos.finition.alt} widths={[400, 700]} sizes="(min-width: 900px) 18vw, 48vw" />
+      </figure>
+      <h2 id="philo-t" class="title philo__t" data-split>La lumière ne pardonne rien</h2>
+      <p class="philo__p" data-reveal="fade">
+        Une lumière rasante révèle la moindre reprise, le moindre défaut de ponçage. C’est pourquoi nous consacrons à la
+        préparation des supports autant de soin qu’à la peinture elle-même.
       </p>
     </div>
   </section>
 
-  <!-- ─── Secteurs ─────────────────────────────── -->
-  <section class="zones section" id="secteurs" aria-labelledby="zones-t">
+  <!-- ─── Savoir-faire ───────────────────────── -->
+  <section class="skills" id="savoir-faire" aria-labelledby="skills-t" data-skills>
+    <p class="skills__giant display" aria-hidden="true" data-giant>
+      <span>Savoir-faire&nbsp;·&nbsp;Savoir-faire&nbsp;·&nbsp;Savoir-faire&nbsp;·&nbsp;</span>
+    </p>
+    <div class="wrap skills__grid">
+      <figure class="skills__media" data-reveal="img">
+        {
+          services.map((s, i) => (
+            <Image
+              src={svcImg(s.photo)}
+              alt=""
+              widths={[500, 900]}
+              sizes="(min-width: 1024px) 38vw, 92vw"
+              class:list={['skills__img', { 'is-on': i === 0 }]}
+              data-skill-img={i}
+            />
+          ))
+        }
+      </figure>
+      <div class="skills__body">
+        <h2 id="skills-t" class="sr-only">Savoir-faire</h2>
+        <p class="skills__intro" data-reveal="fade">
+          Cinq métiers réunis autour d’un même objectif : une surface juste, durable et belle à la lumière du jour.
+        </p>
+        <ol class="skills__list">
+          {
+            services.map((s, i) => (
+              <li class="skill" data-skill={i}>
+                <button class="skill__head" aria-expanded={i === 0 ? 'true' : 'false'} aria-controls={`skill-${s.id}`}>
+                  <span class="skill__n">{roman[i]}.</span>
+                  <span class="skill__t">{s.titre}</span>
+                  <span class="skill__plus" aria-hidden="true" />
+                </button>
+                <div class="skill__body" id={`skill-${s.id}`} hidden={i !== 0}>
+                  <p>{s.texte}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Avant, après ───────────────────────── -->
+  <section class="ba-sec section dark" id="avant-apres" aria-labelledby="ba-t">
+    <div class="wrap ba-sec__in">
+      <h2 id="ba-t" class="display ba-sec__t" data-split>Avant, après</h2>
+      <div class="ba-sec__slider" data-reveal="fade"><BeforeAfter /></div>
+      <p class="script ba-sec__sign" aria-hidden="true">la preuve par l’image</p>
+    </div>
+  </section>
+
+  <!-- ─── Réalisations ───────────────────────── -->
+  <section class="works section" id="realisations" aria-labelledby="works-t">
     <div class="wrap">
-      <div class="zones__head grid">
-        <p class="eyebrow eyebrow--dot muted zones__eye">Zone d’intervention</p>
-        <h2 id="zones-t" class="serif zones__t" data-split>
-          Où nous <em>intervenons.</em>
-        </h2>
-        <p class="zones__lede" data-reveal="fade">
-          Installés à {site.adresse.ville}, nous intervenons dans un rayon d’environ quarante kilomètres.
-          Le déplacement pour la visite et le devis est gratuit.
+      <div class="works__head">
+        <p class="label muted" data-reveal="fade">Réalisations</p>
+        <h2 id="works-t" class="display works__t" data-split>Chantiers <em>livrés</em></h2>
+      </div>
+      <ul class="works__grid">
+        {
+          selection.map((p, i) => (
+            <li class={`work work--${i}`}>
+              <figure>
+                <div class="work__media" data-reveal="img" data-view>
+                  <Image src={p.src} alt={p.titre} widths={[500, 900, 1400]} sizes={i === 0 ? '(min-width: 1024px) 60vw, 92vw' : '(min-width: 1024px) 30vw, 80vw'} class="work__img" />
+                </div>
+                <figcaption class="work__cap">
+                  <span class="label muted">{p.cat}</span>
+                  <span class="work__t">{p.titre}</span>
+                </figcaption>
+              </figure>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="works__more" data-reveal="fade">
+        <a href={u('/realisations/')} class="btn" data-magnetic>Voir toutes les réalisations</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Déroulement ────────────────────────── -->
+  <section class="proc dark" id="etapes" aria-labelledby="proc-t" data-proc>
+    <div class="proc__sticky">
+      <div class="wrap proc__grid">
+        <div class="proc__aside">
+          <p class="label muted">Déroulement</p>
+          <h2 id="proc-t" class="title proc__t">De la demande de devis à la livraison</h2>
+          <ol class="proc__index" aria-hidden="true">
+            {etapes.map((e, i) => <li class:list={{ 'is-on': i === 0 }} data-proc-dot={i}><span>{roman[i]}.</span>{e.titre}</li>)}
+          </ol>
+        </div>
+        <ol class="proc__list">
+          {
+            etapes.map((e, i) => (
+              <li class:list={['pstep', { 'is-on': i === 0 }]} data-pstep={i}>
+                <span class="pstep__n display" aria-hidden="true">{roman[i]}</span>
+                <div class="pstep__body">
+                  <span class="label pstep__d">{e.duree}</span>
+                  <h3 class="title pstep__t">{e.titre}</h3>
+                  <p class="pstep__p">{e.texte}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Territoire ─────────────────────────── -->
+  <section class="terre section" aria-labelledby="terre-t">
+    <div class="wrap terre__grid">
+      <div class="terre__text">
+        <p class="label muted" data-reveal="fade">Territoire</p>
+        <h2 id="terre-t" class="title terre__t" data-split>Une palette née <em>du Puy-de-Dôme</em></h2>
+        <p class="prose" data-reveal="fade">
+          Basalte des volcans, pierre de Volvic, terres de Limagne, enduits à la chaux des Combrailles : les teintes
+          que nous proposons s’accordent au bâti de la région. Nous intervenons depuis {site.adresse.ville} dans un
+          rayon d’une quarantaine de kilomètres.
+        </p>
+        <p class="terre__zones" data-reveal="fade">
+          {zones.map((z) => <a href={u(`/${z.slug}/`)} class="cta">Peintre {z.dans}</a>)}
         </p>
       </div>
-
-      <ul class="zlist">
+      <ul class="swatches" data-reveal="fade">
         {
-          zones.map((z, i) => {
-            const t = teinte(z.teinte);
-            return (
-              <li style={`--c:${t.hex};--ink:${t.ink}`}>
-                <a href={u(`/${z.slug}/`)} class="zrow" data-zrow>
-                  <span class="zrow__fill" aria-hidden="true" />
-                  <span class="zrow__n">0{i + 1}</span>
-                  <span class="zrow__name serif">{z.nom}</span>
-                  <span class="zrow__court">{z.court}</span>
-                  <span class="zrow__go" aria-hidden="true">
-                    <svg viewBox="0 0 16 16"><path d="M3 13 13 3M5 3h8v8" fill="none" stroke="currentColor" stroke-width="1.4" /></svg>
-                  </span>
-                  <span class="sr-only">— voir la page peintre {z.nom}</span>
-                </a>
-              </li>
-            );
-          })
+          palette.map((c) => (
+            <li class="swatch" style={`--c:${c.hex}`} tabindex="0">
+              <span class="swatch__chip" />
+              <span class="swatch__txt">
+                <span class="title swatch__n">{c.nom}</span>
+                <span class="label swatch__o">{c.origine}</span>
+              </span>
+            </li>
+          ))
         }
       </ul>
     </div>
@@ -346,664 +268,447 @@ const n2 = (i: number) => String(i + 1).padStart(2, '0');
 </Base>
 
 <style>
-  /* Hero */
+  /* ─── Ouverture ─── */
   .hero {
     position: relative;
-    min-height: 100svh;
-    padding-top: calc(96px + env(safe-area-inset-top));
-    padding-bottom: 32px;
-    display: flex;
-  }
-  .hero__grid {
+    height: 100svh;
+    min-height: 640px;
+    overflow: hidden;
     display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto 1fr auto;
-    gap: 24px;
+    place-items: center;
   }
-  .hero__eye {
+  .hero__floats {
+    position: absolute;
+    inset: 0;
+  }
+  .float {
+    position: absolute;
+    left: var(--mx);
+    top: var(--my);
+    width: var(--mw);
+    will-change: transform;
+  }
+  .float--desk {
+    display: none;
+  }
+  .float :global(.float__img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+  }
+  @media (min-width: 900px) {
+    .float {
+      left: var(--x);
+      top: var(--y);
+      width: var(--w);
+    }
+    .float--desk {
+      display: block;
+    }
+  }
+  .hero__center {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    justify-items: center;
+    gap: 22px;
+    text-align: center;
+    padding-inline: var(--gutter);
+    max-width: 1100px;
+  }
+  .hero__kicker {
     color: var(--muted);
   }
   .hero__t {
-    font-size: clamp(3.1rem, 12.4vw, 11.5rem);
-    line-height: 0.9;
-    letter-spacing: -0.035em;
+    font-size: clamp(2.5rem, 9.6vw, 6.6rem);
+    line-height: 0.95;
   }
-  .hero__brushline {
-    overflow: visible;
+  .hero__t em {
+    font-weight: 400;
   }
-  .hero__brushline .line-inner {
-    clip-path: inset(-10% -10% 0 -10%);
-  }
-  .hero__brushword {
-    position: relative;
-    display: inline-block;
-    white-space: nowrap;
-  }
-  .brush {
-    position: absolute;
-    left: -2%;
-    right: -3%;
-    bottom: 0.02em;
-    width: 105%;
-    height: 0.34em;
-    z-index: -1;
-    overflow: visible;
-  }
-  .brush path {
-    fill: none;
-    stroke: var(--limagne);
-    stroke-width: 26;
-    stroke-linecap: round;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 0;
-    opacity: 0.9;
-  }
-  .js .brush path {
-    stroke-dashoffset: 1;
-  }
-  .hero__fan {
-    display: grid;
-    place-items: center;
-    padding-top: 12px;
-    min-height: clamp(240px, 58vw, 460px);
-  }
-  .hero__foot {
-    display: grid;
-    gap: 22px;
-    align-self: end;
-  }
-  .hero__lede {
-    max-width: 38ch;
-    font-size: 1.05rem;
+  .hero__p {
+    max-width: 44ch;
     color: var(--muted);
+    font-size: var(--fs-s);
   }
   .hero__ctas {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    gap: 12px 28px;
+    margin-top: 6px;
   }
-  @media (min-width: 1024px) {
-    .hero__grid {
-      grid-template-columns: repeat(12, 1fr);
-      grid-template-rows: auto 1fr auto;
-      column-gap: 28px;
-    }
-    .hero__eye {
-      grid-column: 1 / -1;
-    }
-    .hero__t {
-      grid-column: 1 / 9;
-      grid-row: 2;
-      align-self: center;
-      font-size: min(9.6vw, 11rem);
-    }
-    .hero__fan {
-      grid-column: 9 / -1;
-      grid-row: 2;
-      min-height: 0;
-    }
-    .hero__fan :global(.fan) {
-      --w: min(6.4vw, 96px);
-      --h: min(29vw, 420px);
-    }
-    .hero__foot {
-      grid-column: 1 / -1;
-      grid-template-columns: 1fr auto;
-      align-items: end;
-    }
+  .hero__scroll {
+    position: absolute;
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
   }
-
-  /* Manifeste */
-  .manifesto__eye {
-    grid-column: 1 / -1;
-    margin-bottom: 28px;
+  .hero__scroll span {
+    width: 40px;
+    height: 1px;
+    background: currentColor;
+    transform-origin: left;
+    animation: scrollhint 2.4s var(--ease) infinite;
   }
-  .manifesto__t {
-    grid-column: 1 / -1;
-    font-size: clamp(2rem, 5.2vw, 4.6rem);
-    line-height: 1.02;
-    letter-spacing: -0.025em;
-  }
-  .manifesto__t em {
-    color: var(--tuile);
-  }
-  @media (min-width: 1024px) {
-    .manifesto__eye {
-      grid-column: 1 / 3;
-      margin-top: 1.2em;
+  @keyframes scrollhint {
+    0% {
+      transform: scaleX(0);
     }
-    .manifesto__t {
-      grid-column: 3 / -1;
+    50% {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+    51% {
+      transform-origin: right;
+    }
+    100% {
+      transform: scaleX(0);
+      transform-origin: right;
     }
   }
 
-  /* Services : cartes empilées */
-  .services {
-    padding-bottom: clamp(80px, 12vw, 160px);
+  /* ─── L'atelier ─── */
+  .atelier {
+    display: grid;
   }
-  .services__head {
-    margin-bottom: clamp(40px, 6vw, 80px);
+  .atelier__text {
+    display: grid;
+    gap: 24px;
+    align-content: center;
+    padding: clamp(96px, 12vw, 160px) var(--gutter) clamp(56px, 8vw, 96px);
   }
-  .services__t {
-    font-size: var(--fs-xl);
-    margin-top: 16px;
+  .atelier__t {
+    font-size: var(--fs-l);
     max-width: 14ch;
   }
-  .stack {
-    display: grid;
-    gap: 16px;
+  .atelier__p {
+    max-width: 46ch;
+    color: var(--muted);
   }
-  .card {
-    position: sticky;
-    top: calc(84px + var(--i) * 12px);
-    scroll-margin-top: 90px;
+  .atelier__list {
+    margin-top: 12px;
+    border-top: 1px solid var(--line);
+    max-width: 480px;
   }
-  .card__in {
-    background: var(--c);
-    color: var(--ink);
-    border-radius: calc(var(--radius) * 1.6);
-    padding: clamp(22px, 4vw, 56px);
-    min-height: min(640px, calc(100svh - 120px));
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 40px;
-    transform-origin: 50% 0;
-    box-shadow: 0 -20px 60px -30px rgb(0 0 0 / 0.35);
-    will-change: transform;
+  .atelier__list li {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--serif);
+    font-size: 1.05rem;
   }
-  .card__in {
+  .atelier__list span {
+    display: inline-block;
+    width: 2.6em;
+    color: var(--muted);
+  }
+  .atelier__media {
     position: relative;
+    height: 80svh;
     overflow: hidden;
   }
-  .card__big {
+  .atelier__video {
     position: absolute;
-    right: -0.04em;
-    top: -0.12em;
-    font-size: clamp(14rem, 44vw, 34rem);
-    line-height: 1;
-    font-style: italic;
-    opacity: 0.12;
-    pointer-events: none;
+    inset: -8% 0;
+    width: 100%;
+    height: 116%;
+    object-fit: cover;
   }
-  .card__top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: var(--fs-xs);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    opacity: 0.75;
+  .atelier__cap {
+    position: absolute;
+    left: 18px;
+    bottom: 16px;
+    color: var(--lin);
+    text-shadow: 0 1px 10px rgb(0 0 0 / 0.4);
   }
-  .card__swatch {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+  @media (min-width: 1024px) {
+    .atelier {
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+    }
+    .atelier__text {
+      padding-inline: var(--gutter) 6vw;
+    }
+    .atelier__media {
+      height: auto;
+    }
   }
-  .card__swatch i {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--c);
-    box-shadow: 0 0 0 1px currentColor;
-  }
-  .card__body {
+
+  /* ─── Philosophie ─── */
+  .philo__in {
     display: grid;
+    justify-items: center;
+    text-align: center;
     gap: 28px;
   }
-  .card__t {
-    font-size: clamp(2.6rem, 8.4vw, 7.4rem);
-    line-height: 0.92;
-    letter-spacing: -0.035em;
-  }
-  .card__text {
-    display: grid;
-    gap: 16px;
-    max-width: 46ch;
-  }
-  .card__court {
-    font-size: var(--fs-m);
-    line-height: 1.3;
-    letter-spacing: -0.01em;
-  }
-  .card__text > p:not(.card__court) {
-    opacity: 0.8;
-  }
-  .card__pts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 6px;
-  }
-  .card__pts li {
-    font-size: var(--fs-s);
-    padding: 7px 12px;
-    border-radius: 999px;
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent);
-  }
-  @media (min-width: 1024px) {
-    .card__body {
-      grid-template-columns: 1.3fr 1fr;
-      align-items: end;
-    }
-  }
-
-  /* Nuancier */
-  .nuancier {
-    --nu: #56595c;
-    --nu-ink: #f3efe7;
-    background: var(--nu);
-    color: var(--nu-ink);
-    transition: background-color 0.9s var(--ease), color 0.9s var(--ease);
-    overflow: hidden;
-  }
-  .nuancier__t {
-    font-size: var(--fs-l);
-    margin-top: 16px;
-    max-width: 18ch;
-  }
-  .nuancier__stage {
-    margin-top: clamp(48px, 9vw, 120px);
-    min-height: 1.8em;
-  }
-  .nuancier__name {
-    font-size: clamp(3.6rem, 15vw, 15rem);
-    line-height: 0.85;
-    letter-spacing: -0.045em;
-    font-style: italic;
-  }
-  .nuancier__meta {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    margin-top: 18px;
-    padding-top: 14px;
-    border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent);
-    font-size: var(--fs-s);
-  }
-  .nuancier__meta [data-nu-hex] {
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    opacity: 0.7;
-  }
-  .nuancier__row {
-    display: flex;
-    gap: 10px;
-    margin: 40px calc(var(--gutter) * -1) 0;
-    padding: 4px var(--gutter) 12px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-  }
-  .nuancier__row::-webkit-scrollbar {
-    display: none;
-  }
-  .nu {
-    flex: none;
-    scroll-snap-align: start;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 16px 8px 8px;
-    border-radius: 999px;
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 28%, transparent);
-    font-size: var(--fs-s);
-    transition: background-color 0.4s, box-shadow 0.4s;
-  }
-  .nu[aria-checked='true'] {
-    background: color-mix(in srgb, currentColor 14%, transparent);
-    box-shadow: inset 0 0 0 1.5px currentColor;
-  }
-  .nu__dot {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: var(--c);
-    box-shadow: 0 0 0 1.5px color-mix(in srgb, currentColor 50%, transparent);
-  }
-  .nuancier__note {
-    margin-top: 32px;
-    max-width: 44ch;
-    opacity: 0.75;
-  }
-
-  /* Secteurs */
-  .zones__eye {
-    grid-column: 1 / -1;
-  }
-  .zones__t {
-    grid-column: 1 / -1;
-    font-size: var(--fs-xxl);
-    margin-top: 16px;
-  }
-  .zones__lede {
-    grid-column: 1 / -1;
-    margin-top: 24px;
-    max-width: 44ch;
-    color: var(--muted);
-  }
-  @media (min-width: 1024px) {
-    .zones__t {
-      grid-column: 1 / 8;
-    }
-    .zones__lede {
-      grid-column: 9 / -1;
-      align-self: end;
-    }
-  }
-  .zlist {
-    margin-top: clamp(48px, 7vw, 96px);
-    border-top: 1px solid var(--line);
-  }
-  .zrow {
-    position: relative;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    grid-template-areas: 'n name go' 'n court go';
-    align-items: center;
-    column-gap: 16px;
-    padding: 22px 0;
-    border-bottom: 1px solid var(--line);
-    isolation: isolate;
-    overflow: hidden;
-    transition: color 0.5s var(--ease), padding 0.6s var(--ease);
-  }
-  .zrow__fill {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: var(--c);
-    clip-path: inset(100% 0 0 0);
-    transition: clip-path 0.6s var(--ease);
-  }
-  .zrow__n {
-    grid-area: n;
-    align-self: start;
-    font-size: var(--fs-xs);
-    padding-top: 0.8em;
-    color: var(--muted);
-  }
-  .zrow__name {
-    grid-area: name;
-    font-size: clamp(2.6rem, 9.5vw, 8.6rem);
-    line-height: 0.95;
-    letter-spacing: -0.035em;
-  }
-  .zrow__court {
-    grid-area: court;
-    color: var(--muted);
-    font-size: var(--fs-s);
-    margin-top: 6px;
-  }
-  .zrow__go {
-    grid-area: go;
-    width: clamp(44px, 6vw, 72px);
-    height: clamp(44px, 6vw, 72px);
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    box-shadow: inset 0 0 0 1px var(--line);
-    transition: transform 0.6s var(--ease), background 0.4s;
-  }
-  .zrow__go svg {
-    width: 38%;
-  }
-  .zrow__n::before {
-    content: '';
-    display: block;
-    width: 10px;
-    height: 10px;
-    margin-bottom: 8px;
-    border-radius: 50%;
-    background: var(--c);
-  }
-  @media (min-width: 1024px) {
-    .zrow {
-      grid-template-columns: 80px 1fr 320px auto;
-      grid-template-areas: 'n name court go';
-      column-gap: 24px;
-      padding: 30px 0;
-    }
-    .zrow__court {
-      margin: 0;
-    }
-  }
-  @media (hover: hover) {
-    .zrow:hover {
-      color: var(--ink);
-      padding-inline: 24px;
-    }
-    .zrow:hover .zrow__fill {
-      clip-path: inset(0 0 0 0);
-    }
-    .zrow:hover .zrow__n,
-    .zrow:hover .zrow__court {
-      color: inherit;
-      opacity: 0.75;
-    }
-    .zrow:hover .zrow__go {
-      transform: rotate(45deg);
-      background: var(--ink);
-      color: var(--c);
-    }
-  }
-
-  .zrow__name {
-    font-size: clamp(2.2rem, 6vw, 5.4rem) !important;
-  }
-
-  /* Avant / après — plein cadre basalte */
-  .bas {
-    --xp: 50;
-    position: relative;
-    background: var(--ink);
-    color: var(--chaux);
-    --line: rgb(255 255 255 / 0.16);
-    --muted: rgb(255 255 255 / 0.62);
-    overflow: hidden;
-    isolation: isolate;
-  }
-  .bas__word {
-    position: absolute;
-    z-index: -1;
-    font-size: clamp(7rem, 30vw, 30rem);
-    line-height: 0.8;
-    letter-spacing: -0.05em;
-    pointer-events: none;
-    white-space: nowrap;
-    transition: opacity 0.2s linear;
-  }
-  .bas__word--l {
-    left: -0.04em;
-    top: 0.18em;
-    color: transparent;
-    -webkit-text-stroke: 1px rgb(255 255 255 / 0.28);
-    opacity: calc(0.25 + var(--xp) / 100);
-  }
-  .bas__word--r {
-    right: -0.04em;
-    bottom: 0.02em;
-    color: var(--limagne);
-    opacity: calc(1.25 - var(--xp) / 100);
-  }
-  .bas__grid {
-    display: grid;
-    gap: 44px;
-    align-items: center;
-  }
-  .bas__head {
-    display: grid;
-    gap: 20px;
-    align-content: start;
-  }
-  .bas__t {
-    font-size: var(--fs-xl);
-    max-width: 12ch;
-  }
-  .bas__t em {
-    color: var(--limagne);
-  }
-  .bas__p {
-    color: var(--muted);
-    max-width: 40ch;
-  }
-  .bas__cta {
-    justify-self: start;
-  }
-  .bas__slider :global(.ba__cap span) {
-    color: var(--muted);
-  }
-  .bas__slider :global(.ba__knob) {
-    background: var(--limagne);
-  }
-  .bas__slider :global(.ba__frame) {
-    box-shadow: 0 40px 80px -30px rgb(0 0 0 / 0.7);
-  }
-  @media (min-width: 1024px) {
-    .bas__grid {
-      grid-template-columns: 1fr 1fr;
-      gap: 96px;
-    }
-    .bas__slider {
-      max-width: 500px;
-      width: 100%;
-      justify-self: center;
-    }
-  }
-
-  /* Réalisations : cartes-échantillons */
-  .works {
-    overflow: hidden;
-  }
-  .works__head {
-    margin-bottom: clamp(40px, 6vw, 72px);
-  }
-  .works__t {
-    font-size: var(--fs-xl);
-    margin-top: 16px;
-    max-width: 14ch;
-  }
-  .works__viewport {
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    padding-block: 24px 40px;
-  }
-  .works__viewport::-webkit-scrollbar {
-    display: none;
-  }
-  .works__track {
-    display: flex;
-    gap: clamp(18px, 3vw, 44px);
-    width: max-content;
-    padding-inline: var(--gutter);
-  }
-  .wcard {
-    flex: none;
-    width: min(82vw, 440px);
-    scroll-snap-align: center;
-    background: #fbf9f5;
-    border-radius: 14px;
-    padding: 10px 10px 0;
-    box-shadow:
-      0 30px 60px -30px rgb(31 29 26 / 0.45),
-      0 2px 8px -2px rgb(31 29 26 / 0.15);
-    transition: transform 0.7s var(--ease-out);
-  }
-  @media (hover: hover) {
-    .wcard:hover {
-      transform: translateY(-8px);
-    }
-  }
-  .wcard__media {
+  .philo__img {
+    width: clamp(160px, 20vw, 260px);
     aspect-ratio: 4 / 5;
-    max-width: 100%;
     overflow: hidden;
-    border-radius: 8px 8px 0 0;
-    background: var(--chaux-2);
   }
-  .wcard__media :global(.wcard__img) {
+  .philo__img :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  .wcard__band {
-    display: grid;
-    gap: 6px;
-    margin: 0 -10px;
-    padding: 18px 20px 22px;
-    background: var(--c);
-    color: var(--ink);
-    border-radius: 0 0 14px 14px;
+  .philo__t {
+    font-size: var(--fs-l);
+    max-width: 16ch;
   }
-  .wcard__n {
-    font-size: var(--fs-xs);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    opacity: 0.75;
+  .philo__p {
+    max-width: 50ch;
+    color: var(--muted);
   }
-  .wcard__t {
-    font-size: clamp(1.9rem, 3vw, 2.6rem);
+
+  /* ─── Savoir-faire ─── */
+  .skills {
+    position: relative;
+    padding-block: clamp(96px, 12vw, 180px);
+    overflow: hidden;
+  }
+  .skills__giant {
+    position: relative;
+    z-index: 2;
+    white-space: nowrap;
+    font-size: clamp(4.4rem, 17vw, 16rem);
     line-height: 1;
+    pointer-events: none;
+    will-change: transform;
+    margin-bottom: clamp(-3rem, -5vw, -1.4rem);
   }
-  .wcard__tags {
-    font-size: var(--fs-s);
-    opacity: 0.8;
+  .skills__giant span {
+    display: inline-block;
   }
-  .wcard--cta {
-    background: var(--ink);
-    color: var(--chaux);
-    display: flex;
-    padding: 0;
-  }
-  .wcard__ctalink {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  .skills__grid {
+    display: grid;
     gap: 40px;
-    padding: clamp(28px, 4vw, 44px);
-    min-height: 100%;
   }
-  .wcard__ctalink .serif {
-    font-size: clamp(2.6rem, 5vw, 4.2rem);
-    line-height: 0.95;
+  .skills__media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    max-width: 100%;
+    overflow: hidden;
   }
-  .wcard__ctalink em {
-    color: var(--limagne);
+  .skills__media :global(.skills__img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.05);
+    transition:
+      opacity 0.8s var(--ease),
+      transform 1.4s var(--ease-out);
   }
-  .wcard__ctalink .btn {
-    --b-bg: var(--chaux);
-    --b-fg: var(--ink);
-    align-self: flex-start;
+  .skills__media :global(.skills__img.is-on) {
+    opacity: 1;
+    transform: none;
+  }
+  .skills__body {
+    display: grid;
+    gap: 36px;
+    align-content: end;
+  }
+  .skills__intro {
+    max-width: 38ch;
+    color: var(--muted);
+  }
+  .skills__list {
+    border-top: 1px solid var(--line);
+  }
+  .skill {
+    border-bottom: 1px solid var(--line);
+  }
+  .skill__head {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 2.8rem 1fr auto;
+    align-items: baseline;
+    gap: 8px;
+    padding: 20px 0;
+    text-align: left;
+  }
+  .skill__n {
+    font-family: var(--serif);
+    color: var(--muted);
+  }
+  .skill__t {
+    font-family: var(--serif);
+    font-size: clamp(1.35rem, 2.4vw, 1.9rem);
+    line-height: 1.2;
+    transition: transform 0.6s var(--ease);
+  }
+  .skill__head[aria-expanded='true'] .skill__t {
+    font-style: italic;
+  }
+  @media (hover: hover) {
+    .skill__head:hover .skill__t {
+      transform: translateX(10px);
+    }
+  }
+  .skill__plus {
+    position: relative;
+    width: 12px;
+    height: 12px;
+    align-self: center;
+    transition: transform 0.6s var(--ease);
+  }
+  .skill__plus::before,
+  .skill__plus::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 12px;
+    height: 1px;
+    background: currentColor;
+  }
+  .skill__plus::after {
+    transform: rotate(90deg);
+  }
+  .skill__head[aria-expanded='true'] .skill__plus {
+    transform: rotate(135deg);
+  }
+  .skill__body {
+    overflow: hidden;
+  }
+  .skill__body p {
+    padding: 0 0 24px 2.8rem;
+    max-width: 54ch;
+    color: var(--muted);
   }
   @media (min-width: 1024px) {
-    .works {
-      min-height: 100vh;
-      padding-block: 110px 40px;
-    }
-    .works__head {
-      margin-bottom: 28px;
-    }
-    .works__viewport {
-      overflow: visible;
-      padding-block: 12px 20px;
-    }
-    .wcard {
-      width: min(25vw, 360px);
+    .skills__grid {
+      grid-template-columns: 5fr 6fr;
+      gap: 7vw;
+      align-items: end;
     }
   }
 
-  /* Déroulement : pot de peinture qui change de teinte */
-  .proc {
-    background: var(--ink);
-    color: var(--chaux);
-    --line: rgb(255 255 255 / 0.14);
-    --muted: rgb(255 255 255 / 0.6);
+  /* ─── Avant, après ─── */
+  .ba-sec__in {
+    position: relative;
+    display: grid;
+    justify-items: center;
   }
+  .ba-sec__t {
+    position: relative;
+    z-index: 2;
+    font-size: clamp(3.4rem, 13vw, 12rem);
+    text-align: center;
+    margin-bottom: clamp(-3rem, -4vw, -1rem);
+    pointer-events: none;
+  }
+  .ba-sec__slider {
+    width: min(100%, 520px);
+  }
+  .ba-sec__sign {
+    position: relative;
+    z-index: 2;
+    margin-top: 22px;
+    font-size: clamp(2.4rem, 6vw, 4.4rem);
+    line-height: 1;
+    color: var(--argile);
+  }
+
+  /* ─── Réalisations ─── */
+  .works__head {
+    display: grid;
+    gap: 16px;
+    margin-bottom: clamp(48px, 7vw, 96px);
+  }
+  .works__t {
+    font-size: var(--fs-xl);
+  }
+  .works__grid {
+    display: grid;
+    gap: clamp(40px, 6vw, 80px) 4vw;
+  }
+  .work figure {
+    display: grid;
+    gap: 14px;
+  }
+  .work__media {
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    max-width: 100%;
+  }
+  .work--0 .work__media {
+    aspect-ratio: 4 / 3;
+  }
+  .work__media :global(.work__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.4s var(--ease-out);
+  }
+  @media (hover: hover) {
+    .work:hover :global(.work__img) {
+      transform: scale(1.04);
+    }
+  }
+  .work__cap {
+    display: grid;
+    gap: 2px;
+  }
+  .work__t {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+  }
+  /* Mobile : rythme éditorial décalé */
+  .work--1,
+  .work--3 {
+    width: 78%;
+    justify-self: end;
+  }
+  .work--2,
+  .work--4 {
+    width: 84%;
+  }
+  @media (min-width: 900px) {
+    .works__grid {
+      grid-template-columns: repeat(12, 1fr);
+      align-items: start;
+    }
+    .work {
+      width: auto !important;
+    }
+    .work--0 {
+      grid-column: 1 / 8;
+    }
+    .work--1 {
+      grid-column: 9 / 13;
+      margin-top: 18vw;
+    }
+    .work--2 {
+      grid-column: 1 / 5;
+    }
+    .work--3 {
+      grid-column: 5 / 9;
+      margin-top: 8vw;
+    }
+    .work--4 {
+      grid-column: 9 / 13;
+    }
+  }
+  .works__more {
+    display: flex;
+    justify-content: center;
+    margin-top: clamp(56px, 8vw, 110px);
+  }
+
+  /* ─── Déroulement ─── */
   .proc__grid {
     display: grid;
-    gap: 48px;
+    gap: 40px;
+    padding-block: clamp(96px, 12vw, 160px);
   }
   .proc__aside {
     display: grid;
@@ -1011,213 +716,210 @@ const n2 = (i: number) => String(i + 1).padStart(2, '0');
     align-content: start;
   }
   .proc__t {
-    font-size: var(--fs-xl);
-    max-width: 13ch;
+    font-size: var(--fs-l);
+    max-width: 14ch;
   }
-  .proc__t em {
-    color: var(--limagne);
-  }
-  .proc__pot {
+  .proc__index {
     display: none;
   }
   .proc__list {
     display: grid;
-    gap: 14px;
+    border-top: 1px solid var(--line);
   }
   .pstep {
-    position: relative;
     display: grid;
-    gap: 12px;
-    padding: 26px 24px 28px;
-    border-radius: calc(var(--radius) * 1.3);
-    box-shadow: inset 0 0 0 1px var(--line);
-    overflow: hidden;
-    isolation: isolate;
-    transition: color 0.6s var(--ease);
-  }
-  .pstep::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: var(--c);
-    clip-path: circle(0% at 0% 0%);
-    transition: clip-path 1s var(--ease);
-  }
-  .pstep__top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    grid-template-columns: 4.2rem 1fr;
+    gap: 16px;
+    padding: 26px 0;
+    border-bottom: 1px solid var(--line);
   }
   .pstep__n {
-    font-size: 2.6rem;
+    font-size: 2.4rem;
     line-height: 1;
-    font-style: italic;
-    color: var(--c);
-    transition: color 0.6s;
+    color: var(--argile);
   }
-  .pstep__badge {
-    font-size: var(--fs-xs);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 6px 11px;
-    border-radius: 999px;
-    box-shadow: inset 0 0 0 1px var(--line);
+  .pstep__body {
+    display: grid;
+    gap: 8px;
+  }
+  .pstep__d {
+    color: var(--muted);
   }
   .pstep__t {
-    font-size: clamp(2rem, 4.4vw, 3.4rem);
-    line-height: 1;
-    letter-spacing: -0.02em;
+    font-size: clamp(1.5rem, 2.6vw, 2.2rem);
   }
   .pstep__p {
     color: var(--muted);
-    max-width: 48ch;
-    transition: color 0.6s;
-  }
-  /* Étape active : la carte se remplit de sa teinte (mobile) */
-  .pstep.is-on::before {
-    clip-path: circle(150% at 0% 0%);
-  }
-  .pstep.is-on {
-    color: var(--pi-ink, var(--ink));
-    --line: color-mix(in srgb, currentColor 25%, transparent);
-  }
-  .pstep.is-on .pstep__n {
-    color: inherit;
-  }
-  .pstep.is-on .pstep__p {
-    color: inherit;
-    opacity: 0.8;
+    max-width: 46ch;
   }
   @media (min-width: 1024px) {
+    .proc {
+      height: 420vh;
+    }
+    .proc__sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+    }
     .proc__grid {
       grid-template-columns: 5fr 7fr;
-      gap: 96px;
+      gap: 8vw;
+      padding-block: 0;
+      width: 100%;
     }
-    .proc__aside {
-      position: sticky;
-      top: 110px;
-      align-self: start;
-    }
-    .proc__pot {
-      position: relative;
+    .proc__index {
       display: grid;
-      place-items: center;
-      width: min(26vw, 340px);
-      aspect-ratio: 1;
-      margin-top: 24px;
-      border-radius: 50%;
-      background: var(--pc);
-      color: var(--pi);
-      box-shadow:
-        inset 0 0 0 14px rgb(255 255 255 / 0.08),
-        inset 0 -30px 60px rgb(0 0 0 / 0.18);
-      transition: background-color 0.8s var(--ease), color 0.8s var(--ease);
+      gap: 12px;
+      margin-top: 28px;
+      border-left: 1px solid var(--line);
+      padding-left: 22px;
     }
-    .proc__num {
-      font-size: min(12vw, 10rem);
-      line-height: 1;
-      font-style: italic;
-      letter-spacing: -0.04em;
-    }
-    .proc__of {
-      position: absolute;
-      bottom: 22%;
+    .proc__index li {
+      position: relative;
       font-size: var(--fs-s);
-      letter-spacing: 0.1em;
-      opacity: 0.7;
+      color: var(--muted);
+      transition: color 0.5s;
+    }
+    .proc__index li span {
+      display: inline-block;
+      width: 3em;
+      font-family: var(--serif);
+    }
+    .proc__index li::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 0.55em;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--argile);
+      transform: scale(0);
+      transition: transform 0.5s var(--ease-out);
+    }
+    .proc__index li.is-on {
+      color: var(--lin);
+    }
+    .proc__index li.is-on::before {
+      transform: scale(1);
     }
     .proc__list {
-      gap: 0;
+      position: relative;
+      border: 0;
+      min-height: 60vh;
     }
     .pstep {
-      padding: 44px 0;
-      border-radius: 0;
-      box-shadow: none;
-      border-top: 1px solid var(--line);
-      opacity: 0.35;
-      transition: opacity 0.6s;
-    }
-    .pstep::before {
-      display: none;
+      position: absolute;
+      inset: 0;
+      grid-template-columns: 1fr;
+      align-content: center;
+      border: 0;
+      padding: 0;
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity 0.7s var(--ease),
+        visibility 0.7s;
     }
     .pstep.is-on {
       opacity: 1;
-      color: inherit;
+      visibility: visible;
     }
-    .pstep.is-on .pstep__n {
-      color: var(--c);
+    .pstep__n {
+      font-size: clamp(7rem, 14vw, 13rem);
+      color: transparent;
+      -webkit-text-stroke: 1px var(--argile);
     }
-    .pstep.is-on .pstep__p {
-      color: var(--muted);
-      opacity: 1;
+    .pstep__t {
+      font-size: clamp(2.4rem, 4vw, 3.8rem);
     }
-  }
-
-  /* Photo artisan (manifeste) */
-  .manifesto__photo {
-    grid-column: 1 / -1;
-    margin-bottom: 40px;
-    aspect-ratio: 3 / 2;
-    max-width: 100%;
-    overflow: hidden;
-    border-radius: calc(var(--radius) * 1.4);
-  }
-  .manifesto__photo .manifesto__img {
-    width: 100%;
-    height: 118%;
-    object-fit: cover;
-    will-change: transform;
-  }
-  @media (min-width: 1024px) {
-    .manifesto__photo {
-      grid-column: 1 / 6;
-      grid-row: 1 / span 2;
-      margin: 0;
-      aspect-ratio: 4 / 5;
-    }
-    .manifesto__eye {
-      grid-column: 7 / -1 !important;
-      grid-row: 1;
-      align-self: end;
-      margin: 0 0 24px !important;
-    }
-    .manifesto__t {
-      grid-column: 7 / -1 !important;
-      grid-row: 2;
-      font-size: clamp(2rem, 3.6vw, 3.6rem) !important;
+    .pstep__p {
+      font-size: 1.1rem;
     }
   }
 
-  /* Bande lumière */
-  .band {
-    position: relative;
-    height: clamp(420px, 90svh, 820px);
-    overflow: hidden;
-    display: flex;
-    align-items: flex-end;
-    color: var(--ink);
+  /* ─── Territoire ─── */
+  .terre__grid {
+    display: grid;
+    gap: 48px;
   }
-  .band :global(.band__img) {
-    position: absolute;
-    inset: -10% 0;
-    width: 100%;
-    height: 120%;
-    object-fit: cover;
-    will-change: transform;
+  .terre__text {
+    display: grid;
+    gap: 22px;
+    align-content: start;
   }
-  .band__in {
-    position: relative;
-    padding-block: clamp(40px, 8vw, 96px);
-  }
-  .band__t {
-    font-size: clamp(2.4rem, 7vw, 6.6rem);
-    line-height: 0.95;
-    letter-spacing: -0.03em;
+  .terre__t {
+    font-size: var(--fs-l);
     max-width: 14ch;
   }
-  .band__t em {
-    color: var(--tuile);
+  .terre__zones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 26px;
+  }
+  .swatches {
+    display: grid;
+    gap: 8px;
+  }
+  .swatch {
+    display: grid;
+    grid-template-columns: 76px 1fr;
+    align-items: center;
+    gap: 18px;
+    outline: none;
+  }
+  .swatch__chip {
+    height: 76px;
+    background: var(--c);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .swatch__txt {
+    display: grid;
+    gap: 2px;
+  }
+  .swatch__n {
+    font-size: 1.35rem;
+  }
+  .swatch__o {
+    color: var(--muted);
+  }
+  @media (min-width: 1024px) {
+    .terre__grid {
+      grid-template-columns: 5fr 7fr;
+      gap: 7vw;
+      align-items: center;
+    }
+    .swatches {
+      display: flex;
+      height: 58vh;
+      gap: 8px;
+    }
+    .swatch {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 14px;
+      transition: flex 0.9s var(--ease);
+      cursor: default;
+    }
+    .swatch:hover,
+    .swatch:focus-visible {
+      flex: 2.4;
+    }
+    .swatch__chip {
+      flex: 1;
+      height: auto;
+    }
+    .swatch__o {
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    .swatch:hover .swatch__o,
+    .swatch:focus-visible .swatch__o {
+      opacity: 1;
+    }
   }
 </style>

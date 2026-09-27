@@ -4,111 +4,92 @@ import { u } from '../lib/url';
 const annee = new Date().getFullYear();
 ---
 
-<footer class="footer">
+<footer class="footer dark">
   <div class="wrap">
-    <div class="footer__top">
-      <p class="footer__big serif" aria-hidden="true">
-        <span>{site.nom}</span><em>peinture &amp; finitions</em>
-      </p>
+    <div class="footer__brand">
+      <p class="display footer__name" aria-hidden="true">{site.nom}</p>
+      <p class="script footer__sign" aria-hidden="true">peinture &amp; finitions</p>
     </div>
 
     <div class="footer__cols">
       <div>
-        <p class="eyebrow muted-inv">Entreprise</p>
-        <address>
-          <strong>{site.nom}</strong> — {site.metier}<br />
+        <p class="label muted">L’atelier</p>
+        <p>
+          {site.metier}<br />
           {site.adresse.rue && <>{site.adresse.rue}<br /></>}
           {site.adresse.codePostal} {site.adresse.ville}<br />
-          Puy-de-Dôme, Auvergne
-        </address>
-        <p><a href={telHref} class="link-u">{site.telephone}</a></p>
-        <p><a href={`mailto:${site.email}`} class="link-u">{site.email}</a></p>
+          {site.adresse.departement}
+        </p>
       </div>
       <div>
-        <p class="eyebrow muted-inv">Zone d’intervention</p>
-        <ul>
-          {zones.map((z) => <li><a href={u(`/${z.slug}/`)} class="link-u">Peintre {z.dans}</a></li>)}
-        </ul>
+        <p class="label muted">Contact</p>
+        <a href={telHref} class="link-u">{site.telephone}</a>
+        <a href={`mailto:${site.email}`} class="link-u">{site.email}</a>
       </div>
       <div>
-        <p class="eyebrow muted-inv">Services</p>
-        <ul>
-          {services.map((s) => <li><a href={u(`/#${s.id}`)} class="link-u">{s.titre}</a></li>)}
-        </ul>
+        <p class="label muted">Savoir-faire</p>
+        {services.map((s) => <a href={u('/#savoir-faire')} class="link-u">{s.titre}</a>)}
       </div>
       <div>
-        <p class="eyebrow muted-inv">Horaires</p>
+        <p class="label muted">Zone d’intervention</p>
+        {zones.map((z) => <a href={u(`/${z.slug}/`)} class="link-u">Peintre {z.dans}</a>)}
+        <p class="label muted footer__h">Horaires</p>
         <p>{site.horaires}</p>
-        <p class="muted-inv">{site.delaiReponse}</p>
       </div>
     </div>
 
-    <div class="footer__bottom">
-      <p>© {annee} {site.nom}{site.siret && <> · SIRET {site.siret}</>} · {site.assurance}</p>
-      <p><a href={u('/mentions-legales/')} class="link-u">Mentions légales</a></p>
+    <div class="footer__bottom label">
+      <span>© {annee} {site.nom}{site.siret && <> · SIRET {site.siret}</>} · {site.assurance}</span>
+      <span class="script footer__mono" aria-hidden="true">{site.monogramme}</span>
+      <a href={u('/mentions-legales/')} class="link-u">Mentions légales</a>
     </div>
   </div>
 </footer>
 
 <style>
   .footer {
-    position: relative;
-    background: var(--ink);
-    color: var(--chaux);
-    padding-top: clamp(60px, 10vw, 120px);
-    padding-bottom: calc(96px + env(safe-area-inset-bottom));
-    overflow: hidden;
+    padding-top: clamp(80px, 12vw, 160px);
+    padding-bottom: calc(90px + env(safe-area-inset-bottom));
   }
-  @media (min-width: 1024px) {
+  @media (min-width: 1100px) {
     .footer {
-      padding-bottom: 32px;
+      padding-bottom: 28px;
     }
   }
-  .footer__big {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0 0.18em;
-    font-size: clamp(3.6rem, 13vw, 13rem);
-    line-height: 0.8;
-    letter-spacing: -0.04em;
+  .footer__brand {
+    text-align: center;
+    position: relative;
   }
-  .footer__big em {
-    color: var(--limagne);
+  .footer__name {
+    font-size: clamp(4rem, 19vw, 17rem);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+  }
+  .footer__sign {
+    margin-top: -0.35em;
+    font-size: clamp(2rem, 6vw, 4.6rem);
+    color: var(--argile);
+    line-height: 1;
   }
   .footer__cols {
     display: grid;
-    grid-template-columns: 1fr;
     gap: 36px;
-    margin-top: clamp(48px, 8vw, 100px);
+    margin-top: clamp(64px, 9vw, 120px);
     padding-top: 36px;
-    border-top: 1px solid rgb(255 255 255 / 0.14);
-    font-size: 0.95rem;
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-s);
   }
   .footer__cols > div {
     display: grid;
-    gap: 8px;
-    align-content: start;
-  }
-  .footer__cols address {
-    font-style: normal;
-    line-height: 1.6;
-  }
-  .footer__cols ul {
-    display: grid;
     gap: 6px;
+    align-content: start;
+    justify-items: start;
   }
-  .muted-inv {
-    color: rgb(255 255 255 / 0.5);
+  .footer__cols .label {
+    margin-bottom: 8px;
   }
-  .footer__bottom {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 12px;
-    margin-top: 56px;
-    font-size: var(--fs-xs);
-    color: rgb(255 255 255 / 0.5);
+  .footer__h {
+    margin-top: 18px;
   }
   @media (min-width: 700px) {
     .footer__cols {
@@ -117,7 +98,31 @@ const annee = new Date().getFullYear();
   }
   @media (min-width: 1100px) {
     .footer__cols {
-      grid-template-columns: 1.3fr 1fr 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .footer__bottom {
+    display: grid;
+    gap: 14px;
+    justify-items: start;
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+  }
+  .footer__mono {
+    font-size: 2rem;
+    letter-spacing: -0.05em;
+    color: var(--lin);
+    text-transform: none;
+  }
+  @media (min-width: 900px) {
+    .footer__bottom {
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+    }
+    .footer__bottom > :last-child {
+      justify-self: end;
     }
   }
 </style>

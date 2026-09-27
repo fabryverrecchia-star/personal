@@ -1,0 +1,230 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Contact from '../components/Contact.astro';
+import { site, galerie } from '../data/site';
+import { u } from '../lib/url';
+
+const cats = ['Tout', ...Array.from(new Set(galerie.map((p) => p.cat)))];
+const pluriel: Record<string, string> = { Tout: 'Tout', Façade: 'Façades', Intérieur: 'Intérieurs', Extérieur: 'Extérieurs', Commerce: 'Commerces' };
+---
+
+<Base
+  title={`Réalisations — ${site.nom}, peintre en bâtiment dans le Puy-de-Dôme`}
+  description="Chantiers de peinture intérieure et extérieure réalisés par Blandry : façades, pièces à vivre, chambres, commerces. Combrailles, Riom, Clermont-Ferrand."
+>
+  <section class="rhead wrap">
+    <nav class="label muted rhead__crumbs" aria-label="Fil d’Ariane" data-hero-fade>
+      <a href={u('/')} class="link-u">Accueil</a> / <span aria-current="page">Réalisations</span>
+    </nav>
+    <h1 class="display rhead__t" data-hero-title>
+      <span class="line"><span class="line-inner">Réalisations</span></span>
+    </h1>
+    <p class="rhead__p" data-hero-fade>
+      {galerie.length} photographies de chantiers livrés : façades, pièces à vivre, chambres et commerces, dans les
+      Combrailles, à Riom et à Clermont-Ferrand.
+    </p>
+    <div class="filters" role="toolbar" aria-label="Filtrer par catégorie" data-hero-fade>
+      {
+        cats.map((c, i) => (
+          <button class="filter label" data-filter={c} aria-pressed={i === 0 ? 'true' : 'false'}>
+            {pluriel[c] ?? c}
+            <sup>{c === 'Tout' ? galerie.length : galerie.filter((p) => p.cat === c).length}</sup>
+          </button>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="wrap rgrid-wrap">
+    <ul class="rgrid" data-gallery>
+      {
+        galerie.map((p, i) => (
+          <li class="ritem" data-cat={p.cat} data-reveal="fade">
+            <button class="ritem__btn" data-open={i} data-view aria-label={`Agrandir : ${p.titre}`}>
+              <Image src={p.src} alt={p.titre} widths={[480, 900]} sizes="(min-width: 1100px) 30vw, (min-width: 700px) 45vw, 92vw" class="ritem__img" />
+            </button>
+            <p class="ritem__cap">
+              <span class="label muted">{p.cat}</span>
+              <span>{p.titre}</span>
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <div class="lb" data-lightbox hidden role="dialog" aria-modal="true" aria-label="Visionneuse">
+    <div class="lb__stage" data-lb-stage>
+      {galerie.map((p) => <Image src={p.src} alt={p.titre} widths={[1000, 2000]} sizes="100vw" loading="lazy" class="lb__img" />)}
+    </div>
+    <p class="lb__cap"><span class="label" data-lb-count></span><span data-lb-title></span></p>
+    <button class="lb__close label" data-lb-close>Fermer</button>
+    <button class="lb__nav lb__nav--prev" data-lb-prev aria-label="Photo précédente">←</button>
+    <button class="lb__nav lb__nav--next" data-lb-next aria-label="Photo suivante">→</button>
+  </div>
+
+  <Contact />
+</Base>
+
+<style>
+  .rhead {
+    display: grid;
+    gap: 22px;
+    padding-top: calc(150px + env(safe-area-inset-top));
+    padding-bottom: clamp(40px, 6vw, 72px);
+  }
+  .rhead__t {
+    font-size: clamp(3rem, 13vw, 11rem);
+  }
+  .rhead__p {
+    max-width: 52ch;
+    color: var(--muted);
+  }
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 24px;
+    margin-top: 8px;
+  }
+  .filter {
+    position: relative;
+    padding: 8px 0;
+    opacity: 0.5;
+    transition: opacity 0.4s;
+  }
+  .filter sup {
+    margin-left: 4px;
+    font-size: 0.8em;
+  }
+  .filter::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transition: transform 0.6s var(--ease);
+  }
+  .filter[aria-pressed='true'] {
+    opacity: 1;
+  }
+  .filter[aria-pressed='true']::after {
+    transform: scaleX(1);
+  }
+  .rgrid-wrap {
+    padding-bottom: clamp(96px, 12vw, 160px);
+  }
+  .rgrid {
+    columns: 1;
+    column-gap: 20px;
+  }
+  @media (min-width: 700px) {
+    .rgrid {
+      columns: 2;
+    }
+  }
+  @media (min-width: 1100px) {
+    .rgrid {
+      columns: 3;
+      column-gap: 28px;
+    }
+  }
+  .ritem {
+    break-inside: avoid;
+    margin-bottom: 28px;
+    display: grid;
+    gap: 10px;
+  }
+  .ritem[hidden] {
+    display: none;
+  }
+  .ritem__btn {
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    cursor: zoom-in;
+  }
+  .ritem__btn :global(.ritem__img) {
+    width: 100%;
+    height: auto;
+    transition: transform 1.4s var(--ease-out);
+  }
+  @media (hover: hover) {
+    .ritem__btn:hover :global(.ritem__img) {
+      transform: scale(1.04);
+    }
+  }
+  .ritem__cap {
+    display: grid;
+    gap: 2px;
+    font-family: var(--serif);
+  }
+
+  /* Visionneuse */
+  .lb {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: var(--basalte);
+    color: var(--lin);
+    touch-action: pan-y;
+  }
+  .lb[hidden] {
+    display: none;
+  }
+  .lb__stage {
+    position: absolute;
+    inset: 70px 0 90px;
+  }
+  .lb__stage :global(.lb__img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transform: scale(0.98);
+    transition:
+      opacity 0.5s,
+      transform 0.8s var(--ease-out);
+    pointer-events: none;
+  }
+  .lb__stage :global(.lb__img.is-on) {
+    opacity: 1;
+    transform: none;
+  }
+  .lb__cap {
+    position: absolute;
+    left: var(--gutter);
+    right: calc(var(--gutter) + 130px);
+    bottom: calc(26px + env(safe-area-inset-bottom));
+    display: flex;
+    gap: 18px;
+    align-items: baseline;
+    font-family: var(--serif);
+  }
+  .lb__close {
+    position: absolute;
+    top: calc(22px + env(safe-area-inset-top));
+    right: var(--gutter);
+    padding: 10px 0;
+  }
+  .lb__nav {
+    position: absolute;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    width: 48px;
+    height: 48px;
+    font-size: 1.3rem;
+    border: 1px solid rgb(243 239 232 / 0.3);
+    border-radius: 50%;
+  }
+  .lb__nav--prev {
+    right: calc(var(--gutter) + 58px);
+  }
+  .lb__nav--next {
+    right: var(--gutter);
+  }
+</style>

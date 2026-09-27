@@ -1,40 +1,40 @@
-@import '@fontsource/instrument-serif/400.css';
-@import '@fontsource/instrument-serif/400-italic.css';
-@import '@fontsource-variable/inter-tight/index.css';
+@import '@fontsource-variable/bodoni-moda/standard.css';
+@import '@fontsource-variable/bodoni-moda/standard-italic.css';
+@import '@fontsource-variable/hanken-grotesk/index.css';
 @import '@fontsource/pinyon-script/400.css';
 
+/* ─── Charte : matières du Puy-de-Dôme, registre éditorial ───
+   Lin (enduits à la chaux), basalte (Chaîne des Puys),
+   pierre de Volvic, argile de Limagne. */
 :root {
-  --chaux: #efeae0;
-  --chaux-2: #e6e0d3;
-  --ink: #1f1d1a;
-  --volvic: #56595c;
-  --sioule: #3f5a45;
-  --limagne: #c08a3e;
-  --tuile: #9b4b34;
-  --puys: #8da3b3;
+  --lin: #f3efe8;
+  --lin-2: #e9e3d9;
+  --lin-3: #ddd5c8;
+  --basalte: #1a1917;
+  --basalte-2: #24221f;
+  --volvic: #7d766d;
+  --argile: #a27b5c;
 
-  --bg: var(--chaux);
-  --fg: var(--ink);
+  --bg: var(--lin);
+  --fg: var(--basalte);
   --muted: color-mix(in srgb, var(--fg) 62%, transparent);
-  --line: color-mix(in srgb, var(--fg) 16%, transparent);
+  --line: color-mix(in srgb, var(--fg) 18%, transparent);
 
-  --serif: 'Instrument Serif', 'Times New Roman', serif;
-  --sans: 'Inter Tight Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --serif: 'Bodoni Moda Variable', 'Didot', 'Bodoni 72', Georgia, serif;
+  --sans: 'Hanken Grotesk Variable', 'Helvetica Neue', Arial, sans-serif;
+  --script: 'Pinyon Script', 'Snell Roundhand', cursive;
 
-  --gutter: clamp(16px, 4vw, 48px);
-  --max: 1440px;
-  --radius: 14px;
+  --gutter: clamp(20px, 5vw, 72px);
   --ease: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --fs-mega: clamp(3.4rem, 13.5vw, 13rem);
-  --fs-xxl: clamp(2.8rem, 9vw, 8.5rem);
-  --fs-xl: clamp(2.2rem, 6vw, 5.2rem);
-  --fs-l: clamp(1.7rem, 3.6vw, 3rem);
-  --fs-m: clamp(1.25rem, 2vw, 1.6rem);
-  --fs-body: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
-  --fs-s: 0.875rem;
-  --fs-xs: 0.75rem;
+  --fs-hero: clamp(2.6rem, 10.5vw, 8.6rem);
+  --fs-xl: clamp(2.3rem, 7vw, 6rem);
+  --fs-l: clamp(1.9rem, 4.6vw, 3.8rem);
+  --fs-m: clamp(1.3rem, 2.2vw, 1.9rem);
+  --fs-body: clamp(0.98rem, 0.94rem + 0.2vw, 1.08rem);
+  --fs-s: 0.88rem;
+  --fs-label: 0.7rem;
 }
 
 *,
@@ -42,13 +42,11 @@
 *::after {
   box-sizing: border-box;
 }
-
 html {
   overflow-x: clip;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
-
 html.lenis,
 html.lenis body {
   height: auto;
@@ -56,45 +54,39 @@ html.lenis body {
 .lenis.lenis-smooth {
   scroll-behavior: auto !important;
 }
-
 body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
   font-family: var(--sans);
   font-size: var(--fs-body);
-  line-height: 1.55;
-  font-feature-settings: 'ss01', 'cv11';
+  font-weight: 380;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: clip;
-  transition: background-color 0.9s var(--ease), color 0.9s var(--ease);
 }
-
-/* Grain de papier, très léger */
+/* Grain de papier très léger */
 body::after {
   content: '';
   position: fixed;
   inset: -50%;
   z-index: 300;
   pointer-events: none;
-  opacity: 0.07;
+  opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   mix-blend-mode: multiply;
 }
-
 img,
 svg,
 video {
   display: block;
   max-width: 100%;
 }
-
 a {
   color: inherit;
   text-decoration: none;
 }
-
 button {
   font: inherit;
   color: inherit;
@@ -103,7 +95,6 @@ button {
   padding: 0;
   cursor: pointer;
 }
-
 h1,
 h2,
 h3,
@@ -121,18 +112,14 @@ ol {
   padding: 0;
   list-style: none;
 }
-
 ::selection {
-  background: var(--limagne);
-  color: var(--ink);
+  background: var(--argile);
+  color: var(--lin);
 }
-
 :focus-visible {
-  outline: 2px solid currentColor;
+  outline: 1px solid var(--argile);
   outline-offset: 4px;
-  border-radius: 4px;
 }
-
 .sr-only {
   position: absolute !important;
   width: 1px;
@@ -145,121 +132,160 @@ ol {
   border: 0;
 }
 
-/* ── Typo ───────────────────────────────────────── */
-.serif {
+/* ─── Typographie ─────────────────────────────── */
+.display {
   font-family: var(--serif);
   font-weight: 400;
-  letter-spacing: -0.02em;
-  line-height: 0.92;
+  font-variation-settings: 'opsz' 96;
+  text-transform: uppercase;
+  line-height: 0.98;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
 }
-.serif em,
-.it {
+.title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-variation-settings: 'opsz' 72;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+.display em,
+.title em {
   font-style: italic;
 }
-.eyebrow {
-  font-size: var(--fs-xs);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 500;
+.script {
+  font-family: var(--script);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
 }
-.eyebrow--dot::before {
-  content: '';
-  display: inline-block;
-  width: 0.5em;
-  height: 0.5em;
-  margin-right: 0.7em;
-  border-radius: 50%;
-  background: currentColor;
-  vertical-align: 0.08em;
+.label {
+  font-family: var(--sans);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  line-height: 1.5;
 }
 .muted {
   color: var(--muted);
 }
-.lede {
-  font-size: var(--fs-m);
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  max-width: 34ch;
+.prose {
+  max-width: 42ch;
+  color: var(--muted);
 }
 
-/* ── Mise en page ───────────────────────────────── */
+/* ─── Mise en page ─────────────────────────────── */
 .wrap {
   width: 100%;
-  max-width: var(--max);
+  max-width: 1440px;
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
 .section {
-  padding-block: clamp(72px, 10vw, 150px);
   position: relative;
+  padding-block: clamp(96px, 14vw, 200px);
 }
-.grid {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  column-gap: clamp(12px, 2vw, 28px);
+.dark {
+  --bg: var(--basalte);
+  --fg: var(--lin);
+  --line: rgb(243 239 232 / 0.16);
+  --muted: rgb(243 239 232 / 0.62);
+  background: var(--bg);
+  color: var(--fg);
 }
-.rule {
-  height: 1px;
-  background: var(--line);
-  border: 0;
-  margin: 0;
+.alt {
+  --bg: var(--lin-2);
+  background: var(--bg);
 }
 
-/* ── Boutons ────────────────────────────────────── */
-.btn {
-  --b-bg: var(--fg);
-  --b-fg: var(--bg);
+/* ─── Liens et boutons ─────────────────────────── */
+.cta {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.7em;
-  padding: 1.05em 1.5em;
-  border-radius: 999px;
-  background: var(--b-bg);
+  gap: 14px;
+  padding: 10px 0;
+  font-size: var(--fs-label);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.cta::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  height: 1px;
+  background: currentColor;
+  transform-origin: right;
+  transition: transform 0.7s var(--ease);
+}
+.cta:hover::after {
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.cta:hover::before {
+  transform: scaleX(1);
+}
+.cta::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.7s 0.25s var(--ease);
+}
+.btn {
+  --b-fg: var(--fg);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 54px;
+  padding: 0 28px;
   color: var(--b-fg);
-  font-size: var(--fs-s);
-  font-weight: 550;
-  letter-spacing: 0.01em;
+  box-shadow: inset 0 0 0 1px currentColor;
+  font-size: var(--fs-label);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
   overflow: hidden;
   isolation: isolate;
-  white-space: nowrap;
-  transition: color 0.5s var(--ease);
+  transition: color 0.6s var(--ease);
 }
 .btn::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: var(--limagne);
+  background: var(--fg);
   transform: translateY(101%);
-  border-radius: 50% 50% 0 0 / 30% 30% 0 0;
-  transition: transform 0.6s var(--ease), border-radius 0.6s var(--ease);
+  transition: transform 0.6s var(--ease);
+}
+.btn:hover {
+  color: var(--bg);
 }
 .btn:hover::before {
   transform: translateY(0);
-  border-radius: 0;
 }
-.btn:hover {
-  color: var(--ink);
+.btn--solid {
+  background: var(--fg);
+  color: var(--bg);
 }
-.btn--light {
-  --b-bg: var(--chaux);
-  --b-fg: var(--ink);
+.btn--solid::before {
+  background: var(--argile);
 }
-.btn--ghost {
-  --b-bg: transparent;
-  --b-fg: var(--fg);
-  box-shadow: inset 0 0 0 1px var(--line);
+.btn--solid:hover {
+  color: var(--lin);
 }
-.btn .arrow {
-  width: 1em;
-  height: 1em;
-  transition: transform 0.5s var(--ease);
-}
-.btn:hover .arrow {
-  transform: translateX(3px);
-}
-
 .link-u {
   background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
   transition: background-size 0.6s var(--ease);
@@ -269,31 +295,35 @@ ol {
   background-size: 100% 1px;
 }
 
-/* ── Animations d'apparition (masquées seulement si JS) ── */
-.js [data-reveal='fade'] {
-  opacity: 0;
-  transform: translateY(24px);
-}
-.js [data-split] .line-inner {
-  display: block;
-  transform: translateY(105%);
-}
+/* ─── Apparitions (masquées seulement si JS) ───── */
 .line {
   display: block;
   overflow: hidden;
-  padding-bottom: 0.08em;
-  margin-bottom: -0.08em;
+  padding-block: 0.12em;
+  margin-block: -0.12em;
 }
 .line-inner {
   display: block;
   will-change: transform;
 }
-
+.js [data-split] .line-inner {
+  transform: translateY(110%);
+}
+.js [data-reveal='fade'] {
+  opacity: 0;
+  transform: translateY(28px);
+}
+.js [data-reveal='img'] {
+  clip-path: inset(100% 0 0 0);
+}
 @media (prefers-reduced-motion: reduce) {
   .js [data-reveal='fade'],
   .js [data-split] .line-inner {
     opacity: 1 !important;
     transform: none !important;
+  }
+  .js [data-reveal='img'] {
+    clip-path: none !important;
   }
   *,
   *::before,

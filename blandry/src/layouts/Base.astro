@@ -3,7 +3,8 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MobileBar from '../components/MobileBar.astro';
-import { site, zones, services } from '../data/site';
+import { Image } from 'astro:assets';
+import { site, zones, services, heroPhotos } from '../data/site';
 import { u } from '../lib/url';
 
 interface Props {
@@ -12,7 +13,7 @@ interface Props {
   schema?: object[];
   theme?: string;
 }
-const { title, description, schema = [], theme = '#efeae0' } = Astro.props;
+const { title, description, schema = [], theme = '#f3efe8' } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 
 const business = {
@@ -88,11 +89,24 @@ const ld = [business, ...schema];
   </head>
   <body>
     <a href="#main" class="skip">Aller au contenu</a>
-    <div class="curtain" data-curtain aria-hidden="true">
-      <div class="curtain__paint"></div>
-      <p class="curtain__label serif"><em>{site.nom}</em></p>
+
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__bg" data-loader-bg></div>
+      <div class="loader__stack" data-loader-stack>
+        {
+          heroPhotos.slice(0, 6).map((p) => (
+            <Image src={p.src} alt="" widths={[360]} sizes="200px" loading="eager" class="loader__img" />
+          ))
+        }
+      </div>
+      <p class="loader__mono script" data-loader-mono>{site.monogramme}</p>
+      <div class="loader__foot label">
+        <span>{site.nom} — Peinture &amp; finitions</span>
+        <span class="loader__count" data-loader-count>000</span>
+      </div>
     </div>
-    <div class="cursor" data-cursor aria-hidden="true"><span></span></div>
+
+    <div class="cursor" data-cursor aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__txt label" data-cursor-txt></span></div>
     <Header />
     <main id="main">
       <slot />
@@ -111,77 +125,119 @@ const ld = [business, ...schema];
     top: 12px;
     left: 12px;
     z-index: 500;
-    padding: 0.6em 1em;
-    background: var(--ink);
-    color: var(--chaux);
-    border-radius: 999px;
+    padding: 0.7em 1em;
+    background: var(--basalte);
+    color: var(--lin);
     transform: translateY(-200%);
   }
   .skip:focus {
     transform: none;
   }
 
-  /* Rideau de peinture : chargement et transitions de page */
-  .curtain {
+  /* Préchargement */
+  .loader {
     position: fixed;
     inset: 0;
     z-index: 400;
-    pointer-events: none;
     display: grid;
     place-items: center;
+    pointer-events: none;
     visibility: hidden;
+    color: var(--basalte);
   }
-  .js .curtain {
+  .js .loader {
     visibility: visible;
   }
-  /* Sécurité : si le script ne se charge pas, le rideau s'efface seul */
-  .js:not(.ready) .curtain {
-    animation: curtain-safety 0s 4s forwards;
+  .js:not(.ready) .loader {
+    animation: loader-safety 0s 5s forwards;
   }
-  @keyframes curtain-safety {
+  @keyframes loader-safety {
     to {
       visibility: hidden;
     }
   }
-  .curtain__paint {
+  .loader__bg {
     position: absolute;
-    inset: -2px;
-    background: var(--curtain, var(--ink));
-    clip-path: inset(0 0 0 0);
+    inset: 0;
+    background: var(--lin);
   }
-  .curtain__label {
+  .loader__stack {
     position: relative;
-    font-size: clamp(2.4rem, 8vw, 5rem);
-    color: var(--chaux);
+    width: clamp(150px, 34vw, 230px);
+    aspect-ratio: 3 / 4;
+  }
+  .loader__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     opacity: 0;
+  }
+  .loader__mono {
+    position: absolute;
+    font-size: clamp(5rem, 22vw, 11rem);
+    line-height: 1;
+    mix-blend-mode: difference;
+    color: var(--lin);
+  }
+  .loader__foot {
+    position: absolute;
+    left: var(--gutter);
+    right: var(--gutter);
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    display: flex;
+    justify-content: space-between;
+  }
+  .loader__count {
+    font-variant-numeric: tabular-nums;
   }
 
-  /* Curseur (pointeur fin uniquement) */
+  /* Curseur (souris uniquement) */
   .cursor {
-    opacity: 0;
-    transition: opacity 0.4s;
     position: fixed;
     left: 0;
     top: 0;
     z-index: 350;
     pointer-events: none;
     display: none;
-  }
-  .cursor span {
-    display: block;
-    width: 12px;
-    height: 12px;
-    margin: -6px 0 0 -6px;
-    border-radius: 50%;
-    background: var(--limagne);
-    mix-blend-mode: multiply;
-    transition: transform 0.45s var(--ease-out), background-color 0.3s;
+    opacity: 0;
+    transition: opacity 0.3s;
   }
   .cursor.is-on {
     opacity: 1;
   }
-  .cursor.is-link span {
-    transform: scale(4.2);
+  .cursor__dot {
+    display: block;
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    border-radius: 50%;
+    background: var(--argile);
+    transition:
+      transform 0.6s var(--ease-out),
+      background-color 0.4s;
+  }
+  .cursor__txt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s;
+    color: var(--basalte);
+    font-size: 0.6rem;
+  }
+  .cursor.is-link .cursor__dot {
+    transform: scale(5);
+  }
+  .cursor.is-view .cursor__dot {
+    transform: scale(11);
+    background: var(--lin);
+  }
+  .cursor.is-view .cursor__txt {
+    opacity: 1;
   }
   @media (hover: hover) and (pointer: fine) {
     .has-cursor .cursor {

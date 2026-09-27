@@ -1,5 +1,6 @@
 ---
-import { site, zones, services, telHref } from '../data/site';
+import { Image } from 'astro:assets';
+import { site, zones, services, telHref, photos } from '../data/site';
 interface Props {
   zone?: string;
 }
@@ -7,37 +8,38 @@ const { zone } = Astro.props;
 const communes = zones.flatMap((z) => z.communes);
 ---
 
-<section class="contact section" id="contact" data-bg="ink" aria-labelledby="contact-t">
-  <div class="wrap grid">
-    <div class="contact__head">
-      <p class="eyebrow eyebrow--dot">Devis gratuit · {site.delaiReponse}</p>
-      <h2 id="contact-t" class="serif contact__t" data-split>
-        Parlons de <em>votre projet.</em>
-      </h2>
-      <a href={telHref} class="contact__tel serif" data-magnetic>{site.telephone}</a>
-      <p class="contact__lede">
-        Décrivez-nous vos travaux : nous vous rappelons pour convenir d’une visite{zone ? ` ${zone}` : ''}.
-        La visite et le devis détaillé sont gratuits et sans engagement.
-      </p>
-      <p class="contact__mail"><a href={`mailto:${site.email}`} class="link-u">{site.email}</a></p>
-    </div>
+<section class="contact" id="contact" aria-labelledby="contact-t">
+  <div class="contact__media" data-parallax-wrap>
+    <Image src={photos.arche.src} alt={photos.arche.alt} widths={[600, 1000]} sizes="(min-width: 1024px) 45vw, 100vw" class="contact__img" data-parallax />
+  </div>
+
+  <div class="contact__body">
+    <p class="label muted">Contact</p>
+    <h2 id="contact-t" class="display contact__t" data-split>Parlons de <em>votre projet</em></h2>
+    <p class="prose contact__p">
+      Décrivez-nous les pièces, les surfaces et vos délais. Nous vous rappelons pour convenir d’une visite{zone ? ` ${zone}` : ''},
+      à l’issue de laquelle vous recevez un devis détaillé, gratuit et sans engagement.
+    </p>
+
+    <a href={telHref} class="contact__tel title" data-magnetic>{site.telephone}</a>
+    <p class="contact__mail"><a href={`mailto:${site.email}`} class="link-u">{site.email}</a></p>
 
     <form class="form" data-form novalidate>
       <div class="field">
-        <label for="f-nom">Nom</label>
+        <label for="f-nom" class="label">Nom</label>
         <input id="f-nom" name="nom" autocomplete="name" required />
       </div>
       <div class="field">
-        <label for="f-tel">Téléphone</label>
+        <label for="f-tel" class="label">Téléphone</label>
         <input id="f-tel" name="tel" type="tel" autocomplete="tel" inputmode="tel" required />
       </div>
       <div class="field field--full">
-        <label for="f-commune">Commune du chantier</label>
-        <input id="f-commune" name="commune" list="communes" autocomplete="address-level2" placeholder="Votre commune" />
+        <label for="f-commune" class="label">Commune du chantier</label>
+        <input id="f-commune" name="commune" list="communes" autocomplete="address-level2" />
         <datalist id="communes">{communes.map((c) => <option value={c} />)}</datalist>
       </div>
       <fieldset class="field field--full">
-        <legend>Travaux</legend>
+        <legend class="label">Nature des travaux</legend>
         <div class="chips">
           {
             services.map((s) => (
@@ -50,15 +52,12 @@ const communes = zones.flatMap((z) => z.communes);
         </div>
       </fieldset>
       <div class="field field--full">
-        <label for="f-msg">Votre projet</label>
-        <textarea id="f-msg" name="message" rows="4" placeholder="Pièces, surfaces, état des murs, délai souhaité…"></textarea>
+        <label for="f-msg" class="label">Votre projet</label>
+        <textarea id="f-msg" name="message" rows="3"></textarea>
       </div>
       <div class="form__foot field--full">
-        <button type="submit" class="btn btn--light" data-magnetic>
-          Envoyer la demande
-          <svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>
-        </button>
-        <p class="form__note" data-form-note role="status">Votre messagerie s’ouvre avec la demande pré-remplie.</p>
+        <button type="submit" class="btn btn--solid" data-magnetic>Envoyer la demande</button>
+        <p class="form__note label muted" data-form-note role="status">{site.delaiReponse}</p>
       </div>
     </form>
   </div>
@@ -66,44 +65,62 @@ const communes = zones.flatMap((z) => z.communes);
 
 <style>
   .contact {
-    background: var(--ink);
-    color: var(--chaux);
-    --line: rgb(255 255 255 / 0.16);
-    --muted: rgb(255 255 255 / 0.6);
+    display: grid;
+    background: var(--lin-2);
   }
-  .contact__head,
-  .form {
-    grid-column: 1 / -1;
+  .contact__media {
+    position: relative;
+    height: 62svh;
+    overflow: hidden;
+  }
+  .contact__media :global(.contact__img) {
+    position: absolute;
+    inset: -8% 0;
+    width: 100%;
+    height: 116%;
+    object-fit: cover;
+  }
+  .contact__body {
+    display: grid;
+    gap: 22px;
+    align-content: center;
+    padding: clamp(64px, 10vw, 140px) var(--gutter);
   }
   .contact__t {
-    font-size: var(--fs-xxl);
-    margin-top: 20px;
-  }
-  .contact__t em {
-    color: var(--limagne);
+    font-size: var(--fs-xl);
   }
   .contact__tel {
-    display: inline-block;
-    margin-top: 28px;
-    font-size: clamp(2.2rem, 6vw, 4.2rem);
-    line-height: 1;
-    white-space: nowrap;
-    background: linear-gradient(var(--limagne), var(--limagne)) 0 100% / 100% 2px no-repeat;
+    justify-self: start;
+    margin-top: 12px;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-variant-numeric: lining-nums;
+    border-bottom: 1px solid var(--line);
     padding-bottom: 6px;
+    transition: color 0.4s;
   }
-  .contact__lede {
-    margin-top: 28px;
-    max-width: 38ch;
-    color: var(--muted);
+  .contact__tel:hover {
+    color: var(--argile);
   }
   .contact__mail {
-    margin-top: 12px;
+    font-size: var(--fs-s);
+    color: var(--muted);
+  }
+  @media (min-width: 1024px) {
+    .contact {
+      grid-template-columns: 5fr 7fr;
+      min-height: 100vh;
+    }
+    .contact__media {
+      height: auto;
+    }
+    .contact__body {
+      padding-inline: clamp(48px, 7vw, 120px);
+    }
   }
   .form {
     display: grid;
-    grid-template-columns: 1fr;
     gap: 22px;
-    margin-top: 56px;
+    margin-top: 28px;
   }
   @media (min-width: 700px) {
     .form {
@@ -113,32 +130,18 @@ const communes = zones.flatMap((z) => z.communes);
       grid-column: 1 / -1;
     }
   }
-  @media (min-width: 1024px) {
-    .contact__head {
-      grid-column: 1 / 6;
-    }
-    .form {
-      grid-column: 7 / -1;
-      margin-top: 0;
-      align-self: end;
-    }
-  }
   .field {
     display: grid;
-    gap: 8px;
+    gap: 4px;
     border: 0;
     padding: 0;
     margin: 0;
     min-width: 0;
   }
-  .field label,
-  .field legend {
-    font-size: var(--fs-xs);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+  .field .label {
     color: var(--muted);
     padding: 0;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
   .field input,
   .field textarea {
@@ -150,26 +153,22 @@ const communes = zones.flatMap((z) => z.communes);
     border: 0;
     border-bottom: 1px solid var(--line);
     border-radius: 0;
-    padding: 10px 0 12px;
-    transition: border-color 0.3s;
+    padding: 8px 0 12px;
     resize: vertical;
-  }
-  .field input::placeholder,
-  .field textarea::placeholder {
-    color: rgb(255 255 255 / 0.3);
+    transition: border-color 0.3s;
   }
   .field input:focus,
   .field textarea:focus {
     outline: none;
-    border-color: var(--limagne);
+    border-color: var(--basalte);
   }
   .field [aria-invalid='true'] {
-    border-color: #e0826a;
+    border-color: #9b3b2b;
   }
   .chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
   }
   .chip {
     position: relative;
@@ -182,20 +181,20 @@ const communes = zones.flatMap((z) => z.communes);
   }
   .chip span {
     display: inline-block;
-    padding: 10px 16px;
-    border-radius: 999px;
+    padding: 9px 14px;
     box-shadow: inset 0 0 0 1px var(--line);
     font-size: var(--fs-s);
     cursor: pointer;
-    transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+    transition:
+      background 0.3s,
+      color 0.3s;
   }
   .chip input:checked + span {
-    background: var(--chaux);
-    color: var(--ink);
-    box-shadow: none;
+    background: var(--basalte);
+    color: var(--lin);
   }
   .chip input:focus-visible + span {
-    outline: 2px solid var(--limagne);
+    outline: 1px solid var(--argile);
     outline-offset: 2px;
   }
   .form__foot {
@@ -204,14 +203,5 @@ const communes = zones.flatMap((z) => z.communes);
     align-items: center;
     gap: 16px 24px;
     margin-top: 8px;
-  }
-  .btn--light {
-    --b-bg: var(--chaux);
-    --b-fg: var(--ink);
-  }
-  .form__note {
-    font-size: var(--fs-xs);
-    color: var(--muted);
-    max-width: 30ch;
   }
 </style>
