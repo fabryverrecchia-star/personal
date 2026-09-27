@@ -8,15 +8,15 @@ const { items, label } = Astro.props;
 
 <div class="marquee" data-marquee>
   <p class="sr-only">{label} : {items.join(', ')}.</p>
-  <div class="marquee__track" aria-hidden="true">
+  <div class="marquee__track" aria-hidden="true" data-marquee-track>
     {
       [0, 1].map(() => (
         <div class="marquee__group">
           {items.map((c) => (
             <span class="marquee__item">
-              <span class="serif">{c}</span>
-              <svg viewBox="0 0 20 20">
-                <path d="M10 0v20M0 10h20M3 3l14 14M17 3 3 17" stroke="currentColor" stroke-width="1.4" />
+              <span class="display">{c}</span>
+              <svg viewBox="0 0 40 16">
+                <path d="M2 10c6-6 12-6 18-2s12 4 18-2" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
               </svg>
             </span>
           ))}
@@ -29,16 +29,14 @@ const { items, label } = Astro.props;
 <style>
   .marquee {
     overflow: hidden;
-    border-block: 1px solid var(--line);
-    padding-block: 18px;
+    background: var(--bordeaux);
+    color: var(--craie);
+    padding-block: 14px 10px;
   }
   .marquee__track {
     display: flex;
     width: max-content;
-    animation: marquee 60s linear infinite;
-  }
-  .marquee:hover .marquee__track {
-    animation-play-state: paused;
+    will-change: transform;
   }
   .marquee__group {
     display: flex;
@@ -47,25 +45,16 @@ const { items, label } = Astro.props;
   .marquee__item {
     display: inline-flex;
     align-items: center;
-    gap: 28px;
-    padding-right: 28px;
-    font-size: clamp(1.6rem, 3.4vw, 2.6rem);
-    line-height: 1.1;
+    gap: 22px;
+    padding-right: 22px;
     white-space: nowrap;
   }
+  .marquee__item .display {
+    font-size: clamp(2.4rem, 7vw, 5.6rem);
+    line-height: 0.9;
+  }
   .marquee__item svg {
-    width: 0.45em;
-    height: 0.45em;
-    color: var(--limagne);
-  }
-  @keyframes marquee {
-    to {
-      transform: translateX(-50%);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .marquee__track {
-      animation: none;
-    }
+    width: clamp(28px, 4vw, 48px);
+    opacity: 0.6;
   }
 </style>
