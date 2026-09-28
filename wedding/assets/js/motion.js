@@ -1,170 +1,315 @@
 /* ==========================================================================
-   Motion — GSAP + ScrollTrigger.
-   · Intro: the names write themselves in ink while the page loads, then
-     the silk, the date and the rest breathe in around them.
-   · Scroll: every animation is scrubbed to the scroll with a little inertia,
-     so on a phone it follows the finger instead of firing on its own.
-   · Transforms and opacity only (GPU-friendly). Reduced motion → soft fades.
+   Motion — GSAP (+ SplitText, + ScrollTrigger for the hero parallax).
+
+   1. Preloader: L and A rise from their baseline and glide towards each
+      other, the "&" joins them, the names and a hairline follow.
+   2. Hand-over: the monogram flies into the top bar while the ivory veil
+      dissolves onto the home; the names then write themselves in ink.
+   3. Scroll: sections reveal as they come into view — ink titles, text
+      rising line by line from behind a mask, cards opening, tiles unveiled.
+      Triggered by IntersectionObserver, which keeps working even when the
+      page is shown inside a frame that doesn't scroll itself (app previews),
+      unlike scroll events.
+   Transforms, opacity and clip only. Reduced motion → soft fades.
    ========================================================================== */
 (function () {
   "use strict";
 
-  var gsap = window.gsap, ST = window.ScrollTrigger;
+  var gsap = window.gsap;
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var noop = function () {};
   var M = window.WeddingMotion = {
-    write: function () { return Promise.resolve(); },
-    intro: function () {},
+    loading: function () { return Promise.resolve(); },
+    enter: noop,
     rows: null,
-    gallery: function () {},
-    refresh: function () {}
+    gallery: noop,
+    refresh: noop
   };
 
-  if (!gsap || !ST) {                         // library missing: show everything, no motion
+  if (!gsap) {                                   // library missing: everything simply shows
     document.documentElement.classList.add("no-motion");
     return;
   }
-  gsap.registerPlugin(ST);
-  ST.config({ ignoreMobileResize: true });   // the iPhone toolbar must not re-measure everything
-  gsap.defaults({ ease: "power3.out", duration: 1.2 });
+  var ST = window.ScrollTrigger, Split = window.SplitText;
+  if (ST) { gsap.registerPlugin(ST); ST.config({ ignoreMobileResize: true }); }
+  if (Split) gsap.registerPlugin(Split);
 
+  var EXPO = "expo.out";
+  var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return gsap.utils.toArray((r || document).querySelectorAll(s)); };
-  var SCRUB = 0.9;                           // seconds of "catch-up": the inertia that makes it feel fluid
+  var D = reduce ? 0.35 : 1;                     // global duration factor
 
-  /* ───────────── Intro ───────────── */
+  // names are hidden in ink from the very start (under the veil)
+  $$(".hero__name").forEach(function (n) { n.classList.add("ink"); });
 
-  // Names written in ink while the page loads. Resolves when both are written.
-  M.write = function () {
-    var names = $$(".hero__name");
-    names.forEach(function (n) { n.classList.add("ink"); });
+  /* ───────────── 1. Preloader ───────────── */
+
+  M.loading = function () {
+    var L = $(".mono__l"), A = $(".mono__a");
     return new Promise(function (resolve) {
+      var tl = gsap.timeline({ onComplete: resolve });
       if (reduce) {
-        gsap.set(names, { "--mx": "0%" });
-        gsap.fromTo(".hero__names", { opacity: 0 }, { opacity: 1, duration: 0.8, onComplete: resolve });
-        gsap.set(".hero__amp", { opacity: 1, scale: 1, rotate: 0 });
+        tl.fromTo("#loaderMono, .loader__names, .loader__bar, .loader__count", { opacity: 0 }, { opacity: 1, duration: 0.6 });
         return;
       }
-      gsap.timeline({ onComplete: resolve })
-        .fromTo(names[0], { "--mx": "100%", y: 10 }, { "--mx": "0%", y: 0, duration: 2.1, ease: "power2.inOut" })
-        .to(".hero__amp", { opacity: 1, scale: 1, rotate: 0, duration: 1.4, ease: "expo.out" }, "-=0.8")
-        .fromTo(names[1], { "--mx": "100%", y: 10 }, { "--mx": "0%", y: 0, duration: 2.1, ease: "power2.inOut" }, "-=1.0");
+      gsap.set("#loaderMono", { opacity: 1 });
+      tl.fromTo([L.firstChild, A.firstChild], { yPercent: 105 }, { yPercent: 0, duration: 1.7, stagger: 0.14, ease: EXPO }, 0)
+        // the two initials start apart and glide together
+        .fromTo(L, { x: "-0.28em" }, { x: 0, duration: 2.3, ease: "power3.inOut" }, 0)
+        .fromTo(A, { x: "0.28em" }, { x: 0, duration: 2.3, ease: "power3.inOut" }, 0)
+        // the "&" joins them
+        .fromTo(".mono__amp > span",
+          { opacity: 0, scale: 0.3, rotate: -24, y: 12 },
+          { opacity: 1, scale: 1, rotate: 0, y: 0, duration: 1.5, ease: EXPO }, 1.15)
+        .fromTo(".loader__names",
+          { opacity: 0, letterSpacing: "0.9em", y: 8 },
+          { opacity: 1, letterSpacing: "0.42em", y: 0, duration: 1.8, ease: EXPO }, 1.4)
+        .fromTo(".loader__bar", { opacity: 0, scaleX: 0.4 }, { opacity: 1, scaleX: 1, duration: 1.2, ease: EXPO }, 1.6)
+        .fromTo(".loader__count", { opacity: 0 }, { opacity: 1, duration: 0.8 }, 1.8);
     });
   };
 
-  // Everything around the names, once the page is ready.
-  M.intro = function () {
-    var d = reduce ? 0.01 : 1;
-    var tl = gsap.timeline({ onComplete: setupScroll });
-    tl.to(".loader__foot", { opacity: 0, y: 10, duration: 0.6 * d, ease: "power2.in" })
-      .fromTo(".hero__eyebrow",
-        { opacity: 0, y: 14, letterSpacing: "0.7em" },
-        { opacity: 1, y: 0, letterSpacing: "0.34em", duration: 2 * d, ease: "expo.out" }, 0.2)
-      .fromTo(".hero__date span",
-        { opacity: 0, y: 18 },
-        { opacity: 1, y: 0, duration: 1.6 * d, stagger: 0.12, ease: "expo.out" }, 0.45)
-      .fromTo(".hero__date i",
-        { opacity: 0, scale: 0 },
-        { opacity: 0.45, scale: 1, duration: 1.2 * d, stagger: 0.12, ease: "expo.out" }, 0.7)
-      .fromTo(".topbar",
-        { opacity: 0, y: -12 },
-        { opacity: 1, y: 0, duration: 1.4 * d, ease: "expo.out" }, 0.8)
-      .fromTo(".hero__scroll",
-        { opacity: 0, y: -8 },
-        { opacity: 1, y: 0, duration: 1.4 * d }, 1.2);
-    document.getElementById("loader").classList.add("is-gone");
-  };
+  /* ───────────── 2. Hand-over to the home ───────────── */
 
-  /* ───────────── Scroll ───────────── */
+  M.enter = function () {
+    var mono = $("#loaderMono"), target = $("#topMono");
+    var from = mono.getBoundingClientRect(), to = target.getBoundingClientRect();
+    var scale = to.height / from.height;
+    var dx = (to.left + to.width / 2) - (from.left + from.width / 2);
+    var dy = (to.top + to.height / 2) - (from.top + from.height / 2);
 
-  // from → to, scrubbed while the element travels between two viewport lines
-  function scrub(targets, from, to, start, end, trigger) {
-    $$(targets).forEach(function (el) {
-      gsap.fromTo(el, from, Object.assign({
-        ease: "none",
-        scrollTrigger: { trigger: trigger || el, start: start || "top 96%", end: end || "top 62%", scrub: SCRUB }
-      }, to));
+    // reveals are armed right away, while the veil still covers the page and it can't scroll yet
+    setupReveals();
+    var tl = gsap.timeline({
+      onComplete: function () {
+        $("#loader").classList.add("is-gone");
+        setupParallax();
+      }
     });
-  }
-  function fade(targets) {                   // reduced motion: opacity only, played once
-    ST.batch(targets, {
-      start: "top 92%",
-      once: true,
-      onEnter: function (els) { gsap.fromTo(els, { opacity: 0 }, { opacity: 1, duration: 0.8, stagger: 0.06 }); }
-    });
-  }
+    tl.to(".loader__names, .loader__bar, .loader__count", { opacity: 0, y: -8, duration: 0.6 * D, stagger: 0.05, ease: "power2.in" }, 0)
+      // the monogram flies to the top bar…
+      .to(mono, { x: dx, y: dy, scale: scale, duration: 1.6 * D, ease: "expo.inOut" }, 0.25)
+      // …while the veil dissolves onto the home, which settles from a slight zoom
+      .to(".loader__veil", { opacity: 0, duration: 1.5 * D, ease: "power2.inOut" }, 0.45)
+      .fromTo(".hero", { scale: 1.05, transformOrigin: "50% 40%" }, { scale: 1, duration: 2.6 * D, ease: EXPO, clearProps: "transform" }, 0.45)
+      // hand-over: the real top-bar monogram takes its place
+      .set(target, { opacity: 1 }, 1.85 * D)
+      .set(mono, { opacity: 0 }, 1.85 * D)
+      .fromTo(".lang", { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 1.2 * D, ease: EXPO }, 1.7 * D);
 
-  function setupScroll() {
-    // section titles are written in ink as they come up
-    $$(".section__title, .footer__thanks").forEach(function (el) { el.classList.add("ink"); });
-
+    // the names write themselves in ink, one after the other
+    var names = $$(".hero__name");
     if (reduce) {
-      gsap.set(".ink", { "--mx": "0%" });
-      fade(".section .eyebrow, .section__title, .section .lead, .section .body, .card, .pillar, .countdown, .or, .tabs, .menu__box, .footer > *");
-      return;
+      tl.set(names, { "--mx": "0%" }, 0.5).to(".hero__amp", { opacity: 1, scale: 1, rotate: 0, duration: 0.4 }, 0.5);
+    } else {
+      tl.fromTo(names[0], { "--mx": "100%", y: 12 }, { "--mx": "0%", y: 0, duration: 1.9, ease: "power2.inOut" }, 0.8)
+        .fromTo(".hero__amp", { opacity: 0, scale: 0.5, rotate: -14 }, { opacity: 1, scale: 1, rotate: 0, duration: 1.4, ease: EXPO }, 2.0)
+        .fromTo(names[1], { "--mx": "100%", y: 12 }, { "--mx": "0%", y: 0, duration: 1.9, ease: "power2.inOut" }, 2.1);
     }
+    tl.fromTo(".hero__eyebrow",
+        { opacity: 0, y: 14, letterSpacing: "0.8em" },
+        { opacity: 1, y: 0, letterSpacing: "0.34em", duration: 2 * D, ease: EXPO }, 1.2 * D)
+      .fromTo(".hero__date span", { opacity: 0, yPercent: 60 }, { opacity: 1, yPercent: 0, duration: 1.6 * D, stagger: 0.12, ease: EXPO }, 3.0 * D)
+      .fromTo(".hero__date i", { opacity: 0, scale: 0 }, { opacity: 0.45, scale: 1, duration: 1.2 * D, stagger: 0.12, ease: EXPO }, 3.2 * D)
+      .fromTo(".hero__scroll", { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 1.4 * D, ease: EXPO }, 3.4 * D);
+    return tl;
+  };
 
-    // Hero drifts away in layers: the names at different speeds, the rest fading out first.
-    gsap.timeline({ scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: SCRUB } })
-      .to(".hero__name--1", { yPercent: -28, ease: "none" }, 0)
-      .to(".hero__name--2", { yPercent: -12, ease: "none" }, 0)
-      .to(".hero__amp", { yPercent: -60, opacity: 0, ease: "none" }, 0)
-      .to(".hero__names", { opacity: 0.1, scale: 0.94, ease: "none" }, 0.15)
-      .to(".hero__eyebrow", { y: -70, opacity: 0, ease: "none" }, 0)
-      .to(".hero__date", { y: -36, opacity: 0, letterSpacing: "0.7em", ease: "none" }, 0)
-      .to(".hero__scroll", { opacity: 0, y: 20, ease: "none" }, 0);
+  /* ───────────── 3. Reveals in view ───────────── */
 
-    scrub(".section .eyebrow", { opacity: 0, letterSpacing: "0.7em" }, { opacity: 1, letterSpacing: "0.34em" }, "top 98%", "top 72%");
-    scrub(".section__title, .footer__thanks", { "--mx": "100%", y: 30 }, { "--mx": "0%", y: 0 }, "top 94%", "top 50%");
-    scrub(".card", { opacity: 0, y: 80, scale: 0.95 }, { opacity: 1, y: 0, scale: 1 }, "top 100%", "top 58%");
-    scrub(".section .lead, .section .body, .signature, .countdown, .or, .gallery__count, .form .field, .form .btn",
-      { opacity: 0, y: 36 }, { opacity: 1, y: 0 }, "top 97%", "top 72%");
-    scrub(".rule", { scaleX: 0 }, { scaleX: 1 }, "top 92%", "top 70%");
-    scrub(".tabs, .menu__box", { opacity: 0, y: 40, scale: 0.92 }, { opacity: 1, y: 0, scale: 1 }, "top 98%", "top 70%");
-
-    // the 03 / 10 / 26 plinth floats a little slower than the page, its numbers arrive one by one
-    gsap.fromTo(".pillar", { y: 90 }, { y: -50, ease: "none", scrollTrigger: { trigger: ".pillar", start: "top bottom", end: "bottom top", scrub: SCRUB + 0.4 } });
-    $$(".pillar span").forEach(function (sp, i) {
-      gsap.fromTo(sp, { opacity: 0, y: 40 }, { opacity: 1, y: 0, ease: "none",
-        scrollTrigger: { trigger: ".pillar", start: "top " + (96 - i * 8) + "%", end: "top " + (60 - i * 8) + "%", scrub: SCRUB } });
-    });
-
-    // footer monogram grows into place
-    scrub(".footer__mono", { opacity: 0, scale: 0.8, y: 30 }, { opacity: 1, scale: 1, y: 0 }, "top 100%", "top 65%");
-    scrub(".footer__names, .footer__date", { opacity: 0, y: 20, letterSpacing: "0.7em" }, { opacity: 1, y: 0, letterSpacing: "0.4em" }, "top 100%", "top 75%");
-
-    if (M._pendingGallery) M.gallery(M._pendingGallery);
+  // Watches elements; when one comes into view, its reveal plays once.
+  // Entries arriving in the same frame are staggered together.
+  var io = null, handlers = new Map();
+  function watch(el, reveal, hide) {
+    if (!el || handlers.has(el)) return;
+    hide(el);
+    handlers.set(el, reveal);
+    if (io) io.observe(el);
   }
-
-  /* ───────────── Gallery ───────────── */
-
-  var colTweens = [];
-  M.gallery = function (grid) {
-    if (!grid) return;
-    if (!ST.getAll().length && !reduce) { M._pendingGallery = grid; return; }   // wait for setupScroll
-    // new tiles rise in, in small cascades, as they enter the screen
-    var fresh = $$(".tile:not([data-m])", grid);
-    fresh.forEach(function (t) { t.setAttribute("data-m", "1"); gsap.set(t, { opacity: 0, y: reduce ? 0 : 60, scale: reduce ? 1 : 0.94 }); });
-    if (fresh.length) {
-      ST.batch(fresh, {
-        start: "top 96%",
-        once: true,
-        onEnter: function (els) {
-          gsap.to(els, { opacity: 1, y: 0, scale: 1, duration: reduce ? 0.8 : 1.5, stagger: 0.09, ease: "expo.out", overwrite: true });
+  function createObserver() {
+    if (!("IntersectionObserver" in window)) return null;
+    return new IntersectionObserver(function (entries) {
+      // anything already above the screen (scrolled past quickly) is shown at once, never lost
+      entries.forEach(function (e) {
+        if (!e.isIntersecting && e.boundingClientRect.bottom < 0 && handlers.has(e.target)) {
+          io.unobserve(e.target);
+          handlers.delete(e.target);
+          showNow(e.target);
         }
       });
-    }
-    // a quiet parallax across the mosaic
-    if (!reduce) {
-      var cols = $$(".mason__col", grid);
-      if (cols.length !== colTweens.length || cols.some(function (c, i) { return !colTweens[i] || colTweens[i].el !== c; })) {
-        colTweens.forEach(function (c) { c.tw.scrollTrigger.kill(); c.tw.kill(); });
-        colTweens = cols.map(function (c, i) {
-          // columns lag behind and settle into place at different speeds; never above their own top
-          var lag = [0, 70, 35, 90][i % 4];
-          return { el: c, tw: gsap.fromTo(c, { y: lag }, { y: 0, ease: "none",
-            scrollTrigger: { trigger: grid, start: "top bottom", end: "bottom bottom", scrub: SCRUB + 0.3 } }) };
-        });
+      var batch = entries.filter(function (e) { return e.isIntersecting; })
+        .sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top || a.boundingClientRect.left - b.boundingClientRect.left; });
+      batch.forEach(function (e, i) {
+        var fn = handlers.get(e.target);
+        io.unobserve(e.target);
+        handlers.delete(e.target);
+        if (fn) fn(e.target, i * 0.09);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.01 });
+  }
+
+  function showNow(el) {
+    if (el._split) { el._split.revert(); el._split = null; }
+    gsap.set(el, { opacity: 1, y: 0, x: 0, scale: 1, rotateX: 0, scaleX: 1, "--mx": "0%", letterSpacing: "", clearProps: "clipPath,transform" });
+    var kids = el.querySelectorAll(".pillar > span, :scope > .field, :scope > .btn");
+    if (kids.length) gsap.set(kids, { opacity: 1, clearProps: "transform" });
+    var media = el.querySelector(".tile img, .tile video, .tile__voice");
+    if (media) gsap.set(media, { clearProps: "transform" });
+  }
+
+  // text rising line by line from behind a mask
+  function splitLines(el) {
+    if (!Split || reduce) return null;
+    try { return Split.create(el, { type: "lines", mask: "lines", linesClass: "line" }); }
+    catch (e) { return null; }
+  }
+
+  var R = {
+    eyebrow: [
+      function (el) { gsap.set(el, { opacity: 0, letterSpacing: "0.8em" }); },
+      function (el, d) { gsap.to(el, { opacity: 1, letterSpacing: "0.34em", duration: 2 * D, delay: d, ease: EXPO }); }
+    ],
+    title: [
+      function (el) { el.classList.add("ink"); gsap.set(el, { "--mx": "100%", y: reduce ? 0 : 24 }); },
+      function (el, d) { gsap.to(el, { "--mx": "0%", y: 0, duration: 2.1 * D, delay: d + 0.1, ease: "power2.inOut" }); }
+    ],
+    text: [
+      function (el) {
+        var sp = splitLines(el);
+        el._split = sp;
+        if (sp) gsap.set(sp.lines, { yPercent: 110 });
+        else gsap.set(el, { opacity: 0, y: reduce ? 0 : 20 });
+      },
+      function (el, d) {
+        var sp = el._split;
+        if (sp && sp.lines[0] && sp.lines[0].isConnected) {
+          gsap.to(sp.lines, { yPercent: 0, duration: 1.5, stagger: 0.1, delay: d + 0.15, ease: EXPO,
+            onComplete: function () { sp.revert(); } });
+        } else gsap.to(el, { opacity: 1, y: 0, duration: 1.2 * D, delay: d, ease: EXPO });
       }
+    ],
+    card: [
+      function (el) { gsap.set(el, reduce ? { opacity: 0 } : { opacity: 0, y: 60 }); },
+      function (el, d) {
+        // the card opens from its centre (explicit start/end: browsers shorten inset() values)
+        var open = reduce ? {} : { clipPath: "inset(8% 5% 8% 5% round 18px)" };
+        gsap.fromTo(el, Object.assign({ opacity: 0, y: reduce ? 0 : 60 }, open),
+          Object.assign({ opacity: 1, y: 0, duration: 1.8 * D, delay: d, ease: EXPO,
+            onComplete: function () { gsap.set(el, { clearProps: "clipPath,transform" }); } },
+            reduce ? {} : { clipPath: "inset(0% 0% 0% 0% round 14px)" }));
+        // what's inside follows, one after the other
+        var kids = el.querySelectorAll(":scope > .field, :scope > .btn, :scope > .drop, :scope > .voice__head, :scope > .voice__wave, :scope > .voice__controls, :scope > .rule, :scope > .signature, :scope > .menu__panel:not([hidden]) > article");
+        if (kids.length && !reduce) {
+          gsap.fromTo(kids, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 1.4, stagger: 0.08, delay: d + 0.35, ease: EXPO, clearProps: "transform" });
+        }
+      }
+    ],
+    rule: [
+      function (el) { gsap.set(el, { scaleX: 0 }); },
+      function (el, d) { gsap.to(el, { scaleX: 1, duration: 1.6 * D, delay: d + 0.3, ease: "expo.inOut" }); }
+    ],
+    lift: [
+      function (el) { gsap.set(el, { opacity: 0, y: reduce ? 0 : 30 }); },
+      function (el, d) { gsap.to(el, { opacity: 1, y: 0, duration: 1.5 * D, delay: d, ease: EXPO }); }
+    ],
+    pillar: [
+      function (el) {
+        gsap.set(el, reduce ? { opacity: 0 } : { opacity: 0, y: 50, rotateX: 18, transformPerspective: 800, transformOrigin: "50% 100%" });
+        if (!reduce) gsap.set(el.children, { opacity: 0, yPercent: 60 });
+      },
+      function (el, d) {
+        gsap.to(el, { opacity: 1, y: 0, rotateX: 0, duration: 1.8 * D, delay: d, ease: EXPO });
+        if (!reduce) gsap.to(el.children, { opacity: 1, yPercent: 0, duration: 1.6, stagger: 0.16, delay: d + 0.4, ease: EXPO });
+      }
+    ],
+    menuBox: [
+      function (el) { gsap.set(el, { opacity: 0, scale: reduce ? 1 : 0.86 }); },
+      function (el, d) { gsap.to(el, { opacity: 1, scale: 1, duration: 1.8 * D, delay: d, ease: EXPO }); }
+    ],
+    mono: [
+      function (el) { gsap.set(el, { opacity: 0, scale: reduce ? 1 : 0.8, y: reduce ? 0 : 20 }); },
+      function (el, d) { gsap.to(el, { opacity: 1, scale: 1, y: 0, duration: 2 * D, delay: d, ease: EXPO }); }
+    ],
+    tile: [
+      function (el) {
+        gsap.set(el, reduce ? { opacity: 0 } : { opacity: 0, y: 40 });
+        var media = el.querySelector("img, video, .tile__voice");
+        if (media && !reduce) gsap.set(media, { scale: 1.25 });
+      },
+      function (el, d) {
+        // unveiled from the bottom up
+        gsap.fromTo(el, Object.assign({ opacity: 0, y: reduce ? 0 : 40 }, reduce ? {} : { clipPath: "inset(18% 0% 0% 0% round 10px)" }),
+          Object.assign({ opacity: 1, y: 0, duration: 1.6 * D, delay: d, ease: EXPO,
+            onComplete: function () { gsap.set(el, { clearProps: "clipPath,transform" }); } },
+            reduce ? {} : { clipPath: "inset(0% 0% 0% 0% round 10px)" }));
+        var media = el.querySelector("img, video, .tile__voice");
+        if (media && !reduce) gsap.to(media, { scale: 1, duration: 2.2, delay: d, ease: EXPO, clearProps: "transform" });
+      }
+    ]
+  };
+  function add(sel, kind, root) { $$(sel, root).forEach(function (el) { watch(el, R[kind][1], R[kind][0]); }); }
+
+  // Safety net for fast flings: an element can go from below the screen to above
+  // it between two observer checks; anything already above the screen is shown.
+  var sweeping = false;
+  function sweep() {
+    sweeping = false;
+    handlers.forEach(function (_, el) {
+      if (el.getBoundingClientRect().bottom < 0) {
+        if (io) io.unobserve(el);
+        handlers.delete(el);
+        showNow(el);
+      }
+    });
+  }
+  function requestSweep() {
+    if (sweeping || !handlers.size) return;
+    sweeping = true;
+    requestAnimationFrame(sweep);
+  }
+
+  function setupReveals() {
+    io = createObserver();
+    if (!io) {                                   // very old browser: everything is simply shown
+      handlers.forEach(function (_, el) { showNow(el); });
+      handlers.clear();
+      return;
     }
+    window.addEventListener("scroll", requestSweep, { passive: true });
+    setInterval(requestSweep, 1000);
+    add(".section .eyebrow, .footer__names, .footer__date, .gallery__count", "eyebrow");
+    add(".section__title, .footer__thanks", "title");
+    add(".section .lead, .section .body", "text");
+    add(".card", "card");
+    add(".card > .rule", "rule");
+    add(".countdown, .or, .tabs, .gallery__empty", "lift");
+    add(".pillar", "pillar");
+    add(".menu__box", "menuBox");
+    add(".footer__mono", "mono");
+    add(".tile", "tile");
+    handlers.forEach(function (_, el) { io.observe(el); });
+  }
+
+  // the hero drifts away in layers — only where the page itself scrolls
+  function setupParallax() {
+    if (!ST || reduce) return;
+    gsap.timeline({ scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.9 } })
+      .to(".hero__name--1", { yPercent: -26, ease: "none" }, 0)
+      .to(".hero__name--2", { yPercent: -10, ease: "none" }, 0)
+      .to(".hero__amp", { opacity: 0, ease: "none" }, 0)
+      .to(".hero__names", { opacity: 0.15, ease: "none" }, 0.2)
+      .to(".hero__eyebrow", { y: -60, opacity: 0, ease: "none" }, 0)
+      .to(".hero__date", { y: -30, opacity: 0, ease: "none" }, 0)
+      .to(".hero__scroll", { opacity: 0, ease: "none" }, 0);
+  }
+
+  /* ───────────── Gallery tiles (added at any time) ───────────── */
+
+  M.gallery = function (grid) {
+    $$(".tile:not([data-m])", grid).forEach(function (t) {
+      t.setAttribute("data-m", "1");
+      watch(t, R.tile[1], R.tile[0]);
+    });
     M.refresh();
   };
 
@@ -174,10 +319,9 @@
     enter: function (li, i) {
       gsap.fromTo(li,
         { height: 0, opacity: 0, y: 16, marginBottom: 0 },
-        { height: "auto", opacity: 1, y: 0, marginBottom: 10, duration: reduce ? 0.3 : 1.1, delay: i * 0.08, ease: "expo.out",
-          onComplete: function () { gsap.set(li, { clearProps: "height" }); M.refresh(); } });
-      var thumb = li.querySelector(".q__thumb");
-      if (!reduce) gsap.fromTo(thumb, { scale: 0.7, rotate: -4 }, { scale: 1, rotate: 0, duration: 1.4, delay: i * 0.08 + 0.1, ease: "expo.out" });
+        { height: "auto", opacity: 1, y: 0, marginBottom: 10, duration: 1.1 * D, delay: i * 0.08, ease: EXPO,
+          onComplete: function () { gsap.set(li, { clearProps: "height,transform" }); M.refresh(); } });
+      if (!reduce) gsap.fromTo(li.querySelector(".q__thumb"), { scale: 0.7, rotate: -4 }, { scale: 1, rotate: 0, duration: 1.4, delay: i * 0.08 + 0.1, ease: EXPO });
     },
     leave: function (li, done) {
       gsap.to(li, { height: 0, opacity: 0, x: 30, marginBottom: 0, duration: 0.7, ease: "power3.inOut",
@@ -187,13 +331,13 @@
       if (reduce) return;
       gsap.timeline()
         .to(li.querySelector(".q__thumb"), { scale: 1.08, duration: 0.35, ease: "power2.out" })
-        .to(li.querySelector(".q__thumb"), { scale: 1, duration: 0.9, ease: "expo.out" });
+        .to(li.querySelector(".q__thumb"), { scale: 1, duration: 0.9, ease: EXPO });
     }
   };
 
-  // layout changed (uploads, gallery, tabs): re-measure trigger positions, debounced
   var rt = 0;
   M.refresh = function () {
+    if (!ST) return;
     clearTimeout(rt);
     rt = setTimeout(function () { ST.refresh(); }, 250);
   };

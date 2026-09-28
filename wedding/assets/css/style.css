@@ -117,29 +117,35 @@ a { color: inherit; }
 
 main, .footer, .topbar { position: relative; z-index: 2; }
 
-/* ───────────── Preloader ─────────────
-   Transparent: the hero names write themselves in place above it,
-   everything else waits until the page is ready. */
+/* ───────────── Preloader ───────────── */
 .loader {
   position: fixed;
   inset: 0;
   z-index: 100;
+  display: grid;
+  place-items: center;
   pointer-events: none;
 }
 .loader.is-gone { display: none; }
-.loader__foot {
-  position: absolute;
-  left: 50%;
-  bottom: calc(40px + var(--safe-bottom));
-  transform: translateX(-50%);
+.loader__veil { position: absolute; inset: 0; background: var(--paper); }
+.loader__center {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 22px;
 }
+.loader__names {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.loader__names i { font-family: var(--script); font-style: normal; font-size: 19px; letter-spacing: 0; text-transform: none; margin: 0 0.3em; }
 .loader__bar {
   position: relative;
-  width: 120px;
+  width: 110px;
   height: 1px;
   background: var(--line);
   overflow: hidden;
@@ -152,14 +158,32 @@ main, .footer, .topbar { position: relative; z-index: 2; }
   transform: scaleX(0);
 }
 .loader__count {
-  margin: 0;
+  margin: -8px 0 0;
   font-size: 11px;
   letter-spacing: 0.2em;
   color: var(--ink-mute);
   font-variant-numeric: tabular-nums;
 }
-body.is-loading .topbar,
 body.is-loading .fab { visibility: hidden; }
+.no-motion .loader, html:not(.js) .loader { display: none; }
+/* hidden until GSAP starts the sequence (no flash of the finished monogram) */
+.js .mono, .js .loader__names, .js .loader__bar, .js .loader__count { opacity: 0; }
+
+/* The monogram — built exactly like the one in the top bar (same em proportions)
+   so that it can fly there and hand over without a visible jump. */
+.mono {
+  font-size: clamp(96px, 30vw, 150px);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--navy);
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+.mono > span { display: inline-block; clip-path: inset(-40% -30% 0 -30%); }   /* letters rise from their baseline */
+.mono > span > span { display: inline-block; }
+.mono__amp { font-style: italic; font-size: 0.6em; margin: 0 0.045em; vertical-align: 0.35em; clip-path: none !important; }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
@@ -206,7 +230,9 @@ body.is-loading .fab { visibility: hidden; }
   font-weight: 500;
   letter-spacing: 0.02em;
 }
-.topbar__mono span { font-style: italic; font-size: 0.6em; margin: 0 1px; vertical-align: 0.35em; }
+.topbar__mono span { font-style: italic; font-size: 0.6em; margin: 0 0.045em; vertical-align: 0.35em; }
+.js .topbar__mono { opacity: 0; }
+.no-motion .topbar__mono { opacity: 1; }
 
 .lang { display: flex; gap: 2px; }
 .lang button {
@@ -309,10 +335,10 @@ body.is-loading .fab { visibility: hidden; }
 .js .hero__date span,
 .js .hero__date i,
 .js .hero__scroll,
-.js .topbar { opacity: 0; }
+.js .lang { opacity: 0; }
 .js .hero__amp { opacity: 0; transform: scale(0.6) rotate(-10deg); }
 .no-motion .hero__eyebrow, .no-motion .hero__date span, .no-motion .hero__date i,
-.no-motion .hero__scroll, .no-motion .topbar, .no-motion .hero__amp { opacity: 1; transform: none; }
+.no-motion .hero__scroll, .no-motion .lang, .no-motion .hero__amp { opacity: 1; transform: none; }
 
 /* ───────────── Sections ───────────── */
 .section {

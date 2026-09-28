@@ -18,10 +18,15 @@
 <body class="is-loading">
 
   <!-- ───────────── Preloader ─────────────
-       No separate splash: the names write themselves in place in the hero,
-       only this hairline and counter sit at the bottom while the page loads. -->
+       L and A rise and glide together, the "&" joins them; when the page is
+       ready the monogram flies into the top bar while the veil dissolves. -->
   <div class="loader" id="loader" aria-hidden="true">
-    <div class="loader__foot">
+    <div class="loader__veil"></div>
+    <div class="loader__center">
+      <div class="mono" id="loaderMono">
+        <span class="mono__l"><span>L</span></span><span class="mono__amp"><span>&amp;</span></span><span class="mono__a"><span>A</span></span>
+      </div>
+      <p class="loader__names">Lindsey <i>&amp;</i> Andrea</p>
       <div class="loader__bar"><span id="loaderBar"></span></div>
       <p class="loader__count"><span id="loaderCount">00</span></p>
     </div>
@@ -32,7 +37,7 @@
 
   <!-- ───────────── Top bar ───────────── -->
   <header class="topbar">
-    <a class="topbar__mono" href="#top" aria-label="Lindsey &amp; Andrea">L<span>&amp;</span>A</a>
+    <a class="topbar__mono" id="topMono" href="#top" aria-label="Lindsey &amp; Andrea">L<span>&amp;</span>A</a>
     <nav class="lang" aria-label="Language">
       <button type="button" data-lang="en">EN</button>
       <button type="button" data-lang="it">IT</button>
@@ -268,6 +273,7 @@
 
   <script src="assets/vendor/gsap.min.js" defer></script>
   <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+  <script src="assets/vendor/SplitText.min.js" defer></script>
   <script src="assets/js/scene.js" defer></script>
   <script src="assets/js/motion.js" defer></script>
   <script src="assets/js/uploader.js" defer></script>

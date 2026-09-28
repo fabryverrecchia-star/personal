@@ -6,7 +6,7 @@ your own server, a live masonry gallery of everything guests share, and a
 floating share button. EN / IT / FR.
 
 No build step, no external services — plain HTML/CSS/JS + PHP 8.
-Motion uses GSAP 3.13 + ScrollTrigger, stored in `assets/vendor/` (served from your server).
+Motion uses GSAP 3.13 (+ ScrollTrigger, SplitText), stored in `assets/vendor/` (served from your server).
 
 ## Deploy
 
@@ -79,8 +79,8 @@ and `MAX_BYTES` in `assets/js/app.js`).
 |---|---|
 | `index.html` | the page |
 | `assets/js/scene.js` | WebGL scene (low-res silk pass + GPU petals, adaptive resolution) |
-| `assets/js/motion.js` | intro (names written in ink) and scroll-scrubbed animations (GSAP) |
-| `assets/vendor/` | GSAP + ScrollTrigger |
+| `assets/js/motion.js` | monogram preloader, hand-over to the home, reveals in view (GSAP) |
+| `assets/vendor/` | GSAP + ScrollTrigger + SplitText |
 | `assets/js/app.js` | loading, translations, countdown, forms, upload UI |
 | `assets/js/uploader.js` | chunked upload engine |
 | `assets/js/recorder.js` | voice message recorder with live waveform |

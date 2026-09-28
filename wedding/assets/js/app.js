@@ -289,55 +289,60 @@
   }
 
   /* ───────────── Preloader ─────────────
-     The names write themselves in place (motion.js) as soon as the script
-     font is ready; the hairline at the bottom follows the real loading.
-     The page opens when both the writing and the loading are done. */
+     The monogram animates (motion.js) as soon as the fonts are ready; the
+     hairline follows the real loading. When both are done the monogram
+     flies into the top bar and the home appears. */
 
   var bar = $("#loaderBar");
   var count = $("#loaderCount");
   var shown = 0;
   var started = performance.now();
   var MAX_TIME = 8000;                // never hold guests hostage on slow networks
-  var steps = { fonts: false, scene: false, load: false, written: false };
+  var steps = { fonts: false, scene: false, load: false, intro: false };
   var Motion = window.WeddingMotion || {
-    write: function () { return Promise.resolve(); }, intro: function () {}, refresh: function () {}, rows: null
+    loading: function () { return Promise.resolve(); }, enter: function () {}, refresh: function () {}, rows: null
   };
   if (!window.WeddingMotion) document.documentElement.classList.add("no-motion");
 
   function markStep(name) { steps[name] = true; }
   window.addEventListener("load", function () { markStep("load"); });
 
-  // wait for the script face (max 2.5 s) so the ink never writes a fallback font
+  // wait for the faces (max 2.5 s) so nothing animates in a fallback font
   var fontsReady = document.fonts && document.fonts.load
     ? Promise.race([
-        Promise.all([document.fonts.load('400 100px "Pinyon"'), document.fonts.load('400 100px "Pinyon Script"'), document.fonts.ready]),
+        Promise.all([
+          document.fonts.load('500 100px "Cormorant"'), document.fonts.load('500 100px "Cormorant Garamond"'),
+          document.fonts.load('400 100px "Pinyon"'), document.fonts.load('400 100px "Pinyon Script"'),
+          document.fonts.ready
+        ]),
         new Promise(function (r) { setTimeout(r, 2500); })
       ])
     : Promise.resolve();
   fontsReady.then(function () {
     markStep("fonts");
-    return Motion.write();
-  }).then(function () { markStep("written"); });
+    return Motion.loading();
+  }).then(function () { markStep("intro"); });
 
   function loaderTick(now) {
     var elapsed = now - started;
     if (!steps.scene && window.WeddingScene && window.WeddingScene.ready) markStep("scene");
-    var done = (steps.fonts ? 1 : 0) + (steps.scene ? 1 : 0) + (steps.load ? 1 : 0) + (steps.written ? 1 : 0);
+    var done = (steps.fonts ? 1 : 0) + (steps.scene ? 1 : 0) + (steps.load ? 1 : 0) + (steps.intro ? 1 : 0);
     var target = elapsed > MAX_TIME ? 1 : done / 4;
     shown += (target - shown) * 0.06;
     if (target >= 1 && shown > 0.996) shown = 1;
     bar.style.transform = "scaleX(" + shown.toFixed(4) + ")";
     var pct = Math.round(shown * 100);
     count.textContent = pct < 10 ? "0" + pct : String(pct);
-    if (shown >= 1) return finishLoading();
+    if (shown >= 1) return setTimeout(finishLoading, 250);
     requestAnimationFrame(loaderTick);
   }
 
   function finishLoading() {
     document.body.classList.remove("is-loading");
     document.body.classList.add("is-ready");
+    window.scrollTo(0, 0);
     if (window.WeddingScene) window.WeddingScene.start();
-    Motion.intro();
+    Motion.enter();
   }
 
   // if the URL targets a section (e.g. shared link …#share), don't jump before the reveal
