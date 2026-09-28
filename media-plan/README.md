@@ -18,7 +18,7 @@ Ce qu'il faut côté hébergement :
 - Apache lit `data/.htaccess` qui bloque l'accès direct au fichier. Sur Nginx, ajouter une règle `location ~ /data/ { deny all; }`.
 
 Mode équipe (Fabrizio, Jade) :
-- Toucher « Espace équipe » sous « Jours de passage » ou « Missions en cours » (ou ouvrir la page avec `&admin`).
+- Toucher le bouton flottant « Espace équipe » en bas à droite, puis choisir Rendez-vous (calendrier) ou Tâche (missions) : la page descend au formulaire. « Fermer l'espace équipe » dans le même menu.
 - Saisir le code équipe (une fois par appareil). Formulaire pour ajouter une mission (publiée par Fabrizio ou Jade) ou un passage ;
   sur chaque ligne, le crayon modifie, la croix supprime, et toucher l'état fait avancer la mission (À venir → En cours → Livré).
 - Changer le code : `php -r 'echo password_hash("nouveau-code", PASSWORD_DEFAULT);'` puis coller le résultat dans `config.php`.

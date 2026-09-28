@@ -530,7 +530,6 @@
       '<p class="label suivi__kicker" data-reveal>Sur place</p>' +
       '<h2 class="suivi__title" data-reveal>Jours de passage</h2>' +
       '<p class="suivi__lead" data-reveal data-next>&nbsp;</p>' +
-      '<button type="button" class="label team-btn" data-admin-toggle>Espace équipe</button>' +
       '</header>' +
       '<div class="admin-wrap"><div class="admin-wrap__in">' +
       '<form class="admin-form" data-add="passages" autocomplete="off">' +
@@ -560,7 +559,6 @@
       '<p class="label suivi__kicker" data-reveal>En coulisses</p>' +
       '<h2 class="suivi__title" data-reveal>Missions en cours</h2>' +
       '<div class="progress" data-reveal data-progress></div>' +
-      '<button type="button" class="label team-btn" data-admin-toggle>Espace équipe</button>' +
       '</header>' +
       '<div class="admin-wrap"><div class="admin-wrap__in">' +
       '<form class="admin-form" data-add="missions" autocomplete="off">' +
@@ -576,7 +574,15 @@
       '<ul class="tasks" data-tasks></ul>' +
       '<p class="label suivi__mode" data-suivi-mode></p>' +
       '</section>' +
-      '<button type="button" class="label admin-pill" data-admin-toggle hidden></button>'
+      // Espace équipe : bouton flottant en bas à droite, on choisit le formulaire à ouvrir
+      '<div class="team-fab" data-fab>' +
+      '<div class="team-fab__menu" role="menu" aria-label="Espace équipe">' +
+      '<button type="button" class="team-fab__item" role="menuitem" data-goto="passages">' + SICONS.planning + '<span><b>Rendez-vous</b><small class="label">Calendrier des passages</small></span></button>' +
+      '<button type="button" class="team-fab__item" role="menuitem" data-goto="missions">' + SICONS.redaction + '<span><b>Tâche</b><small class="label">Missions en cours</small></span></button>' +
+      '<button type="button" class="team-fab__item team-fab__quit" role="menuitem" data-fab-quit>' + SICONS.close + '<span><b>Fermer l’espace équipe</b></span></button>' +
+      '</div>' +
+      '<button type="button" class="label team-fab__btn" data-fab-toggle aria-expanded="false"><i class="team-fab__dot"></i><span>Espace équipe</span></button>' +
+      '</div>'
     );
   }
 
@@ -599,7 +605,7 @@
     var monthEl = document.querySelector('[data-cal-month]');
     var visitsEl = document.querySelector('[data-visits]');
     var tasksEl = document.querySelector('[data-tasks]');
-    var pill = document.querySelector('.admin-pill');
+    var fab = document.querySelector('[data-fab]');
 
     function json(r) {
       if (!r.ok) return Promise.reject(r.status);
@@ -773,9 +779,11 @@
         try { localStorage.removeItem(CODE); } catch (e) {}
         window.alert('Code incorrect.');
       }
-      if (pill) { pill.textContent = 'Quitter l’espace équipe'; pill.hidden = !on; }
-      document.querySelectorAll('.team-btn').forEach(function (b) { b.textContent = on ? 'Terminer' : 'Espace équipe'; });
-      if (!on) document.querySelectorAll('[data-add]').forEach(resetForm);
+      if (fab) fab.classList.toggle('is-on', on);
+      if (!on) {
+        document.querySelectorAll('[data-add]').forEach(resetForm);
+        document.querySelectorAll('.suivi.is-open').forEach(function (x) { x.classList.remove('is-open'); });
+      }
       // Les formulaires apparaissent ou disparaissent : on garde le bouton touché sous le doigt
       paint();
       // Pendant l'ouverture / la fermeture en douceur, le bouton touché reste à sa place
@@ -790,8 +798,10 @@
         else if (window.ScrollTrigger) window.ScrollTrigger.refresh();
       })();
     }
-    function askCode() {
-      if (mode === 'local') { setAdmin(true); return; }
+    function askCode(then) {
+      then = then || function () {};
+      if (admin) { then(); return; }
+      if (mode === 'local') { setAdmin(true); then(); return; }
       var c = window.prompt('Code équipe');
       if (!c) return;
       fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Code': c }, body: '{"action":"check"}' })
@@ -800,7 +810,24 @@
           code = c;
           try { localStorage.setItem(CODE, c); } catch (e) {}
           setAdmin(true);
+          then();
         }).catch(function () { window.alert('Connexion impossible.'); });
+    }
+
+    // Ouvre le formulaire d'une section (l'autre se referme) et y descend en douceur
+    function openSection(kind) {
+      document.querySelectorAll('.suivi').forEach(function (x) {
+        if (x.id !== kind && x.classList.contains('is-open')) { x.classList.remove('is-open'); resetForm(x.querySelector('[data-add]')); }
+      });
+      var sec = document.getElementById(kind);
+      sec.classList.add('is-open');
+      sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(function () { if (window.ScrollTrigger) window.ScrollTrigger.refresh(); }, 1000);
+    }
+    function menu(open) {
+      if (!fab) return;
+      fab.classList.toggle('is-menu', open);
+      fab.querySelector('[data-fab-toggle]').setAttribute('aria-expanded', open ? 'true' : 'false');
     }
 
     var who = list(cfg.team)[0];
@@ -814,7 +841,7 @@
     }
     paintWho();
 
-    var taps = 0, lastTap = 0, anchor = null;
+    var anchor = null;
 
     // Modifier une mission ou un passage déjà publié : le formulaire se remplit
     function resetForm(f) {
@@ -830,6 +857,7 @@
       var it = state[kind].filter(function (x) { return x.id === id; })[0];
       var f = document.querySelector('[data-add="' + kind + '"]');
       if (!it || !f) return;
+      document.getElementById(kind).classList.add('is-open');
       ['title', 'cat', 'status', 'date', 'time', 'kind'].forEach(function (n) {
         if (f.elements[n] && it[n] != null) f.elements[n].value = it[n];
       });
@@ -867,20 +895,20 @@
         resetForm(t.closest('[data-add]'));
       } else if (admin && (t = e.target.closest('[data-del]'))) {
         if (window.confirm('Supprimer ?')) send({ action: 'delete', kind: t.getAttribute('data-del'), id: t.getAttribute('data-id') });
-      } else if (e.target.closest('#missions .suivi__kicker')) {
-        // Accès discret au mode équipe : trois touchers rapides sur « En coulisses »
-        taps = Date.now() - lastTap < 600 ? taps + 1 : 1;
-        lastTap = Date.now();
-        if (taps >= 3 && !admin) askCode();
-      } else if ((t = e.target.closest('[data-admin-toggle]'))) {
-        // Le bouton flottant « Quitter » n'a pas de place dans la page : on s'ancre sur le titre visible
-        if (t.classList.contains('team-btn')) anchor = t;
-        else {
-          var mid = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
-          anchor = mid && !mid.closest('.admin-form') ? mid.closest('.task, .visit, header, section') : null;
-        }
-        if (admin) setAdmin(false); else askCode();
+      } else if (e.target.closest('[data-fab-toggle]')) {
+        menu(!fab.classList.contains('is-menu'));
+      } else if ((t = e.target.closest('[data-goto]'))) {
+        var kind = t.getAttribute('data-goto');
+        menu(false);
+        askCode(function () { openSection(kind); });
+      } else if (e.target.closest('[data-fab-quit]')) {
+        menu(false);
+        // On garde sous les yeux ce qui est au centre de l'écran pendant que les formulaires se replient
+        var mid = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
+        anchor = mid && !mid.closest('.admin-form') ? mid.closest('.task, .visit, header, section') : null;
+        setAdmin(false);
       }
+      if (fab && fab.classList.contains('is-menu') && !e.target.closest('[data-fab]')) menu(false);
     });
 
     document.addEventListener('submit', function (e) {
@@ -908,7 +936,7 @@
 
     load().then(function () {
       if (code && mode === 'api') setAdmin(true);
-      else if (wantsAdmin) askCode();
+      else if (wantsAdmin) menu(true);
     });
   }
 
