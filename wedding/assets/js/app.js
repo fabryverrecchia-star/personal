@@ -468,38 +468,67 @@
     return /^(image|video)\//.test(file.type) || EXT_OK.test(file.name);
   }
 
+  var isVideoFile = function (f) { return /^video\//.test(f.type) || /\.(mp4|mov|m4v|webm|3gp)$/i.test(f.name); };
+
+  // Thumbnails are decoded small (createImageBitmap with resize) so a 12 MP photo
+  // never gets decoded at full size just to fill a 54 px square — that decode is
+  // what makes phones stutter when ten photos are picked at once.
   function makeThumb(file, box) {
-    var url = URL.createObjectURL(file);
-    if (/^video\//.test(file.type) || /\.(mp4|mov|m4v|webm|3gp)$/i.test(file.name)) {
+    function ready() { box.classList.add("is-ready"); }
+    if (isVideoFile(file)) {
       var v = document.createElement("video");
       v.muted = true;
       v.playsInline = true;
       v.preload = "metadata";
-      v.src = url + "#t=0.1";
-      box.appendChild(v);
+      v.addEventListener("loadeddata", ready);
+      v.src = URL.createObjectURL(file) + "#t=0.1";
+      box.insertBefore(v, box.firstChild);
       var play = document.createElement("span");
       play.className = "q__play";
-      play.textContent = "▶";
+      play.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg>';
       box.appendChild(play);
-    } else {
+      setTimeout(ready, 1500);
+      return;
+    }
+    function fallback() {
       var img = new Image();
       img.decoding = "async";
       img.alt = "";
-      img.onerror = function () { img.remove(); };  // e.g. HEIC on non-Apple browsers
-      img.src = url;
-      box.appendChild(img);
+      img.onload = ready;
+      img.onerror = function () { img.remove(); ready(); };  // e.g. HEIC outside Safari
+      img.src = URL.createObjectURL(file);
+      box.insertBefore(img, box.firstChild);
     }
+    if (!window.createImageBitmap) return fallback();
+    var size = 108;                                         // 54 px × 2 for retina
+    createImageBitmap(file, { resizeWidth: size * 2, resizeQuality: "medium" }).then(function (bmp) {
+      var c = document.createElement("canvas");
+      c.width = c.height = size;
+      var g = c.getContext("2d");
+      var s = Math.max(size / bmp.width, size / bmp.height);
+      var w = bmp.width * s, h = bmp.height * s;
+      g.drawImage(bmp, (size - w) / 2, (size - h) / 2, w, h);
+      if (bmp.close) bmp.close();
+      box.insertBefore(c, box.firstChild);
+      requestAnimationFrame(ready);
+    }).catch(fallback);
   }
 
+  var enterIndex = 0, enterTimer = 0;
   function createRow(item) {
     var li = document.createElement("li");
     li.className = "q";
     li.innerHTML =
-      '<div class="q__thumb"></div>' +
-      '<div class="q__meta"><span class="q__name"></span><span class="q__sub"></span>' +
-      '<div class="q__bar"><span></span></div></div>' +
-      '<button type="button" class="q__state"></button>';
+      '<div class="q__in">' +
+        '<div class="q__thumb"><span class="q__veil"></span></div>' +
+        '<div class="q__meta"><span class="q__name"></span>' +
+          '<span class="q__sub"><span class="q__pct"></span><span class="q__size"></span></span>' +
+          '<div class="q__bar"><span></span></div></div>' +
+        '<button type="button" class="q__state"></button>' +
+      "</div>";
     li.querySelector(".q__name").textContent = item.file.name || "file";
+    li.querySelector(".q__size").textContent = fmtBytes(item.file.size);
+    li._p = { shown: 0, target: 0, pct: -1 };
     makeThumb(item.file, li.querySelector(".q__thumb"));
     li.querySelector(".q__state").addEventListener("click", function () {
       if (item.status === "error") uploader.retry(item);
@@ -507,44 +536,106 @@
     });
     queueEl.insertBefore(li, queueEl.firstChild);
     rows.set(item, li);
+    // unfold into place, files picked together cascade in one after another
+    li.style.transitionDelay = (enterIndex++ * 70) + "ms";
+    clearTimeout(enterTimer);
+    enterTimer = setTimeout(function () { enterIndex = 0; }, 200);
+    requestAnimationFrame(function () { requestAnimationFrame(function () { li.classList.add("is-in"); }); });
+    setTimeout(function () { li.style.transitionDelay = ""; }, 1200);
     return li;
   }
 
   function updateRow(item) {
     var li = rows.get(item) || createRow(item);
     if (item.status === "cancelled") {
-      li.style.transition = "opacity .4s, transform .4s";
-      li.style.opacity = "0";
-      li.style.transform = "translateX(20px)";
-      setTimeout(function () { li.remove(); }, 400);
+      li.classList.remove("is-in");
+      li.classList.add("is-out");
+      setTimeout(function () { li.remove(); }, 600);
       rows.delete(item);
       return;
     }
-    var pct = item.file.size ? item.sent / item.file.size : 1;
-    li.className = "q is-" + item.status;
-    li.querySelector(".q__bar span").style.transform = "scaleX(" + Math.min(1, pct).toFixed(3) + ")";
-    var sub = li.querySelector(".q__sub");
+    var pct = item.file.size ? Math.min(1, item.sent / item.file.size) : 1;
+    if (item.status === "queued") li._p.shown = li._p.target = 0;   // fresh start after a retry
+    li._p.target = item.status === "done" ? 1 : Math.max(li._p.target, pct);
+    var was = li.dataset.status;
+    li.dataset.status = item.status;
+    li.classList.toggle("is-done", item.status === "done");
+    li.classList.toggle("is-error", item.status === "error");
+    li.classList.toggle("is-queued", item.status === "queued");
     var btn = li.querySelector(".q__state");
     if (item.status === "done") {
-      sub.textContent = t("share.done") + " · " + fmtBytes(item.file.size);
       if (btn.dataset.icon !== "done") { btn.innerHTML = ICONS.done; btn.dataset.icon = "done"; }
       btn.setAttribute("aria-label", t("share.done"));
+      if (was !== "done") li._p.pct = -1;
     } else if (item.status === "error") {
-      var code = item.error && item.error.code;
-      sub.textContent = code === "too_big" ? t("share.tooBig") : code === "bad_type" ? t("share.badType") : t("share.failed");
-      btn.innerHTML = ICONS.retry; btn.dataset.icon = "retry";
+      if (btn.dataset.icon !== "retry") { btn.innerHTML = ICONS.retry; btn.dataset.icon = "retry"; }
       btn.setAttribute("aria-label", "Retry");
+      li._p.pct = -1;
     } else {
-      sub.textContent = item.status === "queued"
-        ? t("share.waiting") + " · " + fmtBytes(item.file.size)
-        : Math.round(pct * 100) + "% · " + fmtBytes(item.file.size);
       if (btn.dataset.icon !== "cancel") { btn.innerHTML = ICONS.cancel; btn.dataset.icon = "cancel"; }
       btn.setAttribute("aria-label", "Cancel");
+      if (was !== item.status) li._p.pct = -1;
     }
+    li._item = item;
+    animate();
+  }
+
+  // Progress events arrive in bursts (every chunk, uneven on 4G). Bars glide
+  // toward the real value in one requestAnimationFrame loop instead of jumping,
+  // and the loop stops as soon as everything has settled.
+  var totalShown = 0, animating = false, lastT = 0;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function paintRow(li) {
+    var item = li._item, p = li._p;
+    li.querySelector(".q__bar span").style.transform = "scaleX(" + p.shown.toFixed(4) + ")";
+    li.querySelector(".q__veil").style.transform = "scaleY(" + (1 - p.shown).toFixed(4) + ")";
+    var pctInt = Math.round(p.shown * 100);
+    if (pctInt === p.pct) return;
+    p.pct = pctInt;
+    var label = li.querySelector(".q__pct");
+    if (item.status === "done") label.textContent = t("share.done");
+    else if (item.status === "error") {
+      var code = item.error && item.error.code;
+      label.textContent = code === "too_big" ? t("share.tooBig") : code === "bad_type" ? t("share.badType") : t("share.failed");
+    } else if (item.status === "queued") label.textContent = t("share.waiting");
+    else label.textContent = pctInt + "%";
+  }
+
+  function frame(now) {
+    var dt = Math.min(0.1, (now - (lastT || now)) / 1000);
+    lastT = now;
+    var k = reduce ? 1 : 1 - Math.exp(-dt * 5.5);           // frame-rate independent easing
+    var moving = false;
+    rows.forEach(function (li) {
+      var p = li._p, it = li._item;
+      // between progress reports, creep slowly toward the end of the chunk in flight
+      // (never past 96% of it), so a bar on a slow connection never looks frozen
+      if (it && it.status === "uploading" && it.file.size) {
+        var CH = 4 * 1024 * 1024;
+        var cap = Math.min(1, (Math.floor(it.sent / CH) + 1) * CH / it.file.size) * 0.96;
+        if (p.target < cap) p.target = Math.min(cap, p.target + dt * 0.035);
+      }
+      var d = p.target - p.shown;
+      if (Math.abs(d) > 0.0005) { p.shown += d * k; moving = true; } else p.shown = p.target;
+      paintRow(li);
+    });
+    var s = uploader.stats();
+    var d2 = s.pct - totalShown;
+    if (Math.abs(d2) > 0.0005) { totalShown += d2 * k; moving = true; } else totalShown = s.pct;
+    totalBar.firstElementChild.style.transform = "scaleX(" + totalShown.toFixed(4) + ")";
+    $("#queuePercent").textContent = Math.round(totalShown * 100) + "%";
+    if (moving || uploader.busy()) requestAnimationFrame(frame);
+    else { animating = false; lastT = 0; }
+  }
+  function animate() {
+    if (animating) return;
+    animating = true;
+    requestAnimationFrame(frame);
   }
 
   function refreshAllItems() {
-    rows.forEach(function (_, item) { updateRow(item); });
+    rows.forEach(function (li) { li._p.pct = -1; paintRow(li); });
     updateTotals();
   }
 
@@ -555,8 +646,7 @@
     note.hidden = !uploader.busy();
     if (!any) return;
     $("#queueSummary").textContent = t("share.summary", { done: s.done, count: s.count });
-    $("#queuePercent").textContent = Math.round(s.pct * 100) + "%";
-    totalBar.firstElementChild.style.transform = "scaleX(" + s.pct.toFixed(3) + ")";
+    animate();
   }
 
   function lockScreen(on) {
@@ -635,6 +725,10 @@
     if (!good.length) return;
     var name = guestName();
     lockScreen(true);
+    var card = $(".uploader").getBoundingClientRect();
+    if (card.bottom < 80 || card.top > window.innerHeight - 120) {
+      $(".uploader").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    }
     // measure one by one (phones don't love decoding ten 4K videos at once), then queue each
     good.reduce(function (p, f) {
       return p.then(function () { return measure(f); }).then(function (meta) { uploader.add([f], name, meta); });
@@ -648,6 +742,15 @@
   });
 
   var drop = $("#drop");
+  drop.addEventListener("pointerdown", function (e) {
+    var r = drop.getBoundingClientRect();
+    var dot = document.createElement("span");
+    dot.className = "drop__ripple";
+    dot.style.left = (e.clientX - r.left) + "px";
+    dot.style.top = (e.clientY - r.top) + "px";
+    drop.appendChild(dot);
+    setTimeout(function () { dot.remove(); }, 900);
+  });
   ["dragenter", "dragover"].forEach(function (ev) {
     drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("is-over"); });
   });
@@ -724,8 +827,8 @@
       var what = b.dataset.fab;
       setFab(false);
       if (what === "upload") {
-        input.click();                     // opens the gallery picker right away (same tap)
-        goTo("#share");
+        input.click();                     // opens the gallery picker right away (same tap);
+                                           // the page glides to the upload list once files are picked
       } else if (what === "voice") {
         goTo("#voice", function () { $("#voice .voice__rec").focus({ preventScroll: true }); });
       } else if (what === "note") {
@@ -738,12 +841,19 @@
 
   // show after the hero, hide over the footer
   var hero = $(".hero"), footer = $(".footer");
+  var forms = [$("#messageForm"), $("#voice"), $(".uploader")];
   function fabVisibility() {
     var past = window.scrollY > hero.offsetHeight * 0.6;
-    var nearEnd = footer.getBoundingClientRect().top < window.innerHeight - 40;
-    var show = past && !nearEnd;
-    fab.classList.toggle("is-shown", show || busyAny());
-    if (!show && !busyAny() && fab.dataset.open === "true") setFab(false);
+    var band = window.innerHeight - 110;          // where the button sits
+    var nearEnd = footer.getBoundingClientRect().top < band + 70;
+    // step aside over the forms: they have their own buttons right there
+    var overForm = forms.some(function (el) {
+      var r = el.getBoundingClientRect();
+      return r.top < band + 80 && r.bottom > band;
+    });
+    var show = past && !nearEnd && !overForm;
+    fab.classList.toggle("is-shown", show);
+    if (!show && fab.dataset.open === "true") setFab(false);
   }
   window.addEventListener("scroll", function () { requestAnimationFrame(fabVisibility); }, { passive: true });
 
