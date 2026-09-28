@@ -174,7 +174,7 @@
         '<div class="media__inner"><img src="' + esc(src(post.poster)) + '" alt="" loading="lazy" decoding="async"></div>' +
         '<button class="reel-open" data-reel="' + id + '" aria-label="Lire le reel : ' + esc(post.title || '') + '">' +
         '<span class="reel-open__ring"></span><span class="reel-open__play">' + ICONS.play + '</span>' +
-        '<span class="label reel-open__hint">Toucher pour lire</span>' +
+        '<span class="label reel-open__hint">' + (post.video ? 'Toucher pour lire' : 'Voir le concept') + '</span>' +
         '</button></div>';
     } else if (type === 'carousel') {
       var imgs = list(post.media);
@@ -216,6 +216,8 @@
         '" alt="" loading="lazy" decoding="async"></div></div>';
     }
 
+    // Visuel encore en production : le fac-similé est signalé comme tel
+    if (post.wip) media = media.replace('<div class="media__inner">', '<div class="media__inner"><span class="label media__wip">Visuel bientôt disponible</span>');
     var caption = list(post.caption).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('');
     var tags = list(post.hashtags).length ? '<div class="hashtags">' + list(post.hashtags).map(esc).join(' ') + '</div>' : '';
     var note = post.note ? '<div class="note">' + esc(post.note) + '</div>' : '';
@@ -279,6 +281,7 @@
 
     document.title = '18H22 × ' + (c.name || '') + ' · ' + (PLAN.title || 'Media planning');
     applyFonts();
+    applyTeamColors();
     document.getElementById('bar').innerHTML = '<a href="#top" class="lockup-link" aria-label="Haut de page">' + lockup() + '</a>';
 
     var name = esc(c.name || '');
@@ -332,7 +335,7 @@
       '<nav class="weeknav" aria-label="' + (monthly ? 'Mois' : 'Semaines') + '">' +
       (PLAN.suivi ? '<a class="label" href="#missions">Missions</a>' : '') +
       '<a class="label" href="#feed">Feed</a>' +
-      weeks.map(function (w, k) { return '<a class="label" href="#s' + (k + 1) + '">' + (monthly ? MOIS_LONGS[firstDate(w).getMonth()] : 'S' + pad(k + 1)) + '</a>'; }).join('') +
+      weeks.map(function (w, k) { return '<a class="label" href="#s' + (k + 1) + '">' + (w.nav ? esc(w.nav) : monthly ? MOIS_LONGS[firstDate(w).getMonth()] : 'S' + pad(k + 1)) + '</a>'; }).join('') +
       (PLAN.suivi ? '<a class="label" href="#passages">Passages</a>' : '') +
       '</nav>';
 
@@ -354,7 +357,7 @@
         '<section class="week" id="s' + (k + 1) + '">' +
         '<header class="week__head">' +
         '<span class="week__num" aria-hidden="true">' + pad(monthly ? first.getMonth() + 1 : k + 1) + '</span>' +
-        '<p class="label week__kicker" data-reveal>' + (monthly
+        '<p class="label week__kicker" data-reveal>' + (w.kicker ? esc(w.kicker) + ' · ' + posts.length + ' publications' : monthly
           ? MOIS_LONGS[first.getMonth()] + ' ' + first.getFullYear() + ' · ' + posts.length + ' publications'
           : 'Semaine ' + pad(k + 1) + ' · ' + range) + '</p>' +
         '<h2 class="week__title" data-reveal>' + (w.title || (monthly ? MOIS_LONGS[first.getMonth()] : 'Semaine ' + (k + 1))) + '</h2>' +
@@ -378,7 +381,8 @@
         var n = list(p.options).length;
         var icon = n > 1 ? '<span class="label grid__options">' + LETTRES.slice(0, n).split('').join(' / ') + '</span>'
           : p.type === 'post' ? '' : '<span class="grid__icon">' + ICONS[p.type] + '</span>';
-        return '<a href="#' + p._id + '" data-grid' + (n > 1 ? ' data-grid-options="' + p._id + '"' : '') + '><img src="' + esc(src(img)) + '" alt="" loading="lazy" decoding="async">' + icon +
+        return '<a href="#' + p._id + '" data-grid' + (p.wip ? ' class="is-wip"' : '') + (n > 1 ? ' data-grid-options="' + p._id + '"' : '') + '><img src="' + esc(src(img)) + '" alt="" loading="lazy" decoding="async">' + icon +
+          (p.wip ? '<span class="label grid__wip">En cours</span>' : '') +
           '<span class="label grid__day">' + JOURS[p._date.getDay()] + ' ' + pad(p._date.getDate()) + '</span></a>';
       }).join('') +
       live.map(function (img) {
@@ -482,6 +486,21 @@
 
   /* ---------------------------------------------------- typographies client */
   // Les polices du client servent à partir de son univers ; l'ouverture reste en 18H22
+  // Couleur de chaque membre de l'équipe (pastille et bouton « Publié par ») : plan.suivi.colors
+  function applyTeamColors() {
+    var colors = PLAN.suivi && PLAN.suivi.colors;
+    if (!colors) return;
+    var css = Object.keys(colors).map(function (n) {
+      var c = colors[n], bg = c[0], fg = c[1], ring = c[2] || bg;
+      var k = n.toLowerCase().replace(/[^a-z0-9-]/g, '');
+      return '.avatar--' + k + '{background:' + bg + ';color:' + fg + ';box-shadow:inset 0 0 0 1px ' + ring + '}' +
+        '.chip.is-on[data-who="' + n.replace(/"/g, '') + '"]{background:' + bg + ';border-color:' + ring + ';color:' + fg + '}';
+    }).join('');
+    var st = document.createElement('style');
+    st.textContent = css;
+    document.head.appendChild(st);
+  }
+
   function applyFonts() {
     var f = PLAN.fonts;
     if (!f) return;
@@ -915,7 +934,7 @@
       toastT = setTimeout(function () { toastEl.classList.remove('is-on'); }, 3200);
     }
 
-    /* Mode équipe (Fabrizio, Jade) : ajouter, faire avancer, supprimer */
+    /* Mode équipe : ajouter, faire avancer, supprimer */
     function setAdmin(on, badCode) {
       var before = anchor && anchor.getBoundingClientRect().top;
       admin = on;

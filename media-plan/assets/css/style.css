@@ -732,6 +732,18 @@ a { color: inherit; }
   color: #fff;
   font-size: 8px;
 }
+.grid a.is-wip img { filter: saturate(0.9); }
+.grid__wip, .media__wip {
+  position: absolute;
+  left: 6px; top: 6px;
+  z-index: 2;
+  padding: 3px 7px 2px;
+  border-radius: 99px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 8px;
+}
+.media__wip { left: 12px; top: 12px; padding: 6px 11px 5px; font-size: 9px; }
 .grid__day {
   position: absolute;
   left: 6px; bottom: 5px;
@@ -1146,7 +1158,6 @@ a { color: inherit; }
   background: var(--ink); color: var(--bg);
 }
 .avatar--fabrizio { background: #22365f; }
-.avatar--jade { background: #ca4737; }
 .task__status {
   padding: 6px 11px 5px;
   border-radius: 99px;
@@ -1227,9 +1238,9 @@ a { color: inherit; }
   -webkit-tap-highlight-color: transparent;
 }
 .chip.is-on { background: var(--ink); border-color: var(--ink); color: var(--bg); }
-/* Fabrizio en couleur 18H22, Jade en couleur Enza Famiglia */
+/* Fabrizio en couleur 18H22 ; les autres membres prennent leur couleur dans plan.suivi.colors */
 .chip.is-on[data-who="Fabrizio"] { background: #22365f; border-color: #22365f; color: #f1eee6; }
-.chip.is-on[data-who="Jade"] { background: #ca4737; border-color: #ca4737; color: #fff0c3; }
+
 .admin-form__go {
   justify-self: start;
   padding: 12px 22px 11px;

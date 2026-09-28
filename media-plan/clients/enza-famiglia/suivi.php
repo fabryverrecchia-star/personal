@@ -76,7 +76,7 @@ $kind = isset($in['kind']) ? $in['kind'] : '';
 if ($action === 'progress') $kind = 'missions';
 if (!in_array($kind, ['missions', 'passages'], true)) out(['error' => 'kind'], 400);
 
-$TEAM = ['Fabrizio', 'Jade'];
+$TEAM = ['Fabrizio', 'Carlotta', 'Sixte'];
 $CATS = ['print', 'branding', 'meeting', 'photo', 'video', 'montage', 'planning', 'redaction', 'autre'];
 $STATUS = ['todo', 'doing', 'wait', 'done'];
 $KINDS = ['photo', 'video', 'both', 'meeting'];

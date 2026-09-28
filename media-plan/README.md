@@ -6,7 +6,7 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur.
 - `index.html` ouvre Enza Famiglia (`?c=enza-famiglia`).
 - Ordre de la page : missions en cours et avancement global, puis le media planning (feed, posts du mois), puis le calendrier des passages.
 - Contenu des posts : `clients/enza-famiglia/plan.js` (planning du mois dans `months`, feed déjà en ligne dans `feedExisting`, couleurs, polices).
-  Les visuels d'octobre sont des maquettes en attendant les shootings : remplacer les fichiers de `media/` et les chemins dans `plan.js`.
+  Posts en production (`wip: true`) : fac-similé « Visuel bientôt disponible » et pastille « En cours » dans le feed. Remplacer le fichier dans `media/`, le chemin dans `plan.js` et retirer `wip`.
 - Commentaires sous chaque post : gardés sur le téléphone du client, envoyés en un récapitulatif (WhatsApp).
 - « Enza 8e » s'affiche toujours en vert sauge dans les missions (`suivi.highlight` dans `plan.js`).
 
@@ -20,7 +20,7 @@ Ce qu'il faut côté hébergement :
 - Le dossier `clients/enza-famiglia/data/` doit être accessible en écriture par PHP (droits 755 ou 775 selon l'hébergeur, fichier `suivi.json` en 664).
 - Apache lit `data/.htaccess` qui bloque l'accès direct au fichier. Sur Nginx, ajouter une règle `location ~ /data/ { deny all; }`.
 
-Mode équipe (Fabrizio, Jade) :
+Mode équipe (Fabrizio, Carlotta, Sixte ; couleurs dans `suivi.colors` de `plan.js`) :
 - Toucher le bouton flottant « Espace équipe » en bas à droite, puis choisir Tâche (missions), Avancement ou Rendez-vous (calendrier). « Fermer l'espace équipe » dans le même menu.
 - Saisir le code équipe (une fois par appareil, le même que pour La Petite Maison).
 - Avancement : les boutons 0, 25, 50, 75, 100 % apparaissent sous la barre.
