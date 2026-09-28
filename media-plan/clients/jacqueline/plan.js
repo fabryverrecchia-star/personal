@@ -1,7 +1,7 @@
 /*
  * Media planning — Jacqueline, table gastronomique, Paris 9e. Semaine du 28 septembre 2026 (lancement).
- * Photos originales : mercredi, jeudi, vendredi-1, samedi-1 (couverture « L’ouverture approche »), samedi-2.
- * Encore extraites de la maquette : lundi-courges, mardi-verre, vendredi-2 (à remplacer, mêmes noms).
+ * Photos originales : mercredi, jeudi, vendredi-1, samedi-2, samedi-3.
+ * Encore extraites de la maquette : lundi-courges, mardi-verre, vendredi-2, samedi-1 (à remplacer, mêmes noms).
  * live-* : publications déjà en ligne sur le compte (@jacqueline_restaurant_paris).
  */
 window.PLAN = {
@@ -76,7 +76,7 @@ window.PLAN = {
         {
           date: '2026-10-03',
           type: 'carousel',
-          media: ['media/samedi-1.jpg', 'media/samedi-2.jpg'],
+          media: ['media/samedi-1.jpg', 'media/samedi-2.jpg', 'media/samedi-3.jpg'],
           title: 'L’ouverture approche',
           caption: ['Jacqueline ouvre la semaine prochaine.', 'Réservations ouvertes.'],
         },
