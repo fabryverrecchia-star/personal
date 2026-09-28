@@ -582,7 +582,19 @@
       '<button type="button" class="team-fab__item team-fab__quit" role="menuitem" data-fab-quit>' + SICONS.close + '<span><b>Fermer l’espace équipe</b></span></button>' +
       '</div>' +
       '<button type="button" class="label team-fab__btn" data-fab-toggle aria-expanded="false"><i class="team-fab__dot"></i><span>Espace équipe</span></button>' +
-      '</div>'
+      '</div>' +
+      // Fenêtre intégrée (code équipe, confirmation) : les fenêtres du navigateur sont bloquées sur mobile
+      '<div class="sheet" data-sheet aria-hidden="true">' +
+      '<div class="sheet__backdrop" data-sheet-cancel></div>' +
+      '<form class="sheet__panel" data-sheet-form role="dialog" aria-modal="true" autocomplete="off">' +
+      '<p class="label sheet__kicker" data-sheet-kicker></p>' +
+      '<h3 class="sheet__title" data-sheet-title></h3>' +
+      '<input class="sheet__input" data-sheet-input type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="Code équipe">' +
+      '<p class="label sheet__error" data-sheet-error aria-live="polite"></p>' +
+      '<div class="sheet__actions"><button type="button" class="label sheet__btn" data-sheet-cancel>Annuler</button>' +
+      '<button type="submit" class="label sheet__btn sheet__btn--main" data-sheet-ok>Valider</button></div>' +
+      '</form></div>' +
+      '<div class="toast label" data-toast aria-live="polite"></div>'
     );
   }
 
@@ -661,7 +673,7 @@
         return json(r);
       });
       return p.then(function (d) { if (valid(d)) { state = d; paint(); } })
-        .catch(function (e) { if (e !== 'code') window.alert('La modification n’a pas pu être enregistrée. Réessayez.'); });
+        .catch(function (e) { if (e !== 'code') toast('La modification n’a pas pu être enregistrée. Réessayez.'); });
     }
 
     /* Calendrier du mois */
@@ -769,6 +781,60 @@
       }
     }
 
+    /* Fenêtre intégrée et petit message (remplacent prompt / confirm / alert) */
+    var sheetEl = document.querySelector('[data-sheet]');
+    var sheetForm = sheetEl.querySelector('[data-sheet-form]');
+    var sheetInput = sheetEl.querySelector('[data-sheet-input]');
+    var sheetErr = sheetEl.querySelector('[data-sheet-error]');
+    var onSheet = null;
+    // o : { kicker, title, input, ok, danger, submit(value) → Promise<true | 'message d'erreur'> }
+    function sheet(o) {
+      sheetEl.querySelector('[data-sheet-kicker]').textContent = o.kicker || '';
+      sheetEl.querySelector('[data-sheet-title]').textContent = o.title || '';
+      var ok = sheetEl.querySelector('[data-sheet-ok]');
+      ok.textContent = o.ok || 'Valider';
+      ok.classList.toggle('is-danger', !!o.danger);
+      sheetInput.hidden = !o.input;
+      sheetInput.value = '';
+      sheetErr.textContent = '';
+      onSheet = o.submit;
+      sheetEl.classList.add('is-open');
+      sheetEl.setAttribute('aria-hidden', 'false');
+      // Le focus doit être donné pendant le toucher pour que le clavier s'ouvre sur iPhone
+      if (o.input) sheetInput.focus({ preventScroll: true });
+    }
+    function closeSheet() {
+      sheetEl.classList.remove('is-open');
+      sheetEl.setAttribute('aria-hidden', 'true');
+      sheetInput.blur();
+      onSheet = null;
+    }
+    sheetForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!onSheet) return closeSheet();
+      var ok = sheetEl.querySelector('[data-sheet-ok]');
+      ok.disabled = true;
+      Promise.resolve(onSheet(sheetInput.value.trim())).then(function (res) {
+        ok.disabled = false;
+        if (res === true) return closeSheet();
+        sheetErr.textContent = res || '';
+        sheetForm.classList.remove('is-shake');
+        void sheetForm.offsetWidth;
+        sheetForm.classList.add('is-shake');
+        if (!sheetInput.hidden) { sheetInput.select(); }
+      });
+    });
+    sheetEl.addEventListener('click', function (e) { if (e.target.closest('[data-sheet-cancel]')) closeSheet(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sheetEl.classList.contains('is-open')) closeSheet(); });
+
+    var toastEl = document.querySelector('[data-toast]'), toastT;
+    function toast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('is-on');
+      clearTimeout(toastT);
+      toastT = setTimeout(function () { toastEl.classList.remove('is-on'); }, 3200);
+    }
+
     /* Mode équipe (Fabrizio, Jade) : ajouter, faire avancer, supprimer */
     function setAdmin(on, badCode) {
       var before = anchor && anchor.getBoundingClientRect().top;
@@ -777,7 +843,7 @@
       if (!on && badCode) {
         code = '';
         try { localStorage.removeItem(CODE); } catch (e) {}
-        window.alert('Code incorrect.');
+        toast('Code équipe à saisir de nouveau.');
       }
       if (fab) fab.classList.toggle('is-on', on);
       if (!on) {
@@ -802,16 +868,24 @@
       then = then || function () {};
       if (admin) { then(); return; }
       if (mode === 'local') { setAdmin(true); then(); return; }
-      var c = window.prompt('Code équipe');
-      if (!c) return;
-      fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Code': c }, body: '{"action":"check"}' })
-        .then(function (r) {
-          if (!r.ok) { setAdmin(false, true); return; }
-          code = c;
-          try { localStorage.setItem(CODE, c); } catch (e) {}
-          setAdmin(true);
-          then();
-        }).catch(function () { window.alert('Connexion impossible.'); });
+      sheet({
+        kicker: 'Espace équipe',
+        title: 'Code équipe',
+        input: true,
+        ok: 'Entrer',
+        submit: function (c) {
+          if (!c) return 'Saisissez le code.';
+          return fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Code': c }, body: '{"action":"check"}' })
+            .then(function (r) {
+              if (!r.ok) return 'Code incorrect.';
+              code = c;
+              try { localStorage.setItem(CODE, c); } catch (e) {}
+              setAdmin(true);
+              setTimeout(then, 250);
+              return true;
+            }).catch(function () { return 'Connexion impossible. Réessayez.'; });
+        },
+      });
     }
 
     // Ouvre le formulaire d'une section (l'autre se referme) et y descend en douceur
@@ -894,7 +968,15 @@
       } else if ((t = e.target.closest('[data-cancel]'))) {
         resetForm(t.closest('[data-add]'));
       } else if (admin && (t = e.target.closest('[data-del]'))) {
-        if (window.confirm('Supprimer ?')) send({ action: 'delete', kind: t.getAttribute('data-del'), id: t.getAttribute('data-id') });
+        var delKind = t.getAttribute('data-del'), delId = t.getAttribute('data-id');
+        var item = state[delKind].filter(function (x) { return x.id === delId; })[0] || {};
+        sheet({
+          kicker: delKind === 'missions' ? 'Supprimer la mission' : 'Supprimer le passage',
+          title: item.title || (item.date ? shortDate(item.date) : ''),
+          ok: 'Supprimer',
+          danger: true,
+          submit: function () { send({ action: 'delete', kind: delKind, id: delId }); return true; },
+        });
       } else if (e.target.closest('[data-fab-toggle]')) {
         menu(!fab.classList.contains('is-menu'));
       } else if ((t = e.target.closest('[data-goto]'))) {
