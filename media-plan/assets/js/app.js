@@ -505,6 +505,7 @@
     planning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3.5" y="5" width="17" height="15" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>',
     redaction: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 20l1-4.5L16 4.5l3.5 3.5-11 11z"/><path d="M13.5 7l3.5 3.5"/></svg>',
     autre: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>',
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 20l1-4.5L16 4.5l3.5 3.5-11 11z"/></svg>',
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 6l12 12M18 6L6 18"/></svg>',
     prev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>',
     next: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg>',
@@ -528,6 +529,7 @@
       '<p class="label suivi__kicker" data-reveal>Sur place</p>' +
       '<h2 class="suivi__title" data-reveal>Jours de passage</h2>' +
       '<p class="suivi__lead" data-reveal data-next>&nbsp;</p>' +
+      '<button type="button" class="label team-btn" data-admin-toggle>Espace équipe</button>' +
       '</header>' +
       '<div class="cal" data-reveal>' +
       '<div class="cal__top">' +
@@ -541,11 +543,12 @@
       '</div>' +
       '<ol class="visits" data-visits></ol>' +
       '<form class="admin-form" data-add="passages" autocomplete="off">' +
-      '<p class="label admin-form__title">Ajouter un passage</p>' +
+      '<p class="label admin-form__title" data-form-title="Ajouter un passage">Ajouter un passage</p>' +
       '<div class="admin-form__row"><input type="date" name="date" required aria-label="Date"><input type="text" name="time" placeholder="Horaire (ex. 10h – 13h)" aria-label="Horaire" maxlength="30"></div>' +
       '<select name="kind" aria-label="Type de passage">' + options(KIND, 'photo') + '</select>' +
       '<input type="text" name="title" placeholder="Objet (ex. shooting de la carte)" aria-label="Objet" maxlength="140">' +
-      '<button type="submit" class="label admin-form__go">Ajouter</button>' +
+      '<div class="admin-form__actions"><button type="submit" class="label admin-form__go" data-go="Ajouter">Ajouter</button>' +
+      '<button type="button" class="label admin-form__cancel" data-cancel>Annuler</button></div>' +
       '</form>' +
       '</section>' +
 
@@ -554,14 +557,16 @@
       '<p class="label suivi__kicker" data-reveal>En coulisses</p>' +
       '<h2 class="suivi__title" data-reveal>Missions en cours</h2>' +
       '<div class="progress" data-reveal data-progress></div>' +
+      '<button type="button" class="label team-btn" data-admin-toggle>Espace équipe</button>' +
       '</header>' +
       '<form class="admin-form" data-add="missions" autocomplete="off">' +
-      '<p class="label admin-form__title">Nouvelle mission</p>' +
+      '<p class="label admin-form__title" data-form-title="Nouvelle mission">Nouvelle mission</p>' +
       '<input type="text" name="title" placeholder="Ex. montage du reel « En cuisine »" aria-label="Mission" maxlength="140" required>' +
       '<div class="admin-form__row"><select name="cat" aria-label="Catégorie">' + options(CAT, 'photo') + '</select>' +
       '<select name="status" aria-label="État">' + options(STATUS, 'todo') + '</select></div>' +
       '<div class="admin-form__who"><span class="label">Publié par</span>' + who + '</div>' +
-      '<button type="submit" class="label admin-form__go">Publier</button>' +
+      '<div class="admin-form__actions"><button type="submit" class="label admin-form__go" data-go="Publier">Publier</button>' +
+      '<button type="button" class="label admin-form__cancel" data-cancel>Annuler</button></div>' +
       '</form>' +
       '<ul class="tasks" data-tasks></ul>' +
       '<p class="label suivi__mode" data-suivi-mode></p>' +
@@ -626,6 +631,9 @@
         else { arr.push(it); arr.sort(function (a, b) { return a.date < b.date ? -1 : 1; }); }
       } else if (op.action === 'update') {
         arr.forEach(function (m) { if (m.id === op.id) m.status = op.status; });
+      } else if (op.action === 'edit') {
+        arr.forEach(function (x) { if (x.id === op.id) Object.keys(op.item).forEach(function (k) { x[k] = op.item[k]; }); });
+        if (op.kind === 'passages') arr.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
       } else if (op.action === 'delete') {
         d[op.kind] = arr.filter(function (x) { return x.id !== op.id; });
       }
@@ -698,7 +706,8 @@
           (p.title ? '<span class="visit__title">' + esc(p.title) + '</span>' : '') +
           (p.time ? '<span class="visit__time">' + esc(p.time) + '</span>' : '') + '</span>' +
           '<span class="label visit__when">' + (past ? 'Fait' : n === 0 ? 'Aujourd’hui' : n === 1 ? 'Demain' : 'J-' + n) + '</span>' +
-          '<button type="button" class="del" data-del="passages" data-id="' + esc(p.id) + '" aria-label="Supprimer ce passage">' + SICONS.close + '</button>' +
+          '<span class="row-actions"><button type="button" class="del" data-edit="passages" data-id="' + esc(p.id) + '" aria-label="Modifier ce passage">' + SICONS.edit + '</button>' +
+          '<button type="button" class="del" data-del="passages" data-id="' + esc(p.id) + '" aria-label="Supprimer ce passage">' + SICONS.close + '</button></span>' +
           '</li>';
       }).join('');
     }
@@ -723,7 +732,8 @@
           '<span class="task__title">' + esc(m.title) + '</span>' +
           '<span class="task__by"><i class="avatar avatar--' + esc(String(m.by).toLowerCase()) + '">' + esc(String(m.by).charAt(0)) + '</i>Publié par ' + esc(m.by) + (m.at ? ' · ' + shortDate(m.at) : '') + '</span></span>' +
           '<button type="button" class="label task__status" data-status="' + esc(m.id) + '" data-now="' + esc(m.status) + '" tabindex="' + (admin ? '0' : '-1') + '">' + (STATUS[m.status] || '') + '</button>' +
-          '<button type="button" class="del" data-del="missions" data-id="' + esc(m.id) + '" aria-label="Supprimer cette mission">' + SICONS.close + '</button>' +
+          '<span class="row-actions"><button type="button" class="del" data-edit="missions" data-id="' + esc(m.id) + '" aria-label="Modifier cette mission">' + SICONS.edit + '</button>' +
+          '<button type="button" class="del" data-del="missions" data-id="' + esc(m.id) + '" aria-label="Supprimer cette mission">' + SICONS.close + '</button></span>' +
           '</li>';
       }).join('') : '<li class="tasks__empty">Aucune mission pour le moment.</li>';
     }
@@ -757,7 +767,9 @@
         try { localStorage.removeItem(CODE); } catch (e) {}
         window.alert('Code incorrect.');
       }
-      if (pill) pill.textContent = on ? 'Mode équipe · quitter' : 'Mode équipe';
+      if (pill) { pill.textContent = 'Quitter l’espace équipe'; pill.hidden = !on; }
+      document.querySelectorAll('.team-btn').forEach(function (b) { b.textContent = on ? 'Terminer' : 'Espace équipe'; });
+      if (!on) document.querySelectorAll('[data-add]').forEach(resetForm);
       paint();
     }
     function askCode() {
@@ -785,6 +797,31 @@
     paintWho();
 
     var taps = 0, lastTap = 0;
+
+    // Modifier une mission ou un passage déjà publié : le formulaire se remplit
+    function resetForm(f) {
+      if (!f) return;
+      f.reset();
+      delete f.dataset.editing;
+      f.classList.remove('is-editing');
+      f.querySelector('[data-form-title]').textContent = f.querySelector('[data-form-title]').getAttribute('data-form-title');
+      var go = f.querySelector('[data-go]');
+      go.textContent = go.getAttribute('data-go');
+    }
+    function startEdit(kind, id) {
+      var it = state[kind].filter(function (x) { return x.id === id; })[0];
+      var f = document.querySelector('[data-add="' + kind + '"]');
+      if (!it || !f) return;
+      ['title', 'cat', 'status', 'date', 'time', 'kind'].forEach(function (n) {
+        if (f.elements[n] && it[n] != null) f.elements[n].value = it[n];
+      });
+      if (kind === 'missions' && it.by) { who = it.by; paintWho(); }
+      f.dataset.editing = id;
+      f.classList.add('is-editing');
+      f.querySelector('[data-form-title]').textContent = kind === 'missions' ? 'Modifier la mission' : 'Modifier le passage';
+      f.querySelector('[data-go]').textContent = 'Enregistrer';
+      f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
     document.addEventListener('click', function (e) {
       var t;
       if ((t = e.target.closest('[data-cal]'))) {
@@ -806,13 +843,17 @@
         paintWho();
       } else if (admin && (t = e.target.closest('[data-status]'))) {
         send({ action: 'update', kind: 'missions', id: t.getAttribute('data-status'), status: NEXT_STATUS[t.getAttribute('data-now')] || 'todo' });
+      } else if (admin && (t = e.target.closest('[data-edit]'))) {
+        startEdit(t.getAttribute('data-edit'), t.getAttribute('data-id'));
+      } else if ((t = e.target.closest('[data-cancel]'))) {
+        resetForm(t.closest('[data-add]'));
       } else if (admin && (t = e.target.closest('[data-del]'))) {
         if (window.confirm('Supprimer ?')) send({ action: 'delete', kind: t.getAttribute('data-del'), id: t.getAttribute('data-id') });
       } else if (e.target.closest('#missions .suivi__kicker')) {
         // Accès discret au mode équipe : trois touchers rapides sur « En coulisses »
         taps = Date.now() - lastTap < 600 ? taps + 1 : 1;
         lastTap = Date.now();
-        if (taps >= 3 && pill) { pill.hidden = false; if (!admin) askCode(); }
+        if (taps >= 3 && !admin) askCode();
       } else if (e.target.closest('[data-admin-toggle]')) {
         if (admin) setAdmin(false); else askCode();
       }
@@ -828,8 +869,9 @@
         ? { title: v('title'), cat: v('cat'), status: v('status'), by: who }
         : { date: v('date'), time: v('time'), kind: v('kind'), title: v('title') };
       if (kind === 'missions' ? !item.title : !item.date) return;
-      send({ action: 'add', kind: kind, item: item }).then(function () {
-        f.reset();
+      var editId = f.dataset.editing;
+      send(editId ? { action: 'edit', kind: kind, id: editId, item: item } : { action: 'add', kind: kind, item: item }).then(function () {
+        resetForm(f);
         if (kind === 'passages') month = new Date(parseDate(item.date).getFullYear(), parseDate(item.date).getMonth(), 1);
         paint();
       });
@@ -841,10 +883,8 @@
     });
 
     load().then(function () {
-      if (!wantsAdmin && !code) return;
-      if (pill) pill.hidden = false;
       if (code && mode === 'api') setAdmin(true);
-      else if (pill) pill.textContent = 'Mode équipe';
+      else if (wantsAdmin) askCode();
     });
   }
 

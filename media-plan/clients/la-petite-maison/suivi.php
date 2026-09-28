@@ -6,6 +6,7 @@
  *        { action: "check" }
  *        { action: "add",    kind: "missions"|"passages", item: {...} }
  *        { action: "update", kind: "missions", id, status }
+ *        { action: "edit",   kind: "missions"|"passages", id, item: {...} }
  *        { action: "delete", kind: "missions"|"passages", id }
  * Les données sont dans data/suivi.json (dossier protégé par .htaccess).
  */
@@ -96,6 +97,27 @@ if ($action === 'add') {
     $data[$kind][] = $item;
     usort($data[$kind], function ($a, $b) { return strcmp($a['date'], $b['date']); });
   }
+} elseif ($action === 'edit') {
+  // Modifier une mission ou un passage déjà publié
+  $id = isset($in['id']) ? $in['id'] : '';
+  $it = isset($in['item']) && is_array($in['item']) ? $in['item'] : [];
+  foreach ($data[$kind] as &$x) {
+    if ($x['id'] !== $id) continue;
+    if ($kind === 'missions') {
+      $title = clean(isset($it['title']) ? $it['title'] : '', 140);
+      if ($title !== '') $x['title'] = $title;
+      if (isset($it['cat']) && in_array($it['cat'], $CATS, true)) $x['cat'] = $it['cat'];
+      if (isset($it['status']) && in_array($it['status'], $STATUS, true)) $x['status'] = $it['status'];
+      if (isset($it['by']) && in_array($it['by'], $TEAM, true)) $x['by'] = $it['by'];
+    } else {
+      if (isset($it['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $it['date'])) $x['date'] = $it['date'];
+      if (isset($it['time'])) $x['time'] = clean($it['time'], 30);
+      if (isset($it['kind']) && in_array($it['kind'], $KINDS, true)) $x['kind'] = $it['kind'];
+      if (isset($it['title'])) $x['title'] = clean($it['title'], 140);
+    }
+  }
+  unset($x);
+  if ($kind === 'passages') usort($data[$kind], function ($a, $b) { return strcmp($a['date'], $b['date']); });
 } elseif ($action === 'update' && $kind === 'missions') {
   $st = isset($in['status']) ? $in['status'] : '';
   if (!in_array($st, $STATUS, true)) { flock($fp, LOCK_UN); out(['error' => 'status'], 400); }

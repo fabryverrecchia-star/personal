@@ -18,9 +18,9 @@ Ce qu'il faut côté hébergement :
 - Apache lit `data/.htaccess` qui bloque l'accès direct au fichier. Sur Nginx, ajouter une règle `location ~ /data/ { deny all; }`.
 
 Mode équipe (Fabrizio, Jade) :
-- Ouvrir la page avec `&admin` à la fin de l'adresse, ou toucher trois fois « En coulisses » au-dessus des missions.
-- Saisir le code équipe (une fois par appareil). On peut alors ajouter une mission en choisissant qui la publie,
-  toucher son état pour la faire avancer (À venir → En cours → Livré), supprimer une mission ou un passage, ajouter un passage.
+- Toucher « Espace équipe » sous « Jours de passage » ou « Missions en cours » (ou ouvrir la page avec `&admin`).
+- Saisir le code équipe (une fois par appareil). Formulaire pour ajouter une mission (publiée par Fabrizio ou Jade) ou un passage ;
+  sur chaque ligne, le crayon modifie, la croix supprime, et toucher l'état fait avancer la mission (À venir → En cours → Livré).
 - Changer le code : `php -r 'echo password_hash("nouveau-code", PASSWORD_DEFAULT);'` puis coller le résultat dans `config.php`.
 
 Sans PHP (aperçu statique), la page lit `data/suivi.json` et les modifications restent sur l'appareil.

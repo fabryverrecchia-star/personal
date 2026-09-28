@@ -1140,7 +1140,8 @@ a { color: inherit; }
 .task--done .task__status::before { content: '✓ '; }
 
 /* Mode équipe */
-.del, .admin-form { display: none; }
+.del, .admin-form, .row-actions { display: none; }
+.is-admin .row-actions { display: flex; gap: 6px; }
 .is-admin .del {
   display: grid; place-items: center;
   width: 30px; height: 30px;
@@ -1149,8 +1150,8 @@ a { color: inherit; }
   border: 1px solid var(--ink-faint);
 }
 .del svg { width: 13px; height: 13px; }
-.is-admin .visit { grid-template-columns: 52px 1fr auto 30px; }
-.is-admin .task { grid-template-columns: 40px 1fr auto 30px; }
+.is-admin .visit { grid-template-columns: 52px 1fr auto auto; gap: 10px; }
+.is-admin .task { grid-template-columns: 40px 1fr auto auto; gap: 10px; }
 .is-admin .task__status { cursor: pointer; }
 .is-admin .admin-form {
   display: grid;
@@ -1217,3 +1218,24 @@ a { color: inherit; }
   background-position: right 10px center;
   background-size: 16px;
 }
+
+/* Accès à l'espace équipe, visible sous chaque titre */
+.team-btn {
+  margin-top: 16px;
+  padding: 8px 14px 7px;
+  border: 1px solid var(--ink-faint);
+  border-radius: 99px;
+  font-size: 9px;
+  color: var(--ink-soft);
+  -webkit-tap-highlight-color: transparent;
+}
+.is-admin .team-btn { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.admin-form__actions { display: flex; gap: 10px; align-items: center; }
+.admin-form__cancel {
+  padding: 12px 18px 11px;
+  border: 1px solid var(--ink-faint);
+  border-radius: 99px;
+  color: var(--ink-soft);
+}
+.admin-form:not(.is-editing) .admin-form__cancel { display: none; }
+.admin-form.is-editing { border-style: solid; background: var(--tint); }
