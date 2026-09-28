@@ -532,6 +532,16 @@
       '<p class="suivi__lead" data-reveal data-next>&nbsp;</p>' +
       '<button type="button" class="label team-btn" data-admin-toggle>Espace équipe</button>' +
       '</header>' +
+      '<div class="admin-wrap"><div class="admin-wrap__in">' +
+      '<form class="admin-form" data-add="passages" autocomplete="off">' +
+      '<p class="label admin-form__title" data-form-title="Ajouter un passage">Ajouter un passage</p>' +
+      '<div class="admin-form__row"><input type="date" name="date" required aria-label="Date"><input type="text" name="time" placeholder="Horaire (ex. 10h – 13h)" aria-label="Horaire" maxlength="30"></div>' +
+      '<select name="kind" aria-label="Type de passage">' + options(KIND, 'photo') + '</select>' +
+      '<input type="text" name="title" placeholder="Objet (ex. shooting de la carte)" aria-label="Objet" maxlength="140">' +
+      '<div class="admin-form__actions"><button type="submit" class="label admin-form__go" data-go="Ajouter">Ajouter</button>' +
+      '<button type="button" class="label admin-form__cancel" data-cancel>Annuler</button></div>' +
+      '</form>' +
+      '</div></div>' +
       '<div class="cal" data-reveal>' +
       '<div class="cal__top">' +
       '<button type="button" class="cal__nav" data-cal="-1" aria-label="Mois précédent">' + SICONS.prev + '</button>' +
@@ -543,14 +553,6 @@
       '<div class="cal__legend label"><span><i class="cal__key cal__key--visit"></i>Passage</span><span><i class="cal__key cal__key--post"></i>Publication</span><span><i class="cal__key cal__key--today"></i>Aujourd’hui</span></div>' +
       '</div>' +
       '<ol class="visits" data-visits></ol>' +
-      '<form class="admin-form" data-add="passages" autocomplete="off">' +
-      '<p class="label admin-form__title" data-form-title="Ajouter un passage">Ajouter un passage</p>' +
-      '<div class="admin-form__row"><input type="date" name="date" required aria-label="Date"><input type="text" name="time" placeholder="Horaire (ex. 10h – 13h)" aria-label="Horaire" maxlength="30"></div>' +
-      '<select name="kind" aria-label="Type de passage">' + options(KIND, 'photo') + '</select>' +
-      '<input type="text" name="title" placeholder="Objet (ex. shooting de la carte)" aria-label="Objet" maxlength="140">' +
-      '<div class="admin-form__actions"><button type="submit" class="label admin-form__go" data-go="Ajouter">Ajouter</button>' +
-      '<button type="button" class="label admin-form__cancel" data-cancel>Annuler</button></div>' +
-      '</form>' +
       '</section>' +
 
       '<section class="suivi" id="missions">' +
@@ -560,6 +562,7 @@
       '<div class="progress" data-reveal data-progress></div>' +
       '<button type="button" class="label team-btn" data-admin-toggle>Espace équipe</button>' +
       '</header>' +
+      '<div class="admin-wrap"><div class="admin-wrap__in">' +
       '<form class="admin-form" data-add="missions" autocomplete="off">' +
       '<p class="label admin-form__title" data-form-title="Nouvelle mission">Nouvelle mission</p>' +
       '<input type="text" name="title" placeholder="Ex. montage du reel « En cuisine »" aria-label="Mission" maxlength="140" required>' +
@@ -569,6 +572,7 @@
       '<div class="admin-form__actions"><button type="submit" class="label admin-form__go" data-go="Publier">Publier</button>' +
       '<button type="button" class="label admin-form__cancel" data-cancel>Annuler</button></div>' +
       '</form>' +
+      '</div></div>' +
       '<ul class="tasks" data-tasks></ul>' +
       '<p class="label suivi__mode" data-suivi-mode></p>' +
       '</section>' +
@@ -595,7 +599,7 @@
     var monthEl = document.querySelector('[data-cal-month]');
     var visitsEl = document.querySelector('[data-visits]');
     var tasksEl = document.querySelector('[data-tasks]');
-    var pill = document.querySelector('[data-admin-toggle]');
+    var pill = document.querySelector('.admin-pill');
 
     function json(r) {
       if (!r.ok) return Promise.reject(r.status);
@@ -774,12 +778,17 @@
       if (!on) document.querySelectorAll('[data-add]').forEach(resetForm);
       // Les formulaires apparaissent ou disparaissent : on garde le bouton touché sous le doigt
       paint();
-      if (anchor) {
-        var delta = anchor.getBoundingClientRect().top - before;
-        if (delta) window.scrollTo({ top: window.pageYOffset + delta, behavior: 'instant' });
-        anchor = null;
-      }
-      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+      // Pendant l'ouverture / la fermeture en douceur, le bouton touché reste à sa place
+      var a = anchor, t0 = performance.now();
+      anchor = null;
+      (function keep() {
+        if (a) {
+          var d = a.getBoundingClientRect().top - before;
+          if (Math.abs(d) > 0.5) window.scrollTo({ top: window.pageYOffset + d, behavior: 'instant' });
+        }
+        if (performance.now() - t0 < 900) requestAnimationFrame(keep);
+        else if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+      })();
     }
     function askCode() {
       if (mode === 'local') { setAdmin(true); return; }

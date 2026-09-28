@@ -1129,8 +1129,24 @@ a { color: inherit; }
 .task--done .task__status::before { content: '✓ '; }
 
 /* Mode équipe */
-.del, .admin-form, .row-actions { display: none; }
-.is-admin .row-actions { display: flex; gap: 6px; }
+.del, .row-actions { display: none; }
+/* Formulaires de l'espace équipe : ouverture et fermeture en douceur, juste sous le bouton */
+.admin-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition: grid-template-rows 0.8s var(--ease), opacity 0.6s var(--ease), visibility 0s linear 0.8s;
+}
+.admin-wrap__in { min-height: 0; overflow: hidden; }
+.is-admin .admin-wrap {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transition: grid-template-rows 0.8s var(--ease), opacity 0.6s var(--ease) 0.15s, visibility 0s;
+}
+.is-admin .row-actions { display: flex; gap: 6px; animation: fadeIn 0.6s var(--ease); }
+@keyframes fadeIn { from { opacity: 0; transform: translateX(8px); } }
 .is-admin .del {
   display: grid; place-items: center;
   width: 30px; height: 30px;
@@ -1142,7 +1158,7 @@ a { color: inherit; }
 .is-admin .visit { grid-template-columns: 52px 1fr auto auto; gap: 10px; }
 .is-admin .task { grid-template-columns: 40px 1fr auto auto; gap: 10px; }
 .is-admin .task__status { cursor: pointer; }
-.is-admin .admin-form {
+.admin-form {
   display: grid;
   gap: 10px;
   margin: 0 0 18px;
@@ -1150,7 +1166,6 @@ a { color: inherit; }
   border: 1px dashed var(--ink);
   border-radius: 4px;
 }
-.is-admin #passages .admin-form { margin: 18px 0 0; }
 .admin-form__title { margin: 0; font-size: 9px; color: var(--ink-soft); }
 .admin-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .admin-form input, .admin-form select {
