@@ -68,15 +68,17 @@ window.PLAN = {
         },
         {
           date: '2026-10-02',
-          type: 'carousel',
-          media: ['media/vendredi-1.jpg', 'media/vendredi-2.jpg'],
+          type: 'post',
+          // Deux propositions de visuel, un seul sera publié
+          options: ['media/vendredi-1.jpg', 'media/vendredi-2.jpg'],
           title: 'Iodé',
           caption: ['Une lecture iodée, franche et maîtrisée.'],
         },
         {
           date: '2026-10-03',
-          type: 'carousel',
-          media: ['media/samedi-1.jpg', 'media/samedi-2.jpg', 'media/samedi-3.jpg'],
+          type: 'post',
+          // Trois propositions de visuel, un seul sera publié
+          options: ['media/samedi-1.jpg', 'media/samedi-2.jpg', 'media/samedi-3.jpg'],
           title: 'L’ouverture approche',
           caption: ['Jacqueline ouvre la semaine prochaine.', 'Réservations ouvertes.'],
         },

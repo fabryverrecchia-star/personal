@@ -46,6 +46,7 @@
     sound: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/></svg>',
   };
   var TYPE_LABEL = { post: 'Post', carousel: 'Carrousel', reel: 'Reel' };
+  var LETTRES = 'ABCDEFGH';
 
   function markSvg(cls) {
     return '<svg class="lockup__mark ' + (cls || '') + '" viewBox="0 0 418.75 277.21" aria-hidden="true"><use href="#mark"/></svg>';
@@ -124,6 +125,23 @@
         }).join('') +
         '</div><span class="label carousel__count"><b>1</b>/' + imgs.length + '</span></div></div>' +
         '<div class="dots" aria-hidden="true">' + imgs.map(function (_, k) { return '<i class="' + (k ? '' : 'is-on') + '"></i>'; }).join('') + '</div>';
+    } else if (list(post.options).length > 1) {
+      // Propositions : un seul visuel sera publié, le client choisit entre A, B, C…
+      var opts = list(post.options);
+      media =
+        '<div class="media media--options" data-reveal-media data-options="' + id + '"><div class="media__inner">' +
+        opts.map(function (m, k) {
+          return '<img class="option' + (k ? '' : ' is-on') + '" src="' + esc(src(m)) + '" alt="Proposition ' + LETTRES[k] + '" loading="lazy" decoding="async">';
+        }).join('') +
+        '<span class="label option__badge">Proposition <b>' + LETTRES[0] + '</b></span></div></div>' +
+        '<div class="options" role="group" aria-label="Propositions de visuel">' +
+        '<p class="label options__hint">Un seul visuel publié · ' + opts.length + ' propositions</p>' +
+        '<div class="options__list">' +
+        opts.map(function (m, k) {
+          return '<button type="button" class="options__btn' + (k ? '' : ' is-on') + '" data-option="' + k + '" aria-pressed="' + (k ? 'false' : 'true') + '">' +
+            '<img src="' + esc(src(m)) + '" alt="" loading="lazy" decoding="async"><span class="label">' + LETTRES[k] + '</span></button>';
+        }).join('') +
+        '</div></div>';
     } else {
       media =
         '<div class="media" data-reveal-media><div class="media__inner"><img src="' + esc(src(list(post.media)[0])) +
@@ -247,10 +265,12 @@
       '<h2 class="feed__title" data-reveal>Le <em>feed</em></h2>' +
       '<div class="grid">' +
       feed.map(function (p) {
-        var img = p.type === 'reel' ? p.poster : list(p.media)[0];
+        var img = p.type === 'reel' ? p.poster : list(p.options)[0] || list(p.media)[0];
         if (img && typeof img === 'object') img = img.poster;
-        var icon = p.type === 'post' ? '' : '<span class="grid__icon">' + ICONS[p.type] + '</span>';
-        return '<a href="#' + p._id + '" data-grid><img src="' + esc(src(img)) + '" alt="" loading="lazy" decoding="async">' + icon +
+        var n = list(p.options).length;
+        var icon = n > 1 ? '<span class="label grid__options">' + LETTRES.slice(0, n).split('').join(' / ') + '</span>'
+          : p.type === 'post' ? '' : '<span class="grid__icon">' + ICONS[p.type] + '</span>';
+        return '<a href="#' + p._id + '" data-grid' + (n > 1 ? ' data-grid-options="' + p._id + '"' : '') + '><img src="' + esc(src(img)) + '" alt="" loading="lazy" decoding="async">' + icon +
           '<span class="label grid__day">' + JOURS[p._date.getDay()] + ' ' + pad(p._date.getDate()) + '</span></a>';
       }).join('') +
       live.map(function (img) {
@@ -282,6 +302,26 @@
       if (!t) return;
       e.preventDefault();
       t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    });
+  }
+
+  // Propositions : le choix met à jour le visuel, le badge et la vignette du feed
+  function initOptions() {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-option]');
+      if (!btn) return;
+      var k = +btn.getAttribute('data-option');
+      var post = btn.closest('.post');
+      var media = post.querySelector('[data-options]');
+      var imgs = media.querySelectorAll('.option');
+      imgs.forEach(function (im, j) { im.classList.toggle('is-on', j === k); });
+      media.querySelector('.option__badge b').textContent = LETTRES[k];
+      post.querySelectorAll('[data-option]').forEach(function (b, j) {
+        b.classList.toggle('is-on', j === k);
+        b.setAttribute('aria-pressed', j === k ? 'true' : 'false');
+      });
+      var thumb = document.querySelector('[data-grid-options="' + post.id + '"] img');
+      if (thumb) thumb.src = imgs[k].src;
     });
   }
 
@@ -724,6 +764,7 @@
   inlineSvgs();
   initAnchors();
   initCarousels();
+  initOptions();
   initInlineVideos();
   initViewer();
   initScroll();
