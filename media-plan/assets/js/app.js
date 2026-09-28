@@ -63,7 +63,7 @@
   function inlineSvgs() {
     document.querySelectorAll('img[data-svg-logo], [data-svg]').forEach(function (node) {
       var url = node.getAttribute('src') || node.getAttribute('data-svg');
-      if (!/\.svg(\?|$)/.test(url) || !window.fetch) return;
+      if (!/\.svg(\?|$)|^data:image\/svg/.test(url) || !window.fetch) return;
       fetch(url).then(function (r) { return r.ok ? r.text() : Promise.reject(); }).then(function (txt) {
         var svg = el(txt.slice(txt.indexOf('<svg')));
         if (!svg || svg.nodeName.toLowerCase() !== 'svg') return;
