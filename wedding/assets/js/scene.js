@@ -96,9 +96,21 @@
     // vignette + grain
     "  float vig = smoothstep(1.2, 0.35, length((uv - 0.5) * vec2(1.0, 1.15)));",
     "  col *= mix(0.94, 1.0, vig);",
-    "  col += (hash(gl_FragCoord.xy + fract(uTime) * 91.0) - 0.5) * 0.012;",
 
     "  col = mix(ivory, col, uReveal);",
+    "  gl_FragColor = vec4(col, 1.0);",
+    "}"
+  ].join("\n");
+
+  // Blit: the low-resolution silk, smoothly enlarged to the screen, plus a fine static grain.
+  var BLIT_FS = [
+    "precision mediump float;",
+    "varying vec2 vUv;",
+    "uniform sampler2D uTex;",
+    "float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }",
+    "void main(){",
+    "  vec3 col = texture2D(uTex, vUv).rgb;",
+    "  col += (hash(gl_FragCoord.xy) - 0.5) * 0.014;",
     "  gl_FragColor = vec4(col, 1.0);",
     "}"
   ].join("\n");
@@ -193,7 +205,8 @@
 
   var silk = program(QUAD_VS, SILK_FS);
   var petals = program(PETAL_VS, PETAL_FS);
-  if (!silk || !petals) {
+  var blit = program(QUAD_VS, BLIT_FS);
+  if (!silk || !petals || !blit) {
     document.documentElement.classList.add("no-webgl");
     api.ready = true;
     return;
@@ -205,6 +218,30 @@
   gl.bindBuffer(gl.ARRAY_BUFFER, quad);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
   var aPos = gl.getAttribLocation(silk, "aPos");
+  var aPosBlit = gl.getAttribLocation(blit, "aPos");
+  var uBlitTex = gl.getUniformLocation(blit, "uTex");
+
+  // Off-screen target for the silk: the folds are soft, so a third of the
+  // resolution on phones looks identical and costs ~9× less.
+  var SILK_DIV = isMobile ? 3 : 2;
+  var silkTex = gl.createTexture();
+  var silkFbo = gl.createFramebuffer();
+  var SW = 1, SH = 1;
+  function sizeSilk() {
+    SW = Math.max(2, Math.ceil(W / SILK_DIV));
+    SH = Math.max(2, Math.ceil(H / SILK_DIV));
+    gl.bindTexture(gl.TEXTURE_2D, silkTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, SW, SH, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, silkFbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, silkTex, 0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    silkDirty = true;
+  }
+  var silkDirty = true;
 
   var PETALS = isMobile ? 46 : 90;
   var seeds = new Float32Array(PETALS * 4);
@@ -234,8 +271,7 @@
       canvas.width = W;
       canvas.height = H;
     }
-    gl.viewport(0, 0, W, H);
-    if (reduceMotion) render(performance.now());
+    sizeSilk();
   }
 
   var resizeTimer = 0;
@@ -287,40 +323,67 @@
 
   var running = false;
   var reveal = 0, revealTarget = 0;
-  var t0 = performance.now();
-  var lastFrame = t0;
-  var slowFrames = 0, fastFrames = 0;
+  var speed = reduceMotion ? 0.35 : 1;      // "Reduce Motion": the petals still drift, slowly
+  var time = 0;
+  var lastFrame = performance.now();
+  var frameNo = 0;
+  var baseDt = 1, slowFrames = 0, fastFrames = 0;
+
+  function ease(rate, dt) { return 1 - Math.exp(-rate * dt); }   // same feel at 30, 60 or 120 fps
 
   function render(now) {
-    var time = (now - t0) / 1000;
-    var dt = Math.min(0.05, (now - lastFrame) / 1000);
+    var dt = Math.min(0.05, Math.max(0.001, (now - lastFrame) / 1000));
     lastFrame = now;
+    time += dt * speed;
+    frameNo++;
 
-    // smoothing
-    pointer.x += (pointer.tx - pointer.x) * 0.04;
-    pointer.y += (pointer.ty - pointer.y) * 0.04;
+    pointer.x += (pointer.tx - pointer.x) * ease(2.4, dt);
+    pointer.y += (pointer.ty - pointer.y) * ease(2.4, dt);
     var prev = scroll.smooth;
-    scroll.smooth += (scroll.y - scroll.smooth) * 0.08;
-    var scrollVel = scroll.smooth - prev;
-    wind.vy -= scrollVel * 2.2;
-    wind.x += wind.vx; wind.y += wind.vy;
-    wind.vx *= 0.9; wind.vy *= 0.9;
-    wind.x *= 0.96; wind.y *= 0.95;
-    reveal += (revealTarget - reveal) * (reduceMotion ? 1 : 0.025);
+    scroll.smooth += (scroll.y - scroll.smooth) * ease(5, dt);
+    if (!reduceMotion) {
+      wind.vy -= (scroll.smooth - prev) * 2.2;
+      wind.x += wind.vx; wind.y += wind.vy;
+    }
+    var damp = Math.exp(-6.3 * dt);
+    wind.vx *= damp; wind.vy *= damp;
+    wind.x *= Math.exp(-2.4 * dt); wind.y *= Math.exp(-3 * dt);
+    reveal += (revealTarget - reveal) * ease(1.4, dt);
 
+    // 1 — silk into the small off-screen texture (every other frame: it moves slowly)
+    if (silkDirty || frameNo % 2 === 0 || reveal < 0.99) {
+      silkDirty = false;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, silkFbo);
+      gl.viewport(0, 0, SW, SH);
+      gl.disable(gl.BLEND);
+      gl.useProgram(silk);
+      gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+      gl.enableVertexAttribArray(aPos);
+      gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+      gl.uniform2f(uSilk.uRes, SW, SH);
+      gl.uniform1f(uSilk.uTime, time);
+      gl.uniform1f(uSilk.uScroll, scroll.smooth);
+      gl.uniform1f(uSilk.uReveal, reveal);
+      gl.uniform2f(uSilk.uPointer, pointer.x, pointer.y);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      gl.disableVertexAttribArray(aPos);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
+
+    // 2 — enlarge it to the screen
+    gl.viewport(0, 0, W, H);
     gl.disable(gl.BLEND);
-    gl.useProgram(silk);
+    gl.useProgram(blit);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, silkTex);
+    gl.uniform1i(uBlitTex, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, quad);
-    gl.enableVertexAttribArray(aPos);
-    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-    gl.uniform2f(uSilk.uRes, W, H);
-    gl.uniform1f(uSilk.uTime, time);
-    gl.uniform1f(uSilk.uScroll, scroll.smooth);
-    gl.uniform1f(uSilk.uReveal, reveal);
-    gl.uniform2f(uSilk.uPointer, pointer.x, pointer.y);
+    gl.enableVertexAttribArray(aPosBlit);
+    gl.vertexAttribPointer(aPosBlit, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    gl.disableVertexAttribArray(aPos);
+    gl.disableVertexAttribArray(aPosBlit);
 
+    // 3 — petals, sharp, at full resolution
     gl.enable(gl.BLEND);
     gl.useProgram(petals);
     gl.bindBuffer(gl.ARRAY_BUFFER, seedBuf);
@@ -335,10 +398,12 @@
     gl.drawArrays(gl.POINTS, 0, PETALS);
     gl.disableVertexAttribArray(aSeed);
 
-    // adaptive resolution: drop quality if we keep missing ~45fps, recover when smooth
-    if (dt > 0.024) { slowFrames++; fastFrames = 0; } else { fastFrames++; slowFrames = Math.max(0, slowFrames - 1); }
-    if (slowFrames > 40 && quality > 0.55) { quality -= 0.15; slowFrames = 0; resize(); }
-    else if (fastFrames > 600 && quality < 1) { quality = Math.min(1, quality + 0.1); fastFrames = 0; resize(); }
+    // adaptive resolution, relative to this screen's own refresh rate
+    // (30 fps in Low Power Mode is normal, not "slow")
+    baseDt = Math.min(baseDt * 1.002, dt);
+    if (dt > baseDt * 1.7) { slowFrames++; fastFrames = 0; } else { fastFrames++; slowFrames = Math.max(0, slowFrames - 1); }
+    if (slowFrames > 40 && quality > 0.6) { quality -= 0.15; slowFrames = 0; resize(); }
+    else if (fastFrames > 900 && quality < 1) { quality = Math.min(1, quality + 0.1); fastFrames = 0; resize(); }
   }
 
   function loop(now) {
@@ -348,7 +413,7 @@
   }
 
   function play() {
-    if (running || reduceMotion) return;
+    if (running) return;
     running = true;
     lastFrame = performance.now();
     requestAnimationFrame(loop);
@@ -370,7 +435,6 @@
     api.started = true;
     revealTarget = 1;
     canvas.classList.add("is-on");
-    if (reduceMotion) { reveal = 1; render(performance.now()); }
-    else play();
+    play();
   };
 })();

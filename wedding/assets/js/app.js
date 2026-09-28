@@ -288,32 +288,44 @@
     el.innerHTML = html;
   }
 
-  /* ───────────── Preloader ───────────── */
+  /* ───────────── Preloader ─────────────
+     The names write themselves in place (motion.js) as soon as the script
+     font is ready; the hairline at the bottom follows the real loading.
+     The page opens when both the writing and the loading are done. */
 
-  var loader = $("#loader");
   var bar = $("#loaderBar");
   var count = $("#loaderCount");
-  var shown = 0, target = 0;
+  var shown = 0;
   var started = performance.now();
-  var MIN_TIME = 2600;                // let the monogram finish drawing
-  var MAX_TIME = 7000;                // never hold guests hostage on slow networks
-  var steps = { fonts: false, scene: false, load: false };
+  var MAX_TIME = 8000;                // never hold guests hostage on slow networks
+  var steps = { fonts: false, scene: false, load: false, written: false };
+  var Motion = window.WeddingMotion || {
+    write: function () { return Promise.resolve(); }, intro: function () {}, refresh: function () {}, rows: null
+  };
+  if (!window.WeddingMotion) document.documentElement.classList.add("no-motion");
 
   function markStep(name) { steps[name] = true; }
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function () { markStep("fonts"); });
-  } else markStep("fonts");
   window.addEventListener("load", function () { markStep("load"); });
+
+  // wait for the script face (max 2.5 s) so the ink never writes a fallback font
+  var fontsReady = document.fonts && document.fonts.load
+    ? Promise.race([
+        Promise.all([document.fonts.load('400 100px "Pinyon"'), document.fonts.load('400 100px "Pinyon Script"'), document.fonts.ready]),
+        new Promise(function (r) { setTimeout(r, 2500); })
+      ])
+    : Promise.resolve();
+  fontsReady.then(function () {
+    markStep("fonts");
+    return Motion.write();
+  }).then(function () { markStep("written"); });
 
   function loaderTick(now) {
     var elapsed = now - started;
-    var doneSteps = (steps.fonts ? 1 : 0) + (steps.scene ? 1 : 0) + (steps.load ? 1 : 0);
     if (!steps.scene && window.WeddingScene && window.WeddingScene.ready) markStep("scene");
-    var timePart = Math.min(1, elapsed / MIN_TIME);
-    target = Math.min(timePart, 0.25 + doneSteps / 3 * 0.75);
-    if (elapsed > MAX_TIME) target = 1;
-    shown += (target - shown) * 0.08;
-    if (target >= 1 && shown > 0.995) shown = 1;
+    var done = (steps.fonts ? 1 : 0) + (steps.scene ? 1 : 0) + (steps.load ? 1 : 0) + (steps.written ? 1 : 0);
+    var target = elapsed > MAX_TIME ? 1 : done / 4;
+    shown += (target - shown) * 0.06;
+    if (target >= 1 && shown > 0.996) shown = 1;
     bar.style.transform = "scaleX(" + shown.toFixed(4) + ")";
     var pct = Math.round(shown * 100);
     count.textContent = pct < 10 ? "0" + pct : String(pct);
@@ -322,36 +334,16 @@
   }
 
   function finishLoading() {
-    setTimeout(function () {
-      loader.classList.add("is-leaving");
-      document.body.classList.remove("is-loading");
-      if (window.WeddingScene) window.WeddingScene.start();
-      setTimeout(function () { document.body.classList.add("is-ready"); }, 380);
-      setTimeout(function () { loader.classList.add("is-gone"); }, 1400);
-    }, 250);
+    document.body.classList.remove("is-loading");
+    document.body.classList.add("is-ready");
+    if (window.WeddingScene) window.WeddingScene.start();
+    Motion.intro();
   }
 
   // if the URL targets a section (e.g. shared link …#share), don't jump before the reveal
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 
-  /* ───────────── Scroll reveals & top bar ───────────── */
-
-  function setupReveals() {
-    var els = $$(".reveal");
-    if (!("IntersectionObserver" in window)) {
-      els.forEach(function (el) { el.classList.add("is-in"); });
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) {
-          e.target.classList.add("is-in");
-          io.unobserve(e.target);
-        }
-      });
-    }, { rootMargin: "0px 0px -10% 0px", threshold: 0.08 });
-    els.forEach(function (el) { io.observe(el); });
-  }
+  /* ───────────── Top bar ───────────── */
 
   var topbar = $(".topbar");
   var ticking = false;
@@ -536,22 +528,19 @@
     });
     queueEl.insertBefore(li, queueEl.firstChild);
     rows.set(item, li);
-    // unfold into place, files picked together cascade in one after another
-    li.style.transitionDelay = (enterIndex++ * 70) + "ms";
+    // files picked together cascade in, one after another
+    if (Motion.rows) Motion.rows.enter(li, enterIndex++);
     clearTimeout(enterTimer);
     enterTimer = setTimeout(function () { enterIndex = 0; }, 200);
-    requestAnimationFrame(function () { requestAnimationFrame(function () { li.classList.add("is-in"); }); });
-    setTimeout(function () { li.style.transitionDelay = ""; }, 1200);
     return li;
   }
 
   function updateRow(item) {
     var li = rows.get(item) || createRow(item);
     if (item.status === "cancelled") {
-      li.classList.remove("is-in");
-      li.classList.add("is-out");
-      setTimeout(function () { li.remove(); }, 600);
       rows.delete(item);
+      if (Motion.rows) Motion.rows.leave(li, function () { li.remove(); });
+      else li.remove();
       return;
     }
     var pct = item.file.size ? Math.min(1, item.sent / item.file.size) : 1;
@@ -566,7 +555,10 @@
     if (item.status === "done") {
       if (btn.dataset.icon !== "done") { btn.innerHTML = ICONS.done; btn.dataset.icon = "done"; }
       btn.setAttribute("aria-label", t("share.done"));
-      if (was !== "done") li._p.pct = -1;
+      if (was !== "done") {
+        li._p.pct = -1;
+        if (Motion.rows) Motion.rows.done(li);
+      }
     } else if (item.status === "error") {
       if (btn.dataset.icon !== "retry") { btn.innerHTML = ICONS.retry; btn.dataset.icon = "retry"; }
       btn.setAttribute("aria-label", "Retry");
@@ -841,7 +833,8 @@
 
   // show after the hero, hide over the footer
   var hero = $(".hero"), footer = $(".footer");
-  var forms = [$("#messageForm"), $("#voice"), $(".uploader")];
+  // measured on the sections (they don't move), not on the cards GSAP is sliding
+  var forms = [$("#messageForm").parentNode, $("#share")];
   function fabVisibility() {
     var past = window.scrollY > hero.offsetHeight * 0.6;
     var band = window.innerHeight - 110;          // where the button sits
@@ -882,12 +875,12 @@
         o.setAttribute("aria-selected", String(on));
         document.getElementById(o.getAttribute("aria-controls")).hidden = !on;
       });
+      Motion.refresh();
     });
   });
 
   /* ───────────── Boot ───────────── */
 
   applyLang();
-  setupReveals();
   requestAnimationFrame(loaderTick);
 })();

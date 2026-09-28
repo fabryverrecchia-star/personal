@@ -148,7 +148,7 @@
     var t = this.o.t;
     var el = document.createElement("button");
     el.type = "button";
-    el.className = "tile tile--" + it.kind + (fresh ? " is-fresh" : "");
+    el.className = "tile tile--" + it.kind;
     el.style.setProperty("--r", String(this.ratio(it)));
     var who = it.guest ? it.guest : t("gallery.aGuest");
     el.setAttribute("aria-label", t("gallery.kind." + it.kind) + " · " + who);
@@ -222,6 +222,7 @@
       });
       while (col.children.length > tiles.length) col.removeChild(col.lastChild);
     });
+    if (window.WeddingMotion) window.WeddingMotion.gallery(this.grid);
   };
 
   Gallery.prototype.updateMeta = function () {
