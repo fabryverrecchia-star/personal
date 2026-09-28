@@ -1,0 +1,16 @@
+{
+  "passages": [
+    { "id": "p1", "date": "2026-10-01", "time": "10h – 13h", "kind": "photo", "title": "Shooting de la carte d’automne" },
+    { "id": "p2", "date": "2026-10-08", "time": "15h – 18h", "kind": "video", "title": "Tournage en cuisine avec le chef" },
+    { "id": "p3", "date": "2026-10-15", "time": "10h – 12h", "kind": "photo", "title": "Salle, détails et art de la table" },
+    { "id": "p4", "date": "2026-10-22", "time": "19h – 22h", "kind": "both", "title": "Service du soir, photo et vidéo" },
+    { "id": "p5", "date": "2026-10-29", "time": "11h", "kind": "meeting", "title": "Point du mois et planning de novembre" }
+  ],
+  "missions": [
+    { "id": "m1", "title": "Shooting de la carte d’automne", "cat": "photo", "status": "doing", "by": "Fabrizio", "at": "2026-09-26" },
+    { "id": "m2", "title": "Reel d’ouverture, version 15 s", "cat": "montage", "status": "doing", "by": "Jade", "at": "2026-09-26" },
+    { "id": "m3", "title": "Tournage « En cuisine » avec le chef", "cat": "video", "status": "todo", "by": "Jade", "at": "2026-09-27" },
+    { "id": "m4", "title": "Media planning de novembre", "cat": "planning", "status": "todo", "by": "Fabrizio", "at": "2026-09-27" },
+    { "id": "m5", "title": "Captions de la semaine d’ouverture", "cat": "redaction", "status": "done", "by": "Jade", "at": "2026-09-25" }
+  ]
+}
