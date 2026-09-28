@@ -4,7 +4,9 @@
  * partagés entre tous les visiteurs.
  *   GET  suivi.php                  → { progress: 0-100, passages: [...], missions: [...], prices: { vat, credit, sections, items } }
  *   GET  suivi.php?diag             → version PHP et droits d'écriture (installation)
- *   POST suivi.php (formulaire : payload = JSON, code = code équipe)
+ *   Les données ne sont lues qu'avec un code d'accès (demandé au chargement de la page) :
+ *   POST suivi.php (formulaire : payload = JSON, code = code d'accès)
+ *        { action: "login" }  → { role: "edit"|"view", name, data }   (Fabrizio modifie, Guillaume consulte)
  *        { action: "check" }
  *        { action: "add",    kind: "missions"|"passages", item: {...} }
  *        { action: "update", kind: "missions", id, status }
@@ -50,12 +52,14 @@ if ($method === 'GET' && isset($_GET['diag'])) {
   ]);
 }
 
-if ($method === 'GET') {
+function read_data($FILE) {
   $raw = is_file($FILE) ? file_get_contents($FILE) : '';
   $data = $raw ? json_decode($raw, true) : null;
-  out(is_array($data) ? $data : empty_data());
+  return is_array($data) ? $data : empty_data();
 }
 
+// Lecture sans code refusée : la page est privée
+if ($method === 'GET') out(['error' => 'code'], 403);
 if ($method !== 'POST') out(['error' => 'method'], 405);
 
 // Requête : formulaire classique (payload + code), ou JSON brut en repli.
@@ -66,12 +70,23 @@ if (!is_array($in)) out(['error' => 'json'], 400);
 // Mode équipe : le code est vérifié à chaque écriture
 $code = isset($_POST['code']) ? (string) $_POST['code'] : (isset($in['code']) ? (string) $in['code'] : '');
 if ($code === '' && isset($_SERVER['HTTP_X_ADMIN_CODE'])) $code = (string) $_SERVER['HTTP_X_ADMIN_CODE'];
-if ($code === '' || !password_verify($code, $config['admin_hash'])) {
-  usleep(700000); // freine les essais au hasard
-  out(['error' => 'code'], 403);
-}
-
 $action = isset($in['action']) ? $in['action'] : '';
+$isAdmin = $code !== '' && password_verify($code, $config['admin_hash']);
+$isViewer = !$isAdmin && $code !== '' && !empty($config['view_hash']) && password_verify($code, $config['view_hash']);
+
+// Connexion : Fabrizio (modification) ou Guillaume (consultation)
+if ($action === 'login' && ($isAdmin || $isViewer)) {
+  out([
+    'role' => $isAdmin ? 'edit' : 'view',
+    'name' => $isAdmin ? $config['admin_name'] : $config['view_name'],
+    'data' => read_data($FILE),
+  ]);
+}
+// Toute modification demande le code de Fabrizio
+if (!$isAdmin) {
+  usleep(700000); // freine les essais au hasard
+  out(['error' => $isViewer ? 'readonly' : 'code'], 403);
+}
 if ($action === 'check') {
   // On vérifie aussi que les modifications pourront être enregistrées
   $w = is_file($FILE) ? is_writable($FILE) : is_writable(dirname($FILE));
@@ -82,7 +97,7 @@ $kind = isset($in['kind']) ? $in['kind'] : '';
 if ($action === 'progress') $kind = 'missions';
 if (!in_array($kind, ['missions', 'passages', 'prices'], true)) out(['error' => 'kind'], 400);
 
-$TEAM = ['Fabrizio', 'Helicave'];
+$TEAM = ['Fabrizio', 'Helicave', 'Guillaume'];
 $CATS = ['print', 'branding', 'meeting', 'photo', 'video', 'montage', 'planning', 'redaction', 'web', 'autre'];
 $PSTATUS = ['off', 'on', 'done'];
 $STATUS = ['todo', 'doing', 'wait', 'done'];

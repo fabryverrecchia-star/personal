@@ -52,16 +52,20 @@ window.PLAN = {
     ],
   },
 
+  // Page privée : un code est demandé au chargement (vérifié par suivi.php, codes dans config.php).
+  // Fabrizio modifie tout directement, Guillaume consulte sans pouvoir modifier.
+  access: {},
+
   // Missions, avancement, passages et price list : partagés entre tous les visiteurs via suivi.php.
   // Sans PHP (aperçu), data/suivi.json est lu tel quel.
   suivi: {
     api: 'suivi.php',
     data: 'data/suivi.json',
-    team: ['Fabrizio', 'Helicave'],
-    // [fond, texte, contour] : Fabrizio en 18H22, Helicave en or
+    team: ['Fabrizio'],
+    // [fond, texte, contour] : Fabrizio en 18H22, Guillaume en or Helicave
     colors: {
       Fabrizio: ['#22365f', '#f1eee6'],
-      Helicave: ['#c6ae8b', '#3f3b3b'],
+      Guillaume: ['#c6ae8b', '#3f3b3b'],
     },
   },
 

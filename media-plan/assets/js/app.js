@@ -561,6 +561,7 @@
       '<p class="label suivi__kicker" data-reveal>Sur place</p>' +
       '<h2 class="suivi__title" data-reveal>Jours de passage</h2>' +
       '<p class="suivi__lead" data-reveal data-next>&nbsp;</p>' +
+      addBtn('passages', 'passages', 'Ajouter un passage') +
       '</header>' +
       '<div class="admin-wrap"><div class="admin-wrap__in">' +
       '<form class="admin-form" data-add="passages" autocomplete="off">' +
@@ -610,6 +611,7 @@
       '</div>' +
       '</div>' +
       '<div class="progress" data-reveal data-progress></div>' +
+      addBtn('missions', 'missions', 'Nouvelle mission', 'Touchez l’état d’une mission pour la faire avancer.') +
       '</header>' +
       '<div class="admin-wrap"><div class="admin-wrap__in">' +
       '<form class="admin-form" data-add="missions" autocomplete="off">' +
@@ -617,7 +619,7 @@
       '<input type="text" name="title" placeholder="Ex. montage du reel « En cuisine »" aria-label="Mission" maxlength="140" required>' +
       '<div class="admin-form__row"><select name="cat" aria-label="Catégorie">' + options(CAT, 'photo') + '</select>' +
       '<select name="status" aria-label="État">' + options(STATUS, 'todo') + '</select></div>' +
-      '<div class="admin-form__who"><span class="label">Publié par</span>' + who + '</div>' +
+      (team.length > 1 ? '<div class="admin-form__who"><span class="label">Publié par</span>' + who + '</div>' : '') +
       '<div class="admin-form__actions"><button type="submit" class="label admin-form__go" data-go="Publier">Publier</button>' +
       '<button type="button" class="label admin-form__cancel" data-cancel>Annuler</button></div>' +
       '</form>' +
@@ -632,6 +634,13 @@
   var PSTATUS = { off: 'Proposé', on: 'Engagé', done: 'Livré' };
   var NEXT_PSTATUS = { off: 'on', on: 'done', done: 'off' };
   var UNITS = ['forfait', 'heure', 'demi-journée', 'jour', 'page', 'photo', 'mois', 'an', 'sur devis'];
+  // Bouton « Ajouter » en tête de section : visible seulement pour la personne qui peut modifier
+  function addBtn(section, form, label, hint, quiet) {
+    if (!PLAN.access) return '';
+    return '<button type="button" class="label add-btn' + (quiet ? ' add-btn--quiet' : '') + '" data-open-form="' + section + '" data-form="' + form + '">' +
+      (quiet ? '' : '<span aria-hidden="true">+</span>') + label + '</button>' +
+      (hint ? '<p class="add-hint">' + hint + '</p>' : '');
+  }
   function pricesHtml() {
     var P = PLAN.prices;
     if (!P || !PLAN.suivi) return '';
@@ -647,6 +656,7 @@
       '</header>' +
       // Compteur du crédit : engagé (en cours + livré), TVA, enveloppe éventuelle
       '<div class="credit" data-reveal data-credit></div>' +
+      '<div class="add-row">' + addBtn('prix', 'prices', 'Ajouter une prestation') + addBtn('prix', 'settings', 'Enveloppe et TVA', '', true) + '</div>' +
       '<div class="admin-wrap"><div class="admin-wrap__in">' +
       '<form class="admin-form" data-add="prices" autocomplete="off">' +
       '<p class="label admin-form__title" data-form-title="Nouvelle prestation">Nouvelle prestation</p>' +
@@ -673,6 +683,10 @@
       '<div class="pl-engaged" data-engaged></div>' +
       '<div class="pl-head" data-reveal><p class="label">La price list complète</p>' +
       '<button type="button" class="label pl-head__all" data-sec-all>Tout ouvrir</button></div>' +
+      '<p class="pl-help" data-reveal>Touchez une rubrique pour voir ses tarifs, ou cherchez une prestation.</p>' +
+      '<label class="pl-search" data-reveal><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>' +
+      '<input type="search" data-pl-search placeholder="Rechercher (ex. logo, drone, site)" aria-label="Rechercher une prestation" autocomplete="off"></label>' +
+      '<p class="label pl-found" data-pl-found></p>' +
       '<div class="pl-secs" data-secs></div>' +
       (list(P.conditions).length
         ? '<details class="pl-cond" data-reveal><summary class="label">Conditions</summary><ul>' +
@@ -683,10 +697,29 @@
     );
   }
 
+  function gateHtml() {
+    return (
+      // Code demandé au chargement : Guillaume consulte, Fabrizio modifie
+      '<div class="gate" data-gate aria-hidden="true">' +
+      '<form class="gate__panel" data-gate-form autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="gate-title">' +
+      '<div class="gate__lockup">' + lockup() + '</div>' +
+      '<p class="label gate__kicker">' + esc(PLAN.title || 'Price list') + ' · accès privé</p>' +
+      '<h2 class="gate__title" id="gate-title">Bienvenue</h2>' +
+      '<p class="gate__text">Saisissez votre code d’accès pour ouvrir la page.</p>' +
+      '<input class="gate__input" id="gate-code" data-gate-input type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" placeholder="Code d’accès" aria-label="Code d’accès">' +
+      '<p class="label gate__error" data-gate-error aria-live="polite"></p>' +
+      '<button type="submit" class="label gate__btn" data-gate-ok>Entrer</button>' +
+      '</form></div>'
+    );
+  }
   function teamHtml() {
     if (!PLAN.suivi) return '';
     return (
+      (PLAN.access
+        ? gateHtml() + '<button type="button" class="who" data-who-pill hidden><i class="avatar" data-who-initial></i><span><b data-who-name></b><small class="label" data-who-role></small></span></button>'
+        : '') +
       // Espace équipe : bouton flottant en bas à droite, on choisit le formulaire à ouvrir
+      (PLAN.access ? '' :
       '<div class="team-fab" data-fab>' +
       '<div class="team-fab__menu" role="menu" aria-label="Espace équipe">' +
       (PLAN.prices ? '<button type="button" class="team-fab__item" role="menuitem" data-goto="prix">' + SICONS.price + '<span><b>Prestation</b><small class="label">Price list et crédit</small></span></button>' : '') +
@@ -696,7 +729,7 @@
       '<button type="button" class="team-fab__item team-fab__quit" role="menuitem" data-fab-quit>' + SICONS.close + '<span><b>Fermer l’espace équipe</b></span></button>' +
       '</div>' +
       '<button type="button" class="label team-fab__btn" data-fab-toggle aria-expanded="false"><i class="team-fab__dot"></i><span>Espace équipe</span></button>' +
-      '</div>' +
+      '</div>') +
       // Fenêtre intégrée (code équipe, confirmation) : les fenêtres du navigateur sont bloquées sur mobile
       '<div class="sheet" data-sheet aria-hidden="true">' +
       '<div class="sheet__backdrop" data-sheet-cancel></div>' +
@@ -722,6 +755,7 @@
     var state = { passages: [], missions: [] };
     var mode = 'api';
     var admin = false;
+    var access = null;
     var month = null;
     var wantsAdmin = new URLSearchParams(location.search).has('admin');
     var code = '';
@@ -738,7 +772,21 @@
       return r.text().then(function (t) { return JSON.parse(t); });
     }
     function valid(d) { return d && Array.isArray(d.passages) && Array.isArray(d.missions); }
+    function localState() {
+      var saved = null;
+      try { saved = JSON.parse(localStorage.getItem(LOCAL)); } catch (e) {}
+      if (valid(saved)) return Promise.resolve(saved);
+      if (valid(cfg.seed)) return Promise.resolve(JSON.parse(JSON.stringify(cfg.seed)));
+      return fetch(src(cfg.data)).then(json).catch(function () { return { passages: [], missions: [] }; });
+    }
     function load() {
+      // Page privée : les données arrivent avec la connexion (code), puis à chaque retour sur la page
+      if (PLAN.access) {
+        if (!access || mode !== 'api') return Promise.resolve();
+        return post({ action: 'login' }, code).then(json).then(function (r) {
+          if (r && valid(r.data)) { state = r.data; paint(); }
+        }).catch(function () {});
+      }
       var fromApi = API ? fetch(API + '?t=' + Date.now(), { cache: 'no-store' }).then(json) : Promise.reject();
       return fromApi.then(function (d) {
         if (!valid(d)) throw 0;
@@ -802,7 +850,11 @@
     }
     function send(op) {
       var p = mode === 'local' ? localOp(op) : post(op, code).then(function (r) {
-        if (r.status === 403) { setAdmin(false, true); return Promise.reject('code'); }
+        if (r.status === 403) {
+          if (PLAN.access) { toast('Votre code n’est plus valide. Reconnectez-vous.'); setTimeout(logout, 1800); }
+          else setAdmin(false, true);
+          return Promise.reject('code');
+        }
         if (!r.ok) return why(r).then(function (m) { return Promise.reject(m); });
         return json(r);
       });
@@ -882,7 +934,13 @@
         (it.detail ? '<span class="pl__detail">' + esc(it.detail) + '</span>' : '') +
         '<span class="label pl__unit">' + (quote ? 'Sur devis' : money(+it.price) + ' HT / ' + esc(it.unit || 'forfait')) + (q !== 1 ? ' · quantité ' + qtyTxt(q) : '') + '</span></span>' +
         '<span class="pl__price">' + (quote ? 'Sur devis' : money((+it.price) * (st === 'off' ? 1 : q))) + '</span>' +
-        '<span class="pl__tools"><button type="button" class="label pl__status" data-pstatus="' + esc(it.id) + '" data-now="' + st + '">' + PSTATUS[st] + '</button>' +
+        '<span class="pl__tools">' +
+        (PLAN.access
+          // État en un geste : Proposé, Engagé ou Livré
+          ? '<span class="seg" role="group" aria-label="État">' + Object.keys(PSTATUS).map(function (k) {
+              return '<button type="button" class="label seg__btn' + (k === st ? ' is-on' : '') + '" data-pset="' + esc(it.id) + '" data-st="' + k + '" aria-pressed="' + (k === st) + '">' + PSTATUS[k] + '</button>';
+            }).join('') + '</span>'
+          : '<button type="button" class="label pl__status" data-pstatus="' + esc(it.id) + '" data-now="' + st + '">' + PSTATUS[st] + '</button>') +
         '<span class="row-actions"><button type="button" class="del" data-edit="prices" data-id="' + esc(it.id) + '" aria-label="Modifier cette prestation">' + SICONS.edit + '</button>' +
         '<button type="button" class="del" data-del="prices" data-id="' + esc(it.id) + '" aria-label="Supprimer cette prestation">' + SICONS.close + '</button></span></span>' +
         '</li>';
@@ -922,7 +980,8 @@
           '<div class="credit__stat"><strong data-cr-v1></strong><span class="label"><i class="credit__dot credit__dot--on"></i>En cours</span></div>' +
           '<div class="credit__stat"><strong data-cr-v2></strong><span class="label"><i class="credit__dot credit__dot--done"></i>Livré</span></div>' +
           '<div class="credit__stat"><strong data-cr-v3></strong><span class="label" data-cr-l3></span></div>' +
-          '</div>';
+          '</div>' +
+          '<p class="credit__help">En cours : prestations validées, en production. Livré : travail remis.</p>';
       }
       var q = function (k) { return box.querySelector('[data-cr-' + k + ']'); };
       q('cap').textContent = P.credit ? 'Enveloppe ' + money(P.credit) : n + ' prestation' + (n > 1 ? 's' : '');
@@ -957,24 +1016,43 @@
         (engaged.length ? '<ul class="pl-list">' + engaged.map(priceRow).join('') + '</ul>'
           : '<p class="pl-empty">Aucune prestation engagée pour le moment.</p>');
 
-      document.querySelector('[data-secs]').innerHTML = P.sections.map(function (sec) {
-        var its = P.items.filter(function (it) { return it.sec === sec.ref; });
-        var k = its.filter(function (it) { return it.status !== 'off'; }).length;
-        var open = !!openSecs[sec.ref];
+      paintSecs();
+
+      // Formulaires : rubriques à jour, réglages remplis (sauf pendant la saisie)
+      paintForms();
+    }
+    // Recherche : sans accents ni majuscules, sur le nom, le détail et la référence
+    var plQuery = '';
+    function norm(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+    function paintSecs() {
+      var P = priceData();
+      var q = norm(plQuery).trim();
+      var found = 0;
+      var html = P.sections.map(function (sec) {
+        var all = P.items.filter(function (it) { return it.sec === sec.ref; });
+        var its = q ? all.filter(function (it) { return norm(it.title + ' ' + it.detail + ' ' + it.ref + ' ' + sec.title).indexOf(q) >= 0; }) : all;
+        if (q && !its.length) return '';
+        found += its.length;
+        var k = all.filter(function (it) { return it.status !== 'off'; }).length;
+        var open = q ? true : !!openSecs[sec.ref];
         return '<div class="pl-sec' + (open ? ' is-open' : '') + (k ? ' has-engaged' : '') + '">' +
           '<button type="button" class="pl-sec__head" data-sec="' + esc(sec.ref) + '" aria-expanded="' + open + '">' +
           '<span class="pl-sec__num">' + esc(sec.ref) + '</span>' +
           '<span class="pl-sec__txt"><span class="pl-sec__title">' + esc(sec.title) + '</span>' +
-          '<span class="label pl-sec__count">' + its.length + ' prestation' + (its.length > 1 ? 's' : '') + (k ? ' · <b>' + k + ' engagée' + (k > 1 ? 's' : '') + '</b>' : '') + '</span></span>' +
+          '<span class="label pl-sec__count">' + all.length + ' prestation' + (all.length > 1 ? 's' : '') + (k ? ' · <b>' + k + ' engagée' + (k > 1 ? 's' : '') + '</b>' : '') + '</span></span>' +
           '<i class="pl-sec__chev">' + SICONS.next + '</i></button>' +
           '<div class="pl-sec__body"><div class="pl-sec__in"><ul class="pl-list">' +
           (its.length ? its.map(priceRow).join('') : '<li class="pl-empty">Aucune prestation dans cette rubrique.</li>') +
           '</ul></div></div></div>';
       }).join('');
-      var all = document.querySelector('[data-sec-all]');
-      if (all) all.textContent = P.sections.length && P.sections.every(function (x) { return openSecs[x.ref]; }) ? 'Tout fermer' : 'Tout ouvrir';
-
-      // Formulaires : rubriques à jour, réglages remplis (sauf pendant la saisie)
+      document.querySelector('[data-secs]').innerHTML = html || '<p class="pl-empty">Aucune prestation ne correspond. Essayez un autre mot.</p>';
+      var foundEl = document.querySelector('[data-pl-found]');
+      if (foundEl) foundEl.textContent = q ? found + ' résultat' + (found > 1 ? 's' : '') : '';
+      var allBtn = document.querySelector('[data-sec-all]');
+      if (allBtn) allBtn.textContent = P.sections.length && P.sections.every(function (x) { return openSecs[x.ref]; }) ? 'Tout fermer' : 'Tout ouvrir';
+    }
+    function paintForms() {
+      var P = priceData();
       var sel = document.querySelector('[data-sec-select]');
       if (sel) {
         var cur = sel.value;
@@ -1283,6 +1361,7 @@
       var f = document.querySelector('[data-add="' + kind + '"]');
       if (!it || !f) return;
       document.getElementById(kind === 'prices' ? 'prix' : kind).classList.add('is-open');
+      document.getElementById(kind === 'prices' ? 'prix' : kind).setAttribute('data-form', kind);
       ['sec', 'title', 'detail', 'unit', 'price', 'qty', 'cat', 'status', 'date', 'time', 'kind'].forEach(function (n) {
         if (f.elements[n] && it[n] != null) f.elements[n].value = it[n];
       });
@@ -1313,6 +1392,29 @@
         who = t.getAttribute('data-who');
         try { localStorage.setItem(WHO, who); } catch (e2) {}
         paintWho();
+      } else if (admin && (t = e.target.closest('[data-open-form]'))) {
+        // Bouton « Ajouter » : le formulaire s'ouvre juste en dessous (un second toucher le referme)
+        var secEl = document.getElementById(t.getAttribute('data-open-form'));
+        var form = t.getAttribute('data-form');
+        var already = secEl.classList.contains('is-open') && secEl.getAttribute('data-form') === form;
+        document.querySelectorAll('.suivi.is-open').forEach(function (x) {
+          x.classList.remove('is-open');
+          x.querySelectorAll('[data-add]').forEach(resetForm);
+        });
+        if (!already) {
+          secEl.setAttribute('data-form', form);
+          secEl.classList.add('is-open');
+          paintForms();
+          var fEl = secEl.querySelector('[data-add="' + form + '"]');
+          setTimeout(function () {
+            fEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            var first = fEl.querySelector('input:not([hidden]):not([type=hidden])');
+            if (first && form !== 'settings' && form !== 'prices') first.focus({ preventScroll: true });
+          }, 350);
+        }
+        setTimeout(function () { if (window.ScrollTrigger) window.ScrollTrigger.refresh(); }, 900);
+      } else if (admin && (t = e.target.closest('[data-pset]'))) {
+        if (!t.classList.contains('is-on')) send({ action: 'update', kind: 'prices', id: t.getAttribute('data-pset'), status: t.getAttribute('data-st') });
       } else if ((t = e.target.closest('[data-sec]'))) {
         var ref = t.getAttribute('data-sec');
         toggleSecs([ref], !openSecs[ref]);
@@ -1329,6 +1431,7 @@
         startEdit(t.getAttribute('data-edit'), t.getAttribute('data-id'));
       } else if ((t = e.target.closest('[data-cancel]'))) {
         resetForm(t.closest('[data-add]'));
+        if (PLAN.access && t.closest('.suivi')) t.closest('.suivi').classList.remove('is-open');
       } else if (admin && (t = e.target.closest('[data-del]'))) {
         var delKind = t.getAttribute('data-del'), delId = t.getAttribute('data-id');
         var item = (delKind === 'prices' ? priceData().items : state[delKind]).filter(function (x) { return x.id === delId; })[0] || {};
@@ -1365,7 +1468,10 @@
       var kind = f.getAttribute('data-add');
       var v = function (n) { return f.elements[n] ? f.elements[n].value.trim() : ''; };
       if (kind === 'settings') {
-        send({ action: 'settings', kind: 'prices', credit: +v('credit').replace(',', '.') || 0, vat: +v('vat') }).then(function () { toast('Crédit et TVA enregistrés.'); });
+        send({ action: 'settings', kind: 'prices', credit: +v('credit').replace(',', '.') || 0, vat: +v('vat') }).then(function () {
+          toast('Enveloppe et TVA enregistrées.');
+          if (PLAN.access) f.closest('.suivi').classList.remove('is-open');
+        });
         return;
       }
       if (kind === 'prices') {
@@ -1379,6 +1485,7 @@
           var P = priceData();
           var sec = pit.sec === '__new' ? (P.sections[P.sections.length - 1] || {}).ref : pit.sec;
           resetForm(f);
+          if (PLAN.access) f.closest('.suivi').classList.remove('is-open');
           if (sec) { openSecs[sec] = true; paintPrices(); }
           toast(pid ? 'Prestation modifiée.' : 'Prestation ajoutée.');
         });
@@ -1391,9 +1498,20 @@
       var editId = f.dataset.editing;
       send(editId ? { action: 'edit', kind: kind, id: editId, item: item } : { action: 'add', kind: kind, item: item }).then(function () {
         resetForm(f);
+        if (PLAN.access) { f.closest('.suivi').classList.remove('is-open'); toast(editId ? 'Modification enregistrée.' : 'Ajouté.'); }
         if (kind === 'passages') month = new Date(parseDate(item.date).getFullYear(), parseDate(item.date).getMonth(), 1);
         paint();
       });
+    });
+
+    // Recherche dans la price list
+    var searchT;
+    document.addEventListener('input', function (e) {
+      if (!e.target.matches('[data-pl-search]')) return;
+      plQuery = e.target.value;
+      paintSecs();
+      clearTimeout(searchT);
+      searchT = setTimeout(function () { if (window.ScrollTrigger) window.ScrollTrigger.refresh(); }, 600);
     });
 
     // Nouvelle rubrique : le champ du nom apparaît
@@ -1410,9 +1528,120 @@
       if (document.visibilityState === 'visible' && mode === 'api') load();
     });
 
-    load().then(function () {
-      if (code && mode === 'api') setAdmin(true);
-      else if (wantsAdmin) menu(true);
+    if (!PLAN.access) {
+      load().then(function () {
+        if (code && mode === 'api') setAdmin(true);
+        else if (wantsAdmin) menu(true);
+      });
+      return;
+    }
+
+    /* Accès : code demandé au chargement. Fabrizio modifie tout, Guillaume consulte. */
+    var ACCESS = 'acces:' + BASE;
+    var gateEl = document.querySelector('[data-gate]');
+    var gateForm = gateEl.querySelector('[data-gate-form]');
+    var gateInput = gateEl.querySelector('[data-gate-input]');
+    var gateErr = gateEl.querySelector('[data-gate-error]');
+    var pill = document.querySelector('[data-who-pill]');
+
+    function sha256(t) {
+      return crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)).then(function (b) {
+        return Array.prototype.map.call(new Uint8Array(b), function (x) { return (x < 16 ? '0' : '') + x.toString(16); }).join('');
+      });
+    }
+    function grant(c, who) {
+      access = who;
+      code = c;
+      try { localStorage.setItem(ACCESS, c); } catch (e) {}
+      document.body.classList.add('has-access', who.role === 'edit' ? 'can-edit' : 'read-only');
+      pill.querySelector('[data-who-initial]').textContent = String(who.name || '?').charAt(0);
+      pill.querySelector('[data-who-initial]').className = 'avatar avatar--' + String(who.name || '').toLowerCase();
+      pill.querySelector('[data-who-name]').textContent = who.name || '';
+      pill.querySelector('[data-who-role]').textContent = who.role === 'edit' ? 'Modification' : 'Consultation';
+      pill.hidden = false;
+      if (who.role === 'edit') setAdmin(true); else paint();
+      return true;
+    }
+    // Réponse : true (entré) ou le message à afficher
+    function tryLogin(c) {
+      var viaApi = API ? post({ action: 'login' }, c).then(function (r) {
+        if (r.status === 403) return { denied: true };
+        if (!r.ok) return Promise.reject(0);
+        return json(r);
+      }) : Promise.reject(0);
+      return viaApi.then(function (r) {
+        if (r.denied) return 'Code incorrect. Vérifiez-le et réessayez.';
+        if (!r.role || !valid(r.data)) return Promise.reject(0);
+        mode = 'api';
+        state = r.data;
+        return grant(c, { role: r.role, name: r.name });
+      }).catch(function () {
+        // Aperçu sans PHP : codes vérifiés dans la page (empreintes), données gardées sur l'appareil
+        var map = PLAN.access.preview || {};
+        if (!window.crypto || !crypto.subtle || !window.TextEncoder) return 'Connexion impossible. Réessayez.';
+        return sha256(c.trim().toLowerCase()).then(function (h) {
+          var who = map[h];
+          if (!who) return 'Code incorrect. Vérifiez-le et réessayez.';
+          mode = 'local';
+          return localState().then(function (d) { state = valid(d) ? d : { passages: [], missions: [] }; return grant(c, who); });
+        });
+      });
+    }
+    function openGate() {
+      gateEl.classList.add('is-open');
+      gateEl.setAttribute('aria-hidden', 'false');
+      setTimeout(function () { gateInput.focus({ preventScroll: true }); }, 450);
+    }
+    gateForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var c = gateInput.value.trim();
+      if (!c) { gateErr.textContent = 'Saisissez votre code.'; return; }
+      var ok = gateForm.querySelector('[data-gate-ok]');
+      ok.disabled = true;
+      ok.textContent = 'Vérification…';
+      gateErr.textContent = '';
+      tryLogin(c).then(function (res) {
+        ok.disabled = false;
+        ok.textContent = 'Entrer';
+        if (res === true) {
+          gateInput.blur();
+          gateEl.classList.remove('is-open');
+          gateEl.classList.add('is-leaving');
+          gateEl.setAttribute('aria-hidden', 'true');
+          gate.ok();
+          setTimeout(function () {
+            toast('Bonjour ' + access.name + (access.role === 'edit' ? ', tout est modifiable directement.' : ', bonne lecture.'));
+          }, 2600);
+          return;
+        }
+        gateErr.textContent = res;
+        gateForm.classList.remove('is-shake');
+        void gateForm.offsetWidth;
+        gateForm.classList.add('is-shake');
+        gateInput.select();
+      });
+    });
+    function logout() {
+      try { localStorage.removeItem(ACCESS); } catch (e) {}
+      location.reload();
+    }
+    pill.addEventListener('click', function () {
+      sheet({
+        kicker: 'Connecté : ' + access.name + (access.role === 'edit' ? ' · modification' : ' · consultation'),
+        title: 'Se déconnecter ?',
+        ok: 'Se déconnecter',
+        submit: function () { logout(); return true; },
+      });
+    });
+
+    var savedCode = '';
+    try { savedCode = localStorage.getItem(ACCESS) || ''; } catch (e) {}
+    (savedCode ? tryLogin(savedCode) : Promise.resolve(false)).then(function (res) {
+      if (res === true) { gate.ok(); return; }
+      try { localStorage.removeItem(ACCESS); } catch (e) {}
+      gate.need = true;
+      gate.open = openGate;
+      gate.maybe();
     });
   }
 
@@ -1854,7 +2083,7 @@
     var heroBits = document.querySelectorAll('[data-hero]');
     var rule = document.querySelector('.hero__rule');
 
-    if (!gsap || reduce) { done(); return; }
+    if (!gsap || reduce) { done(); gate.intro = true; gate.maybe(); return; }
 
     paths.forEach(function (p) {
       var len = p.getTotalLength();
@@ -1887,6 +2116,10 @@
     intro.play();
 
     Promise.all([ready, new Promise(function (res) { intro.eventCallback('onComplete', res); })]).then(function () {
+      gate.intro = true;
+      gate.maybe();
+      return gate.pass;
+    }).then(function () {
       gsap.timeline({ onComplete: done })
         .to(inner, { scale: 0.92, autoAlpha: 0, duration: 0.7, ease: 'power3.in' }, 0.2)
         .set(curtain, { transformOrigin: 'bottom' }, 0)
@@ -1900,6 +2133,13 @@
         .to(rule, { scaleY: 1, duration: 1.2, ease: 'expo.inOut' }, '-=0.8');
     });
   }
+
+  /* ------------------------------------------- accès : code au chargement */
+  // L'ouverture 18H22 se joue, puis la page attend le code (plan.access) avant de se dévoiler
+  var gate = { need: false, intro: false, open: null };
+  gate.pass = new Promise(function (res) { gate.ok = res; });
+  gate.maybe = function () { if (gate.need && gate.intro && gate.open) gate.open(); };
+  if (!PLAN || !PLAN.access) gate.ok();
 
   /* ----------------------------------------------------------------- init */
   if (!PLAN) {

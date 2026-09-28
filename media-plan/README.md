@@ -18,14 +18,19 @@ reprises de `Price_list_Abysse_Lab_Demarches_SRL.xlsx` (offre du 23 septembre 20
 - Enveloppe (facultative) : si elle est renseignée, le compteur affiche le crédit disponible ou le dépassement.
 - TVA : 20 % par défaut, ou 0 % (autoliquidation, client belge assujetti).
 
-## Mode équipe (Fabrizio, Helicave)
+## Accès par code
 
-- Toucher le bouton flottant « Espace équipe », puis Prestation (price list), Tâche (missions), Avancement ou Rendez-vous.
-- Saisir le code équipe (une fois par appareil, le même que pour Enza Famiglia et La Petite Maison).
-- Price list : formulaire « Nouvelle prestation » (rubrique existante ou nouvelle, unité, prix HT, quantité, état), formulaire « Crédit et TVA ».
-  Sur chaque ligne : toucher l'état le fait avancer (Proposé → Engagé → Livré), le crayon modifie, la croix supprime.
-- Missions : le crayon modifie, la croix supprime, toucher l'état fait avancer la mission.
-- Changer le code : `php -r 'echo password_hash("nouveau-code", PASSWORD_DEFAULT);'` puis coller le résultat dans `config.php`.
+La page est privée : après l'ouverture 18H22, elle demande un code (retenu ensuite sur l'appareil).
+- Fabrizio : le code équipe habituel. Tout est modifiable directement, sans menu.
+- Guillaume : « helicave ». Consultation seule, aucune modification possible (vérifié aussi côté serveur).
+- La pastille en bas à droite indique qui est connecté ; la toucher permet de se déconnecter.
+- Changer un code : `php -r 'echo password_hash("nouveau-code", PASSWORD_DEFAULT);'` puis coller le résultat dans `config.php`.
+
+Pour Fabrizio :
+- Price list : « Ajouter une prestation » (rubrique existante ou nouvelle, unité, prix HT, quantité, état) et « Enveloppe et TVA ».
+  Sur chaque ligne, l'état se choisit en un geste (Proposé, Engagé, Livré) ; le crayon modifie, la croix supprime.
+- Missions : « Nouvelle mission », toucher l'état fait avancer la mission, avancement global de 25 en 25 %.
+- Passages : « Ajouter un passage ».
 
 ## Hébergement
 

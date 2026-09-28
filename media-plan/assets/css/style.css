@@ -1608,3 +1608,165 @@ a { color: inherit; }
 .pl-agency { margin: 18px 0 0; text-align: center; font-size: 8.5px; color: var(--ink-soft); }
 .admin-form--settings { margin-top: -6px; }
 .admin-form [hidden] { display: none; }
+
+/* --------------------------------------------------------------------------
+   Accès privé : code au chargement, puis tout est prêt (Fabrizio modifie, Guillaume consulte)
+   -------------------------------------------------------------------------- */
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: grid;
+  place-items: center;
+  padding: 24px var(--gutter);
+  background: var(--bg);
+  color: var(--ink);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.7s var(--ease), visibility 0s linear 0.7s;
+}
+.gate.is-open { visibility: visible; opacity: 1; transition: opacity 0.7s var(--ease), visibility 0s; }
+.gate__panel {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+  transform: translateY(16px);
+  transition: transform 0.9s var(--ease);
+}
+.gate.is-open .gate__panel { transform: none; }
+.gate.is-leaving .gate__panel { transform: translateY(-16px); }
+.gate__lockup { margin-bottom: 10px; }
+.gate__lockup .lockup__client > svg, .gate__lockup .lockup__client img { height: 60px; max-width: 64px; }
+.gate__kicker { margin: 0; font-size: 9px; color: var(--ink-soft); }
+.gate__title { margin: 0; font: 300 clamp(44px, 13vw, 58px)/1 var(--display); }
+.gate__text { margin: 0 0 6px; color: var(--ink-soft); font-size: 17px; }
+.gate__input {
+  width: 100%;
+  padding: 15px 16px;
+  border: 1px solid var(--ink-faint);
+  border-radius: 99px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 18px/1.2 var(--text);
+  text-align: center;
+  letter-spacing: 0.08em;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.gate__input:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px var(--ink-faint); }
+.gate__error { min-height: 14px; margin: 0; font-size: 9px; color: #a0473a; }
+.gate__btn {
+  width: 100%;
+  padding: 16px 20px 15px;
+  border-radius: 99px;
+  background: var(--ink);
+  color: var(--bg);
+  -webkit-tap-highlight-color: transparent;
+}
+.gate__btn:disabled { opacity: 0.6; }
+.gate__panel.is-shake { animation: shake 0.45s var(--ease); }
+
+/* Qui est connecté (toucher pour se déconnecter) */
+.who {
+  position: fixed;
+  right: 14px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+  z-index: 45;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 14px 7px 7px;
+  border-radius: 99px;
+  background: var(--bar);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 0 1px var(--ink-faint), 0 8px 24px rgba(63, 59, 59, 0.12);
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+.who .avatar { width: 30px; height: 30px; font-size: 12px; }
+.who span { display: grid; line-height: 1.1; }
+.who b { font: 400 16px/1.1 var(--text); color: var(--ink); }
+.who small { font-size: 8px; color: var(--ink-soft); }
+.avatar--guillaume { background: #c6ae8b; color: #3f3b3b; }
+
+/* Boutons « Ajouter » en tête de section, visibles pour Fabrizio uniquement */
+.add-btn, .add-hint, .add-row { display: none; }
+.is-admin .add-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: -12px 0 24px; }
+.is-admin .add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 12px 20px 11px;
+  border-radius: 99px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 10px;
+  -webkit-tap-highlight-color: transparent;
+  animation: fadeUp 0.6s var(--ease);
+}
+.is-admin .add-row .add-btn { margin-top: 0; }
+.add-btn span { font: 300 20px/0.6 var(--display); }
+.is-admin .add-btn--quiet { background: none; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink-faint); }
+.suivi.is-open[data-form="prices"] [data-form="prices"],
+.suivi.is-open[data-form="settings"] [data-form="settings"],
+.suivi.is-open[data-form="missions"] [data-form="missions"],
+.suivi.is-open[data-form="passages"] [data-form="passages"] { background: none; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.is-admin .add-hint { display: block; margin: 10px 0 0; color: var(--ink-soft); font-size: 15px; font-style: italic; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } }
+
+/* Un seul formulaire ouvert à la fois, celui du bouton touché */
+.has-access .suivi .admin-form { display: none; }
+.has-access .suivi[data-form="prices"] [data-add="prices"],
+.has-access .suivi[data-form="settings"] [data-add="settings"],
+.has-access .suivi[data-form="missions"] [data-add="missions"],
+.has-access .suivi[data-form="passages"] [data-add="passages"] { display: grid; }
+.has-access .admin-form:not(.is-editing) .admin-form__cancel { display: inline-flex; }
+.has-access .admin-form { border-style: solid; background: var(--tint); }
+
+/* État d'une prestation en un geste */
+.seg { display: inline-flex; padding: 3px; border-radius: 99px; box-shadow: inset 0 0 0 1px var(--ink-faint); }
+.seg__btn {
+  padding: 8px 12px 7px;
+  border-radius: 99px;
+  font-size: 9px;
+  color: var(--ink-soft);
+  transition: background-color 0.35s var(--ease), color 0.35s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.seg__btn.is-on { background: var(--ink); color: var(--bg); }
+
+/* Recherche et aide */
+.pl-help { margin: 12px 0 10px; color: var(--ink-soft); font-size: 16px; font-style: italic; }
+.pl-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border: 1px solid var(--ink-faint);
+  border-radius: 99px;
+  background: var(--paper);
+  color: var(--ink-soft);
+}
+.pl-search:focus-within { border-color: var(--ink); }
+.pl-search svg { width: 18px; height: 18px; flex: none; }
+.pl-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 13px 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: 17px/1.2 var(--text);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.pl-search input:focus { outline: none; }
+.pl-found { min-height: 12px; margin: 8px 0 0; font-size: 9px; color: var(--ink-soft); }
+.credit__help { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--ink-faint); color: var(--ink-soft); font-size: 14px; line-height: 1.4; font-style: italic; }
+.avatar { flex: none; }
+.pl-search input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
