@@ -14,7 +14,7 @@ $offset = max(0, (int) ($_GET['offset'] ?? 0));
 $limit = min(60, max(1, (int) ($_GET['limit'] ?? 40)));
 
 $hidden = array_flip(hidden_ids());
-$all = array_values(array_filter(array_reverse(media_all()), fn ($m) => !isset($hidden[$m['id']])));
+$all = array_values(array_filter(array_reverse(media_all()), function ($m) use ($hidden) { return !isset($hidden[$m['id']]); }));
 $page = array_slice($all, $offset, $limit);
 
 header('Cache-Control: no-cache');

@@ -413,22 +413,29 @@
     btn.classList.add("is-busy");
     setStatus(t("form.sending"));
 
-    fetch("api/message.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name, message: message, lang: lang, website: form.website.value })
-    }).then(function (r) {
+    // a plain form post: the format shared-hosting firewalls accept most readily
+    var body = new URLSearchParams();
+    body.append("name", name);
+    body.append("message", message);
+    body.append("lang", lang);
+    body.append("website", form.website.value);
+    fetch("api/message.php", { method: "POST", body: body }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, body: j }; });
     }).then(function (res) {
       if (res.status === 429) throw new Error("rate");
-      if (!res.body.ok) throw new Error("fail");
+      if (!res.body.ok) {
+        var e = new Error((res.body && res.body.error) || "");
+        e.detail = "HTTP " + res.status + (res.body && res.body.error ? " · " + res.body.error : "");
+        throw e;
+      }
       textarea.value = "";
       msgCount.textContent = "0";
       setStatus(t("form.sent"), "ok");
       toast(t("form.sent"));
       if (navigator.vibrate) navigator.vibrate(18);
     }).catch(function (err) {
-      setStatus(t(err.message === "rate" ? "form.rate" : "form.error"), "err");
+      setStatus(err.message === "rate" ? t("form.rate")
+        : t("form.error") + " (" + (err.detail || (err.name === "TypeError" ? "no connection" : err.message)) + ")", "err");
     }).then(function () {
       btn.disabled = false;
       btn.classList.remove("is-busy");
@@ -594,7 +601,8 @@
     if (item.status === "done") label.textContent = t("share.done");
     else if (item.status === "error") {
       var code = item.error && item.error.code;
-      label.textContent = code === "too_big" ? t("share.tooBig") : code === "bad_type" ? t("share.badType") : t("share.failed");
+      var why = window.WeddingUploader.describe ? window.WeddingUploader.describe(item.error) : "";
+      label.textContent = (code === "too_big" ? t("share.tooBig") : code === "bad_type" ? t("share.badType") : t("share.failed")) + (why && code !== "too_big" && code !== "bad_type" ? " · " + why : "");
     } else if (item.status === "queued") label.textContent = t("share.waiting");
     else label.textContent = pctInt + "%";
   }
@@ -609,7 +617,7 @@
       // between progress reports, creep slowly toward the end of the chunk in flight
       // (never past 96% of it), so a bar on a slow connection never looks frozen
       if (it && it.status === "uploading" && it.file.size) {
-        var CH = 4 * 1024 * 1024;
+        var CH = window.WeddingUploader.chunkSize ? window.WeddingUploader.chunkSize() : 4 * 1024 * 1024;
         var cap = Math.min(1, (Math.floor(it.sent / CH) + 1) * CH / it.file.size) * 0.96;
         if (p.target < cap) p.target = Math.min(cap, p.target + dt * 0.035);
       }

@@ -2,10 +2,11 @@
 /*
  * POST api/upload.php — chunked photo / video / voice-note upload.
  *
- * Body: raw bytes of one chunk (Content-Type: application/octet-stream)
- * Headers: X-Upload-Id, X-Chunk-Index, X-Chunk-Total, X-File-Name,
- *          X-File-Size, X-File-Type, X-Guest-Name
- *          optional: X-Width, X-Height, X-Duration (measured by the browser)
+ * Body: a normal form (multipart/form-data) with the chunk as file "chunk" and
+ *       uploadId, index, total, name, size, type, guest, [w, h, duration].
+ *       (A raw body with the same values in X- headers is also accepted.)
+ * Chunk size is chosen by the page from api/status.php, to fit this server's
+ * upload_max_filesize / post_max_size (often only 2 MB on shared hosting).
  *
  * Chunks land in storage/tmp/<id>/; once all have arrived they are joined
  * into storage/uploads/<date>/ and recorded in storage/media.jsonl.
@@ -17,14 +18,29 @@ require_post();
 @set_time_limit(300);
 ignore_user_abort(true);
 
-const MAX_CHUNK = 12 * 1024 * 1024;   // client sends 4 MB; generous margin
+const MAX_CHUNK = 12 * 1024 * 1024;   // client sends ≤ 4 MB; generous margin
 
-$id = (string) ($_SERVER['HTTP_X_UPLOAD_ID'] ?? '');
-$index = filter_var($_SERVER['HTTP_X_CHUNK_INDEX'] ?? '', FILTER_VALIDATE_INT);
-$total = filter_var($_SERVER['HTTP_X_CHUNK_TOTAL'] ?? '', FILTER_VALIDATE_INT);
-$size = filter_var($_SERVER['HTTP_X_FILE_SIZE'] ?? '', FILTER_VALIDATE_INT);
-$name = clean_text(rawurldecode((string) ($_SERVER['HTTP_X_FILE_NAME'] ?? 'file')), 180);
-$guest = clean_text(rawurldecode((string) ($_SERVER['HTTP_X_GUEST_NAME'] ?? '')), 80);
+// The whole request was larger than post_max_size: PHP silently drops it.
+$contentLength = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
+if ($contentLength > ini_bytes((string) ini_get('post_max_size'))) {
+    fail('chunk_too_big', 413, 'chunk_too_big');
+}
+
+// Fields come from a normal form (FormData) or, for older clients, from X- headers.
+function field(string $name, string $header): string
+{
+    if (isset($_POST[$name])) {
+        return (string) $_POST[$name];
+    }
+    return (string) ($_SERVER['HTTP_' . $header] ?? '');
+}
+
+$id = field('uploadId', 'X_UPLOAD_ID');
+$index = filter_var(field('index', 'X_CHUNK_INDEX'), FILTER_VALIDATE_INT);
+$total = filter_var(field('total', 'X_CHUNK_TOTAL'), FILTER_VALIDATE_INT);
+$size = filter_var(field('size', 'X_FILE_SIZE'), FILTER_VALIDATE_INT);
+$name = clean_text(rawurldecode(field('name', 'X_FILE_NAME') ?: 'file'), 180);
+$guest = clean_text(rawurldecode(field('guest', 'X_GUEST_NAME')), 80);
 $maxBytes = (int) config()['max_file_mb'] * 1024 * 1024;
 
 if (!preg_match('/^[a-f0-9]{16,64}$/i', $id)) {
@@ -69,7 +85,18 @@ if (is_file($metaFile)) {
 
 // Stream the chunk to disk without loading it into memory.
 $part = sprintf('%s/%05d.part', $tmpDir, $index);
-$in = fopen('php://input', 'rb');
+if (isset($_FILES['chunk'])) {
+    $err = (int) $_FILES['chunk']['error'];
+    if ($err === UPLOAD_ERR_INI_SIZE || $err === UPLOAD_ERR_FORM_SIZE) {
+        fail('chunk_too_big', 413, 'chunk_too_big');
+    }
+    if ($err !== UPLOAD_ERR_OK) {
+        fail('upload_error_' . $err, $err === UPLOAD_ERR_NO_TMP_DIR || $err === UPLOAD_ERR_CANT_WRITE ? 500 : 400);
+    }
+    $in = fopen($_FILES['chunk']['tmp_name'], 'rb');
+} else {
+    $in = fopen('php://input', 'rb');
+}
 $out = fopen($part . '.tmp', 'wb');
 if (!$in || !$out) {
     fail('storage_not_writable', 500);
@@ -137,7 +164,7 @@ if (function_exists('finfo_open')) {
     $mime = (string) finfo_file($fi, $dest);
     finfo_close($fi);
 }
-$clientType = strtolower((string) ($_SERVER['HTTP_X_FILE_TYPE'] ?? ''));
+$clientType = strtolower(field('type', 'X_FILE_TYPE'));
 $isMedia = str_starts_with($mime, 'image/') || str_starts_with($mime, 'video/') || str_starts_with($mime, 'audio/');
 // Some libmagic builds don't know HEIC / some MP4 brands: check the ISO-BMFF "ftyp" box instead.
 if (!$isMedia && in_array($ext, ['heic', 'heif', 'avif', 'mp4', 'mov', 'm4v', 'm4a', '3gp', '3g2', 'hevc'], true)) {
@@ -172,13 +199,13 @@ if (str_starts_with($mime, 'audio/') || in_array($ext, AUDIO_EXT, true)
 }
 
 // Size of the photo / video, so the gallery can reserve the right space before it loads.
-$dim = static function (string $h): ?int {
-    $v = filter_var($_SERVER[$h] ?? '', FILTER_VALIDATE_INT);
+$dim = static function (string $f, string $hd): ?int {
+    $v = filter_var(field($f, $hd), FILTER_VALIDATE_INT);
     return $v !== false && $v > 0 && $v < 40000 ? $v : null;
 };
-$w = $dim('HTTP_X_WIDTH');
-$h = $dim('HTTP_X_HEIGHT');
-$duration = filter_var($_SERVER['HTTP_X_DURATION'] ?? '', FILTER_VALIDATE_FLOAT);
+$w = $dim('w', 'X_WIDTH');
+$h = $dim('h', 'X_HEIGHT');
+$duration = filter_var(field('duration', 'X_DURATION'), FILTER_VALIDATE_FLOAT);
 $duration = $duration !== false && $duration > 0 && $duration < 36000 ? round($duration, 1) : null;
 
 $thumb = null;

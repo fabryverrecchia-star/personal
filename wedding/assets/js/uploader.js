@@ -7,9 +7,25 @@
   "use strict";
 
   var ENDPOINT = "api/upload.php";
-  var CHUNK = 4 * 1024 * 1024;       // 4 MB — below PHP's default 8 MB post_max_size
+  var MIN_CHUNK = 256 * 1024;
+  var CHUNK = 1536 * 1024;           // until the server tells us its limit (fits a 2 MB upload_max_filesize)
   var PARALLEL = 2;
   var RETRIES = 5;
+
+  // Ask the server once how big a chunk it accepts (shared hosts often allow only 2 MB).
+  var serverInfo = null;
+  function ready() {
+    if (!serverInfo) {
+      serverInfo = fetch("api/status.php", { cache: "no-store" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (info) {
+          if (info && info.chunk > 0) CHUNK = Math.max(MIN_CHUNK, Math.min(4 * 1024 * 1024, info.chunk));
+          return info;
+        })
+        .catch(function () { return null; });
+    }
+    return serverInfo;
+  }
 
   function uid() {
     if (window.crypto && crypto.randomUUID) return crypto.randomUUID().replace(/-/g, "");
@@ -18,43 +34,45 @@
     return Array.prototype.map.call(a, function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
   }
 
+  // One chunk, sent as a normal form upload: the most compatible format with
+  // shared-hosting firewalls (no custom headers, no raw binary body).
   function sendChunk(item, index, total, blob, onProgress) {
     return new Promise(function (resolve, reject) {
+      var fd = new FormData();
+      var meta = item.meta || {};
+      fd.append("uploadId", item.id);
+      fd.append("index", String(index));
+      fd.append("total", String(total));
+      fd.append("name", encodeURIComponent(item.file.name || "file"));
+      fd.append("size", String(item.file.size));
+      fd.append("type", item.file.type || "");
+      fd.append("guest", encodeURIComponent(item.guest || ""));
+      if (meta.w && meta.h) { fd.append("w", String(meta.w)); fd.append("h", String(meta.h)); }
+      if (meta.duration) fd.append("duration", String(meta.duration));
+      fd.append("chunk", blob, "chunk.bin");
+
       var xhr = new XMLHttpRequest();
       item.xhr = xhr;
       xhr.open("POST", ENDPOINT, true);
       xhr.timeout = 120000;
-      xhr.setRequestHeader("Content-Type", "application/octet-stream");
-      xhr.setRequestHeader("X-Upload-Id", item.id);
-      xhr.setRequestHeader("X-Chunk-Index", String(index));
-      xhr.setRequestHeader("X-Chunk-Total", String(total));
-      xhr.setRequestHeader("X-File-Name", encodeURIComponent(item.file.name || "file"));
-      xhr.setRequestHeader("X-File-Size", String(item.file.size));
-      xhr.setRequestHeader("X-File-Type", item.file.type || "");
-      xhr.setRequestHeader("X-Guest-Name", encodeURIComponent(item.guest || ""));
-      var meta = item.meta || {};
-      if (meta.w && meta.h) {
-        xhr.setRequestHeader("X-Width", String(meta.w));
-        xhr.setRequestHeader("X-Height", String(meta.h));
-      }
-      if (meta.duration) xhr.setRequestHeader("X-Duration", String(meta.duration));
-      xhr.upload.onprogress = function (e) { if (e.lengthComputable) onProgress(e.loaded); };
+      xhr.upload.onprogress = function (e) { if (e.lengthComputable) onProgress(Math.min(blob.size, e.loaded)); };
       xhr.onload = function () {
         var res = null;
-        try { res = JSON.parse(xhr.responseText); } catch (e) { /* ignore */ }
+        try { res = JSON.parse(xhr.responseText); } catch (e) { /* not JSON: PHP error page, 404… */ }
         if (xhr.status >= 200 && xhr.status < 300 && res && res.ok) resolve(res);
         else {
           var err = new Error((res && res.error) || ("HTTP " + xhr.status));
+          err.status = xhr.status;
+          err.code = (res && res.code) || (xhr.status === 413 ? "chunk_too_big" : null);
           // 4xx (except timeout/rate-limit) are final: do not retry
           err.fatal = xhr.status >= 400 && xhr.status < 500 && xhr.status !== 408 && xhr.status !== 429;
-          err.code = res && res.code;
           reject(err);
         }
       };
-      xhr.onerror = function () { reject(new Error("network")); };
-      xhr.ontimeout = function () { reject(new Error("timeout")); };
+      xhr.onerror = function () { var e = new Error("network"); e.status = 0; reject(e); };
+      xhr.ontimeout = function () { var e = new Error("timeout"); e.status = 0; reject(e); };
       xhr.onabort = function () { var e = new Error("aborted"); e.aborted = true; reject(e); };
-      xhr.send(blob);
+      xhr.send(fd);
     });
   }
 
@@ -123,16 +141,34 @@
   Uploader.prototype.run = function (item) {
     var self = this;
     var file = item.file;
-    var total = Math.max(1, Math.ceil(file.size / CHUNK));
     item.status = "uploading";
     this.emit("update", item);
 
+    return ready().then(function () { return self.send(item); }).then(function () {
+      if (item.status === "cancelled") return;
+      item.status = "done";
+      item.sent = file.size;
+      self.emit("update", item);
+      self.emit("done", item);
+    }).catch(function (err) {
+      item.status = "error";
+      item.error = err;
+      self.emit("update", item);
+    });
+  };
+
+  Uploader.prototype.send = function (item) {
+    var self = this;
+    var file = item.file;
+    var size = CHUNK;
+    var total = Math.max(1, Math.ceil(file.size / size));
     var index = 0;
+
     function nextChunk() {
       if (item.status === "cancelled") return Promise.resolve();
       if (index >= total) return Promise.resolve();
-      var start = index * CHUNK;
-      var blob = file.slice(start, Math.min(file.size, start + CHUNK));
+      var start = index * size;
+      var blob = file.slice(start, Math.min(file.size, start + size));
       var attempt = 0;
 
       function tryOnce() {
@@ -147,6 +183,13 @@
           return nextChunk();
         }, function (err) {
           if (item.status === "cancelled" || err.aborted) return;
+          // the server refused the chunk as too large: halve the size and start this file again
+          if (err.code === "chunk_too_big" && size > MIN_CHUNK) {
+            CHUNK = Math.max(MIN_CHUNK, Math.floor(size / 2));
+            item.id = uid();
+            item.sent = 0;
+            return self.send(item);
+          }
           if (err.fatal || attempt >= RETRIES) throw err;
           attempt++;
           // exponential back-off: 1s 2s 4s 8s 16s — survives a dead zone in the venue
@@ -155,18 +198,7 @@
       }
       return tryOnce();
     }
-
-    return nextChunk().then(function () {
-      if (item.status === "cancelled") return;
-      item.status = "done";
-      item.sent = file.size;
-      self.emit("update", item);
-      self.emit("done", item);
-    }).catch(function (err) {
-      item.status = "error";
-      item.error = err;
-      self.emit("update", item);
-    });
+    return nextChunk();
   };
 
   Uploader.prototype.busy = function () {
@@ -187,6 +219,17 @@
   Uploader.prototype.emit = function (name, item) {
     var fn = this.opts["on" + name.charAt(0).toUpperCase() + name.slice(1)];
     if (fn) fn(item);
+  };
+
+  // current chunk size (after the server told us its limits)
+  Uploader.chunkSize = function () { return CHUNK; };
+  // short technical reason, shown next to the friendly error message
+  Uploader.describe = function (err) {
+    if (!err) return "";
+    if (err.status === 0) return err.message === "timeout" ? "timeout" : "no connection";
+    var s = err.status ? "HTTP " + err.status : "";
+    var m = err.message && !/^HTTP \d+$/.test(err.message) ? err.message : "";
+    return [s, m].filter(Boolean).join(" · ");
   };
 
   window.WeddingUploader = Uploader;

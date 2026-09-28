@@ -12,10 +12,12 @@ return [
     // Largest single file a guest may upload (MB). Keep in sync with MAX_BYTES in assets/js/app.js.
     'max_file_mb' => 2048,
 
-    // Password for admin.php (the couple's private gallery). Put a HASH here, never the plain password.
-    // Generate one on any machine with PHP:
+    // Mot de passe de l'espace privé admin.php — écrivez-le entre les guillemets.
+    // Password for admin.php (the couple's private gallery). While empty, admin.php stays locked.
+    'admin_password' => '',
+
+    // (Advanced, optional) a hash instead of the plain password above:
     //   php -r 'echo password_hash("your-password", PASSWORD_DEFAULT), "\n";'
-    // While empty, admin.php stays locked.
     'admin_password_hash' => '',
 
     // Show everything guests share in the gallery on the page (true), or keep it

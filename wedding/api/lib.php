@@ -9,6 +9,14 @@ if (PHP_SAPI !== 'cli' && basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'lib.p
     exit;
 }
 
+// PHP 7 compatibility (these arrived in PHP 8)
+if (!function_exists('str_contains')) {
+    function str_contains($haystack, $needle) { return $needle === '' || strpos($haystack, $needle) !== false; }
+}
+if (!function_exists('str_starts_with')) {
+    function str_starts_with($haystack, $needle) { return strncmp($haystack, $needle, strlen($needle)) === 0; }
+}
+
 const MEDIA_EXT = [
     // photos
     'jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif', 'avif', 'tif', 'tiff', 'dng',
@@ -27,6 +35,31 @@ function config(): array
         $cfg = require __DIR__ . '/config.php';
     }
     return $cfg;
+}
+
+/** "8M" / "2G" / "512K" → bytes */
+function ini_bytes(string $v): int
+{
+    $v = trim($v);
+    if ($v === '' || $v === '-1') {
+        return PHP_INT_MAX;
+    }
+    $n = (float) $v;
+    switch (strtolower(substr($v, -1))) {
+        case 'g': $n *= 1024;
+        // no break
+        case 'm': $n *= 1024;
+        // no break
+        case 'k': $n *= 1024;
+    }
+    return (int) $n;
+}
+
+/** Largest chunk this server accepts in one request (leaves room for the form fields). */
+function max_chunk_bytes(): int
+{
+    $limit = min(ini_bytes((string) ini_get('upload_max_filesize')), ini_bytes((string) ini_get('post_max_size')));
+    return (int) max(256 * 1024, min(4 * 1024 * 1024, $limit - 64 * 1024));
 }
 
 /** Absolute storage directory (created and locked down on first use). */
@@ -52,7 +85,7 @@ function storage_file(string $name): string
     return storage_dir() . '/' . $name;
 }
 
-function json_out(array $data, int $status = 200): never
+function json_out(array $data, int $status = 200)
 {
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
@@ -62,7 +95,7 @@ function json_out(array $data, int $status = 200): never
     exit;
 }
 
-function fail(string $error, int $status = 400, ?string $code = null): never
+function fail(string $error, int $status = 400, ?string $code = null)
 {
     json_out(['ok' => false, 'error' => $error, 'code' => $code ?? $error], $status);
 }
@@ -230,7 +263,7 @@ function media_delete(string $id): void
 }
 
 /** Send a stored file, with HTTP Range support (iPhone Safari needs it to play video/audio). */
-function stream_file(string $path, string $mime, string $name, bool $download, string $cache): never
+function stream_file(string $path, string $mime, string $name, bool $download, string $cache)
 {
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_write_close();
@@ -290,27 +323,31 @@ function make_thumb(string $src, string $dest, int $max = 720): ?array
         return null;
     }
     [$w, $h, $type] = $info;
-    if ($w < 1 || $h < 1 || $w * $h > 60_000_000) {
+    if ($w < 1 || $h < 1 || $w * $h > 60000000) {
         return null;
     }
-    $img = match ($type) {
-        IMAGETYPE_JPEG => @imagecreatefromjpeg($src),
-        IMAGETYPE_PNG => @imagecreatefrompng($src),
-        IMAGETYPE_WEBP => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($src) : false,
-        IMAGETYPE_GIF => @imagecreatefromgif($src),
-        default => false,
-    };
+    $img = false;
+    if ($type === IMAGETYPE_JPEG) {
+        $img = @imagecreatefromjpeg($src);
+    } elseif ($type === IMAGETYPE_PNG) {
+        $img = @imagecreatefrompng($src);
+    } elseif (defined('IMAGETYPE_WEBP') && $type === IMAGETYPE_WEBP && function_exists('imagecreatefromwebp')) {
+        $img = @imagecreatefromwebp($src);
+    } elseif ($type === IMAGETYPE_GIF) {
+        $img = @imagecreatefromgif($src);
+    }
     if (!$img) {
         return null;
     }
     if ($type === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
         $o = (int) (@exif_read_data($src)['Orientation'] ?? 1);
-        $img = match ($o) {
-            3 => imagerotate($img, 180, 0),
-            6 => imagerotate($img, -90, 0),
-            8 => imagerotate($img, 90, 0),
-            default => $img,
-        };
+        if ($o === 3) {
+            $img = imagerotate($img, 180, 0);
+        } elseif ($o === 6) {
+            $img = imagerotate($img, -90, 0);
+        } elseif ($o === 8) {
+            $img = imagerotate($img, 90, 0);
+        }
         $w = imagesx($img);
         $h = imagesy($img);
     }

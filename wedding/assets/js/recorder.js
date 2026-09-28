@@ -255,7 +255,8 @@
       self.draw();
       if (item.status === "error") {
         self.setState("error");
-        self.status(t("voice.failed"), "err");
+        var why = window.WeddingUploader.describe ? window.WeddingUploader.describe(item.error) : "";
+        self.status(t("voice.failed") + (why ? " (" + why + ")" : ""), "err");
       }
     };
     this.o.uploader.opts.onDone = function (item) {

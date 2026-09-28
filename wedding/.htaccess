@@ -1,5 +1,5 @@
 # Lindsey & Andrea — Apache settings
-Options -Indexes
+# (no "Options" line on purpose: many shared hosts forbid it and answer 500 for the whole site)
 DirectoryIndex index.html
 
 # Private files

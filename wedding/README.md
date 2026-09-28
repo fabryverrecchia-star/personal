@@ -10,7 +10,7 @@ Motion uses GSAP 3.13 (+ ScrollTrigger, SplitText), stored in `assets/vendor/` (
 
 ## Deploy
 
-1. Upload the whole `wedding/` folder to your server (any PHP ≥ 8.0 host, Apache or Nginx).
+1. Upload the contents of `wedding/` to your server (PHP ≥ 7.2, Apache or Nginx), then open `check.php`. French guide: `INSTALLATION-FR.md`.
 2. Make `storage/` writable by PHP (`chmod 775 storage`).
 3. Edit `api/config.php`:
    - `admin_password_hash` — create one with

@@ -13,7 +13,11 @@
   <link rel="preload" href="assets/fonts/cormorant.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/pinyon.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/style.css">
-  <script>document.documentElement.classList.add("js");</script>
+  <script>
+    // opened as …/mariage (no trailing slash)? add it, so assets/ and api/ resolve inside the folder
+    (function (l) { if (!/\/$|\.[a-z0-9]+$/i.test(l.pathname)) l.replace(l.pathname + "/" + l.search + l.hash); })(location);
+    document.documentElement.classList.add("js");
+  </script>
 </head>
 <body class="is-loading">
 

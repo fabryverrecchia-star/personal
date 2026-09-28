@@ -7,18 +7,21 @@ declare(strict_types=1);
 require __DIR__ . '/api/lib.php';
 
 session_name('la_admin');
-session_set_cookie_params([
-    'httponly' => true,
-    'samesite' => 'Lax',
-    'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-]);
+$secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+if (PHP_VERSION_ID >= 70300) {
+    session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax', 'secure' => $secure]);
+} else {
+    session_set_cookie_params(0, '/; samesite=Lax', '', $secure, true);
+}
 session_start();
 
 header('X-Robots-Tag: noindex, nofollow');
 header('X-Frame-Options: DENY');
 header('Referrer-Policy: same-origin');
 
-$hash = (string) config()['admin_password_hash'];
+$hash = (string) (config()['admin_password_hash'] ?? '');
+$plain = (string) (config()['admin_password'] ?? '');
+$locked = $hash === '' && $plain === '';
 $error = '';
 
 if (isset($_GET['logout'])) {
@@ -29,11 +32,12 @@ if (isset($_GET['logout'])) {
 }
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['password'])) {
-    if ($hash === '') {
-        $error = 'Set admin_password_hash in api/config.php first.';
+    if ($locked) {
+        $error = 'Set admin_password in api/config.php first.';
     } elseif (!rate_limit('login', 10, 900)) {
         $error = 'Too many attempts. Try again in 15 minutes.';
-    } elseif (password_verify((string) $_POST['password'], $hash)) {
+    } elseif (($hash !== '' && password_verify((string) $_POST['password'], $hash))
+        || ($plain !== '' && hash_equals($plain, (string) $_POST['password']))) {
         session_regenerate_id(true);
         $_SESSION['ok'] = true;
         header('Location: admin.php');
@@ -43,7 +47,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['password'])) 
     }
 }
 
-$authed = !empty($_SESSION['ok']) && $hash !== '';
+$authed = !empty($_SESSION['ok']) && !$locked;
 
 /* ───────────── Moderation (hide from the public gallery / delete) ───────────── */
 
@@ -57,12 +61,14 @@ if ($authed && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['ac
     }
     $id = (string) $_POST['id'];
     if (preg_match('/^[a-f0-9]{16}$/', $id)) {
-        match ($_POST['action']) {
-            'hide' => set_hidden($id, true),
-            'show' => set_hidden($id, false),
-            'delete' => media_delete($id),
-            default => null,
-        };
+        $action = (string) $_POST['action'];
+        if ($action === 'hide') {
+            set_hidden($id, true);
+        } elseif ($action === 'show') {
+            set_hidden($id, false);
+        } elseif ($action === 'delete') {
+            media_delete($id);
+        }
     }
     header('Location: admin.php?tab=media#m-' . rawurlencode($id));
     exit;
@@ -86,7 +92,7 @@ $messages = $authed ? array_reverse(read_jsonl(storage_file('messages.jsonl'))) 
 $media = $authed ? array_reverse(media_all()) : [];
 $hidden = $authed ? array_flip(hidden_ids()) : [];
 $tab = ($_GET['tab'] ?? 'messages') === 'media' ? 'media' : 'messages';
-$totalBytes = array_sum(array_map(fn ($m) => (int) $m['size'], $media));
+$totalBytes = array_sum(array_map(function ($m) { return (int) $m['size']; }, $media));
 
 function human_size(int $b): string
 {
@@ -169,7 +175,7 @@ function when(string $iso): string
     <input type="password" name="password" placeholder="Password" autocomplete="current-password" required autofocus>
     <button type="submit">Enter</button>
     <?php if ($error): ?><p class="err"><?= h($error) ?></p><?php endif; ?>
-    <?php if ($hash === ''): ?><p class="err">Admin is locked: set <code>admin_password_hash</code> in <code>api/config.php</code>.</p><?php endif; ?>
+    <?php if ($locked): ?><p class="err">Espace verrouillé : écrivez un mot de passe dans <code>admin_password</code> (fichier <code>api/config.php</code>).</p><?php endif; ?>
   </form>
 <?php else: ?>
   <header>
