@@ -17,7 +17,7 @@ const CONFIG = {
 };
 
 // Version du site : à augmenter avec les ?v= de index.html à chaque mise à jour
-const VERSION = "2";
+const VERSION = "3";
 
 /* ---------- Catalogue (prix de la liste du club) ---------- */
 const TAILLES = {
@@ -32,8 +32,8 @@ const PRODUCTS = [
   ], tag: "Vert ou noir" },
   { id: "sous-maillot", nom: "Sous-maillot", cat: "hauts", adulte: 25, enfant: 20, img: "sous-maillot" },
   { id: "sweat-coton", nom: "Sweat coton", cat: "hauts", adulte: 40, enfant: 35, img: "sweat-coton" },
-  { id: "sweat-capuche", nom: "Sweat capuche", cat: "hauts", adulte: 40, enfant: null, img: "sweat-capuche" },
   { id: "sweat-quart-zip", nom: "Sweat ¼ zip", cat: "hauts", adulte: 25, enfant: 23, img: "sweat-quart-zip" },
+  { id: "veste", nom: "Veste", cat: "vestes", adulte: 40, enfant: null, img: "veste" },
   { id: "coupe-vent", nom: "Coupe-vent", cat: "vestes", adulte: 25, enfant: 21, img: "coupe-vent" },
   { id: "softshell", nom: "Softshell", cat: "vestes", adulte: 60, enfant: 53, img: "softshell" },
   { id: "doudoune", nom: "Doudoune", cat: "vestes", adulte: 65, enfant: 56, img: "doudoune" },
