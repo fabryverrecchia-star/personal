@@ -1,12 +1,12 @@
 /*
  * Media planning — Jacqueline, table gastronomique, Paris 9e. Semaine du 28 septembre 2026 (lancement).
- * Photos originales : mercredi, jeudi, vendredi-1, samedi-2, samedi-3.
- * Encore extraites de la maquette : lundi-courges, mardi-verre, vendredi-2, samedi-1 (à remplacer, mêmes noms).
+ * Photos : originaux envoyés le 28 septembre. Vendredi (poissons) et samedi (rideaux) : propositions, un seul visuel publié.
  * live-* : publications déjà en ligne sur le compte (@jacqueline_restaurant_paris).
  */
 window.PLAN = {
   client: {
     name: 'Jacqueline',
+    logo: 'monogram.svg',
     services: ['Lancement', 'Textures', 'Branding', 'CM'],
     location: 'Paris 9e',
   },

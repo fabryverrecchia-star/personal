@@ -49,7 +49,7 @@
   var LETTRES = 'ABCDEFGH';
 
   function markSvg(cls) {
-    return '<svg class="lockup__mark ' + (cls || '') + '" viewBox="0 0 418.75 277.21" aria-hidden="true"><use href="#mark"/></svg>';
+    return '<svg class="lockup__mark ' + (cls || '') + '" viewBox="0 0 418.46 277.09" aria-hidden="true"><use href="#mark"/></svg>';
   }
   function clientHtml() {
     var c = PLAN.client || {};
@@ -346,15 +346,30 @@
   // ce qui est le cas de certains hébergeurs. On télécharge donc la vidéo entière puis on la
   // lit depuis la mémoire (blob:), ce qui marche partout. Repli sur l'URL directe si besoin.
   var blobs = {};
+  var ready = {};
   function videoUrl(url) {
     if (!blobs[url]) {
       blobs[url] = !window.fetch ? Promise.resolve(url) : fetch(url)
         .then(function (r) { return r.ok ? r.blob() : Promise.reject(r.status); })
-        .then(function (b) { return URL.createObjectURL(new Blob([b], { type: 'video/mp4' })); })
+        .then(function (b) { return (ready[url] = URL.createObjectURL(new Blob([b], { type: 'video/mp4' }))); })
         .catch(function () { return url; });
     }
     return blobs[url];
   }
+  // Lecture avec le son ; si le navigateur refuse, on repasse en muet (bouton pour réactiver)
+  function playWithSound(v) {
+    var p = v.play();
+    if (p && p.catch) p.catch(function (err) {
+      if (err && err.name === 'NotAllowedError') {
+        v.muted = true;
+        if (current && current.video === v) setSound(v);
+        var q = v.play();
+        if (q && q.catch) q.catch(function () {});
+      }
+    });
+    if (current && current.video === v) setSound(v);
+  }
+
   function attachVideo(v, url) {
     return videoUrl(url).then(function (u) {
       if (v.getAttribute('data-loaded') !== u) {
@@ -442,7 +457,7 @@
     vFrame.innerHTML =
       '<img src="' + esc(src(post.poster)) + '" alt="">' +
       (post.video
-        ? '<video playsinline muted loop preload="auto" poster="' + esc(src(post.poster)) + '"></video>'
+        ? '<video playsinline loop preload="auto" poster="' + esc(src(post.poster)) + '"></video>'
         : '<span class="label viewer__soon">Vidéo à venir</span>');
     vBottom.innerHTML =
       '<div class="viewer__day"><span class="label">' + JOURS_LONGS[d.getDay()] + '</span><strong>' + pad(d.getDate()) + ' ' + MOIS[d.getMonth()] + '</strong>' +
@@ -454,7 +469,6 @@
 
     // Sans vidéo (pas encore livrée), un objet factice garde le même parcours
     var video = vFrame.querySelector('video') || { muted: true, paused: true, play: function () {}, pause: function () {} };
-    video.muted = true;
     setSound(video);
     vSound.hidden = !post.video;
     current = { post: post, box: mediaBox, video: video, trigger: trigger };
@@ -468,8 +482,17 @@
     mediaBox.style.visibility = 'hidden';
 
     if (post.video) {
-      attachVideo(video, src(post.video)).then(function (v) {
-        if (current && current.video === v && !current.closing) playVideo(v);
+      // Le son est activé dès l'ouverture : le toucher sur le reel autorise la lecture sonore,
+      // à condition de lancer play() tout de suite, pendant ce même toucher.
+      var url = src(post.video);
+      video.muted = false;
+      if (ready[url]) {
+        video.src = ready[url];
+        video.setAttribute('data-loaded', ready[url]);
+      }
+      playWithSound(video);
+      attachVideo(video, url).then(function (v) {
+        if (current && current.video === v && !current.closing && v.paused) playWithSound(v);
       });
     }
 
