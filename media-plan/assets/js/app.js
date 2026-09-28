@@ -663,17 +663,30 @@
       try { localStorage.setItem(LOCAL, JSON.stringify(d)); } catch (e) {}
       return Promise.resolve(d);
     }
+    // Envoi en formulaire classique : accepté par tous les hébergeurs, sans en-tête personnalisé
+    function post(op, c) {
+      var body = new URLSearchParams();
+      body.set('payload', JSON.stringify(op));
+      body.set('code', c);
+      return fetch(API + '?t=' + Date.now(), { method: 'POST', body: body, cache: 'no-store', credentials: 'same-origin' });
+    }
+    function why(r) {
+      return r.text().then(function (t) {
+        var e = '';
+        try { e = JSON.parse(t).error; } catch (x) {}
+        if (e === 'code') return 'Code incorrect.';
+        if (e === 'storage') return 'Le dossier data n’est pas accessible en écriture sur l’hébergement.';
+        return 'Erreur serveur (' + r.status + '). Réessayez.';
+      });
+    }
     function send(op) {
-      var p = mode === 'local' ? localOp(op) : fetch(API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Code': code },
-        body: JSON.stringify(op),
-      }).then(function (r) {
+      var p = mode === 'local' ? localOp(op) : post(op, code).then(function (r) {
         if (r.status === 403) { setAdmin(false, true); return Promise.reject('code'); }
+        if (!r.ok) return why(r).then(function (m) { return Promise.reject(m); });
         return json(r);
       });
       return p.then(function (d) { if (valid(d)) { state = d; paint(); } })
-        .catch(function (e) { if (e !== 'code') toast('La modification n’a pas pu être enregistrée. Réessayez.'); });
+        .catch(function (e) { if (e !== 'code') toast(typeof e === 'string' ? e : 'La modification n’a pas pu être enregistrée. Réessayez.'); });
     }
 
     /* Calendrier du mois */
@@ -875,9 +888,9 @@
         ok: 'Entrer',
         submit: function (c) {
           if (!c) return 'Saisissez le code.';
-          return fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Code': c }, body: '{"action":"check"}' })
+          return post({ action: 'check' }, c)
             .then(function (r) {
-              if (!r.ok) return 'Code incorrect.';
+              if (!r.ok) return why(r);
               code = c;
               try { localStorage.setItem(CODE, c); } catch (e) {}
               setAdmin(true);

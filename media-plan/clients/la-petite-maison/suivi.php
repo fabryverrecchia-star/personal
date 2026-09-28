@@ -2,7 +2,8 @@
 /*
  * Suivi La Petite Maison : passages et missions en cours, partagés entre tous les visiteurs.
  *   GET  suivi.php                  → { passages: [...], missions: [...] }
- *   POST suivi.php (JSON, en-tête X-Admin-Code)
+ *   GET  suivi.php?diag             → version PHP et droits d'écriture (installation)
+ *   POST suivi.php (formulaire : payload = JSON, code = code équipe)
  *        { action: "check" }
  *        { action: "add",    kind: "missions"|"passages", item: {...} }
  *        { action: "update", kind: "missions", id, status }
@@ -31,6 +32,17 @@ function empty_data() { return ['passages' => [], 'missions' => []]; }
 
 $method = $_SERVER['REQUEST_METHOD'];
 
+// Diagnostic d'installation (sans secret) : suivi.php?diag
+if ($method === 'GET' && isset($_GET['diag'])) {
+  out([
+    'php' => PHP_VERSION,
+    'data_exists' => is_file($FILE),
+    'data_writable' => is_file($FILE) ? is_writable($FILE) : is_writable(dirname($FILE)),
+    'dir_writable' => is_writable(dirname($FILE)),
+    'password_verify' => function_exists('password_verify'),
+  ]);
+}
+
 if ($method === 'GET') {
   $raw = is_file($FILE) ? file_get_contents($FILE) : '';
   $data = $raw ? json_decode($raw, true) : null;
@@ -39,17 +51,25 @@ if ($method === 'GET') {
 
 if ($method !== 'POST') out(['error' => 'method'], 405);
 
+// Requête : formulaire classique (payload + code), ou JSON brut en repli.
+// Le code passe dans le corps : certains hébergeurs suppriment les en-têtes personnalisés.
+$in = isset($_POST['payload']) ? json_decode((string) $_POST['payload'], true) : json_decode(file_get_contents('php://input'), true);
+if (!is_array($in)) out(['error' => 'json'], 400);
+
 // Mode équipe : le code est vérifié à chaque écriture
-$code = isset($_SERVER['HTTP_X_ADMIN_CODE']) ? (string) $_SERVER['HTTP_X_ADMIN_CODE'] : '';
+$code = isset($_POST['code']) ? (string) $_POST['code'] : (isset($in['code']) ? (string) $in['code'] : '');
+if ($code === '' && isset($_SERVER['HTTP_X_ADMIN_CODE'])) $code = (string) $_SERVER['HTTP_X_ADMIN_CODE'];
 if ($code === '' || !password_verify($code, $config['admin_hash'])) {
   usleep(700000); // freine les essais au hasard
   out(['error' => 'code'], 403);
 }
 
-$in = json_decode(file_get_contents('php://input'), true);
-if (!is_array($in)) out(['error' => 'json'], 400);
 $action = isset($in['action']) ? $in['action'] : '';
-if ($action === 'check') out(['ok' => true]);
+if ($action === 'check') {
+  // On vérifie aussi que les modifications pourront être enregistrées
+  $w = is_file($FILE) ? is_writable($FILE) : is_writable(dirname($FILE));
+  out($w ? ['ok' => true] : ['error' => 'storage'], $w ? 200 : 500);
+}
 
 $kind = isset($in['kind']) ? $in['kind'] : '';
 if (!in_array($kind, ['missions', 'passages'], true)) out(['error' => 'kind'], 400);
@@ -60,7 +80,7 @@ $STATUS = ['todo', 'doing', 'done'];
 $KINDS = ['photo', 'video', 'both', 'meeting'];
 
 // Lecture + écriture sous verrou : deux personnes qui modifient en même temps ne s'écrasent pas
-$fp = fopen($FILE, 'c+');
+$fp = @fopen($FILE, 'c+');
 if (!$fp) out(['error' => 'storage'], 500);
 flock($fp, LOCK_EX);
 $raw = stream_get_contents($fp);
