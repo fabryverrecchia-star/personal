@@ -1,0 +1,1003 @@
+{
+  "progress": 0,
+  "passages": [],
+  "missions": [
+    {
+      "id": "m1",
+      "title": "Site vitrine Helicave (5 à 7 pages)",
+      "cat": "web",
+      "status": "todo",
+      "by": "Fabrizio",
+      "at": "2026-09-28"
+    },
+    {
+      "id": "m2",
+      "title": "Landing page de campagne",
+      "cat": "web",
+      "status": "todo",
+      "by": "Fabrizio",
+      "at": "2026-09-28"
+    },
+    {
+      "id": "m3",
+      "title": "Shooting photo au showroom",
+      "cat": "photo",
+      "status": "todo",
+      "by": "Fabrizio",
+      "at": "2026-09-28"
+    },
+    {
+      "id": "m4",
+      "title": "Tournage vidéo au showroom",
+      "cat": "video",
+      "status": "todo",
+      "by": "Fabrizio",
+      "at": "2026-09-28"
+    }
+  ],
+  "prices": {
+    "vat": 0.2,
+    "credit": 0,
+    "sections": [
+      {
+        "ref": "01",
+        "title": "Stratégie & direction artistique"
+      },
+      {
+        "ref": "02",
+        "title": "Identité visuelle & branding"
+      },
+      {
+        "ref": "03",
+        "title": "Graphisme print & édition"
+      },
+      {
+        "ref": "04",
+        "title": "Signalétique, salons & événementiel"
+      },
+      {
+        "ref": "05",
+        "title": "Illustration, 3D & infographie"
+      },
+      {
+        "ref": "06",
+        "title": "Photographie"
+      },
+      {
+        "ref": "07",
+        "title": "Vidéo & motion design"
+      },
+      {
+        "ref": "08",
+        "title": "Web & digital"
+      },
+      {
+        "ref": "09",
+        "title": "Réseaux sociaux & contenu"
+      },
+      {
+        "ref": "10",
+        "title": "Production & impression"
+      }
+    ],
+    "items": [
+      {
+        "id": "x0101",
+        "ref": "01.01",
+        "sec": "01",
+        "title": "Audit de communication & de marque",
+        "detail": "Analyse de l'existant, concurrence, recommandations",
+        "unit": "forfait",
+        "price": 1224.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0102",
+        "ref": "01.02",
+        "sec": "01",
+        "title": "Plateforme de marque",
+        "detail": "Positionnement, valeurs, ton, cibles, messages clés",
+        "unit": "forfait",
+        "price": 2448.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0103",
+        "ref": "01.03",
+        "sec": "01",
+        "title": "Stratégie de communication annuelle",
+        "detail": "Plan d'actions, canaux, calendrier, budget",
+        "unit": "forfait",
+        "price": 2016.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0104",
+        "ref": "01.04",
+        "sec": "01",
+        "title": "Atelier créatif / brainstorming",
+        "detail": "Séance de travail avec vos équipes (½ journée)",
+        "unit": "forfait",
+        "price": 750.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0105",
+        "ref": "01.05",
+        "sec": "01",
+        "title": "Moodboard & concept créatif",
+        "detail": "Pistes visuelles et univers graphique",
+        "unit": "forfait",
+        "price": 816.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0106",
+        "ref": "01.06",
+        "sec": "01",
+        "title": "Direction artistique",
+        "detail": "Supervision créative d'un projet",
+        "unit": "heure",
+        "price": 250.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0107",
+        "ref": "01.07",
+        "sec": "01",
+        "title": "Direction artistique — journée",
+        "detail": "Présence shooting / tournage / production",
+        "unit": "jour",
+        "price": 816.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0108",
+        "ref": "01.08",
+        "sec": "01",
+        "title": "Gestion de projet",
+        "detail": "Coordination, planning, suivi fournisseurs",
+        "unit": "heure",
+        "price": 180.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0109",
+        "ref": "01.09",
+        "sec": "01",
+        "title": "Réunion client",
+        "detail": "Rendez-vous de suivi, déplacement local inclus",
+        "unit": "forfait",
+        "price": 204.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0201",
+        "ref": "02.01",
+        "sec": "02",
+        "title": "Création de logo",
+        "detail": "3 pistes créatives, 2 allers-retours, fichiers sources",
+        "unit": "forfait",
+        "price": 2872.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0202",
+        "ref": "02.02",
+        "sec": "02",
+        "title": "Refonte / modernisation de logo",
+        "detail": "Évolution d'un logo existant",
+        "unit": "forfait",
+        "price": 1200.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0203",
+        "ref": "02.03",
+        "sec": "02",
+        "title": "Charte graphique",
+        "detail": "Couleurs, typographies, règles d'usage (PDF)",
+        "unit": "forfait",
+        "price": 1200.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0204",
+        "ref": "02.04",
+        "sec": "02",
+        "title": "Brandbook complet",
+        "detail": "Charte + déclinaisons + exemples d'application",
+        "unit": "forfait",
+        "price": 3500.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0205",
+        "ref": "02.05",
+        "sec": "02",
+        "title": "Naming",
+        "detail": "Recherche de nom, 10 propositions argumentées",
+        "unit": "forfait",
+        "price": 792.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0206",
+        "ref": "02.06",
+        "sec": "02",
+        "title": "Slogan / signature de marque",
+        "detail": "5 propositions",
+        "unit": "forfait",
+        "price": 264.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0207",
+        "ref": "02.07",
+        "sec": "02",
+        "title": "Papeterie",
+        "detail": "Carte de visite, papier en-tête, enveloppe",
+        "unit": "forfait",
+        "price": 468.0,
+        "qty": 1.5,
+        "status": "off"
+      },
+      {
+        "id": "x0208",
+        "ref": "02.08",
+        "sec": "02",
+        "title": "Signature e-mail HTML / Newsletter",
+        "detail": "Modèle aux couleurs de la marque / Newsletter",
+        "unit": "forfait",
+        "price": 350.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0209",
+        "ref": "02.09",
+        "sec": "02",
+        "title": "Templates Office / PowerPoint",
+        "detail": "Modèles Word + présentation",
+        "unit": "forfait",
+        "price": 624.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0301",
+        "ref": "03.01",
+        "sec": "03",
+        "title": "Heure de graphisme",
+        "detail": "Création ou adaptation graphique",
+        "unit": "heure",
+        "price": 120.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0302",
+        "ref": "03.02",
+        "sec": "03",
+        "title": "Journée de graphisme",
+        "detail": "Journée de création (1 j/h)",
+        "unit": "jour",
+        "price": 640.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0303",
+        "ref": "03.03",
+        "sec": "03",
+        "title": "Flyer A5 / A4",
+        "detail": "Recto-verso, fichiers prêts à imprimer",
+        "unit": "forfait",
+        "price": 312.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0304",
+        "ref": "03.04",
+        "sec": "03",
+        "title": "Dépliant 3 volets",
+        "detail": "Mise en page complète",
+        "unit": "forfait",
+        "price": 624.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0305",
+        "ref": "03.05",
+        "sec": "03",
+        "title": "Brochure 8 pages",
+        "detail": "Conception + mise en page",
+        "unit": "forfait",
+        "price": 1248.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0306",
+        "ref": "03.06",
+        "sec": "03",
+        "title": "Catalogue / brochure — par page",
+        "detail": "Mise en page, au-delà de 8 pages",
+        "unit": "page",
+        "price": 120.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0307",
+        "ref": "03.07",
+        "sec": "03",
+        "title": "Affiche / poster",
+        "detail": "Tout format",
+        "unit": "forfait",
+        "price": 312.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0308",
+        "ref": "03.08",
+        "sec": "03",
+        "title": "Roll-up / kakémono",
+        "detail": "Format standard 85 × 200 cm",
+        "unit": "forfait",
+        "price": 312.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0309",
+        "ref": "03.09",
+        "sec": "03",
+        "title": "Bâche / banderole",
+        "detail": "Grand format",
+        "unit": "forfait",
+        "price": 234.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0310",
+        "ref": "03.10",
+        "sec": "03",
+        "title": "Annonce presse / magazine",
+        "detail": "Création + déclinaisons formats",
+        "unit": "forfait",
+        "price": 234.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0311",
+        "ref": "03.11",
+        "sec": "03",
+        "title": "Carton d'invitation",
+        "detail": "Événement, portes ouvertes",
+        "unit": "forfait",
+        "price": 234.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0312",
+        "ref": "03.12",
+        "sec": "03",
+        "title": "Packaging / étiquette",
+        "detail": "Création d'un design de packaging",
+        "unit": "forfait",
+        "price": 1248.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0313",
+        "ref": "03.13",
+        "sec": "03",
+        "title": "Déclinaison / adaptation de format",
+        "detail": "Adaptation d'un visuel existant",
+        "unit": "forfait",
+        "price": 130.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0401",
+        "ref": "04.01",
+        "sec": "04",
+        "title": "Stand salon / foire",
+        "detail": "Conception graphique du stand",
+        "unit": "forfait",
+        "price": 1248.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0402",
+        "ref": "04.02",
+        "sec": "04",
+        "title": "Habillage véhicule",
+        "detail": "Utilitaire ou voiture de service",
+        "unit": "forfait",
+        "price": 624.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0403",
+        "ref": "04.03",
+        "sec": "04",
+        "title": "Vitrine / enseigne",
+        "detail": "Design de façade ou vitrophanie",
+        "unit": "forfait",
+        "price": 468.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0404",
+        "ref": "04.04",
+        "sec": "04",
+        "title": "Signalétique intérieure / showroom",
+        "detail": "Panneaux, directionnel, PLV",
+        "unit": "forfait",
+        "price": 624.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0405",
+        "ref": "04.05",
+        "sec": "04",
+        "title": "PLV / présentoir",
+        "detail": "Présentoir comptoir ou sol",
+        "unit": "forfait",
+        "price": 468.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0501",
+        "ref": "05.01",
+        "sec": "05",
+        "title": "Illustration simple",
+        "detail": "Pictogramme élaboré, dessin au trait",
+        "unit": "forfait",
+        "price": 234.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0502",
+        "ref": "05.02",
+        "sec": "05",
+        "title": "Illustration détaillée",
+        "detail": "Illustration couleur complexe",
+        "unit": "forfait",
+        "price": 780.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0503",
+        "ref": "05.03",
+        "sec": "05",
+        "title": "Pack de 10 pictogrammes",
+        "detail": "Set d'icônes cohérent",
+        "unit": "forfait",
+        "price": 624.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0504",
+        "ref": "05.04",
+        "sec": "05",
+        "title": "Infographie",
+        "detail": "Schéma, données, processus",
+        "unit": "forfait",
+        "price": 468.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0505",
+        "ref": "05.05",
+        "sec": "05",
+        "title": "Modélisation 3D & rendu",
+        "detail": "Modèle 3D + 3 rendus photoréalistes",
+        "unit": "forfait",
+        "price": 1440.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0506",
+        "ref": "05.06",
+        "sec": "05",
+        "title": "Mockups / mises en situation",
+        "detail": "3 visuels de présentation",
+        "unit": "forfait",
+        "price": 156.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0601",
+        "ref": "06.01",
+        "sec": "06",
+        "title": "Shooting photo — mission simple",
+        "detail": "4 h sur site, 20 photos sélectionnées en HD, matériel inclus",
+        "unit": "demi-journée",
+        "price": 550.0,
+        "qty": 1.0,
+        "status": "on",
+        "at": "2026-09-23"
+      },
+      {
+        "id": "x0602",
+        "ref": "06.02",
+        "sec": "06",
+        "title": "Shooting photo — journée",
+        "detail": "8 h sur site, 40 photos sélectionnées en HD, matériel inclus",
+        "unit": "jour",
+        "price": 900.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0603",
+        "ref": "06.03",
+        "sec": "06",
+        "title": "Packshot produit — par photo",
+        "detail": "Fond blanc ou mise en scène",
+        "unit": "photo",
+        "price": 88.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0604",
+        "ref": "06.04",
+        "sec": "06",
+        "title": "Portraits corporate",
+        "detail": "Équipe / dirigeants, jusqu'à 10 personnes",
+        "unit": "forfait",
+        "price": 396.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0605",
+        "ref": "06.05",
+        "sec": "06",
+        "title": "Reportage événement / chantier",
+        "detail": "Couverture 4 h, sélection livrée en HD",
+        "unit": "forfait",
+        "price": 480.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0606",
+        "ref": "06.06",
+        "sec": "06",
+        "title": "Photo aérienne par drone",
+        "detail": "Demi-journée, pilote certifié",
+        "unit": "demi-journée",
+        "price": 588.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0701",
+        "ref": "07.01",
+        "sec": "07",
+        "title": "Tournage — mission simple",
+        "detail": "Vidéaste + matériel (caméra, son, lumière)",
+        "unit": "demi-journée",
+        "price": 600.0,
+        "qty": 1.0,
+        "status": "on",
+        "at": "2026-09-23"
+      },
+      {
+        "id": "x0702",
+        "ref": "07.02",
+        "sec": "07",
+        "title": "Tournage — journée",
+        "detail": "Vidéaste + matériel (caméra, son, lumière)",
+        "unit": "jour",
+        "price": 1000.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0703",
+        "ref": "07.03",
+        "sec": "07",
+        "title": "Prises de vue drone",
+        "detail": "Demi-journée, pilote certifié",
+        "unit": "demi-journée",
+        "price": 588.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0704",
+        "ref": "07.04",
+        "sec": "07",
+        "title": "Heure de montage",
+        "detail": "Montage, étalonnage, mixage",
+        "unit": "heure",
+        "price": 110.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0705",
+        "ref": "07.05",
+        "sec": "07",
+        "title": "Film de présentation 1–2 min",
+        "detail": "Montage complet, 2 allers-retours",
+        "unit": "forfait",
+        "price": 1344.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0706",
+        "ref": "07.06",
+        "sec": "07",
+        "title": "Vidéo témoignage client",
+        "detail": "Interview montée, 1–2 min",
+        "unit": "forfait",
+        "price": 672.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0707",
+        "ref": "07.07",
+        "sec": "07",
+        "title": "Réel / short réseaux sociaux",
+        "detail": "Format vertical ≤ 60 s",
+        "unit": "forfait",
+        "price": 252.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0708",
+        "ref": "07.08",
+        "sec": "07",
+        "title": "Motion design 30 s",
+        "detail": "Animation 2D, script et storyboard inclus",
+        "unit": "forfait",
+        "price": 2016.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0709",
+        "ref": "07.09",
+        "sec": "07",
+        "title": "Animation de logo",
+        "detail": "Logo animé (intro / outro)",
+        "unit": "forfait",
+        "price": 504.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0710",
+        "ref": "07.10",
+        "sec": "07",
+        "title": "Animation 3D",
+        "detail": "Visualisation produit / installation",
+        "unit": "forfait",
+        "price": 2160.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0711",
+        "ref": "07.11",
+        "sec": "07",
+        "title": "Sous-titrage",
+        "detail": "Par vidéo, 1 langue",
+        "unit": "forfait",
+        "price": 168.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0712",
+        "ref": "07.12",
+        "sec": "07",
+        "title": "Voix off professionnelle",
+        "detail": "Comédien voix, 1 langue",
+        "unit": "forfait",
+        "price": 264.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0713",
+        "ref": "07.13",
+        "sec": "07",
+        "title": "Musique sous licence",
+        "detail": "Droits d'utilisation web",
+        "unit": "forfait",
+        "price": 60.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0801",
+        "ref": "08.01",
+        "sec": "08",
+        "title": "Webdesign UI/UX — par page",
+        "detail": "Maquette desktop + mobile",
+        "unit": "page",
+        "price": 620.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0802",
+        "ref": "08.02",
+        "sec": "08",
+        "title": "Site vitrine (5–7 pages)",
+        "detail": "Design + développement WordPress, responsive",
+        "unit": "forfait",
+        "price": 4800.0,
+        "qty": 1.0,
+        "status": "on",
+        "at": "2026-09-23"
+      },
+      {
+        "id": "x0803",
+        "ref": "08.03",
+        "sec": "08",
+        "title": "Site e-commerce",
+        "detail": "Boutique en ligne, paiement, jusqu'à 50 produits",
+        "unit": "forfait",
+        "price": 8600.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0804",
+        "ref": "08.04",
+        "sec": "08",
+        "title": "Landing page",
+        "detail": "Page promotionnelle / campagne",
+        "unit": "forfait",
+        "price": 1008.0,
+        "qty": 1.0,
+        "status": "on",
+        "at": "2026-09-23"
+      },
+      {
+        "id": "x0805",
+        "ref": "08.05",
+        "sec": "08",
+        "title": "Rédaction web — par page",
+        "detail": "Textes optimisés SEO",
+        "unit": "page",
+        "price": 132.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0806",
+        "ref": "08.06",
+        "sec": "08",
+        "title": "Audit & optimisation SEO",
+        "detail": "Analyse technique + recommandations",
+        "unit": "forfait",
+        "price": 840.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0807",
+        "ref": "08.07",
+        "sec": "08",
+        "title": "Template newsletter",
+        "detail": "Modèle e-mailing responsive",
+        "unit": "forfait",
+        "price": 420.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0808",
+        "ref": "08.08",
+        "sec": "08",
+        "title": "Formation back-office",
+        "detail": "Prise en main du site (2 h)",
+        "unit": "forfait",
+        "price": 168.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0809",
+        "ref": "08.09",
+        "sec": "08",
+        "title": "Maintenance & mises à jour",
+        "detail": "Sécurité, sauvegardes, petites modifications",
+        "unit": "mois",
+        "price": 168.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0810",
+        "ref": "08.10",
+        "sec": "08",
+        "title": "Hébergement web",
+        "detail": "Hébergement + certificat SSL",
+        "unit": "an",
+        "price": 216.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0811",
+        "ref": "08.11",
+        "sec": "08",
+        "title": "Nom de domaine",
+        "detail": "Enregistrement / renouvellement",
+        "unit": "an",
+        "price": 30.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0901",
+        "ref": "09.01",
+        "sec": "09",
+        "title": "Stratégie social media",
+        "detail": "Audit, ligne éditoriale, calendrier",
+        "unit": "forfait",
+        "price": 900.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0902",
+        "ref": "09.02",
+        "sec": "09",
+        "title": "Création / optimisation des comptes",
+        "detail": "Facebook, Instagram, LinkedIn",
+        "unit": "forfait",
+        "price": 264.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0903",
+        "ref": "09.03",
+        "sec": "09",
+        "title": "Gestion réseaux sociaux",
+        "detail": "8 publications / mois + modération",
+        "unit": "mois",
+        "price": 1056.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0904",
+        "ref": "09.04",
+        "sec": "09",
+        "title": "Pack 10 visuels réseaux sociaux",
+        "detail": "Templates aux couleurs de la marque",
+        "unit": "forfait",
+        "price": 750.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0905",
+        "ref": "09.05",
+        "sec": "09",
+        "title": "Campagne publicitaire — mise en place",
+        "detail": "Meta / Google Ads, ciblage, visuels",
+        "unit": "forfait",
+        "price": 396.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0906",
+        "ref": "09.06",
+        "sec": "09",
+        "title": "Campagne publicitaire — gestion",
+        "detail": "Suivi et optimisation (hors budget média)",
+        "unit": "mois",
+        "price": 264.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0907",
+        "ref": "09.07",
+        "sec": "09",
+        "title": "Newsletter / e-mailing",
+        "detail": "Rédaction + mise en page + envoi",
+        "unit": "forfait",
+        "price": 320.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0908",
+        "ref": "09.08",
+        "sec": "09",
+        "title": "Article de blog",
+        "detail": "800 à 1 000 mots, optimisé SEO",
+        "unit": "forfait",
+        "price": 198.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x0910",
+        "ref": "09.10",
+        "sec": "09",
+        "title": "Rapport de performance",
+        "detail": "Statistiques mensuelles commentées",
+        "unit": "mois",
+        "price": 220.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x1001",
+        "ref": "10.01",
+        "sec": "10",
+        "title": "Suivi de fabrication",
+        "detail": "Demande de devis imprimeurs, BAT, contrôle",
+        "unit": "heure",
+        "price": 84.0,
+        "qty": 1.0,
+        "status": "off"
+      },
+      {
+        "id": "x1002",
+        "ref": "10.02",
+        "sec": "10",
+        "title": "Impression",
+        "detail": "Tarif selon quantités, formats et supports",
+        "unit": "sur devis",
+        "price": 0.0,
+        "qty": 1.0,
+        "status": "off"
+      }
+    ]
+  }
+}
