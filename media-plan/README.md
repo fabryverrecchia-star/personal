@@ -4,7 +4,7 @@ Site mobile first pour présenter le planning des publications au client.
 Aucune compilation : déposer le dossier tel quel chez l'hébergeur.
 
 - `index.html` ouvre La Petite Maison (`?c=la-petite-maison`).
-- Contenu des posts : `clients/la-petite-maison/plan.js` (posts, propositions A/B/C, reel, couleurs, polices).
+- Contenu des posts : `clients/la-petite-maison/plan.js` (planning du mois dans `months`, feed déjà en ligne dans `feedExisting`, reel, couleurs, polices).
 - Commentaires sous chaque post : gardés sur le téléphone du client, envoyés en un récapitulatif (WhatsApp).
 
 ## Jours de passage et missions en cours

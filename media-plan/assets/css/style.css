@@ -346,7 +346,7 @@ a { color: inherit; }
   padding: 60px var(--gutter);
   text-align: center;
 }
-.brand__badge { width: min(78vw, 380px); height: auto; color: var(--ink); }
+.brand__badge { width: min(46vw, 200px); height: auto; color: var(--ink); }
 .brand__badge > svg { display: block; width: 100%; height: auto; }
 .brand__text {
   margin: 0;

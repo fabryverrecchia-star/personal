@@ -64,19 +64,85 @@
     document.querySelectorAll('img[data-svg-logo], [data-svg]').forEach(function (node) {
       var url = node.getAttribute('src') || node.getAttribute('data-svg');
       if (!/\.svg(\?|$)|^data:image\/svg/.test(url) || !window.fetch) return;
-      fetch(url).then(function (r) { return r.ok ? r.text() : Promise.reject(); }).then(function (txt) {
+      svgText(url).then(function (txt) {
         var svg = el(txt.slice(txt.indexOf('<svg')));
         if (!svg || svg.nodeName.toLowerCase() !== 'svg') return;
         svg.setAttribute('role', 'img');
         svg.setAttribute('aria-label', node.getAttribute('alt') || (PLAN.client && PLAN.client.name) || '');
         if (node.nodeName === 'IMG') node.replaceWith(svg);
         else { node.innerHTML = ''; node.appendChild(svg); }
+        if (node.hasAttribute('data-compose')) composeLogo(svg, node);
       }).catch(function () {
-        if (node.nodeName === 'IMG') return;
-        node.innerHTML = '<img src="' + esc(url) + '" alt="">';
+        // Jamais de logo noir : sans SVG injecté, on le masque plutôt que l'afficher en <img>
+        if (node.nodeName === 'IMG') node.style.visibility = 'hidden';
       });
     });
   }
+  // Un logo en data: est décodé sur place (certains aperçus bloquent fetch sur data:)
+  function svgText(url) {
+    var m = /^data:image\/svg\+xml(;base64)?,(.*)$/.exec(url);
+    if (m) {
+      try {
+        var raw = m[1] ? atob(m[2]) : decodeURIComponent(m[2]);
+        return Promise.resolve(m[1] ? decodeURIComponent(escape(raw)) : raw);
+      } catch (e) { return Promise.reject(e); }
+    }
+    return fetch(url).then(function (r) { return r.ok ? r.text() : Promise.reject(); });
+  }
+
+  // Logo qui se compose au scroll : chaque lettre arrive de côté et se pose à sa place.
+  // Le tracé unique est découpé en morceaux ; les contre-formes (a, o, e…) restent avec leur lettre.
+  function composeLogo(svg, box) {
+    var path = svg.querySelector('path');
+    if (!path || !gsap || !window.ScrollTrigger) return;
+    var subs = path.getAttribute('d').match(/M[^M]*/g) || [];
+    if (subs.length < 2) return;
+    var ns = svg.namespaceURI;
+    var probes = subs.map(function (d) {
+      var p = document.createElementNS(ns, 'path');
+      p.setAttribute('d', d);
+      svg.appendChild(p);
+      return p;
+    });
+    var bb = probes.map(function (p) { return p.getBBox(); });
+    probes.forEach(function (p) { p.remove(); });
+    function inside(a, b) {
+      return b.x <= a.x + 0.5 && b.y <= a.y + 0.5 && b.x + b.width >= a.x + a.width - 0.5 && b.y + b.height >= a.y + a.height - 0.5 &&
+        b.width * b.height > a.width * a.height;
+    }
+    var parent = bb.map(function (a, i) {
+      var best = -1;
+      bb.forEach(function (b, j) { if (j !== i && inside(a, b) && (best < 0 || bb[best].width * bb[best].height > b.width * b.height)) best = j; });
+      return best;
+    });
+    function root(i) { while (parent[i] >= 0) i = parent[i]; return i; }
+    var groups = {};
+    subs.forEach(function (d, i) { var r = root(i); (groups[r] = groups[r] || []).push(d); });
+    var keys = Object.keys(groups).sort(function (a, b) { return bb[a].x - bb[b].x || bb[a].y - bb[b].y; });
+    var g = document.createElementNS(ns, 'g');
+    var parts = keys.map(function (k) {
+      var p = document.createElementNS(ns, 'path');
+      p.setAttribute('d', groups[k].join(''));
+      p.setAttribute('fill', 'currentColor');
+      g.appendChild(p);
+      return p;
+    });
+    path.replaceWith(g);
+    var vb = svg.viewBox.baseVal;
+    gsap.set(parts, { transformOrigin: '50% 50%' });
+    var tl = gsap.timeline({
+      scrollTrigger: { trigger: box, start: 'top 92%', end: 'center 50%', scrub: 0.8 },
+    });
+    parts.forEach(function (p, i) {
+      var b = bb[keys[i]];
+      var cx = b.x + b.width / 2 - vb.width / 2, cy = b.y + b.height / 2 - vb.height / 2;
+      tl.fromTo(p, {
+        x: cx * 0.9 + (i % 2 ? 24 : -24), y: cy * 0.7 + 40 + (i % 3) * 14,
+        rotation: (i % 2 ? 1 : -1) * (10 + (i % 4) * 6), scale: 0.6, opacity: 0,
+      }, { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1, ease: 'power3.out', duration: 1 }, i * 0.08);
+    });
+  }
+
   function lockup(extra) {
     return (
       '<span class="lockup ' + (extra || '') + '">' +
@@ -203,7 +269,10 @@
   function render() {
     var app = document.getElementById('app');
     var c = PLAN.client || {};
-    var weeks = PLAN.weeks || [];
+    // Planning au mois (PLAN.months) ou à la semaine (PLAN.weeks)
+    var monthly = !!PLAN.months;
+    var weeks = PLAN.months || PLAN.weeks || [];
+    function firstDate(w) { var p = list(w.posts)[0]; return p ? parseDate(p.date) : new Date(); }
     var html = '';
 
     document.title = '18H22 × ' + (c.name || '') + ' · ' + (PLAN.title || 'Media planning');
@@ -238,7 +307,7 @@
       '<section class="intro">' +
       (PLAN.intro ? '<p class="intro__text" data-reveal>' + PLAN.intro + '</p>' : '') +
       '<div class="stats" data-reveal>' +
-      '<div class="stat"><span class="stat__num" data-count="' + weeks.length + '">' + weeks.length + '</span><span class="label">Semaines</span></div>' +
+      '<div class="stat"><span class="stat__num" data-count="' + weeks.length + '">' + weeks.length + '</span><span class="label">' + (monthly ? 'Mois' : 'Semaines') + '</span></div>' +
       '<div class="stat"><span class="stat__num" data-count="' + total + '">' + total + '</span><span class="label">Publications</span></div>' +
       '<div class="stat"><span class="stat__num" data-count="' + reels + '">' + reels + '</span><span class="label">Reels</span></div>' +
       '</div>' +
@@ -252,15 +321,15 @@
     if (PLAN.theme || c.badge) {
       html +=
         '<section class="brand" id="univers">' +
-        (c.badge ? '<div class="brand__badge" data-svg="' + esc(src(c.badge)) + '" data-brand></div>' : '') +
+        (c.badge ? '<div class="brand__badge" data-svg="' + esc(src(c.badge)) + '" data-compose></div>' : '') +
         (PLAN.brandText ? '<p class="brand__text" data-brand>' + PLAN.brandText + '</p>' : '') +
         '</section>';
     }
 
     html +=
-      '<nav class="weeknav" aria-label="Semaines">' +
+      '<nav class="weeknav" aria-label="' + (monthly ? 'Mois' : 'Semaines') + '">' +
       '<a class="label" href="#feed">Feed</a>' +
-      weeks.map(function (w, k) { return '<a class="label" href="#s' + (k + 1) + '">S' + pad(k + 1) + '</a>'; }).join('') +
+      weeks.map(function (w, k) { return '<a class="label" href="#s' + (k + 1) + '">' + (monthly ? MOIS_LONGS[firstDate(w).getMonth()] : 'S' + pad(k + 1)) + '</a>'; }).join('') +
       (PLAN.suivi ? '<a class="label" href="#passages">Passages</a><a class="label" href="#missions">Missions</a>' : '') +
       '</nav>';
 
@@ -278,9 +347,11 @@
       weeksHtml +=
         '<section class="week" id="s' + (k + 1) + '">' +
         '<header class="week__head">' +
-        '<span class="week__num" aria-hidden="true">' + pad(k + 1) + '</span>' +
-        '<p class="label week__kicker" data-reveal>Semaine ' + pad(k + 1) + ' · ' + range + '</p>' +
-        '<h2 class="week__title" data-reveal>' + (w.title || 'Semaine ' + (k + 1)) + '</h2>' +
+        '<span class="week__num" aria-hidden="true">' + pad(monthly ? first.getMonth() + 1 : k + 1) + '</span>' +
+        '<p class="label week__kicker" data-reveal>' + (monthly
+          ? MOIS_LONGS[first.getMonth()] + ' ' + first.getFullYear() + ' · ' + posts.length + ' publications'
+          : 'Semaine ' + pad(k + 1) + ' · ' + range) + '</p>' +
+        '<h2 class="week__title" data-reveal>' + (w.title || (monthly ? MOIS_LONGS[first.getMonth()] : 'Semaine ' + (k + 1))) + '</h2>' +
         (w.theme ? '<p class="week__theme" data-reveal>' + esc(w.theme) + '</p>' : '') +
         '</header>' +
         posts.map(function (p, i) { return renderPost(p, k, i); }).join('') +
