@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Lindsey &amp; Andrea · 03.10.2026</title>
+  <meta name="description" content="Lindsey & Andrea — 03.10.2026. Leave us a message and share your photos and videos of our day.">
+  <meta name="theme-color" content="#f7f3ec">
+  <meta name="robots" content="noindex, nofollow">
+  <meta property="og:title" content="Lindsey & Andrea · 03.10.2026">
+  <meta property="og:description" content="You are our favorite people. Leave us a note and share the day with us.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/cormorant.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/pinyon.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="is-loading">
+
+  <!-- ───────────── Preloader ───────────── -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader__inner">
+      <svg class="loader__mono" viewBox="0 0 220 160" role="presentation">
+        <text class="mono-l" x="18" y="118">L</text>
+        <text class="mono-amp" x="92" y="78">&amp;</text>
+        <text class="mono-a" x="112" y="138">A</text>
+      </svg>
+      <p class="loader__names">Lindsey <em>&amp;</em> Andrea</p>
+      <div class="loader__bar"><span id="loaderBar"></span></div>
+      <p class="loader__count"><span id="loaderCount">00</span></p>
+    </div>
+  </div>
+
+  <!-- ───────────── WebGL scene ───────────── -->
+  <canvas class="scene" id="scene" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- ───────────── Top bar ───────────── -->
+  <header class="topbar">
+    <a class="topbar__mono" href="#top" aria-label="Lindsey &amp; Andrea">L<span>&amp;</span>A</a>
+    <nav class="lang" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="it">IT</button>
+      <button type="button" data-lang="fr">FR</button>
+    </nav>
+  </header>
+
+  <main id="top">
+
+    <!-- Hero -->
+    <section class="hero" aria-labelledby="heroTitle">
+      <p class="eyebrow hero__eyebrow" data-i18n="hero.eyebrow">We are getting married</p>
+      <h1 class="hero__names" id="heroTitle">
+        <span class="script hero__name hero__name--1">Lindsey</span>
+        <span class="hero__amp">&amp;</span>
+        <span class="script hero__name hero__name--2">Andrea</span>
+      </h1>
+      <p class="hero__date"><span>03</span><i></i><span>10</span><i></i><span>2026</span></p>
+      <a class="hero__scroll" href="#invite" aria-label="Scroll">
+        <span data-i18n="hero.scroll">Scroll</span>
+        <i></i>
+      </a>
+    </section>
+
+    <!-- Invitation -->
+    <section class="section invite" id="invite">
+      <div class="card card--framed reveal">
+        <h2 class="script section__title" data-i18n="invite.title">Our Favorite People</h2>
+        <div class="rule"></div>
+        <p class="lead" data-i18n="invite.lead">You are the people who made our story what it is. We would be honoured to have you beside us as we say yes.</p>
+        <p class="body" data-i18n="invite.body">This little page is our guestbook and our photo album. Leave us a few words, and share every photo and video you take — the laughter, the dancing, the moments we will miss while we are busy being married.</p>
+        <p class="signature script">Lindsey &amp; Andrea</p>
+      </div>
+
+      <div class="pillar reveal" aria-label="03 October 2026">
+        <span>03</span><span>10</span><span>26</span>
+      </div>
+      <p class="countdown reveal" id="countdown" aria-live="polite"></p>
+    </section>
+
+    <!-- Message -->
+    <section class="section message" id="message" aria-labelledby="messageTitle">
+      <p class="eyebrow reveal" data-i18n="message.eyebrow">Guestbook</p>
+      <h2 class="script section__title reveal" id="messageTitle" data-i18n="message.title">Leave us a note</h2>
+      <p class="body reveal" data-i18n="message.intro">A wish, a memory, a piece of advice — we will read every word.</p>
+
+      <form class="form card reveal" id="messageForm" novalidate>
+        <label class="field">
+          <span class="field__label" data-i18n="form.name">Your name</span>
+          <input type="text" name="name" id="guestName" autocomplete="name" maxlength="80" required data-i18n-ph="form.namePh" placeholder="e.g. Sophie &amp; Luca">
+        </label>
+        <label class="field">
+          <span class="field__label" data-i18n="form.message">Your message</span>
+          <textarea name="message" rows="5" maxlength="2000" required data-i18n-ph="form.messagePh" placeholder="Dear Lindsey and Andrea…"></textarea>
+          <span class="field__count"><span id="msgCount">0</span>/2000</span>
+        </label>
+        <!-- honeypot -->
+        <label class="hp" aria-hidden="true">Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+        <button class="btn" type="submit">
+          <span class="btn__label" data-i18n="form.send">Send with love</span>
+          <span class="btn__spinner" aria-hidden="true"></span>
+        </button>
+        <p class="form__status" id="messageStatus" role="status"></p>
+      </form>
+    </section>
+
+    <!-- Share photos & videos -->
+    <section class="section share" id="share" aria-labelledby="shareTitle">
+      <p class="eyebrow reveal" data-i18n="share.eyebrow">Photos &amp; videos</p>
+      <h2 class="script section__title reveal" id="shareTitle" data-i18n="share.title">Share the day</h2>
+      <p class="body reveal" data-i18n="share.intro">Upload straight from your phone, in original quality. Everything goes privately to Lindsey &amp; Andrea.</p>
+
+      <div class="card uploader reveal">
+        <label class="field">
+          <span class="field__label" data-i18n="form.name">Your name</span>
+          <input type="text" id="uploaderName" autocomplete="name" maxlength="80" data-i18n-ph="share.namePh" placeholder="So we know who captured it">
+        </label>
+
+        <label class="drop" id="drop">
+          <input type="file" id="fileInput" accept="image/*,video/*" multiple>
+          <span class="drop__icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48"><rect x="7" y="12" width="34" height="26" rx="3"/><circle cx="24" cy="25" r="7"/><path d="M17 12l3-4h8l3 4"/></svg>
+          </span>
+          <span class="drop__title" data-i18n="share.choose">Choose photos &amp; videos</span>
+          <span class="drop__hint" data-i18n="share.hint">Tap to open your gallery · several at once</span>
+        </label>
+
+        <div class="queue-head" id="queueHead" hidden>
+          <span id="queueSummary"></span>
+          <span id="queuePercent">0%</span>
+        </div>
+        <div class="total-bar" id="totalBar" hidden><span></span></div>
+        <ul class="queue" id="queue" aria-live="polite"></ul>
+        <p class="uploader__note" id="uploadNote" data-i18n="share.keepOpen" hidden>Please keep this page open until every file shows a check mark.</p>
+      </div>
+    </section>
+
+    <!-- Menu -->
+    <section class="section menu" id="menu" aria-labelledby="menuTitle">
+      <div class="menu__head reveal">
+        <div class="menu__box"><h2 id="menuTitle">Menu</h2></div>
+      </div>
+      <div class="tabs reveal" role="tablist">
+        <button type="button" role="tab" aria-selected="true" aria-controls="menuCarne" id="tabCarne">Menu Carne</button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="menuPesce" id="tabPesce">Menu Pesce</button>
+      </div>
+
+      <div class="card card--framed menu__card reveal">
+        <div class="menu__panel" id="menuCarne" role="tabpanel" aria-labelledby="tabCarne">
+          <article>
+            <h3>Aperitivo di benvenuto</h3>
+            <p>Tartine, finger food, Aperol Spritz e gran buffet di antipasti con preparazioni al momento</p>
+            <p class="fr">Tartines, finger food, Aperol Spritz, grand buffet d’antipasti et préparations minute</p>
+          </article>
+          <article>
+            <h3>Primo piatto</h3>
+            <p>Paccheri con ragù di agnello e pesto al basilico</p>
+            <p class="fr">Paccheri au ragoût d’agneau et pesto de basilic</p>
+          </article>
+          <article>
+            <h3>Secondo piatto</h3>
+            <p>Guancia di vitello brasata, tagliatelle di verdurine su crema di patate</p>
+            <p class="fr">Joue de veau braisée, tagliatelles de petits légumes sur crème de pommes de terre</p>
+          </article>
+          <article>
+            <h3>Dessert</h3>
+            <p>Buffet di frutta e dolci con cascata di cioccolato<br>Torta nuziale</p>
+            <p class="fr">Buffet de fruits et de douceurs avec fontaine de chocolat<br>Gâteau de mariage</p>
+          </article>
+        </div>
+        <div class="menu__panel" id="menuPesce" role="tabpanel" aria-labelledby="tabPesce" hidden>
+          <article>
+            <h3>Aperitivo di benvenuto</h3>
+            <p>Tartine, finger food, Aperol Spritz e gran buffet di antipasti con preparazioni al momento</p>
+            <p class="fr">Tartines, finger food, Aperol Spritz, grand buffet d’antipasti et préparations minute</p>
+          </article>
+          <article>
+            <h3>Primo piatto</h3>
+            <p>Paccheri al ragù d’astice</p>
+            <p class="fr">Paccheri au ragoût de homard</p>
+          </article>
+          <article>
+            <h3>Secondo piatto</h3>
+            <p>Pesce spada CBT con panatura croccante alla paprika e pinoli, crema di sedano rapa, mazzancolle gratinate all’arancia e caponata di verdure</p>
+            <p class="fr">Espadon cuit à basse température, panure croustillante au paprika et aux pignons, crème de céleri-rave, gambas gratinées à l’orange et caponata de légumes</p>
+          </article>
+          <article>
+            <h3>Dessert</h3>
+            <p>Buffet di frutta e dolci con cascata di cioccolato<br>Torta nuziale</p>
+            <p class="fr">Buffet de fruits et de douceurs avec fontaine de chocolat<br>Gâteau de mariage</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__mono reveal">L<span>&amp;</span>A</div>
+    <p class="footer__names reveal">Lindsey &amp; Andrea</p>
+    <p class="footer__date reveal">03 . 10 . 2026</p>
+    <p class="footer__thanks script reveal" data-i18n="footer.thanks">Thank you</p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/js/scene.js" defer></script>
+  <script src="assets/js/uploader.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
+</body>
+</html>
