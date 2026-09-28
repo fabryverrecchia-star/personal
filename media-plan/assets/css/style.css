@@ -942,24 +942,12 @@ a { color: inherit; }
 
 
 /* --------------------------------------------------------------------------
-   Typographies du client (plan.fonts) : à partir de son univers seulement
+   Typographie du client (plan.fonts) pour le texte ; les titres restent en 18H22
    -------------------------------------------------------------------------- */
 .has-client-fonts :is(.brand, .weeknav, .feed, .week, .fb-send, .suivi) {
-  --display: var(--c-text);
   --text: var(--c-text);
   font-family: var(--c-text);
 }
-.has-client-fonts :is(.brand__text, .feed__title, .week__title, .suivi__title, .caption__title) {
-  font-family: var(--c-display);
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
-}
-.has-client-fonts :is(.brand__text, .feed__title, .week__title, .suivi__title) em { font-style: normal; }
-.has-client-fonts .brand__text { font-size: clamp(26px, 7.4vw, 36px); line-height: 1.12; }
-.has-client-fonts .week__title,
-.has-client-fonts .feed__title { font-size: clamp(38px, 11vw, 54px); line-height: 1.02; }
-.has-client-fonts .caption__title { font-size: 21px; line-height: 1.15; }
 
 /* --------------------------------------------------------------------------
    Suivi : jours de passage (calendrier) et missions en cours
@@ -1123,7 +1111,8 @@ a { color: inherit; }
   font-style: normal;
   background: var(--ink); color: var(--bg);
 }
-.avatar--jade { background: #7f93a8; }
+.avatar--fabrizio { background: #22365f; }
+.avatar--jade { background: #9c4e42; }
 .task__status {
   padding: 6px 11px 5px;
   border-radius: 99px;
@@ -1187,6 +1176,9 @@ a { color: inherit; }
   -webkit-tap-highlight-color: transparent;
 }
 .chip.is-on { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+/* Fabrizio en couleur 18H22, Jade en couleur La Petite Maison */
+.chip.is-on[data-who="Fabrizio"] { background: #22365f; border-color: #22365f; color: #f1eee6; }
+.chip.is-on[data-who="Jade"] { background: #9c4e42; border-color: #9c4e42; color: #f0ede3; }
 .admin-form__go {
   justify-self: start;
   padding: 12px 22px 11px;

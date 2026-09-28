@@ -1,4 +1,2 @@
-/* La Petite Maison : titres au pinceau (Freckle Face) et texte en Alegreya, comme sur leur site */
-@font-face { font-family: 'Freckle Face'; src: url('FreckleFace.woff2') format('woff2'); font-weight: 400; font-display: swap; }
 @font-face { font-family: 'Alegreya'; src: url('Alegreya.woff2') format('woff2'); font-weight: 400 900; font-style: normal; font-display: swap; }
 @font-face { font-family: 'Alegreya'; src: url('Alegreya-Italic.woff2') format('woff2'); font-weight: 400 900; font-style: italic; font-display: swap; }

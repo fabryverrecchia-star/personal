@@ -27,10 +27,9 @@ window.PLAN = {
     bar: 'rgba(240, 237, 227, 0.9)',
     tint: 'rgba(156, 78, 66, 0.05)',
   },
-  // Typographies du client, utilisées à partir de son univers (le haut de page reste 18H22)
+  // Typographie du client pour le texte ; titres et haut de page restent en 18H22
   fonts: {
     css: 'fonts/fonts.css',
-    display: "'Freckle Face', 'Alegreya', Georgia, serif",
     text: "'Alegreya', Georgia, serif",
   },
 

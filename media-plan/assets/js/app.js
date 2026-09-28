@@ -90,56 +90,57 @@
     return fetch(url).then(function (r) { return r.ok ? r.text() : Promise.reject(); });
   }
 
-  // Logo qui se compose au scroll : chaque lettre arrive de côté et se pose à sa place.
-  // Le tracé unique est découpé en morceaux ; les contre-formes (a, o, e…) restent avec leur lettre.
+  // Logo qui s'écrit au scroll, comme à la main : un masque trace le contour de chaque
+  // lettre dans l'ordre d'écriture (La, Petite, Maison, puis le trait), au rythme du défilement.
+  var maskId = 0;
   function composeLogo(svg, box) {
     var path = svg.querySelector('path');
     if (!path || !gsap || !window.ScrollTrigger) return;
     var subs = path.getAttribute('d').match(/M[^M]*/g) || [];
     if (subs.length < 2) return;
     var ns = svg.namespaceURI;
-    var probes = subs.map(function (d) {
+    var vb = svg.viewBox.baseVal;
+    var id = 'write-' + (++maskId);
+    var mask = document.createElementNS(ns, 'mask');
+    mask.setAttribute('id', id);
+    mask.setAttribute('maskUnits', 'userSpaceOnUse');
+    mask.setAttribute('x', vb.x - 20); mask.setAttribute('y', vb.y - 20);
+    mask.setAttribute('width', vb.width + 40); mask.setAttribute('height', vb.height + 40);
+    var defs = document.createElementNS(ns, 'defs');
+    defs.appendChild(mask);
+    svg.insertBefore(defs, svg.firstChild);
+    var strokes = subs.map(function (d) {
       var p = document.createElementNS(ns, 'path');
       p.setAttribute('d', d);
-      svg.appendChild(p);
+      p.setAttribute('fill', 'none');
+      p.setAttribute('stroke', '#fff');
+      p.setAttribute('stroke-width', '13');
+      p.setAttribute('stroke-linecap', 'round');
+      p.setAttribute('stroke-linejoin', 'round');
+      mask.appendChild(p);
       return p;
     });
-    var bb = probes.map(function (p) { return p.getBBox(); });
-    probes.forEach(function (p) { p.remove(); });
-    function inside(a, b) {
-      return b.x <= a.x + 0.5 && b.y <= a.y + 0.5 && b.x + b.width >= a.x + a.width - 0.5 && b.y + b.height >= a.y + a.height - 0.5 &&
-        b.width * b.height > a.width * a.height;
-    }
-    var parent = bb.map(function (a, i) {
-      var best = -1;
-      bb.forEach(function (b, j) { if (j !== i && inside(a, b) && (best < 0 || bb[best].width * bb[best].height > b.width * b.height)) best = j; });
-      return best;
+    // Ordre d'écriture : ligne par ligne (La / Petite / Maison), de gauche à droite, le grand trait à la fin
+    var info = strokes.map(function (p, i) {
+      var b = p.getBBox();
+      return { p: p, b: b, len: p.getTotalLength(), row: Math.floor((b.y + b.height / 2) / (vb.height / 3.2)) };
     });
-    function root(i) { while (parent[i] >= 0) i = parent[i]; return i; }
-    var groups = {};
-    subs.forEach(function (d, i) { var r = root(i); (groups[r] = groups[r] || []).push(d); });
-    var keys = Object.keys(groups).sort(function (a, b) { return bb[a].x - bb[b].x || bb[a].y - bb[b].y; });
-    var g = document.createElementNS(ns, 'g');
-    var parts = keys.map(function (k) {
-      var p = document.createElementNS(ns, 'path');
-      p.setAttribute('d', groups[k].join(''));
-      p.setAttribute('fill', 'currentColor');
-      g.appendChild(p);
-      return p;
+    var widest = info.reduce(function (a, c) { return c.b.width > a.b.width ? c : a; });
+    info.sort(function (a, c) {
+      if (a === widest) return 1;
+      if (c === widest) return -1;
+      return a.row - c.row || a.b.x - c.b.x;
     });
-    path.replaceWith(g);
-    var vb = svg.viewBox.baseVal;
-    gsap.set(parts, { transformOrigin: '50% 50%' });
+    info.forEach(function (o) { o.p.style.strokeDasharray = o.len + ' ' + o.len; o.p.style.strokeDashoffset = o.len; });
+    path.setAttribute('mask', 'url(#' + id + ')');
     var tl = gsap.timeline({
-      scrollTrigger: { trigger: box, start: 'top 92%', end: 'center 50%', scrub: 0.8 },
+      scrollTrigger: { trigger: box, start: 'top 90%', end: 'bottom 45%', scrub: 0.6 },
     });
-    parts.forEach(function (p, i) {
-      var b = bb[keys[i]];
-      var cx = b.x + b.width / 2 - vb.width / 2, cy = b.y + b.height / 2 - vb.height / 2;
-      tl.fromTo(p, {
-        x: cx * 0.9 + (i % 2 ? 24 : -24), y: cy * 0.7 + 40 + (i % 3) * 14,
-        rotation: (i % 2 ? 1 : -1) * (10 + (i % 4) * 6), scale: 0.6, opacity: 0,
-      }, { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1, ease: 'power3.out', duration: 1 }, i * 0.08);
+    var at = 0;
+    info.forEach(function (o) {
+      var dur = Math.max(0.15, o.len / 400);
+      tl.to(o.p, { strokeDashoffset: 0, duration: dur, ease: 'none' }, at);
+      at += dur * 0.8;
     });
   }
 
@@ -760,6 +761,7 @@
 
     /* Mode équipe (Fabrizio, Jade) : ajouter, faire avancer, supprimer */
     function setAdmin(on, badCode) {
+      var before = anchor && anchor.getBoundingClientRect().top;
       admin = on;
       document.body.classList.toggle('is-admin', on);
       if (!on && badCode) {
@@ -770,7 +772,14 @@
       if (pill) { pill.textContent = 'Quitter l’espace équipe'; pill.hidden = !on; }
       document.querySelectorAll('.team-btn').forEach(function (b) { b.textContent = on ? 'Terminer' : 'Espace équipe'; });
       if (!on) document.querySelectorAll('[data-add]').forEach(resetForm);
+      // Les formulaires apparaissent ou disparaissent : on garde le bouton touché sous le doigt
       paint();
+      if (anchor) {
+        var delta = anchor.getBoundingClientRect().top - before;
+        if (delta) window.scrollTo({ top: window.pageYOffset + delta, behavior: 'instant' });
+        anchor = null;
+      }
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
     }
     function askCode() {
       if (mode === 'local') { setAdmin(true); return; }
@@ -796,7 +805,7 @@
     }
     paintWho();
 
-    var taps = 0, lastTap = 0;
+    var taps = 0, lastTap = 0, anchor = null;
 
     // Modifier une mission ou un passage déjà publié : le formulaire se remplit
     function resetForm(f) {
@@ -854,7 +863,13 @@
         taps = Date.now() - lastTap < 600 ? taps + 1 : 1;
         lastTap = Date.now();
         if (taps >= 3 && !admin) askCode();
-      } else if (e.target.closest('[data-admin-toggle]')) {
+      } else if ((t = e.target.closest('[data-admin-toggle]'))) {
+        // Le bouton flottant « Quitter » n'a pas de place dans la page : on s'ancre sur le titre visible
+        if (t.classList.contains('team-btn')) anchor = t;
+        else {
+          var mid = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
+          anchor = mid && !mid.closest('.admin-form') ? mid.closest('.task, .visit, header, section') : null;
+        }
         if (admin) setAdmin(false); else askCode();
       }
     });
