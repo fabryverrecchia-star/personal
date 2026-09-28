@@ -13,6 +13,8 @@
   <link rel="preload" href="assets/fonts/CormorantGaramond-Light.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/style.css">
   <script>
+    // Chaque visite repart de l'ouverture 18H22, pas de l'endroit où l'on avait quitté la page
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     // Client : index.html?c=<slug> charge clients/<slug>/plan.js (Jacqueline par défaut)
     (function () {
       var slug = (new URLSearchParams(location.search).get('c') || 'jacqueline').replace(/[^a-z0-9-]/gi, '');

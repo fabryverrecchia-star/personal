@@ -92,5 +92,9 @@ window.PLAN = {
     'media/live-6.jpg', 'media/live-7.jpg', 'media/live-8.jpg', 'media/live-9.jpg', 'media/live-10.jpg',
   ],
 
+  // Retours du client : Validé / À revoir + commentaire, envoyés en un récapitulatif.
+  // whatsapp: numéro au format international (vide = le client choisit le contact).
+  feedback: { whatsapp: '' },
+
   footer: 'Planning soumis à validation. Visuels et wording susceptibles d’évoluer.',
 };

@@ -167,7 +167,36 @@
       '<div class="caption" data-reveal>' +
       (post.title ? '<strong class="caption__title">' + esc(post.title) + '</strong>' : '') +
       caption + tags + note +
-      '</div></div></article>'
+      '</div>' + feedbackHtml(post) + '</div></article>'
+    );
+  }
+
+  // Retours du client : statut + commentaire par post, envoyés en un message récapitulatif
+  function feedbackHtml(post) {
+    if (!PLAN.feedback) return '';
+    return (
+      '<div class="fb" data-fb="' + post._id + '" data-reveal>' +
+      '<div class="fb__status" role="group" aria-label="Votre avis">' +
+      '<button type="button" class="label fb__btn" data-fb-status="ok" aria-pressed="false">Validé</button>' +
+      '<button type="button" class="label fb__btn" data-fb-status="revoir" aria-pressed="false">À revoir</button>' +
+      '</div>' +
+      '<textarea class="fb__note" rows="1" placeholder="Un commentaire ?" aria-label="Commentaire"></textarea>' +
+      '</div>'
+    );
+  }
+  function feedbackFooter() {
+    var f = PLAN.feedback;
+    if (!f) return '';
+    var ways = [];
+    if (f.whatsapp !== undefined) ways.push('<button type="button" class="label fb-send__btn" data-fb-send="whatsapp">Envoyer sur WhatsApp</button>');
+    if (f.email !== undefined) ways.push('<button type="button" class="label fb-send__btn" data-fb-send="email">Envoyer par e-mail</button>');
+    return (
+      '<section class="fb-send" data-reveal>' +
+      '<p class="label fb-send__kicker">Vos retours</p>' +
+      '<p class="fb-send__text">Validez ou commentez chaque publication, puis envoyez-nous le récapitulatif.</p>' +
+      '<p class="label fb-send__count" data-fb-count></p>' +
+      '<div class="fb-send__ways">' + ways.join('') + '</div>' +
+      '</section>'
     );
   }
 
@@ -281,6 +310,8 @@
       '</section>' +
       weeksHtml;
 
+    html += feedbackFooter();
+
     html +=
       '<footer class="footer">' +
       '<div class="footer__rule"></div>' +
@@ -290,6 +321,82 @@
       '</footer>';
 
     app.innerHTML = html;
+  }
+
+  function initFeedback() {
+    if (!PLAN.feedback) return;
+    var key = 'retours:' + (window.CLIENT_BASE || '') + (PLAN.period || '');
+    var data = {};
+    try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch (e) {}
+    function save() { try { localStorage.setItem(key, JSON.stringify(data)); } catch (e) {} }
+    function paint(box) {
+      var d = data[box.getAttribute('data-fb')] || {};
+      box.querySelectorAll('[data-fb-status]').forEach(function (b) {
+        var on = d.status === b.getAttribute('data-fb-status');
+        b.classList.toggle('is-on', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      box.classList.toggle('is-ok', d.status === 'ok');
+      box.classList.toggle('is-revoir', d.status === 'revoir');
+    }
+    function count() {
+      var n = allPosts.filter(function (p) { var d = data[p._id]; return d && (d.status || d.note); }).length;
+      var el = document.querySelector('[data-fb-count]');
+      if (el) el.textContent = n + ' / ' + allPosts.length + ' publications commentées';
+    }
+    function grow(t) { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }
+    document.querySelectorAll('[data-fb]').forEach(function (box) {
+      var d = data[box.getAttribute('data-fb')] || {};
+      var t = box.querySelector('textarea');
+      if (d.note) { t.value = d.note; grow(t); }
+      paint(box);
+    });
+    count();
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-fb-status]');
+      if (!b) return;
+      var box = b.closest('[data-fb]');
+      var id = box.getAttribute('data-fb');
+      var d = data[id] || (data[id] = {});
+      var v = b.getAttribute('data-fb-status');
+      d.status = d.status === v ? '' : v;
+      paint(box); save(); count();
+    });
+    document.addEventListener('input', function (e) {
+      var t = e.target.closest('.fb__note');
+      if (!t) return;
+      var id = t.closest('[data-fb]').getAttribute('data-fb');
+      (data[id] || (data[id] = {})).note = t.value;
+      grow(t); save(); count();
+    });
+    function summary() {
+      var c = PLAN.client || {};
+      var lines = ['Retours ' + (c.name || '') + ' · ' + (PLAN.title || 'Media planning') + (PLAN.period ? ' (' + PLAN.period + ')' : ''), ''];
+      allPosts.forEach(function (p) {
+        var d = data[p._id] || {};
+        var head = JOURS_LONGS[p._date.getDay()] + ' ' + p._date.getDate() + ' ' + MOIS[p._date.getMonth()] + (p.title ? ' · ' + p.title.replace(/<[^>]+>/g, '') : '');
+        var st = d.status === 'ok' ? 'Validé' : d.status === 'revoir' ? 'À revoir' : 'Sans avis';
+        var opt = '';
+        var on = document.querySelector('#' + p._id + ' .options__btn.is-on');
+        if (on) opt = ' · Proposition ' + LETTRES[+on.getAttribute('data-option')];
+        lines.push(head);
+        lines.push('→ ' + st + opt);
+        if (d.note && d.note.trim()) lines.push('« ' + d.note.trim() + ' »');
+        lines.push('');
+      });
+      return lines.join('\n').trim();
+    }
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-fb-send]');
+      if (!b) return;
+      var f = PLAN.feedback, txt = summary(), url;
+      if (b.getAttribute('data-fb-send') === 'whatsapp') {
+        url = 'https://wa.me/' + String(f.whatsapp || '').replace(/[^0-9]/g, '') + '?text=' + encodeURIComponent(txt);
+      } else {
+        url = 'mailto:' + (f.email || '') + '?subject=' + encodeURIComponent('Retours ' + ((PLAN.client || {}).name || '') + ' · ' + (PLAN.title || 'Media planning')) + '&body=' + encodeURIComponent(txt);
+      }
+      if (url.indexOf('mailto:') === 0 || !window.open(url, '_blank')) location.href = url;
+    });
   }
 
   /* ------------------------------------------------------------ carrousel */
@@ -659,6 +766,14 @@
 
     if (reduce) return;
 
+    // Numéros de semaine en parallaxe
+    gsap.utils.toArray('.week__num').forEach(function (n) {
+      gsap.fromTo(n, { yPercent: -30 }, {
+        yPercent: 30, ease: 'none',
+        scrollTrigger: { trigger: n.parentNode, start: 'top bottom', end: 'bottom top', scrub: true },
+      });
+    });
+
     // Apparitions douces
     gsap.utils.toArray('[data-reveal]').forEach(function (n) {
       gsap.from(n, {
@@ -675,13 +790,6 @@
         .fromTo(inner, { scale: 1.25 }, { scale: 1, duration: 1.8, ease: 'expo.out' }, 0);
     });
 
-    // Numéros de semaine en parallaxe
-    gsap.utils.toArray('.week__num').forEach(function (n) {
-      gsap.fromTo(n, { yPercent: -30 }, {
-        yPercent: 30, ease: 'none',
-        scrollTrigger: { trigger: n.parentNode, start: 'top bottom', end: 'bottom top', scrub: true },
-      });
-    });
 
     // Chiffres clés
     gsap.utils.toArray('[data-count]').forEach(function (n) {
@@ -788,6 +896,7 @@
   initAnchors();
   initCarousels();
   initOptions();
+  initFeedback();
   initInlineVideos();
   initViewer();
   initScroll();
