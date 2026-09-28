@@ -1,0 +1,13 @@
+{
+  "progress": 25,
+  "passages": [],
+  "missions": [
+    { "id": "m1", "title": "Ajustement après envoi des formules, carte petit déjeuner Louvre", "cat": "print", "status": "doing", "by": "Fabrizio", "at": "2026-09-28" },
+    { "id": "m2", "title": "Mise à jour rentrée, flyer A5 La Défense", "cat": "print", "status": "doing", "by": "Fabrizio", "at": "2026-09-28" },
+    { "id": "m3", "title": "Carte food La Défense", "cat": "print", "status": "todo", "by": "Fabrizio", "at": "2026-09-28" },
+    { "id": "m4", "title": "Carte food Louvre", "cat": "print", "status": "todo", "by": "Fabrizio", "at": "2026-09-28" },
+    { "id": "m5", "title": "Brand identity Enza 8e", "cat": "branding", "status": "doing", "by": "Fabrizio", "at": "2026-09-28" },
+    { "id": "m6", "title": "Branding Enza 8e", "cat": "branding", "status": "wait", "by": "Fabrizio", "at": "2026-09-28" },
+    { "id": "m7", "title": "RDV point plan de com Enza Louvre et La Défense", "cat": "meeting", "status": "todo", "by": "Fabrizio", "at": "2026-09-28" }
+  ]
+}

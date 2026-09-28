@@ -1080,6 +1080,40 @@ a { color: inherit; }
 .progress__dot--done { background: var(--ink); }
 .progress__dot--doing { background: color-mix(in srgb, var(--ink) 55%, var(--bg)); }
 .progress__dot--todo { box-shadow: inset 0 0 0 1px var(--ink); }
+.progress__dot--wait { background: repeating-linear-gradient(135deg, var(--ink) 0 1.5px, transparent 1.5px 3px); box-shadow: inset 0 0 0 1px var(--ink); }
+.progress__legend { flex-wrap: wrap; row-gap: 6px; }
+
+/* Missions en tête de page, juste après l'univers du client */
+.suivi--first { padding-top: 40px; }
+
+/* Avancement global (réglé par l'équipe de 25 en 25 %) */
+.advance { max-width: 360px; margin: 26px auto 0; text-align: left; }
+.advance__top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.advance__top .label { font-size: 9px; color: var(--ink-soft); }
+.advance__num { font: 400 34px/1 var(--display); color: var(--ink); font-variant-numeric: tabular-nums; }
+.advance__bar { position: relative; height: 10px; border-radius: 99px; background: var(--ink-faint); overflow: hidden; }
+.advance__fill {
+  position: absolute; inset: 0 auto 0 0; width: 0;
+  border-radius: inherit; background: var(--ink);
+  transition: width 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.advance__bar i { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--bg); opacity: 0.7; }
+.advance__steps { display: none; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 12px; }
+.is-admin .advance__steps { display: grid; animation: fadeIn 0.6s var(--ease); }
+.advance__step {
+  padding: 9px 0 8px;
+  border: 1px solid var(--ink-faint);
+  border-radius: 99px;
+  font-size: 9px;
+  color: var(--ink-soft);
+  -webkit-tap-highlight-color: transparent;
+}
+.advance__step.is-on { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+
+/* Mots toujours dans leur couleur (Enza 8e en vert sauge) */
+.hl { color: var(--hl); }
+.task.is-hl .task__icon { border-color: var(--hl); color: var(--hl); background: color-mix(in srgb, var(--hl) 10%, transparent); }
+.task.is-hl::before { content: ''; position: absolute; left: -10px; top: 16px; bottom: 16px; width: 2px; border-radius: 2px; background: var(--hl); }
 
 .tasks { list-style: none; margin: 0; padding: 0; }
 .tasks__empty { padding: 24px 0; text-align: center; color: var(--ink-soft); font-style: italic; }
@@ -1112,7 +1146,7 @@ a { color: inherit; }
   background: var(--ink); color: var(--bg);
 }
 .avatar--fabrizio { background: #22365f; }
-.avatar--jade { background: #9c4e42; }
+.avatar--jade { background: #ca4737; }
 .task__status {
   padding: 6px 11px 5px;
   border-radius: 99px;
@@ -1127,6 +1161,8 @@ a { color: inherit; }
 .task--done .task__title { text-decoration: line-through; text-decoration-thickness: 1px; opacity: 0.6; }
 .task--done .task__status { border-color: transparent; color: var(--ink-soft); }
 .task--done .task__status::before { content: '✓ '; }
+.task--wait .task__status { border-style: dashed; color: var(--ink); }
+.task__cat b { font-weight: inherit; color: var(--ink); }
 
 /* Mode équipe */
 .del, .row-actions { display: none; }
@@ -1191,9 +1227,9 @@ a { color: inherit; }
   -webkit-tap-highlight-color: transparent;
 }
 .chip.is-on { background: var(--ink); border-color: var(--ink); color: var(--bg); }
-/* Fabrizio en couleur 18H22, Jade en couleur La Petite Maison */
+/* Fabrizio en couleur 18H22, Jade en couleur Enza Famiglia */
 .chip.is-on[data-who="Fabrizio"] { background: #22365f; border-color: #22365f; color: #f1eee6; }
-.chip.is-on[data-who="Jade"] { background: #9c4e42; border-color: #9c4e42; color: #f0ede3; }
+.chip.is-on[data-who="Jade"] { background: #ca4737; border-color: #ca4737; color: #fff0c3; }
 .admin-form__go {
   justify-self: start;
   padding: 12px 22px 11px;
@@ -1215,9 +1251,10 @@ a { color: inherit; }
 }
 .admin-pill[hidden] { display: none; }
 
-/* Logo La Petite Maison : écriture fine sur un format haut, on l'agrandit dans le lockup */
-.lockup__client > svg { height: 30px; max-width: 120px; }
-.hero__lockup .lockup__client > svg { height: 64px; max-width: 160px; }
+/* Logo Enza Famiglia : format large, lettres pleines */
+.lockup__client > svg { height: 22px; max-width: 110px; }
+.hero__lockup .lockup__client > svg { height: 46px; max-width: 170px; }
+.brand__badge { width: min(64vw, 280px); }
 .admin-form select {
   padding-right: 34px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='1.6'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");

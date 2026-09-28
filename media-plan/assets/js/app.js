@@ -114,7 +114,7 @@
       p.setAttribute('d', d);
       p.setAttribute('fill', 'none');
       p.setAttribute('stroke', '#fff');
-      p.setAttribute('stroke-width', '13');
+      p.setAttribute('stroke-width', String((PLAN.client && PLAN.client.writeStroke) || 13));
       p.setAttribute('stroke-linecap', 'round');
       p.setAttribute('stroke-linejoin', 'round');
       mask.appendChild(p);
@@ -125,7 +125,8 @@
       var b = p.getBBox();
       return { p: p, b: b, len: p.getTotalLength(), row: Math.floor((b.y + b.height / 2) / (vb.height / 3.2)) };
     });
-    var widest = info.reduce(function (a, c) { return c.b.width > a.b.width ? c : a; });
+    // Le grand trait final (La Petite Maison) ; un logo en lettres pleines s'écrit simplement dans l'ordre
+    var widest = PLAN.client && PLAN.client.writeFlourish === false ? null : info.reduce(function (a, c) { return c.b.width > a.b.width ? c : a; });
     info.sort(function (a, c) {
       if (a === widest) return 1;
       if (c === widest) return -1;
@@ -329,10 +330,14 @@
 
     html +=
       '<nav class="weeknav" aria-label="' + (monthly ? 'Mois' : 'Semaines') + '">' +
+      (PLAN.suivi ? '<a class="label" href="#missions">Missions</a>' : '') +
       '<a class="label" href="#feed">Feed</a>' +
       weeks.map(function (w, k) { return '<a class="label" href="#s' + (k + 1) + '">' + (monthly ? MOIS_LONGS[firstDate(w).getMonth()] : 'S' + pad(k + 1)) + '</a>'; }).join('') +
-      (PLAN.suivi ? '<a class="label" href="#passages">Passages</a><a class="label" href="#missions">Missions</a>' : '') +
+      (PLAN.suivi ? '<a class="label" href="#passages">Passages</a>' : '') +
       '</nav>';
+
+    // Ordre de la page : les missions d'abord, le media planning au milieu, le calendrier à la fin
+    html += missionsHtml();
 
     // Le feed passe en premier (vue d'ensemble), le détail des posts suit
     var weeksHtml = '';
@@ -385,7 +390,8 @@
       weeksHtml;
 
     html += feedbackFooter();
-    html += suiviHtml();
+    html += passagesHtml();
+    html += teamHtml();
 
     html +=
       '<footer class="footer">' +
@@ -494,10 +500,14 @@
   /* ------------------------------------------- suivi : passages & missions */
   var MOIS_LONGS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
   var KIND = { photo: 'Shooting photo', video: 'Tournage vidéo', both: 'Photo + vidéo', meeting: 'Rendez-vous' };
-  var CAT = { photo: 'Photos', video: 'Vidéo', montage: 'Montage', planning: 'Media planning', redaction: 'Rédaction', autre: 'Autre' };
-  var STATUS = { doing: 'En cours', todo: 'À venir', done: 'Livré' };
-  var NEXT_STATUS = { todo: 'doing', doing: 'done', done: 'todo' };
+  var CAT = { print: 'Print', branding: 'Branding', meeting: 'Rendez-vous', photo: 'Photos', video: 'Vidéo', montage: 'Montage', planning: 'Media planning', redaction: 'Rédaction', autre: 'Autre' };
+  var STATUS = { doing: 'En cours', wait: 'En attente de retour', todo: 'À venir', done: 'Livré' };
+  var STATUS_SHORT = { doing: 'En cours', wait: 'En attente', todo: 'À venir', done: 'Livré' };
+  var NEXT_STATUS = { todo: 'doing', doing: 'wait', wait: 'done', done: 'todo' };
   var SICONS = {
+    print: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 3.5h8.5L18 7v13.5H6z"/><path d="M14.5 3.5V7H18M9 11h6M9 14h6M9 17h4"/></svg>',
+    branding: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16"/><circle cx="12" cy="12" r="2.2"/></svg>',
+    advance: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="9.5" width="18" height="5" rx="2.5"/><path d="M5.5 12h7" stroke-width="2.6" stroke-linecap="round"/></svg>',
     photo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17z"/><circle cx="12" cy="13" r="3.6"/></svg>',
     video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="7" width="12.5" height="10" rx="1.5"/><path d="M15.5 10.5l5-3v9l-5-3"/></svg>',
     both: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17z"/><path d="M10.5 10.5v5l4-2.5z" fill="currentColor" stroke="none"/></svg>',
@@ -518,12 +528,8 @@
     return Object.keys(map).map(function (k) { return '<option value="' + k + '"' + (k === sel ? ' selected' : '') + '>' + map[k] + '</option>'; }).join('');
   }
 
-  function suiviHtml() {
+  function passagesHtml() {
     if (!PLAN.suivi) return '';
-    var team = list(PLAN.suivi.team);
-    var who = team.map(function (n, k) {
-      return '<button type="button" class="label chip' + (k ? '' : ' is-on') + '" data-who="' + esc(n) + '" aria-pressed="' + (k ? 'false' : 'true') + '">' + esc(n) + '</button>';
-    }).join('');
     return (
       '<section class="suivi" id="passages">' +
       '<header class="suivi__head">' +
@@ -552,12 +558,32 @@
       '<div class="cal__legend label"><span><i class="cal__key cal__key--visit"></i>Passage</span><span><i class="cal__key cal__key--post"></i>Publication</span><span><i class="cal__key cal__key--today"></i>Aujourd’hui</span></div>' +
       '</div>' +
       '<ol class="visits" data-visits></ol>' +
-      '</section>' +
+      '</section>'
+    );
+  }
 
-      '<section class="suivi" id="missions">' +
+  function missionsHtml() {
+    if (!PLAN.suivi) return '';
+    var team = list(PLAN.suivi.team);
+    var who = team.map(function (n, k) {
+      return '<button type="button" class="label chip' + (k ? '' : ' is-on') + '" data-who="' + esc(n) + '" aria-pressed="' + (k ? 'false' : 'true') + '">' + esc(n) + '</button>';
+    }).join('');
+    return (
+      '<section class="suivi suivi--first" id="missions">' +
       '<header class="suivi__head">' +
       '<p class="label suivi__kicker" data-reveal>En coulisses</p>' +
       '<h2 class="suivi__title" data-reveal>Missions en cours</h2>' +
+      // Avancement global du projet, réglé par l'équipe de 25 en 25
+      '<div class="advance" id="avancement" data-reveal>' +
+      '<div class="advance__top"><span class="label">Avancement global</span><strong class="advance__num" data-advance-num>0 %</strong></div>' +
+      '<div class="advance__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-advance-bar>' +
+      '<span class="advance__fill" data-advance-fill></span>' +
+      '<i style="left:25%"></i><i style="left:50%"></i><i style="left:75%"></i>' +
+      '</div>' +
+      '<div class="advance__steps" role="group" aria-label="Régler l’avancement">' +
+      [0, 25, 50, 75, 100].map(function (v) { return '<button type="button" class="label advance__step" data-advance="' + v + '">' + v + ' %</button>'; }).join('') +
+      '</div>' +
+      '</div>' +
       '<div class="progress" data-reveal data-progress></div>' +
       '</header>' +
       '<div class="admin-wrap"><div class="admin-wrap__in">' +
@@ -573,12 +599,19 @@
       '</div></div>' +
       '<ul class="tasks" data-tasks></ul>' +
       '<p class="label suivi__mode" data-suivi-mode></p>' +
-      '</section>' +
+      '</section>'
+    );
+  }
+
+  function teamHtml() {
+    if (!PLAN.suivi) return '';
+    return (
       // Espace équipe : bouton flottant en bas à droite, on choisit le formulaire à ouvrir
       '<div class="team-fab" data-fab>' +
       '<div class="team-fab__menu" role="menu" aria-label="Espace équipe">' +
-      '<button type="button" class="team-fab__item" role="menuitem" data-goto="passages">' + SICONS.planning + '<span><b>Rendez-vous</b><small class="label">Calendrier des passages</small></span></button>' +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="missions">' + SICONS.redaction + '<span><b>Tâche</b><small class="label">Missions en cours</small></span></button>' +
+      '<button type="button" class="team-fab__item" role="menuitem" data-goto="avancement">' + SICONS.advance + '<span><b>Avancement</b><small class="label">Barre de 25 en 25 %</small></span></button>' +
+      '<button type="button" class="team-fab__item" role="menuitem" data-goto="passages">' + SICONS.planning + '<span><b>Rendez-vous</b><small class="label">Calendrier des passages</small></span></button>' +
       '<button type="button" class="team-fab__item team-fab__quit" role="menuitem" data-fab-quit>' + SICONS.close + '<span><b>Fermer l’espace équipe</b></span></button>' +
       '</div>' +
       '<button type="button" class="label team-fab__btn" data-fab-toggle aria-expanded="false"><i class="team-fab__dot"></i><span>Espace équipe</span></button>' +
@@ -646,7 +679,7 @@
 
     function localOp(op) {
       var d = JSON.parse(JSON.stringify(state));
-      var arr = d[op.kind];
+      var arr = d[op.kind] || [];
       if (op.action === 'add') {
         var it = op.item;
         it.id = op.kind[0] + Date.now().toString(36);
@@ -659,6 +692,8 @@
         if (op.kind === 'passages') arr.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
       } else if (op.action === 'delete') {
         d[op.kind] = arr.filter(function (x) { return x.id !== op.id; });
+      } else if (op.action === 'progress') {
+        d.progress = op.value;
       }
       try { localStorage.setItem(LOCAL, JSON.stringify(d)); } catch (e) {}
       return Promise.resolve(d);
@@ -748,26 +783,57 @@
       }).join('');
     }
 
+    // Mots toujours dans leur couleur (ex. Enza 8e en vert sauge) : plan.suivi.highlight
+    var HL = list(cfg.highlight).map(function (h) { return { re: new RegExp(h.match, 'gi'), color: h.color }; });
+    function hlColor(t) {
+      var c = '';
+      HL.forEach(function (h) { h.re.lastIndex = 0; if (!c && h.re.test(t)) c = h.color; });
+      return c;
+    }
+    function hlText(t) {
+      var html = esc(t);
+      HL.forEach(function (h) { html = html.replace(h.re, function (m) { return '<span class="hl" style="--hl:' + esc(h.color) + '">' + m + '</span>'; }); });
+      return html;
+    }
+
+    /* Avancement global : de 0 à 100 %, par paliers de 25 */
+    var shownAdvance = -1;
+    function paintAdvance() {
+      var v = Math.max(0, Math.min(100, Math.round((+state.progress || 0) / 25) * 25));
+      var fill = document.querySelector('[data-advance-fill]');
+      var num = document.querySelector('[data-advance-num]');
+      var bar = document.querySelector('[data-advance-bar]');
+      if (!fill) return;
+      bar.setAttribute('aria-valuenow', v);
+      document.querySelectorAll('[data-advance]').forEach(function (b) { b.classList.toggle('is-on', +b.getAttribute('data-advance') === v); });
+      if (v === shownAdvance) return;
+      var from = Math.max(0, shownAdvance);
+      shownAdvance = v;
+      fill.style.width = v + '%';
+      if (gsap) {
+        var o = { n: from };
+        gsap.to(o, { n: v, duration: 1.1, ease: 'power3.out', onUpdate: function () { num.textContent = Math.round(o.n) + ' %'; } });
+      } else num.textContent = v + ' %';
+    }
+
     function paintTasks() {
-      var order = { doing: 0, todo: 1, done: 2 };
-      var items = state.missions.slice().sort(function (a, b) { return (order[a.status] - order[b.status]) || (a.at < b.at ? 1 : -1); });
-      var count = { doing: 0, todo: 0, done: 0 };
+      var order = { doing: 0, wait: 1, todo: 2, done: 3 };
+      var items = state.missions.slice().sort(function (a, b) { return (order[a.status] - order[b.status]) || (a.at < b.at ? 1 : a.at > b.at ? -1 : 0); });
+      var count = { doing: 0, wait: 0, todo: 0, done: 0 };
       items.forEach(function (m) { count[m.status] = (count[m.status] || 0) + 1; });
       var total = items.length || 1;
       document.querySelector('[data-progress]').innerHTML =
-        '<div class="progress__bar">' + ['done', 'doing', 'todo'].map(function (s) {
-          return '<span class="progress__seg progress__seg--' + s + '" style="width:' + (count[s] / total * 100) + '%"></span>';
-        }).join('') + '</div>' +
-        '<p class="label progress__legend">' + ['doing', 'todo', 'done'].map(function (s) {
-          return '<span><i class="progress__dot progress__dot--' + s + '"></i>' + count[s] + ' ' + STATUS[s].toLowerCase() + '</span>';
+        '<p class="label progress__legend">' + ['doing', 'wait', 'todo', 'done'].filter(function (s) { return count[s] || s !== 'wait'; }).map(function (s) {
+          return '<span><i class="progress__dot progress__dot--' + s + '"></i>' + count[s] + ' ' + STATUS_SHORT[s].toLowerCase() + '</span>';
         }).join('') + '</p>';
       tasksEl.innerHTML = items.length ? items.map(function (m) {
-        return '<li class="task task--' + esc(m.status) + '">' +
+        var hc = hlColor(m.title);
+        return '<li class="task task--' + esc(m.status) + (hc ? ' is-hl" style="--hl:' + esc(hc) : '') + '">' +
           '<span class="task__icon">' + (SICONS[m.cat] || SICONS.autre) + '</span>' +
-          '<span class="task__body"><span class="label task__cat">' + esc(CAT[m.cat] || CAT.autre) + '</span>' +
-          '<span class="task__title">' + esc(m.title) + '</span>' +
+          '<span class="task__body"><span class="label task__cat">' + esc(CAT[m.cat] || CAT.autre) + (m.status === 'wait' ? ' · <b>' + STATUS.wait + '</b>' : '') + '</span>' +
+          '<span class="task__title">' + hlText(m.title) + '</span>' +
           '<span class="task__by"><i class="avatar avatar--' + esc(String(m.by).toLowerCase()) + '">' + esc(String(m.by).charAt(0)) + '</i>Publié par ' + esc(m.by) + (m.at ? ' · ' + shortDate(m.at) : '') + '</span></span>' +
-          '<button type="button" class="label task__status" data-status="' + esc(m.id) + '" data-now="' + esc(m.status) + '" tabindex="' + (admin ? '0' : '-1') + '">' + (STATUS[m.status] || '') + '</button>' +
+          '<button type="button" class="label task__status" data-status="' + esc(m.id) + '" data-now="' + esc(m.status) + '" tabindex="' + (admin ? '0' : '-1') + '">' + (STATUS_SHORT[m.status] || '') + '</button>' +
           '<span class="row-actions"><button type="button" class="del" data-edit="missions" data-id="' + esc(m.id) + '" aria-label="Modifier cette mission">' + SICONS.edit + '</button>' +
           '<button type="button" class="del" data-del="missions" data-id="' + esc(m.id) + '" aria-label="Supprimer cette mission">' + SICONS.close + '</button></span>' +
           '</li>';
@@ -779,6 +845,7 @@
       paintCalendar();
       paintVisits();
       paintTasks();
+      paintAdvance();
       document.querySelector('[data-suivi-mode]').textContent = admin && mode === 'local'
         ? 'Aperçu : les modifications restent sur cet appareil'
         : '';
@@ -974,6 +1041,8 @@
         who = t.getAttribute('data-who');
         try { localStorage.setItem(WHO, who); } catch (e2) {}
         paintWho();
+      } else if (admin && (t = e.target.closest('[data-advance]'))) {
+        send({ action: 'progress', value: +t.getAttribute('data-advance') });
       } else if (admin && (t = e.target.closest('[data-status]'))) {
         send({ action: 'update', kind: 'missions', id: t.getAttribute('data-status'), status: NEXT_STATUS[t.getAttribute('data-now')] || 'todo' });
       } else if (admin && (t = e.target.closest('[data-edit]'))) {
@@ -995,7 +1064,10 @@
       } else if ((t = e.target.closest('[data-goto]'))) {
         var kind = t.getAttribute('data-goto');
         menu(false);
-        askCode(function () { openSection(kind); });
+        askCode(function () {
+          if (kind !== 'avancement') return openSection(kind);
+          document.getElementById('avancement').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
       } else if (e.target.closest('[data-fab-quit]')) {
         menu(false);
         // On garde sous les yeux ce qui est au centre de l'écran pendant que les formulaires se replient
