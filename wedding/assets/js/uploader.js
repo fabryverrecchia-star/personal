@@ -32,6 +32,12 @@
       xhr.setRequestHeader("X-File-Size", String(item.file.size));
       xhr.setRequestHeader("X-File-Type", item.file.type || "");
       xhr.setRequestHeader("X-Guest-Name", encodeURIComponent(item.guest || ""));
+      var meta = item.meta || {};
+      if (meta.w && meta.h) {
+        xhr.setRequestHeader("X-Width", String(meta.w));
+        xhr.setRequestHeader("X-Height", String(meta.h));
+      }
+      if (meta.duration) xhr.setRequestHeader("X-Duration", String(meta.duration));
       xhr.upload.onprogress = function (e) { if (e.lengthComputable) onProgress(e.loaded); };
       xhr.onload = function () {
         var res = null;
@@ -60,10 +66,12 @@
     this.active = 0;
   }
 
-  Uploader.prototype.add = function (files, guest) {
+  // files: File[]; guest: name; meta (optional): {w, h, duration} for a single file
+  Uploader.prototype.add = function (files, guest, meta) {
     var self = this;
     Array.prototype.forEach.call(files, function (file) {
       var item = {
+        meta: meta || file._meta || null,
         id: uid(),
         file: file,
         guest: guest,
@@ -132,7 +140,8 @@
           item.sent = start + loaded;
           self.emit("update", item);
           self.emit("progress");
-        }).then(function () {
+        }).then(function (res) {
+          if (res && res.item) item.result = res.item;
           item.sent = start + blob.size;
           index++;
           return nextChunk();
@@ -152,6 +161,7 @@
       item.status = "done";
       item.sent = file.size;
       self.emit("update", item);
+      self.emit("done", item);
     }).catch(function (err) {
       item.status = "error";
       item.error = err;

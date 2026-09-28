@@ -50,6 +50,39 @@
       "share.tooBig": "This file is too large",
       "share.badType": "Only photos and videos, please",
       "share.leave": "Uploads are still in progress. Leave anyway?",
+      "voice.or": "or",
+      "voice.title": "Leave a voice message",
+      "voice.record": "Tap to record",
+      "voice.stop": "Tap to stop",
+      "voice.again": "Record another",
+      "voice.play": "Play",
+      "voice.redo": "Record again",
+      "voice.send": "Send",
+      "voice.allow": "Allow the microphone to start recording…",
+      "voice.denied": "The microphone is blocked. Allow it in your browser settings, then tap record again.",
+      "voice.noMic": "No microphone found on this device.",
+      "voice.unsupported": "This browser can't record audio. Try Safari or Chrome.",
+      "voice.tooShort": "That was a little short — hold on for at least a second.",
+      "voice.sending": "Sending your voice message…",
+      "voice.sent": "Thank you — your voice message is on its way.",
+      "voice.failed": "It didn't go through. Tap Send to try again.",
+      "gallery.eyebrow": "Gallery",
+      "gallery.title": "Through your eyes",
+      "gallery.count": "{n} memories shared",
+      "gallery.countOne": "1 memory shared",
+      "gallery.empty": "No memories yet. Be the first to share one.",
+      "gallery.more": "Show more",
+      "gallery.save": "Save",
+      "gallery.aGuest": "A guest",
+      "gallery.voiceNote": "Voice note",
+      "gallery.kind.photo": "Photo",
+      "gallery.kind.video": "Video",
+      "gallery.kind.audio": "Voice note",
+      "fab.open": "Share with Lindsey & Andrea",
+      "fab.upload": "Photos & videos",
+      "fab.voice": "Voice message",
+      "fab.note": "Write a note",
+      "fab.gallery": "Gallery",
       "footer.thanks": "Thank you"
     },
     it: {
@@ -90,6 +123,39 @@
       "share.tooBig": "File troppo grande",
       "share.badType": "Solo foto e video, per favore",
       "share.leave": "Ci sono ancora caricamenti in corso. Uscire comunque?",
+      "voice.or": "oppure",
+      "voice.title": "Lascia un messaggio vocale",
+      "voice.record": "Tocca per registrare",
+      "voice.stop": "Tocca per fermare",
+      "voice.again": "Registrane un altro",
+      "voice.play": "Ascolta",
+      "voice.redo": "Registra di nuovo",
+      "voice.send": "Invia",
+      "voice.allow": "Consenti l’uso del microfono per iniziare…",
+      "voice.denied": "Il microfono è bloccato. Consentilo nelle impostazioni del browser e tocca di nuovo.",
+      "voice.noMic": "Nessun microfono trovato su questo dispositivo.",
+      "voice.unsupported": "Questo browser non può registrare audio. Prova con Safari o Chrome.",
+      "voice.tooShort": "Un po’ troppo breve — registra almeno un secondo.",
+      "voice.sending": "Invio del messaggio vocale…",
+      "voice.sent": "Grazie — il tuo messaggio vocale è in arrivo.",
+      "voice.failed": "Invio non riuscito. Tocca Invia per riprovare.",
+      "gallery.eyebrow": "Galleria",
+      "gallery.title": "Con i vostri occhi",
+      "gallery.count": "{n} ricordi condivisi",
+      "gallery.countOne": "1 ricordo condiviso",
+      "gallery.empty": "Ancora nessun ricordo. Condividi tu il primo.",
+      "gallery.more": "Mostra altri",
+      "gallery.save": "Salva",
+      "gallery.aGuest": "Un ospite",
+      "gallery.voiceNote": "Messaggio vocale",
+      "gallery.kind.photo": "Foto",
+      "gallery.kind.video": "Video",
+      "gallery.kind.audio": "Messaggio vocale",
+      "fab.open": "Condividi con Lindsey & Andrea",
+      "fab.upload": "Foto & video",
+      "fab.voice": "Messaggio vocale",
+      "fab.note": "Scrivi un pensiero",
+      "fab.gallery": "Galleria",
       "footer.thanks": "Grazie"
     },
     fr: {
@@ -130,6 +196,39 @@
       "share.tooBig": "Fichier trop volumineux",
       "share.badType": "Uniquement photos et vidéos, merci",
       "share.leave": "Des envois sont en cours. Quitter quand même ?",
+      "voice.or": "ou",
+      "voice.title": "Laissez un message vocal",
+      "voice.record": "Touchez pour enregistrer",
+      "voice.stop": "Touchez pour arrêter",
+      "voice.again": "En enregistrer un autre",
+      "voice.play": "Écouter",
+      "voice.redo": "Recommencer",
+      "voice.send": "Envoyer",
+      "voice.allow": "Autorisez le micro pour commencer…",
+      "voice.denied": "Le micro est bloqué. Autorisez-le dans les réglages du navigateur, puis touchez à nouveau.",
+      "voice.noMic": "Aucun micro trouvé sur cet appareil.",
+      "voice.unsupported": "Ce navigateur ne peut pas enregistrer. Essayez Safari ou Chrome.",
+      "voice.tooShort": "Un peu court — enregistrez au moins une seconde.",
+      "voice.sending": "Envoi de votre message vocal…",
+      "voice.sent": "Merci — votre message vocal est en route.",
+      "voice.failed": "L’envoi a échoué. Touchez Envoyer pour réessayer.",
+      "gallery.eyebrow": "Galerie",
+      "gallery.title": "À travers vos yeux",
+      "gallery.count": "{n} souvenirs partagés",
+      "gallery.countOne": "1 souvenir partagé",
+      "gallery.empty": "Pas encore de souvenirs. Partagez le premier.",
+      "gallery.more": "Voir plus",
+      "gallery.save": "Enregistrer",
+      "gallery.aGuest": "Un invité",
+      "gallery.voiceNote": "Message vocal",
+      "gallery.kind.photo": "Photo",
+      "gallery.kind.video": "Vidéo",
+      "gallery.kind.audio": "Message vocal",
+      "fab.open": "Partager avec Lindsey & Andrea",
+      "fab.upload": "Photos & vidéos",
+      "fab.voice": "Message vocal",
+      "fab.note": "Écrire un mot",
+      "fab.gallery": "Galerie",
       "footer.thanks": "Merci"
     }
   };
@@ -158,9 +257,12 @@
     document.documentElement.lang = lang;
     $$("[data-i18n]").forEach(function (el) { el.textContent = t(el.getAttribute("data-i18n")); });
     $$("[data-i18n-ph]").forEach(function (el) { el.setAttribute("placeholder", t(el.getAttribute("data-i18n-ph"))); });
+    $$("[data-i18n-aria]").forEach(function (el) { el.setAttribute("aria-label", t(el.getAttribute("data-i18n-aria"))); });
     $$(".lang button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.lang === lang)); });
     renderCountdown();
     if (uploader) refreshAllItems();
+    if (gallery) gallery.retranslate();
+    if (recorder) recorder.setState(recorder.state);
   }
 
   $$(".lang button").forEach(function (b) {
@@ -346,6 +448,8 @@
   var note = $("#uploadNote");
   var rows = new Map();
   var uploader = null;
+  var gallery = null;
+  var recorder = null;
   var wakeLock = null;
 
   var ICONS = {
@@ -474,9 +578,11 @@
   uploader = new window.WeddingUploader({
     onAdd: function (item) { updateRow(item); },
     onUpdate: function (item) { updateRow(item); },
-    onProgress: function () { updateTotals(); },
+    onProgress: function () { updateTotals(); updateFabRing(); },
+    onDone: function (item) { if (gallery && item.result) gallery.add(item.result); },
     onIdle: function () {
       lockScreen(false);
+      updateFabRing();
       var s = uploader.stats();
       if (s.done && s.done === s.count) {
         toast(t("share.allDone", { count: s.done }));
@@ -484,6 +590,38 @@
       }
     }
   });
+
+  // The server sizes JPEG/PNG itself; videos and HEIC are measured here, on the phone.
+  function measure(file) {
+    return new Promise(function (resolve) {
+      var isVideo = /^video\//.test(file.type) || /\.(mp4|mov|m4v|webm|3gp)$/i.test(file.name);
+      var needs = isVideo || /\.(heic|heif|avif|tiff?)$/i.test(file.name);
+      if (!needs) return resolve(null);
+      var url = URL.createObjectURL(file), done = false;
+      function finish(meta) {
+        if (done) return;
+        done = true;
+        URL.revokeObjectURL(url);
+        resolve(meta);
+      }
+      setTimeout(function () { finish(null); }, 2500);
+      if (isVideo) {
+        var v = document.createElement("video");
+        v.preload = "metadata";
+        v.muted = true;
+        v.onloadedmetadata = function () {
+          finish(v.videoWidth ? { w: v.videoWidth, h: v.videoHeight, duration: isFinite(v.duration) ? Math.round(v.duration * 10) / 10 : null } : null);
+        };
+        v.onerror = function () { finish(null); };
+        v.src = url;
+      } else {
+        var img = new Image();
+        img.onload = function () { finish({ w: img.naturalWidth, h: img.naturalHeight }); };
+        img.onerror = function () { finish(null); };
+        img.src = url;
+      }
+    });
+  }
 
   function addFiles(list) {
     var good = [], rejected = 0, tooBig = 0;
@@ -495,8 +633,12 @@
     if (rejected) toast(t("share.badType"));
     else if (tooBig) toast(t("share.tooBig"));
     if (!good.length) return;
-    uploader.add(good, guestName());
+    var name = guestName();
     lockScreen(true);
+    // measure one by one (phones don't love decoding ten 4K videos at once), then queue each
+    good.reduce(function (p, f) {
+      return p.then(function () { return measure(f); }).then(function (meta) { uploader.add([f], name, meta); });
+    }, Promise.resolve());
   }
 
   var input = $("#fileInput");
@@ -521,6 +663,104 @@
       return e.returnValue;
     }
   });
+
+
+  /* ───────────── Voice message ───────────── */
+
+  var voiceUploader = new window.WeddingUploader({
+    onProgress: function () { updateFabRing(); },
+    onIdle: function () { updateFabRing(); }
+  });
+  recorder = new window.WeddingRecorder({
+    root: $("#voice"),
+    t: t,
+    guest: guestName,
+    uploader: voiceUploader,
+    onSent: function (result) { if (gallery && result) gallery.add(result); }
+  });
+
+  /* ───────────── Gallery ───────────── */
+
+  gallery = new window.WeddingGallery({ root: $("#gallery"), t: t });
+
+  /* ───────────── Floating action button ───────────── */
+
+  var fab = $("#fab");
+  var fabBtn = $("#fabBtn");
+  var fabMenu = $("#fabMenu");
+  var scrim = $("#fabScrim");
+  var ring = fab.querySelector(".fab__ring circle");
+  var RING = 2 * Math.PI * 30;
+
+  function setFab(open) {
+    fab.dataset.open = String(open);
+    fabBtn.setAttribute("aria-expanded", String(open));
+    fabMenu.setAttribute("aria-hidden", String(!open));
+    $$("button", fabMenu).forEach(function (b) { b.tabIndex = open ? 0 : -1; });
+    if (open) {
+      scrim.hidden = false;
+      requestAnimationFrame(function () { scrim.classList.add("is-on"); });
+    } else {
+      scrim.classList.remove("is-on");
+      setTimeout(function () { if (fab.dataset.open !== "true") scrim.hidden = true; }, 350);
+    }
+  }
+  fabBtn.addEventListener("click", function () {
+    setFab(fab.dataset.open !== "true");
+    if (navigator.vibrate) navigator.vibrate(8);
+  });
+  scrim.addEventListener("click", function () { setFab(false); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && fab.dataset.open === "true") { setFab(false); fabBtn.focus(); } });
+
+  function goTo(sel, then) {
+    var el = $(sel);
+    el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    if (then) setTimeout(then, reduceMotion ? 0 : 700);
+  }
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  $$("[data-fab]", fabMenu).forEach(function (b) {
+    b.addEventListener("click", function () {
+      var what = b.dataset.fab;
+      setFab(false);
+      if (what === "upload") {
+        input.click();                     // opens the gallery picker right away (same tap)
+        goTo("#share");
+      } else if (what === "voice") {
+        goTo("#voice", function () { $("#voice .voice__rec").focus({ preventScroll: true }); });
+      } else if (what === "note") {
+        goTo("#message", function () { textarea.focus({ preventScroll: true }); });
+      } else {
+        goTo("#gallery");
+      }
+    });
+  });
+
+  // show after the hero, hide over the footer
+  var hero = $(".hero"), footer = $(".footer");
+  function fabVisibility() {
+    var past = window.scrollY > hero.offsetHeight * 0.6;
+    var nearEnd = footer.getBoundingClientRect().top < window.innerHeight - 40;
+    var show = past && !nearEnd;
+    fab.classList.toggle("is-shown", show || busyAny());
+    if (!show && !busyAny() && fab.dataset.open === "true") setFab(false);
+  }
+  window.addEventListener("scroll", function () { requestAnimationFrame(fabVisibility); }, { passive: true });
+
+  function busyAny() { return (uploader && uploader.busy()) || voiceUploader.busy(); }
+
+  // the button doubles as a progress ring while anything is uploading
+  function updateFabRing() {
+    if (!ring) return;
+    var a = uploader ? uploader.stats() : { total: 0, sent: 0 };
+    var b = voiceUploader.stats();
+    var total = a.total + b.total, sent = a.sent + b.sent;
+    var busy = busyAny();
+    fab.classList.toggle("is-uploading", busy);
+    ring.style.strokeDasharray = RING.toFixed(1);
+    ring.style.strokeDashoffset = (RING * (1 - (busy && total ? sent / total : 0))).toFixed(1);
+    fabVisibility();
+  }
 
   /* ───────────── Menu tabs ───────────── */
 

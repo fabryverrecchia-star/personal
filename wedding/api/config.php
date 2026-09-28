@@ -18,6 +18,11 @@ return [
     // While empty, admin.php stays locked.
     'admin_password_hash' => '',
 
+    // Show everything guests share in the gallery on the page (true), or keep it
+    // private for the two of you in admin.php only (false). You can hide or delete
+    // single photos, videos and voice notes from admin.php at any time.
+    'public_gallery' => true,
+
     // Optional: receive an e-mail for every guestbook message (uses PHP mail()). Leave '' to disable.
     'notify_email' => '',
 

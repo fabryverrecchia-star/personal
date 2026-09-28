@@ -101,7 +101,38 @@
         </button>
         <p class="form__status" id="messageStatus" role="status"></p>
       </form>
+
+      <div class="or reveal"><span data-i18n="voice.or">or</span></div>
+
+      <div class="card voice reveal" id="voice" data-state="idle">
+        <div class="voice__head">
+          <span class="field__label" data-i18n="voice.title">Leave a voice message</span>
+          <span class="voice__time" aria-live="off">0:00 / 3:00</span>
+        </div>
+        <canvas class="voice__wave" aria-hidden="true"></canvas>
+        <div class="voice__controls">
+          <button type="button" class="voice__rec" aria-label="Record">
+            <span class="voice__dot" aria-hidden="true"></span>
+          </button>
+          <span class="voice__rec-label" data-i18n="voice.record">Tap to record</span>
+          <div class="voice__review" hidden>
+            <button type="button" class="round" data-voice="redo" data-i18n-aria="voice.redo" aria-label="Record again">
+              <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.34-5.66M4 4v5h5"/></svg>
+            </button>
+            <button type="button" class="round round--lg" data-voice="play" data-i18n-aria="voice.play" aria-label="Play">
+              <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+              <svg class="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>
+            </button>
+            <button type="button" class="btn btn--sm" data-voice="send">
+              <span class="btn__label" data-i18n="voice.send">Send</span>
+              <span class="btn__spinner" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+        <p class="voice__status" role="status"></p>
+      </div>
     </section>
+
 
     <!-- Share photos & videos -->
     <section class="section share" id="share" aria-labelledby="shareTitle">
@@ -132,6 +163,16 @@
         <ul class="queue" id="queue" aria-live="polite"></ul>
         <p class="uploader__note" id="uploadNote" data-i18n="share.keepOpen" hidden>Please keep this page open until every file shows a check mark.</p>
       </div>
+    </section>
+
+    <!-- Gallery -->
+    <section class="section gallery" id="gallery" aria-labelledby="galleryTitle">
+      <p class="eyebrow reveal" data-i18n="gallery.eyebrow">Gallery</p>
+      <h2 class="script section__title reveal" id="galleryTitle" data-i18n="gallery.title">Through your eyes</h2>
+      <p class="gallery__count reveal" hidden></p>
+      <div class="mason" aria-live="polite"></div>
+      <p class="gallery__empty" hidden data-i18n="gallery.empty">No memories yet. Be the first to share one.</p>
+      <button type="button" class="btn btn--ghost gallery__more" hidden data-i18n="gallery.more">Show more</button>
     </section>
 
     <!-- Menu -->
@@ -200,10 +241,39 @@
     <p class="footer__thanks script reveal" data-i18n="footer.thanks">Thank you</p>
   </footer>
 
+  <!-- Floating actions -->
+  <div class="fab" id="fab" data-open="false">
+    <div class="fab__menu" id="fabMenu" role="menu" aria-hidden="true">
+      <button type="button" role="menuitem" data-fab="upload" tabindex="-1"><span data-i18n="fab.upload">Photos &amp; videos</span><i><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8.5 6l1.5-2h4l1.5 2"/></svg></i></button>
+      <button type="button" role="menuitem" data-fab="voice" tabindex="-1"><span data-i18n="fab.voice">Voice message</span><i><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></i></button>
+      <button type="button" role="menuitem" data-fab="note" tabindex="-1"><span data-i18n="fab.note">Write a note</span><i><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></i></button>
+      <button type="button" role="menuitem" data-fab="gallery" tabindex="-1"><span data-i18n="fab.gallery">Gallery</span><i><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="10" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="6" rx="1.5"/><rect x="3" y="16" width="7.5" height="5" rx="1.5"/><rect x="13.5" y="12" width="7.5" height="9" rx="1.5"/></svg></i></button>
+    </div>
+    <button type="button" class="fab__btn" id="fabBtn" aria-expanded="false" aria-controls="fabMenu" data-i18n-aria="fab.open" aria-label="Share with Lindsey &amp; Andrea">
+      <svg class="fab__ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30"/></svg>
+      <svg class="fab__plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+  </div>
+  <div class="fab-scrim" id="fabScrim" hidden></div>
+
+  <!-- Full-screen viewer -->
+  <div class="lb" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Gallery">
+    <button type="button" class="lb__close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="lb__stage"></div>
+    <button type="button" class="lb__nav lb__prev" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button type="button" class="lb__nav lb__next" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    <div class="lb__cap">
+      <div><span class="lb__who"></span><span class="lb__when"></span></div>
+      <a class="lb__dl" href="#" data-i18n="gallery.save">Save</a>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="assets/js/scene.js" defer></script>
   <script src="assets/js/uploader.js" defer></script>
+  <script src="assets/js/recorder.js" defer></script>
+  <script src="assets/js/gallery.js" defer></script>
   <script src="assets/js/app.js" defer></script>
 </body>
 </html>

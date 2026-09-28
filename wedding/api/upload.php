@@ -1,10 +1,11 @@
 <?php
 /*
- * POST api/upload.php — chunked photo / video upload.
+ * POST api/upload.php — chunked photo / video / voice-note upload.
  *
  * Body: raw bytes of one chunk (Content-Type: application/octet-stream)
  * Headers: X-Upload-Id, X-Chunk-Index, X-Chunk-Total, X-File-Name,
  *          X-File-Size, X-File-Type, X-Guest-Name
+ *          optional: X-Width, X-Height, X-Duration (measured by the browser)
  *
  * Chunks land in storage/tmp/<id>/; once all have arrived they are joined
  * into storage/uploads/<date>/ and recorded in storage/media.jsonl.
@@ -136,9 +137,10 @@ if (function_exists('finfo_open')) {
     $mime = (string) finfo_file($fi, $dest);
     finfo_close($fi);
 }
-$isMedia = str_starts_with($mime, 'image/') || str_starts_with($mime, 'video/');
+$clientType = strtolower((string) ($_SERVER['HTTP_X_FILE_TYPE'] ?? ''));
+$isMedia = str_starts_with($mime, 'image/') || str_starts_with($mime, 'video/') || str_starts_with($mime, 'audio/');
 // Some libmagic builds don't know HEIC / some MP4 brands: check the ISO-BMFF "ftyp" box instead.
-if (!$isMedia && in_array($ext, ['heic', 'heif', 'avif', 'mp4', 'mov', 'm4v', '3gp', '3g2', 'hevc'], true)) {
+if (!$isMedia && in_array($ext, ['heic', 'heif', 'avif', 'mp4', 'mov', 'm4v', 'm4a', '3gp', '3g2', 'hevc'], true)) {
     $head = (string) file_get_contents($dest, false, null, 0, 16);
     $isMedia = substr($head, 4, 4) === 'ftyp';
 }
@@ -146,29 +148,70 @@ if (!$isMedia && in_array($ext, ['dng', 'tif', 'tiff'], true)) {
     $head = (string) file_get_contents($dest, false, null, 0, 4);
     $isMedia = $head === "II*\0" || $head === "MM\0*";
 }
+if (!$isMedia && in_array($ext, ['webm', 'weba'], true)) {
+    $isMedia = file_get_contents($dest, false, null, 0, 4) === "\x1A\x45\xDF\xA3";   // EBML / Matroska
+}
 if (!$isMedia) {
     @unlink($dest);
     rrmdir($tmpDir);
     fail('file_type_not_allowed', 415, 'bad_type');
 }
 
-$kind = in_array($ext, ['mp4', 'mov', 'm4v', 'webm', '3gp', '3g2', 'avi', 'mkv', 'hevc'], true) || str_starts_with($mime, 'video/')
-    ? 'video' : 'photo';
+// A voice note recorded on the page is a webm/mp4 container with only sound in it:
+// libmagic often calls it video/*, so the browser's own type decides.
+if (str_starts_with($mime, 'audio/') || in_array($ext, AUDIO_EXT, true)
+    || (str_starts_with($clientType, 'audio/') && in_array($ext, ['webm', 'mp4', 'ogg'], true))) {
+    $kind = 'audio';
+    if (!str_starts_with($mime, 'audio/')) {
+        $mime = str_starts_with($clientType, 'audio/') ? preg_replace('/;.*/', '', $clientType) : 'audio/' . $ext;
+    }
+} elseif (in_array($ext, VIDEO_EXT, true) || str_starts_with($mime, 'video/')) {
+    $kind = 'video';
+} else {
+    $kind = 'photo';
+}
 
-append_jsonl(storage_file('media.jsonl'), [
+// Size of the photo / video, so the gallery can reserve the right space before it loads.
+$dim = static function (string $h): ?int {
+    $v = filter_var($_SERVER[$h] ?? '', FILTER_VALIDATE_INT);
+    return $v !== false && $v > 0 && $v < 40000 ? $v : null;
+};
+$w = $dim('HTTP_X_WIDTH');
+$h = $dim('HTTP_X_HEIGHT');
+$duration = filter_var($_SERVER['HTTP_X_DURATION'] ?? '', FILTER_VALIDATE_FLOAT);
+$duration = $duration !== false && $duration > 0 && $duration < 36000 ? round($duration, 1) : null;
+
+$thumb = null;
+if ($kind === 'photo') {
+    $thumbRel = 'thumbs/' . substr(strtolower($id), 0, 16) . '.jpg';
+    storage_dir('thumbs');
+    $size2 = make_thumb($dest, storage_dir() . '/' . $thumbRel);
+    if ($size2) {
+        [$w, $h] = $size2;
+        $thumb = $thumbRel;
+    }
+}
+
+$record = [
     'id' => substr(strtolower($id), 0, 16),
     'time' => date('c'),
     'guest' => $guest,
     'original' => $name,
     'file' => 'uploads/' . $day . '/' . $stored,
+    'thumb' => $thumb,
     'size' => $finalSize,
     'mime' => $mime,
     'kind' => $kind,
+    'w' => $w,
+    'h' => $h,
+    'duration' => $duration,
     'visitor' => visitor_hash(),
-]);
+];
+append_jsonl(storage_file('media.jsonl'), $record);
 
 flock($lock, LOCK_UN);
 fclose($lock);
 rrmdir($tmpDir);
 
-json_out(['ok' => true, 'done' => true]);
+$public = empty(config()['public_gallery']) ? null : media_public($record);
+json_out(['ok' => true, 'done' => true, 'item' => $public]);

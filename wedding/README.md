@@ -1,7 +1,9 @@
 # Lindsey & Andrea — 03.10.2026
 
 Mobile-first wedding page: WebGL silk & rose-petal scene, monogram preloader,
-guestbook, and photo/video upload straight to your own server. EN / IT / FR.
+guestbook, voice messages recorded in the page, photo/video upload straight to
+your own server, a live masonry gallery of everything guests share, and a
+floating share button. EN / IT / FR.
 
 No build step, no external services — plain HTML/CSS/JS + PHP 8.
 
@@ -28,13 +30,35 @@ client_max_body_size 16m;
 location ~ /(storage|api/(config|lib)\.php) { deny all; return 404; }
 ```
 
+## Gallery & moderation
+
+Everything guests share (photos, videos, voice notes) appears in the "Through your
+eyes" gallery on the page, newest first, and refreshes by itself every 45 s while
+it is on screen, which is handy on a screen at the reception.
+
+- In `admin.php` → *Photos, videos & voice*, each tile has **Hide** (removes it from
+  the public gallery, keeps the file) and **Delete** (removes it for good).
+- To keep all uploads private, set `'public_gallery' => false` in `api/config.php`.
+
+Photo thumbnails are made with PHP's GD extension (standard on most hosts). HEIC
+photos from iPhones are stored in original quality. Safari shows them in the
+gallery; other browsers show a placeholder tile instead.
+
+## Voice messages
+
+Recorded with the browser's MediaRecorder (up to 3 minutes; `MAX_SECONDS` in
+`assets/js/recorder.js`). The microphone only works over **HTTPS**. Recordings
+are stored as `.webm` (Android/desktop) or `.m4a` (iPhone).
+
 ## Where things are stored
 
 ```
 storage/
   messages.jsonl        one guestbook note per line
   media.jsonl           one uploaded file per line (guest name, original name, size…)
-  uploads/YYYY-MM-DD/   the photos & videos, original quality
+  hidden.json           ids hidden from the public gallery
+  uploads/YYYY-MM-DD/   the photos, videos & voice notes, original quality
+  thumbs/               small previews for the gallery
 ```
 
 To grab everything at once, download the `storage/uploads` folder via FTP/SFTP.
@@ -56,7 +80,11 @@ and `MAX_BYTES` in `assets/js/app.js`).
 | `assets/js/scene.js` | WebGL scene (silk shader + GPU petals, adaptive resolution) |
 | `assets/js/app.js` | preloader, translations, countdown, forms, upload UI |
 | `assets/js/uploader.js` | chunked upload engine |
+| `assets/js/recorder.js` | voice message recorder with live waveform |
+| `assets/js/gallery.js` | masonry gallery, live refresh, full-screen viewer |
 | `assets/css/style.css` | styles |
 | `api/message.php` | guestbook endpoint |
 | `api/upload.php` | upload endpoint |
+| `api/gallery.php` | list of shared items for the gallery |
+| `api/media.php` | serves one shared item (Range-enabled for video/audio) |
 | `admin.php` | private gallery for the couple |
