@@ -87,7 +87,10 @@ window.PLAN = {
   ],
 
   // Feed actuel du compte (du plus récent au plus ancien), affiché après le planning
-  feedExisting: ['media/live-1.jpg', 'media/live-2.jpg', 'media/live-3.jpg', 'media/live-4.jpg'],
+  feedExisting: [
+    'media/live-1.jpg', 'media/live-2.jpg', 'media/live-3.jpg', 'media/live-4.jpg', 'media/live-5.jpg',
+    'media/live-6.jpg', 'media/live-7.jpg', 'media/live-8.jpg', 'media/live-9.jpg', 'media/live-10.jpg',
+  ],
 
   footer: 'Planning soumis à validation. Visuels et wording susceptibles d’évoluer.',
 };
