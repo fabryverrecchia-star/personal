@@ -9,6 +9,36 @@ if (PHP_SAPI !== 'cli' && basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'lib.p
     exit;
 }
 
+// If PHP itself fails (missing extension, old version…), answer with the exact
+// reason as JSON instead of a bare "500": the page then shows what to fix.
+@ini_set('display_errors', '0');
+register_shutdown_function(function () {
+    $e = error_get_last();
+    if (!$e || !in_array($e['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
+        return;
+    }
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+    }
+    $msg = preg_replace('/\s+/', ' ', (string) $e['message']);
+    $msg = preg_replace('#(?:[A-Za-z]:)?[/\\\\][^\s:]*[/\\\\]#', '', (string) $msg);   // no server paths
+    echo json_encode([
+        'ok' => false,
+        'error' => 'php: ' . substr((string) $msg, 0, 220) . ' (' . basename((string) $e['file']) . ':' . $e['line'] . ')',
+        'code' => 'php_error',
+    ]);
+});
+
+// Some hosts ship PHP without the mbstring extension.
+if (!function_exists('mb_substr')) {
+    function mb_substr($s, $start, $length = null, $encoding = null)
+    {
+        preg_match_all('/./us', (string) $s, $m);
+        return implode('', array_slice($m[0], $start, $length));
+    }
+}
+
 // PHP 7 compatibility (these arrived in PHP 8)
 if (!function_exists('str_contains')) {
     function str_contains($haystack, $needle) { return $needle === '' || strpos($haystack, $needle) !== false; }

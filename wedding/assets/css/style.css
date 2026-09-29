@@ -632,13 +632,14 @@ body.is-loading .fab { visibility: hidden; }
 }
 .q__sub {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 2px 8px;
   font-size: 13px;
   color: var(--ink-mute);
   letter-spacing: 0.04em;
   font-variant-numeric: tabular-nums;
 }
-.q__sub .q__pct { color: var(--ink-soft); min-width: 3.2ch; }
+.q__sub .q__pct { color: var(--ink-soft); min-width: 3.2ch; overflow-wrap: anywhere; }
 .q__size::before { content: "·"; margin-right: 8px; }
 .q__bar { height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; }
 .q__bar span {

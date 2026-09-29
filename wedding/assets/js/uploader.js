@@ -54,7 +54,7 @@
       var xhr = new XMLHttpRequest();
       item.xhr = xhr;
       xhr.open("POST", ENDPOINT, true);
-      xhr.timeout = 120000;
+      xhr.timeout = 90000;
       xhr.upload.onprogress = function (e) { if (e.lengthComputable) onProgress(Math.min(blob.size, e.loaded)); };
       xhr.onload = function () {
         var res = null;
@@ -64,8 +64,10 @@
           var err = new Error((res && res.error) || ("HTTP " + xhr.status));
           err.status = xhr.status;
           err.code = (res && res.code) || (xhr.status === 413 ? "chunk_too_big" : null);
-          // 4xx (except timeout/rate-limit) are final: do not retry
-          err.fatal = xhr.status >= 400 && xhr.status < 500 && xhr.status !== 408 && xhr.status !== 429;
+          // final (no retry): 4xx except timeout/rate-limit, and any error the server explained
+          // itself (e.g. a PHP problem) — retrying would only hide the reason for minutes
+          err.fatal = (xhr.status >= 400 && xhr.status < 500 && xhr.status !== 408 && xhr.status !== 429)
+            || (xhr.status >= 500 && !!(res && res.error));
           reject(err);
         }
       };

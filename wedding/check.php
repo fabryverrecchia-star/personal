@@ -45,6 +45,8 @@ row($rows, max_chunk_bytes() >= 256 * 1024, 'Taille des morceaux envoyés',
     round(max_chunk_bytes() / 1048576, 2) . ' Mo par morceau (upload_max_filesize = ' . $up . ', post_max_size = ' . $post . ')',
     'Les limites PHP sont trop basses : augmentez upload_max_filesize et post_max_size (8M ou plus).');
 
+row($rows, extension_loaded('mbstring'), 'Extension mbstring', extension_loaded('mbstring') ? 'disponible' : 'absente (remplacée automatiquement)',
+    'Optionnel : activez « mbstring » dans les réglages PHP de l’hébergeur.');
 row($rows, function_exists('finfo_open'), 'Vérification du type de fichier (fileinfo)', function_exists('finfo_open') ? 'disponible' : 'absente',
     'Activez l’extension PHP « fileinfo » (sinon certains fichiers peuvent être refusés).');
 row($rows, function_exists('imagecreatetruecolor'), 'Miniatures des photos (GD)', function_exists('imagecreatetruecolor') ? 'disponible' : 'absente',
