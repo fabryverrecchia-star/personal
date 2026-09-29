@@ -85,6 +85,98 @@ if ($authed && isset($_GET['f'])) {
     stream_file($path, (string) $item['mime'], (string) ($item['original'] ?: basename($path)), isset($_GET['dl']), 'private, max-age=86400');
 }
 
+/* ───────────── Guestbook export (print → "Save as PDF") ───────────── */
+
+if ($authed && isset($_GET['export'])) {
+    $notes = read_jsonl(storage_file('messages.jsonl'));          // oldest first, like a book
+    $months = [1 => 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+    $fr = function ($iso) use ($months) {
+        $t = strtotime((string) $iso);
+        return $t ? date('j', $t) . ' ' . $months[(int) date('n', $t)] . ' ' . date('Y', $t) . ' · ' . date('H:i', $t) : '';
+    };
+    header('Content-Type: text/html; charset=utf-8');
+    ?>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Livre d’or · Lindsey &amp; Andrea · 03.10.2026</title>
+<style>
+  @font-face { font-family: "Cormorant"; src: url("assets/fonts/cormorant.woff2") format("woff2"); font-weight: 300 700; }
+  @font-face { font-family: "Cormorant"; src: url("assets/fonts/cormorant-italic.woff2") format("woff2"); font-weight: 300 700; font-style: italic; }
+  @font-face { font-family: "Pinyon"; src: url("assets/fonts/pinyon.woff2") format("woff2"); }
+  @page { size: A4; margin: 18mm 18mm 20mm; }
+  :root { --navy: #14295a; --soft: rgba(20, 41, 90, .62); --line: rgba(20, 41, 90, .25); }
+  * { box-sizing: border-box; }
+  html { background: #e9e4da; }
+  body { margin: 0; color: var(--navy); font: 13pt/1.55 "Cormorant", Garamond, "Times New Roman", serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sheet { background: #fbf8f3; max-width: 210mm; margin: 0 auto; padding: 18mm; }
+  .bar { position: sticky; top: 0; z-index: 2; display: flex; gap: 10px; justify-content: center; padding: 12px 16px; background: #14295a; }
+  .bar button, .bar a { font: 14px/1 Georgia, serif; letter-spacing: .08em; padding: 12px 18px; border-radius: 99px; border: 1px solid rgba(247, 243, 236, .5); background: #f7f3ec; color: #14295a; text-decoration: none; cursor: pointer; }
+  .bar a { background: transparent; color: #f7f3ec; }
+  .cover { min-height: 250mm; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1px solid var(--navy); outline: 1px solid var(--navy); outline-offset: -8px; padding: 20mm 10mm; }
+  .mono { font-size: 64pt; font-weight: 500; line-height: 1; }
+  .mono i { font-size: .6em; vertical-align: .35em; margin: 0 .045em; }
+  .cover h1 { font-family: "Pinyon", cursive; font-weight: 400; font-size: 44pt; line-height: 1.1; margin: 14mm 0 4mm; }
+  .cover .names { letter-spacing: .4em; text-transform: uppercase; font-size: 11pt; margin: 0; }
+  .cover .date { letter-spacing: .3em; font-size: 11pt; color: var(--soft); margin: 3mm 0 0; }
+  .cover .count { margin-top: 16mm; font-style: italic; color: var(--soft); }
+  .rule { width: 22mm; height: 1px; background: var(--navy); margin: 7mm auto; }
+  .notes { page-break-before: always; break-before: page; }
+  .note { break-inside: avoid; page-break-inside: avoid; padding: 9mm 0 8mm; border-bottom: 1px solid var(--line); }
+  .note:last-child { border-bottom: 0; }
+  .note p { margin: 0 0 4mm; white-space: pre-wrap; font-size: 14pt; }
+  .who { display: flex; justify-content: space-between; align-items: baseline; gap: 8mm; }
+  .who b { font-family: "Pinyon", cursive; font-weight: 400; font-size: 22pt; line-height: 1; }
+  .who span { font-size: 9.5pt; letter-spacing: .12em; text-transform: uppercase; color: var(--soft); white-space: nowrap; }
+  .end { text-align: center; font-family: "Pinyon", cursive; font-size: 30pt; margin: 12mm 0 0; }
+  .export { text-align:center; margin:-8px 0 24px; }
+  .export a { display:inline-block; font-size:12px; letter-spacing:.24em; text-transform:uppercase; text-decoration:none; padding:12px 22px; border:1px solid var(--navy); border-radius:999px; }
+  .empty { text-align: center; font-style: italic; color: var(--soft); padding: 30mm 0; }
+  @media print {
+    html { background: none; }
+    .bar { display: none; }
+    .sheet { padding: 0; max-width: none; background: none; }
+  }
+  @media screen and (max-width: 600px) { .sheet { padding: 8mm; } .cover { min-height: 150mm; } }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <button type="button" onclick="window.print()">Enregistrer en PDF</button>
+    <a href="admin.php">Retour</a>
+  </div>
+  <div class="sheet">
+    <section class="cover">
+      <div class="mono">L<i>&amp;</i>A</div>
+      <h1>Livre d’or</h1>
+      <p class="names">Lindsey &amp; Andrea</p>
+      <p class="date">03 . 10 . 2026</p>
+      <p class="count"><?= count($notes) ?> message<?= count($notes) > 1 ? 's' : '' ?> de nos invités</p>
+    </section>
+    <section class="notes">
+      <?php if (!$notes): ?><p class="empty">Aucun message pour l’instant.</p><?php endif; ?>
+      <?php foreach ($notes as $m): ?>
+        <article class="note">
+          <p><?= h($m['message']) ?></p>
+          <div class="who"><b><?= h($m['name']) ?></b><span><?= h($fr($m['time'])) ?></span></div>
+        </article>
+      <?php endforeach; ?>
+      <?php if ($notes): ?><p class="end">Merci</p><?php endif; ?>
+    </section>
+  </div>
+  <script>
+    // wait for the fonts, so the PDF uses the wedding typefaces
+    if (location.hash === '#print' && document.fonts) document.fonts.ready.then(function () { setTimeout(function () { window.print(); }, 300); });
+  </script>
+</body>
+</html>
+<?php
+    exit;
+}
+
 /* ───────────── Data ───────────── */
 
 $messages = $authed ? array_reverse(read_jsonl(storage_file('messages.jsonl'))) : [];
@@ -189,6 +281,7 @@ function when(string $iso): string
   </nav>
 
   <?php if ($tab === 'messages'): ?>
+    <?php if ($messages): ?><p class="export"><a href="admin.php?export=1#print">Exporter en PDF</a></p><?php endif; ?>
     <?php if (!$messages): ?><p class="empty">No notes yet.</p><?php endif; ?>
     <div class="notes">
       <?php foreach ($messages as $m): ?>

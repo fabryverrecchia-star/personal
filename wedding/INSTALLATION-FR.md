@@ -22,6 +22,7 @@ sinon copiez le résultat du test et envoyez-le.
 
 - Site des invités : https://18h22.com/mariage/
 - Espace privé (messages, photos, vidéos, vocaux) : https://18h22.com/mariage/admin.php
+  (onglet Guestbook › « Exporter en PDF » pour le livre d’or complet)
 
 ## Important
 - **Toujours en https://** : sans HTTPS, les téléphones bloquent le micro.
