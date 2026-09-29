@@ -3,7 +3,6 @@
  * GET api/gallery.php?offset=0&limit=40
  * Everything guests have shared, newest first, minus what the couple hid.
  */
-declare(strict_types=1);
 require __DIR__ . '/lib.php';
 
 if (empty(config()['public_gallery'])) {

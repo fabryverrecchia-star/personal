@@ -3,7 +3,6 @@
  * GET api/media.php?id=…[&v=thumb][&dl=1]
  * Serves one shared photo / video / voice note to the public gallery.
  */
-declare(strict_types=1);
 require __DIR__ . '/lib.php';
 
 $id = (string) ($_GET['id'] ?? '');

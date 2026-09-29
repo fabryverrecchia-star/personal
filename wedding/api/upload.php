@@ -11,7 +11,6 @@
  * Chunks land in storage/tmp/<id>/; once all have arrived they are joined
  * into storage/uploads/<date>/ and recorded in storage/media.jsonl.
  */
-declare(strict_types=1);
 require __DIR__ . '/lib.php';
 
 require_post();
@@ -212,7 +211,12 @@ $thumb = null;
 if ($kind === 'photo') {
     $thumbRel = 'thumbs/' . substr(strtolower($id), 0, 16) . '.jpg';
     storage_dir('thumbs');
-    $size2 = make_thumb($dest, storage_dir() . '/' . $thumbRel);
+    // a thumbnail is a nice-to-have: whatever happens there, the photo itself is kept
+    try {
+        $size2 = make_thumb($dest, storage_dir() . '/' . $thumbRel);
+    } catch (\Throwable $e) {
+        $size2 = null;
+    }
     if ($size2) {
         [$w, $h] = $size2;
         $thumb = $thumbRel;

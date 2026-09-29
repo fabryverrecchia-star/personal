@@ -3,7 +3,6 @@
  * Private page for Lindsey & Andrea: read the guestbook, browse and
  * download every photo and video. Set 'admin_password_hash' in api/config.php.
  */
-declare(strict_types=1);
 require __DIR__ . '/api/lib.php';
 
 session_name('la_admin');

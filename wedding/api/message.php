@@ -3,7 +3,6 @@
  * POST api/message.php  {name, message, lang, website}
  * Stores a guestbook note in storage/messages.jsonl
  */
-declare(strict_types=1);
 require __DIR__ . '/lib.php';
 
 require_post();

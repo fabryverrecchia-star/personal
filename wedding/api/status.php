@@ -2,7 +2,6 @@
 /*
  * GET api/status.php — what the page needs to know before uploading.
  */
-declare(strict_types=1);
 require __DIR__ . '/lib.php';
 
 $dir = storage_dir();

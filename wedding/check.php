@@ -3,7 +3,6 @@
  * Install check — open https://your-site/…/check.php once after uploading.
  * Tells you in plain words what works and what to fix. Delete it afterwards if you like.
  */
-declare(strict_types=1);
 require __DIR__ . '/api/lib.php';
 
 header('X-Robots-Tag: noindex, nofollow');

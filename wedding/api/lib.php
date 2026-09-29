@@ -2,7 +2,6 @@
 /*
  * Shared helpers for the guestbook / upload endpoints and admin page.
  */
-declare(strict_types=1);
 
 if (PHP_SAPI !== 'cli' && basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'lib.php') {
     http_response_code(404);
@@ -22,6 +21,7 @@ register_shutdown_function(function () {
         header('Content-Type: application/json; charset=utf-8');
     }
     $msg = preg_replace('/\s+/', ' ', (string) $e['message']);
+    $msg = preg_replace('/ Stack trace:.*$/', '', (string) $msg);          // keep it short
     $msg = preg_replace('#(?:[A-Za-z]:)?[/\\\\][^\s:]*[/\\\\]#', '', (string) $msg);   // no server paths
     echo json_encode([
         'ok' => false,
@@ -387,7 +387,7 @@ function make_thumb(string $src, string $dest, int $max = 720): ?array
     $thumb = imagecreatetruecolor($tw, $th);
     imagefill($thumb, 0, 0, imagecolorallocate($thumb, 247, 243, 236));
     imagecopyresampled($thumb, $img, 0, 0, 0, 0, $tw, $th, $w, $h);
-    imageinterlace($thumb, true);
+    imageinterlace($thumb, 1);
     $ok = imagejpeg($thumb, $dest, 78);
     return $ok ? [$w, $h] : null;
 }
