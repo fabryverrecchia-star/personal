@@ -198,7 +198,7 @@
             onComplete: function () { gsap.set(el, { clearProps: "clipPath,transform" }); } },
             reduce ? {} : { clipPath: "inset(0% 0% 0% 0% round 14px)" }));
         // what's inside follows, one after the other
-        var kids = el.querySelectorAll(":scope > .field, :scope > .btn, :scope > .drop, :scope > .voice__head, :scope > .voice__wave, :scope > .voice__controls, :scope > .rule, :scope > .signature, :scope > .menu__panel:not([hidden]) > article");
+        var kids = el.querySelectorAll(":scope > .field, :scope > .btn, :scope > .drop, :scope > .voice__head, :scope > .voice__wave, :scope > .voice__controls, :scope > .rule, :scope > .signature");
         if (kids.length && !reduce) {
           gsap.fromTo(kids, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 1.4, stagger: 0.08, delay: d + 0.35, ease: EXPO, clearProps: "transform" });
         }
@@ -221,10 +221,6 @@
         gsap.to(el, { opacity: 1, y: 0, rotateX: 0, duration: 1.8 * D, delay: d, ease: EXPO });
         if (!reduce) gsap.to(el.children, { opacity: 1, yPercent: 0, duration: 1.6, stagger: 0.16, delay: d + 0.4, ease: EXPO });
       }
-    ],
-    menuBox: [
-      function (el) { gsap.set(el, { opacity: 0, scale: reduce ? 1 : 0.86 }); },
-      function (el, d) { gsap.to(el, { opacity: 1, scale: 1, duration: 1.8 * D, delay: d, ease: EXPO }); }
     ],
     mono: [
       function (el) { gsap.set(el, { opacity: 0, scale: reduce ? 1 : 0.8, y: reduce ? 0 : 20 }); },
@@ -282,9 +278,8 @@
     add(".section .lead, .section .body", "text");
     add(".card", "card");
     add(".card > .rule", "rule");
-    add(".countdown, .or, .tabs, .gallery__empty", "lift");
+    add(".countdown, .or, .gallery__empty", "lift");
     add(".pillar", "pillar");
-    add(".menu__box", "menuBox");
     add(".footer__mono", "mono");
     add(".tile", "tile");
     handlers.forEach(function (_, el) { io.observe(el); });

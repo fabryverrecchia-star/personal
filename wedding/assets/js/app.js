@@ -878,20 +878,6 @@
     fabVisibility();
   }
 
-  /* ───────────── Menu tabs ───────────── */
-
-  var tabs = $$(".tabs [role=tab]");
-  tabs.forEach(function (tab) {
-    tab.addEventListener("click", function () {
-      tabs.forEach(function (o) {
-        var on = o === tab;
-        o.setAttribute("aria-selected", String(on));
-        document.getElementById(o.getAttribute("aria-controls")).hidden = !on;
-      });
-      Motion.refresh();
-    });
-  });
-
   /* ───────────── Boot ───────────── */
 
   applyLang();
