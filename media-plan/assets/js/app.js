@@ -659,7 +659,11 @@
         var saved = null;
         try { saved = JSON.parse(localStorage.getItem(LOCAL)); } catch (e) {}
         // Un appareil qui a déjà des modifications garde les siennes, en récupérant les inspirations ajoutées depuis
-        if (saved && Array.isArray(saved.passages) && !Array.isArray(saved.inspirations) && cfg.seed) saved.inspirations = (cfg.seed.inspirations || []).slice();
+        if (saved && Array.isArray(saved.passages) && cfg.seed) {
+          var mine = Array.isArray(saved.inspirations) ? saved.inspirations : [];
+          var ids = mine.map(function (x) { return x.id; });
+          saved.inspirations = (cfg.seed.inspirations || []).filter(function (x) { return ids.indexOf(x.id) < 0; }).concat(mine);
+        }
         if (valid(saved)) return saved;
         if (valid(cfg.seed)) return JSON.parse(JSON.stringify(cfg.seed));
         return fetch(src(cfg.data)).then(json).catch(function () { return { passages: [], missions: [] }; });
