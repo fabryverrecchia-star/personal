@@ -28,7 +28,7 @@ function clean($s, $max) {
   $s = strip_tags($s);
   return function_exists('mb_substr') ? mb_substr($s, 0, $max, 'UTF-8') : substr($s, 0, $max * 2);
 }
-function empty_data() { return ['passages' => [], 'missions' => []]; }
+function empty_data() { return ['passages' => [], 'missions' => [], 'inspirations' => []]; }
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -72,12 +72,18 @@ if ($action === 'check') {
 }
 
 $kind = isset($in['kind']) ? $in['kind'] : '';
-if (!in_array($kind, ['missions', 'passages'], true)) out(['error' => 'kind'], 400);
+if (!in_array($kind, ['missions', 'passages', 'inspirations'], true)) out(['error' => 'kind'], 400);
 
 $TEAM = ['Fabrizio', 'Jade'];
 $CATS = ['photo', 'video', 'montage', 'planning', 'redaction', 'autre'];
 $STATUS = ['todo', 'doing', 'done'];
 $KINDS = ['photo', 'video', 'both', 'meeting'];
+$FORMATS = ['reel', 'carousel', 'post'];
+// Lien Instagram d'un post, carrousel ou reel, remis au propre (sans paramètres de suivi)
+function insta_url($u) {
+  if (!preg_match('~^https?://(?:www\.)?instagram\.com/(?:[A-Za-z0-9._]+/)?(p|reel|reels|tv)/([A-Za-z0-9_-]+)~', trim((string) $u), $m)) return '';
+  return 'https://www.instagram.com/' . ($m[1] === 'p' ? 'p' : 'reel') . '/' . $m[2] . '/';
+}
 
 // Lecture + écriture sous verrou : deux personnes qui modifient en même temps ne s'écrasent pas
 $fp = @fopen($FILE, 'c+');
@@ -102,6 +108,18 @@ if ($action === 'add') {
       'cat' => in_array($cat, $CATS, true) ? $cat : 'autre',
       'status' => in_array($st, $STATUS, true) ? $st : 'todo',
       'by' => $by, 'at' => date('Y-m-d'),
+    ];
+    array_unshift($data[$kind], $item);
+  } elseif ($kind === 'inspirations') {
+    $url = insta_url(isset($it['url']) ? $it['url'] : '');
+    if ($url === '') { flock($fp, LOCK_UN); out(['error' => 'url'], 400); }
+    $f = isset($it['format']) ? $it['format'] : '';
+    $item = [
+      'id' => $id, 'url' => $url,
+      'format' => in_array($f, $FORMATS, true) ? $f : (strpos($url, '/reel/') ? 'reel' : 'carousel'),
+      'note' => clean(isset($it['note']) ? $it['note'] : '', 200),
+      'by' => isset($it['by']) && in_array($it['by'], $TEAM, true) ? $it['by'] : '',
+      'at' => date('Y-m-d'),
     ];
     array_unshift($data[$kind], $item);
   } else {
@@ -129,6 +147,9 @@ if ($action === 'add') {
       if (isset($it['cat']) && in_array($it['cat'], $CATS, true)) $x['cat'] = $it['cat'];
       if (isset($it['status']) && in_array($it['status'], $STATUS, true)) $x['status'] = $it['status'];
       if (isset($it['by']) && in_array($it['by'], $TEAM, true)) $x['by'] = $it['by'];
+    } elseif ($kind === 'inspirations') {
+      if (isset($it['format']) && in_array($it['format'], $FORMATS, true)) $x['format'] = $it['format'];
+      if (isset($it['note'])) $x['note'] = clean($it['note'], 200);
     } else {
       if (isset($it['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $it['date'])) $x['date'] = $it['date'];
       if (isset($it['time'])) $x['time'] = clean($it['time'], 30);

@@ -506,6 +506,7 @@
     planning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3.5" y="5" width="17" height="15" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>',
     redaction: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 20l1-4.5L16 4.5l3.5 3.5-11 11z"/><path d="M13.5 7l3.5 3.5"/></svg>',
     autre: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>',
+    spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9-1.9 5.1-1.9-5.1-5.1-1.9 5.1-1.9z"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>',
     edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 20l1-4.5L16 4.5l3.5 3.5-11 11z"/></svg>',
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 6l12 12M18 6L6 18"/></svg>',
     prev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>',
@@ -579,6 +580,7 @@
       '<div class="team-fab__menu" role="menu" aria-label="Espace équipe">' +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="passages">' + SICONS.planning + '<span><b>Rendez-vous</b><small class="label">Calendrier des passages</small></span></button>' +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="missions">' + SICONS.redaction + '<span><b>Tâche</b><small class="label">Missions en cours</small></span></button>' +
+      '<button type="button" class="team-fab__item" role="menuitem" data-goto="inspi">' + SICONS.spark + '<span><b>Inspiration</b><small class="label">Reels et carrousels du mois</small></span></button>' +
       '<button type="button" class="team-fab__item team-fab__quit" role="menuitem" data-fab-quit>' + SICONS.close + '<span><b>Fermer l’espace équipe</b></span></button>' +
       '</div>' +
       '<button type="button" class="label team-fab__btn" data-fab-toggle aria-expanded="false"><i class="team-fab__dot"></i><span>Espace équipe</span></button>' +
@@ -594,7 +596,24 @@
       '<div class="sheet__actions"><button type="button" class="label sheet__btn" data-sheet-cancel>Annuler</button>' +
       '<button type="submit" class="label sheet__btn sheet__btn--main" data-sheet-ok>Valider</button></div>' +
       '</form></div>' +
-      '<div class="toast label" data-toast aria-live="polite"></div>'
+      '<div class="toast label" data-toast aria-live="polite"></div>' +
+      // Inspiration du mois : bouton flottant (couleur 18H22) et panneau des reels / carrousels Instagram
+      '<button type="button" class="label inspi-fab" data-inspi-open hidden>' + SICONS.spark + '<span>Inspiration du mois</span></button>' +
+      '<div class="inspi" data-inspi aria-hidden="true" role="dialog" aria-modal="true" aria-label="Inspiration du mois">' +
+      '<div class="inspi__backdrop" data-inspi-close></div>' +
+      '<div class="inspi__panel">' +
+      '<header class="inspi__head"><div><p class="label inspi__kicker">Inspiration du mois</p><h3 class="inspi__title" data-inspi-month></h3></div>' +
+      '<button type="button" class="inspi__close" data-inspi-close aria-label="Fermer">' + SICONS.close + '</button></header>' +
+      '<form class="admin-form inspi__form" data-inspi-form autocomplete="off">' +
+      '<p class="label admin-form__title">Ajouter une inspiration</p>' +
+      '<input type="url" name="url" placeholder="Lien Instagram (reel, carrousel, post)" aria-label="Lien Instagram" required>' +
+      '<div class="admin-form__row"><select name="format" aria-label="Format"><option value="">Format auto</option><option value="reel">Reel</option><option value="carousel">Carrousel</option><option value="post">Post</option></select>' +
+      '<input type="text" name="note" placeholder="Ce qu’on en retient" aria-label="Note" maxlength="200"></div>' +
+      '<button type="submit" class="label admin-form__go">Ajouter</button>' +
+      '</form>' +
+      '<div class="inspi__track" data-inspi-track></div>' +
+      '<div class="inspi__dots" data-inspi-dots aria-hidden="true"></div>' +
+      '</div></div>'
     );
   }
 
@@ -623,7 +642,11 @@
       if (!r.ok) return Promise.reject(r.status);
       return r.text().then(function (t) { return JSON.parse(t); });
     }
-    function valid(d) { return d && Array.isArray(d.passages) && Array.isArray(d.missions); }
+    function valid(d) {
+      if (!d || !Array.isArray(d.passages) || !Array.isArray(d.missions)) return false;
+      if (!Array.isArray(d.inspirations)) d.inspirations = [];
+      return true;
+    }
     function load() {
       var fromApi = API ? fetch(API + '?t=' + Date.now(), { cache: 'no-store' }).then(json) : Promise.reject();
       return fromApi.then(function (d) {
@@ -650,7 +673,7 @@
       if (op.action === 'add') {
         var it = op.item;
         it.id = op.kind[0] + Date.now().toString(36);
-        if (op.kind === 'missions') { it.at = iso(new Date()); arr.unshift(it); }
+        if (op.kind === 'missions' || op.kind === 'inspirations') { it.at = iso(new Date()); arr.unshift(it); }
         else { arr.push(it); arr.sort(function (a, b) { return a.date < b.date ? -1 : 1; }); }
       } else if (op.action === 'update') {
         arr.forEach(function (m) { if (m.id === op.id) m.status = op.status; });
@@ -779,6 +802,7 @@
       paintCalendar();
       paintVisits();
       paintTasks();
+      paintInspi();
       document.querySelector('[data-suivi-mode]').textContent = admin && mode === 'local'
         ? 'Aperçu : les modifications restent sur cet appareil'
         : '';
@@ -838,7 +862,11 @@
       });
     });
     sheetEl.addEventListener('click', function (e) { if (e.target.closest('[data-sheet-cancel]')) closeSheet(); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sheetEl.classList.contains('is-open')) closeSheet(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (sheetEl.classList.contains('is-open')) closeSheet();
+      else if (document.querySelector('[data-inspi].is-open')) document.querySelector('[data-inspi-close]').click();
+    });
 
     var toastEl = document.querySelector('[data-toast]'), toastT;
     function toast(msg) {
@@ -900,6 +928,61 @@
         },
       });
     }
+
+    /* Inspiration du mois */
+    var inspiEl = document.querySelector('[data-inspi]');
+    var inspiBtn = document.querySelector('[data-inspi-open]');
+    var inspiTrack = inspiEl.querySelector('[data-inspi-track]');
+    var FORMAT = { reel: 'Reel', carousel: 'Carrousel', post: 'Post' };
+    function instaParts(u) {
+      var m = /instagram\.com\/(?:[A-Za-z0-9._]+\/)?(p|reel|reels|tv)\/([A-Za-z0-9_-]+)/.exec(u || '');
+      return m ? { seg: m[1] === 'p' ? 'p' : 'reel', code: m[2] } : null;
+    }
+    var inspiSig = '';
+    function paintInspi() {
+      var items = state.inspirations || [];
+      inspiBtn.hidden = !items.length && !admin;
+      // Le mois du planning présenté (sinon le mois en cours)
+      var first = list(list(PLAN.months || PLAN.weeks)[0] && list(PLAN.months || PLAN.weeks)[0].posts)[0];
+      var ref = first ? parseDate(first.date) : new Date();
+      inspiEl.querySelector('[data-inspi-month]').textContent = MOIS_LONGS[ref.getMonth()] + ' ' + ref.getFullYear();
+      // On ne recharge les lecteurs Instagram que si la liste a changé
+      var sig = JSON.stringify(items) + admin;
+      if (sig === inspiSig) return;
+      inspiSig = sig;
+      inspiTrack.innerHTML = items.length ? items.map(function (it) {
+        var ig = instaParts(it.url);
+        if (!ig) return '';
+        var f = it.format || (ig.seg === 'reel' ? 'reel' : 'carousel');
+        return '<article class="inspi__card inspi__card--' + esc(f) + '">' +
+          '<div class="inspi__meta"><span class="label inspi__tag">' + (SICONS[f === 'reel' ? 'video' : 'photo']) + esc(FORMAT[f] || '') + '</span>' +
+          '<button type="button" class="del" data-del="inspirations" data-id="' + esc(it.id) + '" aria-label="Supprimer cette inspiration">' + SICONS.close + '</button></div>' +
+          '<div class="inspi__frame"><iframe src="https://www.instagram.com/' + ig.seg + '/' + esc(ig.code) + '/embed/" loading="lazy" allowtransparency="true" scrolling="no" title="Inspiration Instagram"></iframe></div>' +
+          (it.note ? '<p class="inspi__note">' + esc(it.note) + '</p>' : '') +
+          '<a class="label inspi__link" href="' + esc(it.url) + '" target="_blank" rel="noopener">Ouvrir sur Instagram</a>' +
+          '</article>';
+      }).join('') : '<p class="inspi__empty">Les inspirations du mois arrivent bientôt.</p>';
+      inspiEl.querySelector('[data-inspi-dots]').innerHTML = items.length > 1 ? items.map(function (_, k) { return '<i class="' + (k ? '' : 'is-on') + '"></i>'; }).join('') : '';
+    }
+    inspiTrack.addEventListener('scroll', function () {
+      var cards = inspiTrack.querySelectorAll('.inspi__card');
+      if (!cards.length) return;
+      var k = Math.round(inspiTrack.scrollLeft / (cards[0].offsetWidth + 14));
+      inspiEl.querySelectorAll('[data-inspi-dots] i').forEach(function (d, j) { d.classList.toggle('is-on', j === k); });
+    }, { passive: true });
+    function inspi(open) {
+      inspiEl.classList.toggle('is-open', open);
+      inspiEl.setAttribute('aria-hidden', open ? 'false' : 'true');
+      document.body.classList.toggle('is-locked', open);
+    }
+    inspiEl.querySelector('[data-inspi-form]').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var f = e.target;
+      var url = f.elements.url.value.trim();
+      if (!instaParts(url)) { toast('Collez un lien Instagram de reel, carrousel ou post.'); return; }
+      send({ action: 'add', kind: 'inspirations', item: { url: url, format: f.elements.format.value, note: f.elements.note.value.trim(), by: who } })
+        .then(function () { f.reset(); inspiTrack.scrollTo({ left: 0, behavior: 'smooth' }); });
+    });
 
     // Ouvre le formulaire d'une section (l'autre se referme) et y descend en douceur
     function openSection(kind) {
@@ -984,8 +1067,8 @@
         var delKind = t.getAttribute('data-del'), delId = t.getAttribute('data-id');
         var item = state[delKind].filter(function (x) { return x.id === delId; })[0] || {};
         sheet({
-          kicker: delKind === 'missions' ? 'Supprimer la mission' : 'Supprimer le passage',
-          title: item.title || (item.date ? shortDate(item.date) : ''),
+          kicker: { missions: 'Supprimer la mission', passages: 'Supprimer le passage', inspirations: 'Supprimer l’inspiration' }[delKind],
+          title: item.title || (item.date ? shortDate(item.date) : '') || (item.note || 'Ce lien Instagram'),
           ok: 'Supprimer',
           danger: true,
           submit: function () { send({ action: 'delete', kind: delKind, id: delId }); return true; },
@@ -995,7 +1078,11 @@
       } else if ((t = e.target.closest('[data-goto]'))) {
         var kind = t.getAttribute('data-goto');
         menu(false);
-        askCode(function () { openSection(kind); });
+        askCode(function () { if (kind === 'inspi') inspi(true); else openSection(kind); });
+      } else if (e.target.closest('[data-inspi-open]')) {
+        inspi(true);
+      } else if (e.target.closest('[data-inspi-close]')) {
+        inspi(false);
       } else if (e.target.closest('[data-fab-quit]')) {
         menu(false);
         // On garde sous les yeux ce qui est au centre de l'écran pendant que les formulaires se replient

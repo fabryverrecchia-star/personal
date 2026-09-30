@@ -21,6 +21,7 @@ Mode équipe (Fabrizio, Jade) :
 - Toucher le bouton flottant « Espace équipe » en bas à droite, puis choisir Rendez-vous (calendrier) ou Tâche (missions) : la page descend au formulaire. « Fermer l'espace équipe » dans le même menu.
 - Saisir le code équipe (une fois par appareil). Formulaire pour ajouter une mission (publiée par Fabrizio ou Jade) ou un passage ;
   sur chaque ligne, le crayon modifie, la croix supprime, et toucher l'état fait avancer la mission (À venir → En cours → Livré).
+- Inspiration du mois : menu Espace équipe → Inspiration, coller un lien Instagram (reel, carrousel ou post). Le bouton bleu « Inspiration du mois » apparaît pour le client dès qu'il y a au moins un lien.
 - Changer le code : `php -r 'echo password_hash("nouveau-code", PASSWORD_DEFAULT);'` puis coller le résultat dans `config.php`.
 
 Sans PHP (aperçu statique), la page lit `data/suivi.json` et les modifications restent sur l'appareil.
