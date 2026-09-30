@@ -52,19 +52,45 @@ function load(string $file): array {
   return is_array($d) && isset($d['projects']) && is_array($d['projects']) ? $d['projects'] : [];
 }
 
+// Réglages de l'animation : [min, max, défaut]
+const SETTINGS_RANGE = [
+  'fade'    => [0.2, 4, 0.9],
+  'every'   => [0.4, 6, 1.5],
+  'max'     => [2, 10, 6],
+  'size'    => [6, 30, 14],
+  'variety' => [0, 100, 45],
+  'spacing' => [0, 100, 40],
+];
+
+function clean_settings($in): array {
+  $out = [];
+  foreach (SETTINGS_RANGE as $k => [$min, $max, $def]) {
+    $v = is_array($in) && isset($in[$k]) && is_numeric($in[$k]) ? (float) $in[$k] : $def;
+    $v = max($min, min($max, $v));
+    $out[$k] = $k === 'max' ? (int) round($v) : round($v, 2);
+  }
+  return $out;
+}
+
+function load_settings(string $file): array {
+  $d = is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
+  return clean_settings(is_array($d) ? ($d['settings'] ?? []) : []);
+}
+
 function write_atomic(string $file, string $content): bool {
   $tmp = $file . '.tmp' . bin2hex(random_bytes(3));
   if (file_put_contents($tmp, $content, LOCK_EX) === false) return false;
   return rename($tmp, $file);
 }
 
-function publish(array $projects, string $data, string $js): bool {
-  $ok = write_atomic($data, json_encode(['projects' => array_values($projects)], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+function publish(array $projects, array $settings, string $data, string $js): bool {
+  $ok = write_atomic($data, json_encode(['settings' => $settings, 'projects' => array_values($projects)], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
   $list = array_map(function ($p) {
     return ['src' => $p['src'], 'w' => (int) $p['w'], 'h' => (int) $p['h'], 'title' => $p['title']];
   }, array_values($projects));
   $body = "/* Généré par admin.php — modifier les projets depuis l'admin. */\nwindow.PROJECTS = "
-    . json_encode($list, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) . ";\n";
+    . json_encode($list, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) . ";\n"
+    . "window.SETTINGS = " . json_encode($settings, JSON_UNESCAPED_SLASHES) . ";\n";
   return $ok && write_atomic($js, $body);
 }
 
@@ -109,7 +135,7 @@ if (isset($_GET['api'])) {
     $projects = load($DATA);
     $item = ['id' => $id, 'src' => $src, 'w' => (int) $info[0], 'h' => (int) $info[1], 'title' => clean_title($_POST['title'] ?? '')];
     $projects[] = $item;
-    if (!publish($projects, $DATA, $JS)) out(['error' => 'write'], 500);
+    if (!publish($projects, load_settings($DATA), $DATA, $JS)) out(['error' => 'write'], 500);
     out(['ok' => true, 'item' => $item]);
   }
 
@@ -133,7 +159,8 @@ if (isset($_GET['api'])) {
       $base = realpath(__DIR__ . '/' . $DIR);
       if ($path && $base && strpos($path, $base . DIRECTORY_SEPARATOR) === 0) @unlink($path);
     }
-    if (!publish(array_values($next), $DATA, $JS)) out(['error' => 'write'], 500);
+    $settings = isset($_POST['settings']) ? clean_settings(json_decode((string) $_POST['settings'], true)) : load_settings($DATA);
+    if (!publish(array_values($next), $settings, $DATA, $JS)) out(['error' => 'write'], 500);
     out(['ok' => true, 'count' => count($next)]);
   }
 
@@ -141,6 +168,7 @@ if (isset($_GET['api'])) {
 }
 
 $projects = authed() ? load($DATA) : [];
+$settings = load_settings($DATA);
 $csrf = $_SESSION['csrf'] ?? '';
 $writable = is_writable(__DIR__ . '/data') && is_writable(__DIR__ . '/' . $DIR) && is_writable(dirname($JS));
 ?><!doctype html>
@@ -188,6 +216,31 @@ $writable = is_writable(__DIR__ . '/data') && is_writable(__DIR__ . '/' . $DIR) 
     </label>
     <div class="queue" id="queue"></div>
 
+    <section class="settings" id="settings" aria-labelledby="settingsTitle">
+      <h2 id="settingsTitle">Animation</h2>
+      <div class="settings__grid">
+        <label class="range"><span>Vitesse des fondus <output data-for="fade"></output></span>
+          <input type="range" id="set-fade" data-key="fade" data-unit=" s" min="0.2" max="4" step="0.1">
+          <small><i>Rapide</i><i>Lent</i></small></label>
+        <label class="range"><span>Apparition <output data-for="every"></output></span>
+          <input type="range" id="set-every" data-key="every" data-unit=" s" data-prefix="toutes les ~" min="0.4" max="6" step="0.1">
+          <small><i>Souvent</i><i>Rarement</i></small></label>
+        <label class="range"><span>Projets à l'écran <output data-for="max"></output></span>
+          <input type="range" id="set-max" data-key="max" min="2" max="10" step="1">
+          <small><i>2</i><i>10 (3 max sur mobile)</i></small></label>
+        <label class="range"><span>Taille moyenne <output data-for="size"></output></span>
+          <input type="range" id="set-size" data-key="size" data-unit=" %" min="6" max="30" step="1">
+          <small><i>Petites</i><i>Grandes</i></small></label>
+        <label class="range"><span>Variété des tailles <output data-for="variety"></output></span>
+          <input type="range" id="set-variety" data-key="variety" min="0" max="100" step="1">
+          <small><i>Toutes pareilles</i><i>Vignettes et grands formats</i></small></label>
+        <label class="range"><span>Espace entre les projets <output data-for="spacing"></output></span>
+          <input type="range" id="set-spacing" data-key="spacing" min="0" max="100" step="1">
+          <small><i>Serrés</i><i>Aérés</i></small></label>
+      </div>
+      <button type="button" class="linkbtn" id="resetSettings">Revenir aux réglages d'origine</button>
+    </section>
+
     <p class="help">Glissez les cartes (ou utilisez les flèches) pour changer l'ordre. Le titre est facultatif et s'affiche sous l'image.</p>
     <ol class="list" id="list"></ol>
 
@@ -199,7 +252,7 @@ $writable = is_writable(__DIR__ . '/data') && is_writable(__DIR__ . '/' . $DIR) 
   </main>
 
   <script>
-    window.ADMIN = { csrf: <?= json_encode($csrf) ?>, projects: <?= json_encode(array_values($projects), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) ?> };
+    window.ADMIN = { csrf: <?= json_encode($csrf) ?>, settings: <?= json_encode($settings) ?>, defaults: <?= json_encode(array_map(fn($r) => $r[2], SETTINGS_RANGE)) ?>, projects: <?= json_encode(array_values($projects), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) ?> };
   </script>
   <script src="assets/js/admin.js"></script>
 <?php endif; ?>

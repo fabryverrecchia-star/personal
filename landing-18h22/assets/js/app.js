@@ -13,12 +13,18 @@
   var $ = function (s) { return document.querySelector(s); };
   var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
 
-  /* Rythme des projets : un nouveau toutes les SPAWN_MIN à SPAWN_MAX secondes
-     (au hasard) ; au-delà de MAX projets visibles, le plus ancien s'efface. */
-  var SPAWN_MIN = 0.9;
-  var SPAWN_MAX = 2.2;
-  var MAX_DESKTOP = 6;
-  var MAX_MOBILE = 3;
+  /* Réglages (modifiables depuis l'admin, écrits dans projects.js) :
+     fade     durée des fondus, en secondes
+     every    intervalle moyen entre deux projets, en secondes (±45 % au hasard)
+     max      projets visibles en même temps sur ordinateur (3 max sur mobile)
+     size     taille moyenne, en % de la largeur de l'écran
+     variety  0 = tous de la même taille … 100 = des vignettes aux grandes images
+     spacing  0 = projets serrés … 100 = très aérés */
+  var SET = Object.assign({ fade: 0.9, every: 1.5, max: 6, size: 14, variety: 45, spacing: 40 }, window.SETTINGS || {});
+  var MAX_DESKTOP = SET.max;
+  var MAX_MOBILE = Math.min(3, SET.max);
+  var VARIETY = Math.max(0, Math.min(1, SET.variety / 100));
+  var SPACING = Math.max(0, Math.min(1, SET.spacing / 100));
 
   /* ------------------------------------------------------------------------
      Accroche : choisie d'après la langue du téléphone / navigateur
@@ -429,7 +435,10 @@
   function place(p) {
     var mobile = isMobile();
     var ar = p.w / p.h;
-    var w = mobile ? rand(0.24, 0.38) * W : Math.max(130, Math.min(380, rand(0.09, 0.2) * W));
+    // taille moyenne × un facteur tiré au hasard, d'autant plus large que la variété est forte
+    var factor = Math.exp(rand(-1, 1) * VARIETY * Math.log(2.4));
+    var base = mobile ? Math.min(0.42, SET.size * 2.2 / 100) : SET.size / 100;
+    var w = Math.max(mobile ? 70 : 90, Math.min(W * (mobile ? 0.6 : 0.42), base * W * factor));
     var h = w / ar;
     var maxH = H * (mobile ? 0.2 : 0.34);
     if (h > maxH) { h = maxH; w = h * ar; }
@@ -438,7 +447,7 @@
     var bottom = mobile ? 120 : 96;
     var amp = amplitude();
     var L = lockupRect(amp + (mobile ? 10 : 28));
-    var pad = 30 + amp * 0.6; // légende + écart de mouvement entre deux projets
+    var pad = 22 + SPACING * 70 + amp * 0.5 * SPACING; // légende + écart voulu entre deux projets
     var live = items;
     var best = null, bestScore = -Infinity;
     for (var attempt = 0; attempt < 4; attempt++) {
@@ -495,8 +504,8 @@
     captions.appendChild(it.cap);
     items.push(it);
 
-    gsap.to(it, { alpha: 1, duration: rand(0.5, 0.9), ease: 'power1.out' });
-    gsap.to(it, { reveal: 1, duration: rand(0.9, 1.5), ease: 'expo.out' });
+    gsap.to(it, { alpha: 1, duration: SET.fade * rand(0.7, 1.1), ease: 'power1.out' });
+    gsap.to(it, { reveal: 1, duration: SET.fade * rand(1.2, 1.8), ease: 'expo.out' });
 
     shown++;
     $('.counter__now').textContent = String(index + 1).padStart(2, '0');
@@ -505,9 +514,9 @@
   function retire(it) {
     it.leaving = true;
     gsap.killTweensOf(it);
-    gsap.to(it, { out: 1, duration: 1.4, ease: 'power2.in' });
+    gsap.to(it, { out: 1, duration: SET.fade * 1.5, ease: 'power2.in' });
     gsap.to(it, {
-      alpha: 0, duration: rand(0.9, 1.4), ease: 'power2.inOut',
+      alpha: 0, duration: SET.fade * rand(1, 1.5), ease: 'power2.inOut',
       onComplete: function () {
         items.splice(items.indexOf(it), 1);
         if (gl) gl.release(it.tex);
@@ -534,7 +543,7 @@
 
     if (running) {
       clock += dt;
-      if (clock >= nextSpawn) { clock = 0; nextSpawn = rand(SPAWN_MIN, SPAWN_MAX) * 1000; spawn(); }
+      if (clock >= nextSpawn) { clock = 0; nextSpawn = SET.every * rand(0.55, 1.45) * 1000; spawn(); }
     }
 
     var amp = amplitude();
@@ -552,7 +561,7 @@
       for (var b = a + 1; b < items.length; b++) {
         var P = items[a], Q = items[b];
         if (P.leaving && Q.leaving) continue;
-        var m = 24;
+        var m = 4 + SPACING * 40;
         var ix = Math.min(P.rx + P.w, Q.rx + Q.w) - Math.max(P.rx, Q.rx) + m;
         var iy = Math.min(P.ry + P.h + 24, Q.ry + Q.h + 24) - Math.max(P.ry, Q.ry) + m;
         if (ix <= 0 || iy <= 0) continue;

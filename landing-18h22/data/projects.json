@@ -1,4 +1,12 @@
 {
+ "settings": {
+  "fade": 0.9,
+  "every": 1.5,
+  "max": 6,
+  "size": 14,
+  "variety": 45,
+  "spacing": 40
+ },
  "projects": [
   {
    "id": "p01",

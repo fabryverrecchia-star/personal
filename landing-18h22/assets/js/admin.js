@@ -141,7 +141,10 @@
     var btn = this;
     btn.disabled = true;
     btn.textContent = 'Enregistrement…';
-    api('save', { list: JSON.stringify(state.map(function (p) { return { id: p.id, title: p.title || '' }; })) })
+    api('save', {
+      list: JSON.stringify(state.map(function (p) { return { id: p.id, title: p.title || '' }; })),
+      settings: JSON.stringify(settings)
+    })
       .then(function () { setDirty(false); toast('Enregistré. Le site est à jour.'); })
       .catch(function (err) { toast(explain(err)); })
       .then(function () { btn.disabled = false; btn.textContent = 'Enregistrer'; });
@@ -227,6 +230,31 @@
     e.preventDefault();
     upload(e.dataTransfer.files);
   });
+
+  /* ---- Réglages de l'animation ---- */
+  var settings = Object.assign({}, window.ADMIN.settings);
+  var ranges = Array.prototype.slice.call(document.querySelectorAll('#settings input[type=range]'));
+
+  function showSetting(input) {
+    var o = document.querySelector('output[data-for="' + input.dataset.key + '"]');
+    o.textContent = (input.dataset.prefix || '') + String(input.value).replace('.', ',') + (input.dataset.unit || '');
+  }
+  function fillSettings() {
+    ranges.forEach(function (r) { r.value = settings[r.dataset.key]; showSetting(r); });
+  }
+  ranges.forEach(function (r) {
+    r.addEventListener('input', function () {
+      settings[r.dataset.key] = parseFloat(r.value);
+      showSetting(r);
+      setDirty(true);
+    });
+  });
+  document.getElementById('resetSettings').addEventListener('click', function () {
+    settings = Object.assign({}, window.ADMIN.defaults);
+    fillSettings();
+    setDirty(true);
+  });
+  fillSettings();
 
   render();
 })();

@@ -17,12 +17,13 @@ Page d'accueil autonome (HTML/CSS/JS statique, aucune compilation).
 - Lien privé : `admin.php?k=CLÉ` (la clé est donnée à part, jamais dans le dépôt). Sans le lien, `admin.php` demande la clé comme code.
 - On y ajoute des images (réduites à 1600 px dans le navigateur), on change l'ordre, les titres, on supprime. « Enregistrer » réécrit `assets/js/projects.js` : le site se met à jour tout de suite.
 - Données : `data/projects.json` (dossier protégé). Les dossiers `data/`, `assets/projects/` et `assets/js/` doivent être accessibles en écriture par PHP.
+- Réglages « Animation » : vitesse des fondus, fréquence d'apparition, nombre de projets à l'écran, taille moyenne, variété des tailles (toutes pareilles → vignettes et grands formats), espace entre les projets. Enregistrés dans `window.SETTINGS` (fin de `projects.js`).
 - Changer la clé : voir `config.php`.
 
 ## Modifier
 
 - **Projets** : depuis l'admin (voir plus haut).
-- **Rythme** : `SPAWN_MIN`, `SPAWN_MAX` (intervalle aléatoire en secondes), `MAX_DESKTOP`, `MAX_MOBILE` en haut de `assets/js/app.js`.
+- **Rythme, tailles, espacement** : depuis l'admin (réglages « Animation »).
 - **Accroches** : objet `TAGLINES` dans `assets/js/app.js`.
 - **Couleurs** : variables `--bg`, `--ink` dans `assets/css/style.css`.
 

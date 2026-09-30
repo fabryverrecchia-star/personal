@@ -21,3 +21,4 @@ window.PROJECTS = [
   { src: 'assets/projects/p18.webp', w: 880, h: 1100, title: '' },
   { src: 'assets/projects/p19.webp', w: 940, h: 940, title: '' },
 ];
+window.SETTINGS = {"fade":0.9,"every":1.5,"max":6,"size":14,"variety":45,"spacing":40};

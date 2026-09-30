@@ -141,3 +141,15 @@ button:focus-visible, input:focus-visible, .drop:focus-within { outline: 1px sol
   .card__tools button { padding: 6px 9px; }
   .savebar span { display: none; }
 }
+
+/* Réglages de l'animation */
+.settings { display: grid; gap: 18px; padding: 22px 20px 20px; background: var(--paper); }
+.settings h2 { margin: 0; font-weight: 300; font-style: italic; font-size: 28px; }
+.settings__grid { display: grid; gap: 22px 36px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.range { display: grid; gap: 8px; }
+.range > span { display: flex; justify-content: space-between; gap: 12px; font-family: var(--label); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+.range output { color: var(--ink); letter-spacing: 0.06em; text-transform: none; font-variant-numeric: tabular-nums; }
+.range small { display: flex; justify-content: space-between; font-family: var(--label); font-size: 10px; letter-spacing: 0.06em; color: var(--ink-soft); }
+.range small i { font-style: normal; }
+.range input { width: 100%; accent-color: var(--ink); margin: 0; }
+.linkbtn { justify-self: start; border: 0; background: none; padding: 0; cursor: pointer; font-family: var(--label); font-size: 11px; letter-spacing: 0.08em; color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px; }
