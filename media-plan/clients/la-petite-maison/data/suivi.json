@@ -57,5 +57,14 @@
       "at": "2026-09-25"
     }
   ],
-  "inspirations": []
+  "inspirations": [
+    {
+      "id": "i1",
+      "url": "https://www.instagram.com/reel/Dd2ozFivouZ/",
+      "format": "reel",
+      "note": "",
+      "by": "Fabrizio",
+      "at": "2026-09-30"
+    }
+  ]
 }
