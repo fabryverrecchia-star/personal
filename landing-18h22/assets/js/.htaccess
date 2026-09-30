@@ -1,0 +1,6 @@
+# La liste des projets change depuis l'admin : toujours revalider
+<IfModule mod_headers.c>
+  <Files "projects.js">
+    Header set Cache-Control "no-cache"
+  </Files>
+</IfModule>

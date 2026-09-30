@@ -12,9 +12,16 @@ Page d'accueil autonome (HTML/CSS/JS statique, aucune compilation).
 - **Curseur œil** : un clic n'importe où ouvre la page « Tous les projets » (sur mobile : toucher l'écran ou le bouton « Touchez pour tout voir »). Échap ou « Fermer » pour revenir.
 - **Contact** (haut gauche) : panneau avec formulaire. Les messages partent via `contact.php` (PHP `mail()`), vers l'adresse `CONTACT_TO` en haut du fichier.
 
+## Admin (ajouter des projets)
+
+- Lien privé : `admin.php?k=CLÉ` (la clé est donnée à part, jamais dans le dépôt). Sans le lien, `admin.php` demande la clé comme code.
+- On y ajoute des images (réduites à 1600 px dans le navigateur), on change l'ordre, les titres, on supprime. « Enregistrer » réécrit `assets/js/projects.js` : le site se met à jour tout de suite.
+- Données : `data/projects.json` (dossier protégé). Les dossiers `data/`, `assets/projects/` et `assets/js/` doivent être accessibles en écriture par PHP.
+- Changer la clé : voir `config.php`.
+
 ## Modifier
 
-- **Projets** : `assets/js/projects.js` (chemin, dimensions, titre facultatif). Images conseillées : WebP ~1100 px.
+- **Projets** : depuis l'admin (voir plus haut).
 - **Rythme** : `SPAWN_MIN`, `SPAWN_MAX` (intervalle aléatoire en secondes), `MAX_DESKTOP`, `MAX_MOBILE` en haut de `assets/js/app.js`.
 - **Accroches** : objet `TAGLINES` dans `assets/js/app.js`.
 - **Couleurs** : variables `--bg`, `--ink` dans `assets/css/style.css`.
