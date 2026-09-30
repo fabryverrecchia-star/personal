@@ -8,7 +8,10 @@
  *        { action: "add",    kind: "missions"|"passages", item: {...} }
  *        { action: "update", kind: "missions", id, status }
  *        { action: "edit",   kind: "missions"|"passages", id, item: {...} }
- *        { action: "delete", kind: "missions"|"passages", id }
+ *        { action: "delete", kind: "missions"|"passages"|"inspirations", id }
+ *        { action: "refresh", kind: "inspirations" }  → récupère le contenu Instagram manquant
+ * Inspirations : à l'ajout, l'image, le compte et la légende du post sont récupérés
+ * sur Instagram (insta.php) ; l'image est copiée dans inspi/.
  * Les données sont dans data/suivi.json (dossier protégé par .htaccess).
  */
 header('Content-Type: application/json; charset=utf-8');
@@ -16,7 +19,9 @@ header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
 
 $FILE = __DIR__ . '/data/suivi.json';
+$INSPI_DIR = __DIR__ . '/inspi';
 $config = require __DIR__ . '/config.php';
+require __DIR__ . '/insta.php';
 
 function out($data, $code = 200) {
   http_response_code($code);
@@ -40,6 +45,9 @@ if ($method === 'GET' && isset($_GET['diag'])) {
     'data_writable' => is_file($FILE) ? is_writable($FILE) : is_writable(dirname($FILE)),
     'dir_writable' => is_writable(dirname($FILE)),
     'password_verify' => function_exists('password_verify'),
+    'inspi_writable' => is_dir($INSPI_DIR) ? is_writable($INSPI_DIR) : is_writable(__DIR__),
+    'curl' => function_exists('curl_init'),
+    'url_fopen' => (bool) ini_get('allow_url_fopen'),
   ]);
 }
 
@@ -85,6 +93,34 @@ function insta_url($u) {
   return 'https://www.instagram.com/' . ($m[1] === 'p' ? 'p' : 'reel') . '/' . $m[2] . '/';
 }
 
+// Contenu Instagram récupéré avant de verrouiller le fichier (la requête peut prendre quelques secondes)
+$fetched = [];
+if ($kind === 'inspirations' && $action === 'add') {
+  $it = isset($in['item']) && is_array($in['item']) ? $in['item'] : [];
+  $url = insta_url(isset($it['url']) ? $it['url'] : '');
+  if ($url === '') out(['error' => 'url'], 400);
+  $newId = 'i' . bin2hex(random_bytes(5));
+  $fetched[$newId] = ig_fetch($url, $newId, $INSPI_DIR);
+} elseif ($kind === 'inspirations' && $action === 'refresh') {
+  $raw = is_file($FILE) ? file_get_contents($FILE) : '';
+  $cur = $raw ? json_decode($raw, true) : null;
+  $only = isset($in['id']) ? (string) $in['id'] : '';
+  $n = 0;
+  foreach ((is_array($cur) && isset($cur['inspirations']) ? $cur['inspirations'] : []) as $x) {
+    // Sans id : les inspirations jamais récupérées ; avec id : on réessaie celle-ci
+    if ($only !== '' ? $x['id'] !== $only : (!empty($x['thumb']) || !empty($x['tried']) || $n >= 6)) continue;
+    $fetched[$x['id']] = ig_fetch($x['url'], $x['id'], $INSPI_DIR);
+    $n++;
+  }
+}
+function with_fetched($x, $f) {
+  $x['tried'] = date('Y-m-d');
+  if ($f['thumb'] !== '') $x['thumb'] = $f['thumb'];
+  if ($f['author'] !== '') $x['author'] = clean($f['author'], 60);
+  if ($f['caption'] !== '') $x['caption'] = clean($f['caption'], 400);
+  return $x;
+}
+
 // Lecture + écriture sous verrou : deux personnes qui modifient en même temps ne s'écrasent pas
 $fp = @fopen($FILE, 'c+');
 if (!$fp) out(['error' => 'storage'], 500);
@@ -111,17 +147,15 @@ if ($action === 'add') {
     ];
     array_unshift($data[$kind], $item);
   } elseif ($kind === 'inspirations') {
-    $url = insta_url(isset($it['url']) ? $it['url'] : '');
-    if ($url === '') { flock($fp, LOCK_UN); out(['error' => 'url'], 400); }
     $f = isset($it['format']) ? $it['format'] : '';
     $item = [
-      'id' => $id, 'url' => $url,
+      'id' => $newId, 'url' => $url,
       'format' => in_array($f, $FORMATS, true) ? $f : (strpos($url, '/reel/') ? 'reel' : 'carousel'),
       'note' => clean(isset($it['note']) ? $it['note'] : '', 200),
       'by' => isset($it['by']) && in_array($it['by'], $TEAM, true) ? $it['by'] : '',
       'at' => date('Y-m-d'),
     ];
-    array_unshift($data[$kind], $item);
+    array_unshift($data[$kind], with_fetched($item, $fetched[$newId]));
   } else {
     $date = isset($it['date']) ? $it['date'] : '';
     $k = isset($it['kind']) ? $it['kind'] : 'photo';
@@ -164,8 +198,15 @@ if ($action === 'add') {
   if (!in_array($st, $STATUS, true)) { flock($fp, LOCK_UN); out(['error' => 'status'], 400); }
   foreach ($data[$kind] as &$m) if ($m['id'] === (isset($in['id']) ? $in['id'] : '')) $m['status'] = $st;
   unset($m);
+} elseif ($action === 'refresh' && $kind === 'inspirations') {
+  foreach ($data[$kind] as &$x) if (isset($fetched[$x['id']])) $x = with_fetched($x, $fetched[$x['id']]);
+  unset($x);
 } elseif ($action === 'delete') {
   $id = isset($in['id']) ? $in['id'] : '';
+  // L'image copiée d'une inspiration part avec elle
+  foreach ($data[$kind] as $x) {
+    if ($x['id'] === $id && !empty($x['thumb']) && preg_match('~^inspi/[a-z0-9]+\.(jpg|png|webp)$~', $x['thumb'])) @unlink(__DIR__ . '/' . $x['thumb']);
+  }
   $data[$kind] = array_values(array_filter($data[$kind], function ($x) use ($id) { return $x['id'] !== $id; }));
 } else {
   flock($fp, LOCK_UN);

@@ -606,6 +606,7 @@
       '<button type="button" class="inspi__close" data-inspi-close aria-label="Fermer">' + SICONS.close + '</button></header>' +
       '<form class="admin-form inspi__form" data-inspi-form autocomplete="off">' +
       '<p class="label admin-form__title">Ajouter une inspiration</p>' +
+      '<p class="inspi__help">Collez le lien d’un reel, d’un carrousel ou d’un post : l’image, le compte et la légende sont récupérés sur Instagram.</p>' +
       '<input type="url" name="url" placeholder="Lien Instagram (reel, carrousel, post)" aria-label="Lien Instagram" required>' +
       '<div class="admin-form__row"><select name="format" aria-label="Format"><option value="">Format auto</option><option value="reel">Reel</option><option value="carousel">Carrousel</option><option value="post">Post</option></select>' +
       '<input type="text" name="note" placeholder="Ce qu’on en retient" aria-label="Note" maxlength="200"></div>' +
@@ -944,6 +945,19 @@
       var m = /instagram\.com\/(?:[A-Za-z0-9._]+\/)?(p|reel|reels|tv)\/([A-Za-z0-9_-]+)/.exec(u || '');
       return m ? { seg: m[1] === 'p' ? 'p' : 'reel', code: m[2] } : null;
     }
+    function embed(path) {
+      return '<iframe src="https://www.instagram.com/' + esc(path) + '/embed/" loading="lazy" allowtransparency="true" scrolling="no" title="Inspiration Instagram"></iframe>';
+    }
+    // Contenu Instagram pas encore récupéré (liens ajoutés avant, ou Instagram indisponible) : on le demande en fond
+    var refreshed = false;
+    function refreshInspi(id) {
+      if (mode !== 'api' || !admin) return Promise.resolve();
+      var op = { action: 'refresh', kind: 'inspirations' };
+      if (id) op.id = id;
+      else if (refreshed || !(state.inspirations || []).some(function (x) { return !x.thumb && !x.tried; })) return Promise.resolve();
+      refreshed = true;
+      return post(op, code).then(json).then(function (d) { if (valid(d)) { state = d; paint(); } }).catch(function () {});
+    }
     var inspiSig = '';
     function paintInspi() {
       var items = state.inspirations || [];
@@ -963,7 +977,14 @@
         return '<article class="inspi__card inspi__card--' + esc(f) + '">' +
           '<div class="inspi__meta"><span class="label inspi__tag">' + (SICONS[f === 'reel' ? 'video' : 'photo']) + esc(FORMAT[f] || '') + '</span>' +
           '<button type="button" class="del" data-del="inspirations" data-id="' + esc(it.id) + '" aria-label="Supprimer cette inspiration">' + SICONS.close + '</button></div>' +
-          '<div class="inspi__frame"><iframe src="https://www.instagram.com/' + ig.seg + '/' + esc(ig.code) + '/embed/" loading="lazy" allowtransparency="true" scrolling="no" title="Inspiration Instagram"></iframe></div>' +
+          (it.thumb
+            // Contenu récupéré : l'image du post, le lecteur Instagram se charge au toucher
+            ? '<button type="button" class="inspi__frame inspi__poster" data-inspi-play="' + ig.seg + '/' + esc(ig.code) + '" aria-label="Lire sur la page">' +
+              '<img src="' + esc(src(it.thumb)) + '" alt="" loading="lazy"><span class="inspi__play">' + ICONS.play + '</span></button>'
+            : '<div class="inspi__frame">' + embed(ig.seg + '/' + ig.code) + '</div>') +
+          (it.author ? '<p class="label inspi__author">@' + esc(it.author) + '</p>' : '') +
+          (it.caption ? '<p class="inspi__caption">' + esc(it.caption) + '</p>' : '') +
+          (!it.thumb && admin && mode === 'api' ? '<button type="button" class="label inspi__retry" data-inspi-retry="' + esc(it.id) + '">Récupérer le contenu Instagram</button>' : '') +
           (it.note ? '<p class="inspi__note">' + esc(it.note) + '</p>' : '') +
           '<a class="label inspi__link" href="' + esc(it.url) + '" target="_blank" rel="noopener">Ouvrir sur Instagram</a>' +
           '</article>';
@@ -977,6 +998,7 @@
       inspiEl.querySelectorAll('[data-inspi-dots] i').forEach(function (d, j) { d.classList.toggle('is-on', j === k); });
     }, { passive: true });
     function inspi(open) {
+      if (open) refreshInspi();
       inspiEl.classList.toggle('is-open', open);
       inspiEl.setAttribute('aria-hidden', open ? 'false' : 'true');
       document.body.classList.toggle('is-locked', open);
@@ -986,8 +1008,19 @@
       var f = e.target;
       var url = f.elements.url.value.trim();
       if (!instaParts(url)) { toast('Collez un lien Instagram de reel, carrousel ou post.'); return; }
+      var go = f.querySelector('.admin-form__go');
+      if (go.disabled) return;
+      go.disabled = true;
+      go.textContent = mode === 'api' ? 'Récupération sur Instagram…' : 'Ajout…';
       send({ action: 'add', kind: 'inspirations', item: { url: url, format: f.elements.format.value, note: f.elements.note.value.trim(), by: who } })
-        .then(function () { f.reset(); inspiTrack.scrollTo({ left: 0, behavior: 'smooth' }); });
+        .then(function () {
+          go.disabled = false;
+          go.textContent = 'Ajouter';
+          f.reset();
+          inspiTrack.scrollTo({ left: 0, behavior: 'smooth' });
+          var first = (state.inspirations || [])[0];
+          if (mode === 'api' && first && !first.thumb) toast('Lien ajouté. Instagram n’a pas donné l’image : le lecteur Instagram est affiché à la place.');
+        });
     });
 
     // Ouvre le formulaire d'une section (l'autre se referme) et y descend en douceur
@@ -1085,6 +1118,14 @@
         var kind = t.getAttribute('data-goto');
         menu(false);
         askCode(function () { if (kind === 'inspi') inspi(true); else openSection(kind); });
+      } else if ((t = e.target.closest('[data-inspi-play]'))) {
+        t.outerHTML = '<div class="inspi__frame">' + embed(t.getAttribute('data-inspi-play')) + '</div>';
+      } else if (admin && (t = e.target.closest('[data-inspi-retry]'))) {
+        t.disabled = true;
+        t.textContent = 'Récupération…';
+        refreshInspi(t.getAttribute('data-inspi-retry')).then(function () {
+          if (t.isConnected) { t.disabled = false; t.textContent = 'Réessayer'; toast('Instagram ne répond pas pour ce lien. Réessayez plus tard.'); }
+        });
       } else if (e.target.closest('[data-inspi-open]')) {
         inspi(true);
       } else if (e.target.closest('[data-inspi-close]')) {
@@ -1124,7 +1165,9 @@
 
     load().then(function () {
       if (code && mode === 'api') setAdmin(true);
-      else if (wantsAdmin) menu(true);
+      // Lien direct vers le panneau d'inspiration pour l'équipe : ?inspi
+      if (new URLSearchParams(location.search).has('inspi')) askCode(function () { inspi(true); });
+      else if (!admin && wantsAdmin) menu(true);
     });
   }
 
