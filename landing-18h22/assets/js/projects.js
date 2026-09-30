@@ -16,4 +16,8 @@ window.PROJECTS = [
   { src: 'assets/projects/p13.webp', w: 1100, h: 689, title: '' },
   { src: 'assets/projects/p14.webp', w: 1100, h: 744, title: '' },
   { src: 'assets/projects/p15.webp', w: 1100, h: 731, title: '' },
+  { src: 'assets/projects/p16.webp', w: 1081, h: 1100, title: '' },
+  { src: 'assets/projects/p17.webp', w: 619, h: 1100, title: '' },
+  { src: 'assets/projects/p18.webp', w: 880, h: 1100, title: '' },
+  { src: 'assets/projects/p19.webp', w: 940, h: 940, title: '' },
 ];

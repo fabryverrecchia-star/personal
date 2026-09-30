@@ -27,7 +27,7 @@ body = re.sub(r'\s*<script src="assets/[^"]+"></script>', '', body)
 
 page = (head.strip() + '\n<style>\n' + css + '\n</style>\n' + body.strip() +
         '\n<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>\n'
-        '<script>document.body.classList.add("is-intro");</script>\n'
+        '<script>document.body.classList.add("is-intro"); window.PREVIEW = true;</script>\n'
         '<script>\n' + projects + '\n</script>\n<script>\n' + app + '\n</script>\n')
 open(out, 'w', encoding='utf-8').write(page)
 print(out, round(len(page) / 1024), 'Ko')

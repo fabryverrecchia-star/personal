@@ -13,10 +13,11 @@
   var $ = function (s) { return document.querySelector(s); };
   var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
 
-  /* Rythme des projets : un nouveau toutes les SPAWN_EVERY secondes ; au-delà
-     de MAX projets visibles, le plus ancien s'efface et laisse sa place. */
-  var SPAWN_EVERY = 3;
-  var MAX_DESKTOP = 5;
+  /* Rythme des projets : un nouveau toutes les SPAWN_MIN à SPAWN_MAX secondes
+     (au hasard) ; au-delà de MAX projets visibles, le plus ancien s'efface. */
+  var SPAWN_MIN = 0.9;
+  var SPAWN_MAX = 2.2;
+  var MAX_DESKTOP = 6;
   var MAX_MOBILE = 3;
 
   /* ------------------------------------------------------------------------
@@ -28,6 +29,35 @@
     es: 'La hora en que los lugares se cuentan.',
     it: 'L’ora in cui i luoghi si raccontano.'
   };
+
+  var UI = {
+    fr: { contact: 'Contact', projects: 'Tous les projets', close: 'Fermer', hint: 'Touchez pour tout voir',
+          name: 'Nom', email: 'E-mail', phone: 'Téléphone (facultatif)', message: 'Votre projet', send: 'Envoyer',
+          title: 'Parlons de votre projet', sending: 'Envoi…', sent: 'Merci, votre message est bien parti. Nous revenons vers vous très vite.',
+          error: 'L\u2019envoi n\u2019a pas abouti. Vérifiez les champs et réessayez.', preview: 'Aperçu : le formulaire enverra les messages une fois le site en ligne.' },
+    en: { contact: 'Contact', projects: 'All projects', close: 'Close', hint: 'Tap to see everything',
+          name: 'Name', email: 'Email', phone: 'Phone (optional)', message: 'Your project', send: 'Send',
+          title: 'Tell us about your project', sending: 'Sending…', sent: 'Thank you, your message is on its way. We will get back to you shortly.',
+          error: 'The message could not be sent. Check the fields and try again.', preview: 'Preview: the form will send messages once the site is live.' },
+    es: { contact: 'Contacto', projects: 'Todos los proyectos', close: 'Cerrar', hint: 'Toca para verlo todo',
+          name: 'Nombre', email: 'Correo', phone: 'Teléfono (opcional)', message: 'Tu proyecto', send: 'Enviar',
+          title: 'Hablemos de tu proyecto', sending: 'Enviando…', sent: 'Gracias, tu mensaje se ha enviado. Te responderemos muy pronto.',
+          error: 'No se pudo enviar. Revisa los campos e inténtalo de nuevo.', preview: 'Vista previa: el formulario enviará los mensajes cuando el sitio esté en línea.' },
+    it: { contact: 'Contatti', projects: 'Tutti i progetti', close: 'Chiudi', hint: 'Tocca per vedere tutto',
+          name: 'Nome', email: 'E-mail', phone: 'Telefono (facoltativo)', message: 'Il tuo progetto', send: 'Invia',
+          title: 'Parliamo del tuo progetto', sending: 'Invio…', sent: 'Grazie, il tuo messaggio è partito. Ti risponderemo a breve.',
+          error: 'Invio non riuscito. Controlla i campi e riprova.', preview: 'Anteprima: il modulo invierà i messaggi quando il sito sarà online.' }
+  };
+
+  function applyUI(l) {
+    $$('[data-i18n]').forEach(function (el) {
+      var v = UI[l][el.dataset.i18n];
+      if (v != null) el.textContent = v;
+    });
+    $$('[data-i18n-label]').forEach(function (el) {
+      el.setAttribute('aria-label', UI[l][el.dataset.i18nLabel]);
+    });
+  }
 
   function detectLang() {
     var forced = (params.get('lang') || '').toLowerCase();
@@ -46,6 +76,7 @@
   function renderTagline(l) {
     lang = l;
     document.documentElement.lang = l;
+    applyUI(l);
     tagline.innerHTML = TAGLINES[l].split(' ').map(function (w) {
       return '<span class="w"><span>' + w + '</span></span>';
     }).join(' ');
@@ -200,6 +231,7 @@
     'uniform float uReveal;',
     'uniform float uOut;',
     'uniform float uTime;',
+    'uniform vec3 uDir;',
     'varying vec2 vUv;',
     'float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }',
     'float noise(vec2 p) {',
@@ -223,7 +255,7 @@
     '  vec3 col = vec3(r, base.g, b);',
     // révélation de bas en haut, bord doux et légèrement organique
     '  float n = noise(vUv * vec2(5.0, 2.5) + uTime * 0.15) * 0.16;',
-    '  float d = (1.0 - vUv.y) + n;',
+    '  float d = uDir.x * vUv.x + uDir.y * vUv.y + uDir.z + n;',
     '  float m = smoothstep(0.0, 0.24, uReveal * 1.45 - d);',
     '  float a = m * uAlpha;',
     '  gl_FragColor = vec4(col * a, a);',
@@ -274,7 +306,7 @@
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
     var U = {};
-    ['uRes', 'uRect', 'uVel', 'uScale', 'uTex', 'uImg', 'uAlpha', 'uReveal', 'uOut', 'uTime'].forEach(function (n) {
+    ['uRes', 'uRect', 'uVel', 'uScale', 'uTex', 'uImg', 'uAlpha', 'uReveal', 'uOut', 'uTime', 'uDir'].forEach(function (n) {
       U[n] = gl.getUniformLocation(prog, n);
     });
     gl.uniform1i(U.uTex, 0);
@@ -326,6 +358,7 @@
         gl.uniform1f(U.uAlpha, it.alpha);
         gl.uniform1f(U.uReveal, it.reveal);
         gl.uniform1f(U.uOut, it.out);
+        gl.uniform3f(U.uDir, it.dir[0], it.dir[1], it.dir[2]);
         gl.drawElements(gl.TRIANGLES, idx.length, gl.UNSIGNED_SHORT, 0);
       }
     }
@@ -396,13 +429,13 @@
   function place(p) {
     var mobile = isMobile();
     var ar = p.w / p.h;
-    var w = mobile ? rand(0.28, 0.36) * W : Math.max(150, Math.min(340, rand(0.12, 0.18) * W));
+    var w = mobile ? rand(0.24, 0.38) * W : Math.max(130, Math.min(380, rand(0.09, 0.2) * W));
     var h = w / ar;
     var maxH = H * (mobile ? 0.2 : 0.34);
     if (h > maxH) { h = maxH; w = h * ar; }
     var edge = mobile ? 16 : 40;
     var top = mobile ? 56 : 70;
-    var bottom = mobile ? 64 : 84;
+    var bottom = mobile ? 120 : 96;
     var amp = amplitude();
     var L = lockupRect(amp + (mobile ? 10 : 28));
     var pad = 30 + amp * 0.6; // légende + écart de mouvement entre deux projets
@@ -447,7 +480,9 @@
       x: r.x, y: r.y, w: r.w, h: r.h, rx: r.x, ry: r.y,
       depth: rand(0.35, 1), phase: rand(0, Math.PI * 2),
       ox: 0, oy: 0, vx: 0, vy: 0, sx: 0, sy: 0, px: 0, py: 0, hover: 0, scale: 1,
-      alpha: 0, reveal: 0, out: 0, leaving: false
+      alpha: 0, reveal: 0, out: 0, leaving: false,
+      // sens de révélation tiré au hasard : du bas, du haut, de gauche, de droite
+      dir: [[0, -1, 1], [0, 1, 0], [1, 0, 0], [-1, 0, 1]][Math.floor(Math.random() * 4)]
     };
     if (gl) it.tex = gl.texture(images[index].img);
     else {
@@ -460,8 +495,8 @@
     captions.appendChild(it.cap);
     items.push(it);
 
-    gsap.to(it, { alpha: 1, duration: 1.6, ease: 'power1.out' });
-    gsap.to(it, { reveal: 1, duration: 2.4, ease: 'expo.out' });
+    gsap.to(it, { alpha: 1, duration: rand(0.5, 0.9), ease: 'power1.out' });
+    gsap.to(it, { reveal: 1, duration: rand(0.9, 1.5), ease: 'expo.out' });
 
     shown++;
     $('.counter__now').textContent = String(index + 1).padStart(2, '0');
@@ -470,9 +505,9 @@
   function retire(it) {
     it.leaving = true;
     gsap.killTweensOf(it);
-    gsap.to(it, { out: 1, duration: 2, ease: 'power2.in' });
+    gsap.to(it, { out: 1, duration: 1.4, ease: 'power2.in' });
     gsap.to(it, {
-      alpha: 0, duration: 1.8, ease: 'power2.inOut',
+      alpha: 0, duration: rand(0.9, 1.4), ease: 'power2.inOut',
       onComplete: function () {
         items.splice(items.indexOf(it), 1);
         if (gl) gl.release(it.tex);
@@ -487,6 +522,7 @@
      ------------------------------------------------------------------------ */
   var running = false;
   var clock = 0;
+  var nextSpawn = 1000;
   var prev = 0;
 
   function frame(t) {
@@ -498,7 +534,7 @@
 
     if (running) {
       clock += dt;
-      if (clock >= SPAWN_EVERY * 1000) { clock = 0; spawn(); }
+      if (clock >= nextSpawn) { clock = 0; nextSpawn = rand(SPAWN_MIN, SPAWN_MAX) * 1000; spawn(); }
     }
 
     var amp = amplitude();
@@ -557,8 +593,8 @@
       it.vx += (Math.max(-vmax, Math.min(vmax, it.ox - pox)) - it.vx) * 0.2;
       it.vy += (Math.max(-vmax, Math.min(vmax, it.oy - poy)) - it.vy) * 0.2;
       if (reduce) { it.vx = it.vy = 0; }
-      it.sx = (it.sx + it.px * 0.06) * 0.994;
-      it.sy = (it.sy + it.py * 0.06) * 0.994;
+      it.sx = (it.sx + it.px * 0.1) * 0.994;
+      it.sy = (it.sy + it.py * 0.1) * 0.994;
       it.rx = it.x + it.ox + it.sx;
       it.ry = it.y + it.oy + it.sy;
 
@@ -577,11 +613,15 @@
         it.el.style.width = it.w + 'px';
         it.el.style.height = it.h + 'px';
         it.el.style.opacity = it.alpha.toFixed(3);
-        it.el.style.clipPath = 'inset(' + ((1 - Math.min(1, it.reveal * 1.1)) * 100).toFixed(2) + '% 0 0 0)';
+        var c = ((1 - Math.min(1, it.reveal * 1.1)) * 100).toFixed(2) + '%';
+        var D = it.dir;
+        it.el.style.clipPath = D[1] < 0 ? 'inset(' + c + ' 0 0 0)' : D[1] > 0 ? 'inset(0 0 ' + c + ' 0)' : D[0] > 0 ? 'inset(0 ' + c + ' 0 0)' : 'inset(0 0 0 ' + c + ')';
         it.el.style.transform = 'translate3d(' + it.rx.toFixed(1) + 'px,' + it.ry.toFixed(1) + 'px,0) scale(' + it.scale.toFixed(4) + ')';
       }
     }
     cursor.classList.toggle('is-over', over);
+    cursor.classList.toggle('is-eye', ready && !galleryOpen && !contactOpen && !overUI);
+    cursor.classList.toggle('is-ui', overUI);
 
     if (gl) gl.draw(items, t);
     requestAnimationFrame(frame);
@@ -614,9 +654,140 @@
   function start() {
     document.body.classList.remove('is-intro');
     document.body.classList.add('is-ready');
+    ready = true;
     running = true;
     spawn();
   }
+
+  /* ------------------------------------------------------------------------
+     Tous les projets : un clic n'importe où (curseur œil) les ouvre
+     ------------------------------------------------------------------------ */
+  var ready = false;
+  var galleryOpen = false;
+  var contactOpen = false;
+  var overUI = false;
+  var gallery = $('#gallery');
+  var grid = $('#galleryGrid');
+  var sceneLayers = ['#stage', '#stageDom', '#captions', '#lockup'];
+
+  var UI_SEL = 'button, a, input, textarea, label, .lang, .contact__panel';
+  document.addEventListener('pointerover', function (e) {
+    overUI = !!(e.target.closest && e.target.closest(UI_SEL));
+  });
+
+  function buildGallery() {
+    if (grid.children.length) return;
+    PROJECTS.forEach(function (p, i) {
+      var f = document.createElement('figure');
+      f.innerHTML = '<img src="' + p.src + '" width="' + p.w + '" height="' + p.h + '" alt="" loading="lazy" decoding="async">' +
+        '<figcaption>N\u00b0 ' + String(i + 1).padStart(2, '0') + (p.title ? ' \u2014 ' + p.title : '') + '</figcaption>';
+      grid.appendChild(f);
+    });
+    $('#galleryCount').textContent = String(PROJECTS.length).padStart(2, '0');
+  }
+
+  function openGallery() {
+    if (galleryOpen || !ready) return;
+    galleryOpen = true;
+    running = false;
+    buildGallery();
+    gallery.scrollTop = 0;
+    gallery.classList.add('is-open');
+    gallery.setAttribute('aria-hidden', 'false');
+    gsap.to(sceneLayers, { opacity: 0, duration: 0.5, ease: 'power2.out' });
+    gsap.to(gallery, { opacity: 1, duration: 0.6, ease: 'power2.out' });
+    gsap.fromTo(grid.children, { opacity: 0, y: 50 }, {
+      opacity: 1, y: 0, duration: 1.1, ease: 'expo.out', stagger: { each: 0.045, from: 'random' }, delay: 0.1
+    });
+    gsap.fromTo('.gallery__bar', { opacity: 0 }, { opacity: 1, duration: 0.8, delay: 0.2 });
+  }
+
+  function closeGallery() {
+    if (!galleryOpen) return;
+    galleryOpen = false;
+    gallery.setAttribute('aria-hidden', 'true');
+    gsap.to(gallery, {
+      opacity: 0, duration: 0.5, ease: 'power2.in',
+      onComplete: function () { gallery.classList.remove('is-open'); }
+    });
+    gsap.to(sceneLayers, { opacity: 1, duration: 0.9, ease: 'power2.out', delay: 0.2 });
+    running = true;
+  }
+
+  document.addEventListener('click', function (e) {
+    if (!ready || galleryOpen || contactOpen) return;
+    if (e.target.closest(UI_SEL)) return;
+    openGallery();
+  });
+  $('#hint').addEventListener('click', openGallery);
+  $('#galleryClose').addEventListener('click', closeGallery);
+
+  /* ------------------------------------------------------------------------
+     Contact
+     ------------------------------------------------------------------------ */
+  var contact = $('#contact');
+  var panel = contact.querySelector('.contact__panel');
+  var form = $('#contactForm');
+  var status = $('#cf-status');
+  var hiddenPanel = function () { return isMobile() ? { yPercent: 100, xPercent: 0 } : { xPercent: 100, yPercent: 0 }; };
+
+  function openContact() {
+    if (contactOpen) return;
+    contactOpen = true;
+    contact.classList.add('is-open');
+    contact.setAttribute('aria-hidden', 'false');
+    gsap.set(panel, { x: 0, y: 0 });
+    gsap.fromTo(panel, hiddenPanel(), { xPercent: 0, yPercent: 0, duration: 0.9, ease: 'expo.out' });
+    gsap.to('.contact__veil', { opacity: 1, duration: 0.6 });
+    gsap.fromTo(panel.querySelectorAll('.contact__title, .field, .contact__send'), { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.05, delay: 0.15 });
+    setTimeout(function () { if (finePointer) $('#cf-name').focus({ preventScroll: true }); }, 400);
+  }
+
+  function closeContact() {
+    if (!contactOpen) return;
+    contactOpen = false;
+    contact.setAttribute('aria-hidden', 'true');
+    gsap.to(panel, Object.assign(hiddenPanel(), { duration: 0.6, ease: 'power3.in' }));
+    gsap.to('.contact__veil', {
+      opacity: 0, duration: 0.6,
+      onComplete: function () { contact.classList.remove('is-open'); }
+    });
+    $('#contactBtn').focus({ preventScroll: true });
+  }
+
+  $('#contactBtn').addEventListener('click', openContact);
+  $$('#contact [data-close]').forEach(function (b) { b.addEventListener('click', closeContact); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (contactOpen) closeContact();
+    else if (galleryOpen) closeGallery();
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var bad = false;
+    ['#cf-name', '#cf-email', '#cf-message'].forEach(function (s) {
+      var el = $(s);
+      var ok = el.value.trim() !== '' && (el.type !== 'email' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim()));
+      el.closest('.field').classList.toggle('is-invalid', !ok);
+      if (!ok) bad = true;
+    });
+    if (bad) { status.textContent = UI[lang].error; return; }
+    if (window.PREVIEW) { status.textContent = UI[lang].preview; return; }
+    var btn = $('#cf-send');
+    btn.disabled = true;
+    status.textContent = UI[lang].sending;
+    fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } })
+      .then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
+      .then(function (res) {
+        if (!res.ok) throw new Error('send');
+        status.textContent = UI[lang].sent;
+        form.reset();
+      })
+      .catch(function () { status.textContent = UI[lang].error; })
+      .then(function () { btn.disabled = false; });
+  });
 
   var go = function () { intro(start); };
   if (document.fonts && document.fonts.ready) {
