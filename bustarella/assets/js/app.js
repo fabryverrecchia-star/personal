@@ -17,7 +17,9 @@
     { who: "Andrea", q: "Quelle est la couleur préférée de Lindsey ?", options: ["Rouge", "Vert", "Bleu", "Jaune"] },
     { who: "Lindsey", q: "Quel est le passe-temps préféré d’Andrea à la montagne ?", options: [
       "Promenade spirituelle avec yoga en plein air", "Chasse avec les copains", "Randonnée chrono de 50 km", "Ramassage des feuilles tombées en automne"] },
-    { who: "Andrea", q: "Quel plat Lindsey aime-t-elle te cuisiner avec amour ?", options: ["Minestrone", "Tagliatelle al salmone", "Poulet", "Salsiccia e friarielli"] }
+    { who: "Andrea", q: "Quel plat Lindsey aime-t-elle te cuisiner avec amour ?", options: ["Minestrone", "Tagliatelle al salmone", "Poulet", "Salsiccia e friarielli"] },
+    { who: "Lindsey", q: "Comment s’appelle la chaîne de montagnes qui traverse la région d’Andrea, celle qu’il a sous les yeux depuis son enfance ?", options: ["Les Apennins", "Les Alpes", "Les Andes", "Les Pyrénées"] },
+    { who: "Andrea", q: "Où Lindsey a-t-elle eu son premier appartement rien qu’à elle, en attendant son prince charmant… c’est-à-dire toi ?", options: ["Paris 18ᵉ", "Saint-Ouen", "Saint-Denis", "Alfortville"] }
   ];
 
   /* ───────────── State (survives a reload, so the IBAN isn't asked twice) ───────────── */
@@ -65,7 +67,7 @@
       if (prev) prev.classList.remove("is-active");
       next.classList.add("is-active");
       window.scrollTo(0, 0);
-      revealIn(next);
+      if (!next.hasAttribute("data-delay-reveal")) revealIn(next);
       if (enter[step]) enter[step](opts || {});
     }
     if (prev && gsap) {
@@ -198,9 +200,9 @@
 
   /* ───────────── Fake verification (they always win) ───────────── */
   enter.verify = function () {
-    var steps = ["Analyse de la question 1…", "Analyse de la question 2…", "Analyse de la question 3…", "Analyse de la question 4…", "Calcul du score final…"];
+    var steps = QUESTIONS.map(function (_, i) { return "Analyse de la question " + (i + 1) + "…"; }).concat(["Calcul du score final…"]);
     var out = $("#verifySteps"), fill = $(".verify span");
-    var total = reduce ? 1.5 : 5.2;
+    var total = reduce ? 1.5 : 6.4;
     steps.forEach(function (s, i) { setTimeout(function () { out.textContent = s; }, (total * 1000 / steps.length) * i); });
     if (gsap) gsap.fromTo(fill, { scaleX: 0 }, { scaleX: 1, duration: total, ease: "power1.inOut" });
     setTimeout(function () { go("won"); }, total * 1000 + 500);
@@ -210,7 +212,14 @@
 
   /* ───────────── The gift ───────────── */
   var flight = null;
+  // the sky (clouds, hearts, the little plane) first, then the gift
   enter.gift = function () {
+    var screen = $('[data-step="gift"]');
+    if (gsap) gsap.set($$(".screen__in > *", screen), { opacity: 0 });
+    var sky = window.SkyIntro ? window.SkyIntro.play() : Promise.resolve();
+    sky.then(function () { revealIn(screen); showGift(); });
+  };
+  function showGift() {
     if (gsap && !reduce) gsap.fromTo("#pass", { rotateX: 75, y: 60, opacity: 0, transformPerspective: 900, transformOrigin: "50% 0%" },
       { rotateX: 0, y: 0, opacity: 1, duration: 1.8, delay: 0.5, ease: EXPO });
     if (!flight && window.FlightMap) flight = new window.FlightMap($("#map"), $("#stops"));

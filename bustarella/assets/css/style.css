@@ -287,3 +287,23 @@ button, input { font: inherit; color: inherit; }
 .stops li.is-base { counter-increment: none; }
 .stops li.is-base::before { display: none; }
 .petal { position: fixed; left: 0; top: 0; z-index: 60; width: 12px; height: 16px; border-radius: 60% 0 60% 0; pointer-events: none; box-shadow: inset 0 0 0 1px rgba(20, 41, 90, .06); }
+
+/* ───────────── Sky before the gift ───────────── */
+.sky {
+  position: fixed; inset: 0; z-index: 70; overflow: hidden; cursor: pointer;
+  background:
+    radial-gradient(90% 60% at 80% 100%, rgba(232, 205, 198, .55), transparent 70%),
+    linear-gradient(180deg, #b9d0e8 0%, #d6e4f2 40%, #eef0f1 75%, #f7f1ec 100%);
+}
+.sky__cloud { position: absolute; left: 0; will-change: transform; pointer-events: none; }
+.sky__cloud svg { display: block; width: 100%; height: auto; }
+.sky__plane {
+  position: absolute; z-index: 3; left: 50%; top: 40%;
+  width: min(80vw, 440px); margin-left: calc(min(80vw, 440px) / -2);
+  will-change: transform; filter: drop-shadow(0 14px 18px rgba(20, 41, 90, .18));
+}
+.sky__plane svg { display: block; width: 100%; height: auto; overflow: visible; }
+.sky__text {
+  position: absolute; z-index: 5; left: 0; right: 0; top: calc(44px + var(--safe-top)); margin: 0;
+  text-align: center; font-size: 12px; letter-spacing: .38em; text-transform: uppercase; color: var(--navy);
+}
