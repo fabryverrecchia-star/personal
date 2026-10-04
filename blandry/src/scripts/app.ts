@@ -486,6 +486,33 @@ function reveals() {
 }
 
 /* ─── Grand titre défilant (savoir-faire) ──────────── */
+/* ─── Bandeau des marques : défilement continu, accéléré par le scroll ── */
+function brands() {
+  const track = $('[data-brands-track]');
+  if (!track) return;
+  let x = 0;
+  let boost = 0;
+  let visible = false;
+  new IntersectionObserver(([en]) => (visible = en.isIntersecting)).observe(track);
+  ScrollTrigger.create({
+    trigger: track,
+    start: 'top bottom',
+    end: 'bottom top',
+    onUpdate: (self) => (boost = Math.min(Math.abs(self.getVelocity()) / 200, 10)),
+  });
+  let hover = false;
+  track.addEventListener('pointerenter', () => (hover = true));
+  track.addEventListener('pointerleave', () => (hover = false));
+  gsap.ticker.add(() => {
+    if (!visible) return;
+    boost *= 0.93;
+    x -= (hover ? 0.2 : 0.8) + boost;
+    const quarter = track.scrollWidth / 4;
+    if (x <= -quarter) x += quarter;
+    track.style.transform = `translate3d(${x}px,0,0)`;
+  });
+}
+
 function giant() {
   $$('[data-giant]').forEach((el) => {
     if (reduced) return;
@@ -873,6 +900,7 @@ function init() {
 
   reveals();
   giant();
+  brands();
   skills();
   beforeAfter();
   process();

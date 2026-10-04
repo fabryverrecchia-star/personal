@@ -170,6 +170,18 @@ export const garanties = [
   },
 ];
 
+// ── Marques et fournisseurs (bandeau défilant) ──────────────
+// Logos officiels à déposer dans src/assets/marques/<id>.svg (ou .png)
+const marqueFiles = import.meta.glob<{ default: ImageMetadata }>('../assets/marques/*.{svg,png,webp}', { eager: true });
+const marqueLogo = (id: string) =>
+  Object.entries(marqueFiles).find(([k]) => k.split('/').pop()!.split('.')[0] === id)?.[1].default;
+export const marques = [
+  { id: 'caparol', nom: 'Caparol' },
+  { id: 'tollens', nom: 'Tollens' },
+  { id: 'gedimat', nom: 'Gedimat' },
+  { id: 'bigmat', nom: 'BigMat' },
+].map((m) => ({ ...m, logo: marqueLogo(m.id) }));
+
 // ── Savoir-faire ──────────────────────────────────────────────
 export const services = [
   {

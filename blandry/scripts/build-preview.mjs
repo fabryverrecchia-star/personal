@@ -30,7 +30,7 @@ for (const file of pages) {
     return `href="${flat(path)}${hash}"`;
   });
   // Images : chemins relatifs, fichiers copiés à côté des pages
-  html = html.replace(/(["\s,])\/_astro\/([^"\s,]+\.(?:webp|jpg|png|avif))/g, (_, pre, name) => {
+  html = html.replace(/(["\s,])\/_astro\/([^"\s,]+\.(?:webp|jpg|png|avif|svg))/g, (_, pre, name) => {
     mkdirSync(join(out, 'img'), { recursive: true });
     copyFileSync(join(dist, '_astro', name), join(out, 'img', name));
     return `${pre}img/${name}`;

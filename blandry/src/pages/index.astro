@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 import BeforeAfter from '../components/BeforeAfter.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
-import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale, garanties } from '../data/site';
+import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale, garanties, marques } from '../data/site';
 import { u } from '../lib/url';
 
 const faqLd = {
@@ -223,6 +223,29 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
               <p class="muted">{g.texte}</p>
             </li>
           ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ─── Marques ────────────────────────────── -->
+  <section class="brands" aria-labelledby="brands-t">
+    <div class="wrap brands__head">
+      <p id="brands-t" class="label muted">Produits et fournisseurs</p>
+      <p class="brands__p" data-reveal="fade">
+        Nous travaillons exclusivement avec des gammes professionnelles, choisies pour leur tenue dans le temps.
+      </p>
+    </div>
+    <div class="brands__rail" data-brands>
+      <ul class="brands__track" data-brands-track>
+        {
+          [0, 1, 2, 3].map((k) =>
+            marques.map((m) => (
+              <li class="brand" aria-hidden={k > 0 ? 'true' : undefined}>
+                {m.logo ? <img src={m.logo.src} alt={k > 0 ? '' : m.nom} class="brand__logo" loading="lazy" /> : <span class="display brand__name">{m.nom}</span>}
+              </li>
+            )),
+          )
         }
       </ul>
     </div>
@@ -837,6 +860,67 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     }
     .gcard {
       padding: 36px 32px 40px 0;
+    }
+  }
+
+  /* ─── Marques ─── */
+  .brands {
+    padding-block: clamp(64px, 9vw, 120px);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .brands__head {
+    display: grid;
+    gap: 12px;
+    margin-bottom: clamp(32px, 5vw, 56px);
+  }
+  .brands__p {
+    max-width: 52ch;
+    color: var(--muted);
+  }
+  .brands__rail {
+    -webkit-mask: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    mask: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  }
+  .brands__track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
+  .brand {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: clamp(170px, 24vw, 320px);
+    height: clamp(70px, 9vw, 110px);
+    padding-inline: 24px;
+    border-left: 1px solid var(--line);
+  }
+  .brand__name {
+    font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+    letter-spacing: 0.08em;
+    color: var(--fg);
+    opacity: 0.55;
+    transition: opacity 0.4s;
+  }
+  .brand__logo {
+    max-height: 56%;
+    max-width: 78%;
+    object-fit: contain;
+    filter: grayscale(1);
+    opacity: 0.6;
+    transition:
+      filter 0.4s,
+      opacity 0.4s;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .brand:hover .brand__name {
+      opacity: 1;
+    }
+    .brand:hover .brand__logo {
+      filter: none;
+      opacity: 1;
     }
   }
 
