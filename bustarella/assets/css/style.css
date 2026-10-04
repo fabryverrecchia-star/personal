@@ -320,3 +320,5 @@ button, input { font: inherit; color: inherit; }
 .sky--inline { position: absolute; inset: 0; z-index: auto; border-radius: inherit; }
 .sky--inline .sky__plane { width: 74%; margin-left: -37%; top: 34%; }
 .sky--inline .sky__text { top: 18px; font-size: 11px; }
+
+.gift__head[hidden] { display: none; }

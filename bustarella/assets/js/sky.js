@@ -62,7 +62,7 @@
     '<rect x="104" y="36" width="92" height="7" rx="3.5" fill="#fffdf8" stroke="' + NAVY + '" stroke-width="1.6"/>' +
     '<path d="M140 69 L176 43" stroke="' + NAVY + '" stroke-width="2" stroke-linecap="round"/>' +
     // registration
-    '<text x="70" y="61" font-family="Cormorant, Garamond, serif" font-size="11" font-weight="600" letter-spacing="1.5" fill="' + NAVY + '">F-LOVE</text>' +
+    '<text x="78" y="62" font-family="Cormorant, Garamond, serif" font-size="14" font-weight="600" letter-spacing="1" fill="' + NAVY + '">L&amp;A</text>' +
     // landing gear
     '<path d="M140 72 L134 86 M202 70 L204 84" stroke="' + NAVY + '" stroke-width="2" stroke-linecap="round"/>' +
     '<ellipse cx="134" cy="88" rx="9" ry="5" fill="#fffdf8" stroke="' + NAVY + '" stroke-width="1.4"/>' +

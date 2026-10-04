@@ -19,7 +19,7 @@
       "Promenade spirituelle avec yoga en plein air", "Chasse avec les copains", "Randonnée chrono de 50 km", "Ramassage des feuilles tombées en automne"] },
     { who: "Andrea", q: "Quel plat Lindsey aime-t-elle te cuisiner avec amour ?", options: ["Minestrone", "Tagliatelle al salmone", "Poulet", "Salsiccia e friarielli"] },
     { who: "Lindsey", q: "Comment s’appelle la chaîne de montagnes qui traverse la région d’Andrea, celle qu’il a sous les yeux depuis son enfance ?", options: ["Les Apennins", "Les Alpes", "Les Andes", "Les Pyrénées"] },
-    { who: "Andrea", q: "Où Lindsey a-t-elle eu son premier appartement rien qu’à elle, en attendant son prince charmant… c’est-à-dire toi ?", options: ["Paris 18ᵉ", "Porte de Saint-Ouen", "Saint-Denis", "Alfortville"] }
+    { who: "Andrea", q: "Où Lindsey a-t-elle eu son premier appartement rien qu’à elle, en attendant son prince charmant… c’est-à-dire toi ?", options: ["Paris 18ᵉ", "Porte de Saint-Ouen", "Saint-Denis", "Saint-Ouen"] }
   ];
 
   /* ───────────── State (survives a reload, so the IBAN isn't asked twice) ───────────── */
@@ -213,27 +213,45 @@
   /* ───────────── The gift ───────────── */
   var flight = null;
   // the sky (clouds, hearts, the little plane) first, then the gift
-  // the sky plays where the ticket will be; when the plane has gone, the ticket comes out
+  // 1 · the sky alone · 2 · the plane gone, the title appears in the middle of the screen
+  // 3 · the title rises to its place and the ticket comes out below it
   enter.gift = function () {
-    var box = $("#skybox"), after = $("#giftAfter");
+    var box = $("#skybox"), head = $("#giftHead"), after = $("#giftAfter");
+    head.hidden = true;
     after.hidden = true;
     box.hidden = false;
-    if (!gsap || !window.SkyIntro) { box.hidden = true; after.hidden = false; showGift(); return; }
+    if (!gsap || !window.SkyIntro) { box.hidden = true; head.hidden = false; after.hidden = false; showGift(); return; }
+    gsap.set(box, { opacity: 0 });
     gsap.fromTo(box, { opacity: 0, y: 30, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 1, delay: 0.35, ease: EXPO });
     setTimeout(function () {
       window.SkyIntro.play(box).then(function () {
-        gsap.to(box, { opacity: 0, scale: 0.96, duration: 0.5, ease: "power2.in", onComplete: function () {
+        gsap.to(box, { opacity: 0, scale: 0.96, duration: 0.6, ease: "power2.in", onComplete: function () {
           box.hidden = true;
-          after.hidden = false;
-          gsap.fromTo(after.children, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 1.2, stagger: 0.12, delay: 0.5, ease: EXPO, clearProps: "transform" });
-          showGift();
+          head.hidden = false;                       // alone on screen → centred by the layout
+          window.scrollTo(0, 0);
+          var t = $(".title", head);
+          gsap.timeline()
+            .fromTo($(".eyebrow", head), { opacity: 0, letterSpacing: "0.8em" }, { opacity: 1, letterSpacing: "0.34em", duration: 1.6, ease: EXPO }, 0)
+            .fromTo(t, { opacity: 1, clipPath: "inset(-20% 100% -20% 0)" }, { clipPath: "inset(-20% -10% -20% 0)", duration: 1.9, ease: "power2.inOut", clearProps: "clipPath" }, 0.2)
+            .fromTo($(".lead", head), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 1.4, ease: EXPO }, 1.3)
+            .add(rise, "+=1.1");
         } });
       });
     }, 550);
+
+    // FLIP: measure where the title is, reveal the ticket, animate the title up to its new place
+    function rise() {
+      var before = head.getBoundingClientRect().top;
+      after.hidden = false;
+      var now = head.getBoundingClientRect().top;
+      gsap.fromTo(head, { y: before - now }, { y: 0, duration: 1.5, ease: "expo.inOut", clearProps: "transform" });
+      gsap.fromTo($$(":scope > :not(#pass)", after), { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1.3, stagger: 0.12, delay: 1.25, ease: EXPO, clearProps: "transform" });
+      setTimeout(showGift, 1150);
+    }
   };
   function showGift() {
     if (gsap) gsap.fromTo("#pass", { rotateX: 75, y: 60, opacity: 0, transformPerspective: 900, transformOrigin: "50% 0%" },
-      { rotateX: 0, y: 0, opacity: 1, duration: 1.8, ease: EXPO });
+      { rotateX: 0, y: 0, opacity: 1, duration: 1.8, delay: 0.2, ease: EXPO });
     if (!flight && window.FlightMap) flight = new window.FlightMap($("#map"), $("#stops"));
     var map = $("#map");
     // fly when the map comes into view
