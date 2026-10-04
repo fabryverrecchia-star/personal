@@ -76,23 +76,26 @@
 
   function rand(seed) { var s = seed * 9301 + 49297; return function () { s = (s * 9301 + 49297) % 233280; return s / 233280; }; }
 
-  function play() {
+  // plays inside `box` (the ticket's place on the page), or full screen without one
+  function play(box) {
     var gsap = window.gsap;
-    if (!gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return Promise.resolve();
+    if (!gsap) return Promise.resolve();
 
     return new Promise(function (done) {
-      var W = window.innerWidth, H = window.innerHeight;
+      var host = box || document.body;
+      var W = box ? box.clientWidth : window.innerWidth, H = box ? box.clientHeight : window.innerHeight;
+      var k = Math.max(0.55, Math.min(1.3, W / 420));           // cloud size follows the window
       var sky = document.createElement("div");
-      sky.className = "sky";
+      sky.className = "sky" + (box ? " sky--inline" : "");
       sky.innerHTML = '<p class="sky__text">Embarquement immédiat</p><div class="sky__plane">' + PLANE + "</div>";
-      document.body.appendChild(sky);
+      host.appendChild(sky);
       var tweens = [];
 
       // three layers of clouds: far (small, pale, slow) → near (big, fast)
       var layers = [
         { n: 10, w: [70, 120], speed: 22, op: 0.75, z: 1, top: [0.02, 0.95] },
         { n: 8, w: [130, 210], speed: 13, op: 0.92, z: 2, top: [0.03, 0.9] },
-        { n: 4, w: [240, 360], speed: 7.5, op: 1, z: 4, top: [0.55, 0.95] }
+        { n: 4, w: [240, 360], speed: 7.5, op: 1, z: 4, top: [0.62, 0.92] }
       ];
       var seed = 1;
       layers.forEach(function (L, li) {
@@ -100,7 +103,7 @@
           var heart = (li === 1 && i % 2 === 0) || (li === 0 && i % 3 === 1);
           var el = document.createElement("div");
           el.className = "sky__cloud" + (heart ? " is-heart" : "");
-          var w = L.w[0] + Math.random() * (L.w[1] - L.w[0]);
+          var w = (L.w[0] + Math.random() * (L.w[1] - L.w[0])) * k;
           if (heart) { el.innerHTML = heartSVG(); w *= 0.62; } else el.innerHTML = cloudSVG(seed++).svg;
           el.style.width = w.toFixed(0) + "px";
           el.style.opacity = L.op;
@@ -132,7 +135,7 @@
       tl.fromTo(sky, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: "power2.out" })
         .fromTo(".sky__text", { opacity: 0, y: 10, letterSpacing: "0.8em" }, { opacity: 1, y: 0, letterSpacing: "0.38em", duration: 1.6, ease: "expo.out" }, 0.3)
         // the plane surges up from below the screen
-        .fromTo(plane, { yPercent: 0, y: H * 0.75, x: -W * 0.08, rotate: -16 }, { y: 0, x: 0, rotate: -4, duration: 2.6, ease: "expo.out" }, 0.4)
+        .fromTo(plane, { yPercent: 0, y: H * 0.8, x: -W * 0.08, rotate: -16 }, { y: 0, x: 0, rotate: -4, duration: 2.6, ease: "expo.out" }, 0.4)
         .add(function () {
           tweens.push(gsap.to(plane, { y: -10, rotate: -1.5, duration: 1.5, yoyo: true, repeat: -1, ease: "sine.inOut" }));
         })

@@ -19,7 +19,7 @@
       "Promenade spirituelle avec yoga en plein air", "Chasse avec les copains", "Randonnée chrono de 50 km", "Ramassage des feuilles tombées en automne"] },
     { who: "Andrea", q: "Quel plat Lindsey aime-t-elle te cuisiner avec amour ?", options: ["Minestrone", "Tagliatelle al salmone", "Poulet", "Salsiccia e friarielli"] },
     { who: "Lindsey", q: "Comment s’appelle la chaîne de montagnes qui traverse la région d’Andrea, celle qu’il a sous les yeux depuis son enfance ?", options: ["Les Apennins", "Les Alpes", "Les Andes", "Les Pyrénées"] },
-    { who: "Andrea", q: "Où Lindsey a-t-elle eu son premier appartement rien qu’à elle, en attendant son prince charmant… c’est-à-dire toi ?", options: ["Paris 18ᵉ", "Saint-Ouen", "Saint-Denis", "Alfortville"] }
+    { who: "Andrea", q: "Où Lindsey a-t-elle eu son premier appartement rien qu’à elle, en attendant son prince charmant… c’est-à-dire toi ?", options: ["Paris 18ᵉ", "Porte de Saint-Ouen", "Saint-Denis", "Alfortville"] }
   ];
 
   /* ───────────── State (survives a reload, so the IBAN isn't asked twice) ───────────── */
@@ -213,15 +213,27 @@
   /* ───────────── The gift ───────────── */
   var flight = null;
   // the sky (clouds, hearts, the little plane) first, then the gift
+  // the sky plays where the ticket will be; when the plane has gone, the ticket comes out
   enter.gift = function () {
-    var screen = $('[data-step="gift"]');
-    if (gsap) gsap.set($$(".screen__in > *", screen), { opacity: 0 });
-    var sky = window.SkyIntro ? window.SkyIntro.play() : Promise.resolve();
-    sky.then(function () { revealIn(screen); showGift(); });
+    var box = $("#skybox"), after = $("#giftAfter");
+    after.hidden = true;
+    box.hidden = false;
+    if (!gsap || !window.SkyIntro) { box.hidden = true; after.hidden = false; showGift(); return; }
+    gsap.fromTo(box, { opacity: 0, y: 30, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 1, delay: 0.35, ease: EXPO });
+    setTimeout(function () {
+      window.SkyIntro.play(box).then(function () {
+        gsap.to(box, { opacity: 0, scale: 0.96, duration: 0.5, ease: "power2.in", onComplete: function () {
+          box.hidden = true;
+          after.hidden = false;
+          gsap.fromTo(after.children, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 1.2, stagger: 0.12, delay: 0.5, ease: EXPO, clearProps: "transform" });
+          showGift();
+        } });
+      });
+    }, 550);
   };
   function showGift() {
-    if (gsap && !reduce) gsap.fromTo("#pass", { rotateX: 75, y: 60, opacity: 0, transformPerspective: 900, transformOrigin: "50% 0%" },
-      { rotateX: 0, y: 0, opacity: 1, duration: 1.8, delay: 0.5, ease: EXPO });
+    if (gsap) gsap.fromTo("#pass", { rotateX: 75, y: 60, opacity: 0, transformPerspective: 900, transformOrigin: "50% 0%" },
+      { rotateX: 0, y: 0, opacity: 1, duration: 1.8, ease: EXPO });
     if (!flight && window.FlightMap) flight = new window.FlightMap($("#map"), $("#stops"));
     var map = $("#map");
     // fly when the map comes into view

@@ -307,3 +307,16 @@ button, input { font: inherit; color: inherit; }
   position: absolute; z-index: 5; left: 0; right: 0; top: calc(44px + var(--safe-top)); margin: 0;
   text-align: center; font-size: 12px; letter-spacing: .38em; text-transform: uppercase; color: var(--navy);
 }
+
+/* inside the page, in the ticket's place */
+.skybox {
+  position: relative; width: 100%; aspect-ratio: 4 / 3.4; margin: 30px 0 34px;
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 0 0 1px var(--line), 0 30px 60px -36px rgba(20, 41, 90, .45);
+  background: #d6e4f2;
+}
+.skybox[hidden], .gift__after[hidden] { display: none; }
+@media (min-width: 640px) { .skybox { aspect-ratio: 16 / 9; } }
+.sky--inline { position: absolute; inset: 0; z-index: auto; border-radius: inherit; }
+.sky--inline .sky__plane { width: 74%; margin-left: -37%; top: 34%; }
+.sky--inline .sky__text { top: 18px; font-size: 11px; }

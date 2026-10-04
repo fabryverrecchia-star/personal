@@ -148,12 +148,14 @@
     </section>
 
     <!-- 9 · Le cadeau -->
-    <section class="screen" data-step="gift" aria-labelledby="t9" data-delay-reveal>
+    <section class="screen" data-step="gift" aria-labelledby="t9">
       <div class="screen__in screen__in--wide">
         <p class="eyebrow">Votre cadeau</p>
         <h2 class="script title" id="t9">Un vol pour deux</h2>
         <p class="lead">en amoureux, avec pilote privé, au-dessus des côtes d’Armor</p>
 
+        <div class="skybox" id="skybox" aria-hidden="true"></div>
+        <div class="gift__after" id="giftAfter">
         <div class="pass" id="pass">
           <div class="pass__main">
             <p class="pass__label">Carte d’embarquement</p>
@@ -179,6 +181,7 @@
         <ol class="stops" id="stops"></ol>
         <p class="map__note">Illustration du parcours, tracé indicatif</p>
         <button class="btn" type="button" data-next>Continuer</button>
+        </div>
       </div>
     </section>
 
