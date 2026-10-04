@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 import BeforeAfter from '../components/BeforeAfter.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
-import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale, garanties, marques } from '../data/site';
+import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale, garanties, marques, instagram } from '../data/site';
 import { u } from '../lib/url';
 
 const faqLd = {
@@ -325,6 +325,41 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
         </ul>
       </div>
       <div class="wrap terre__bar" aria-hidden="true"><span data-terre-bar></span></div>
+    </div>
+  </section>
+
+  <!-- ─── Instagram ──────────────────────────── -->
+  <section class="insta section" aria-labelledby="insta-t">
+    <div class="wrap">
+      <div class="insta__head">
+        <div>
+          <p class="label muted" data-reveal="fade">Instagram</p>
+          <h2 id="insta-t" class="display insta__t" data-split>Les chantiers <em>au fil des jours</em></h2>
+        </div>
+        <p class="insta__p" data-reveal="fade">
+          Préparations, teintes, finitions : retrouvez nos chantiers en cours et terminés sur notre compte
+          <a href={instagram.url} class="link-u" target="_blank" rel="noopener me">{instagram.compte}</a>.
+        </p>
+      </div>
+      <ul class="insta__grid">
+        {
+          instagram.photos.map((src, i) => (
+            <li class={`insta__item insta__item--${i}`}>
+              <a href={instagram.url} target="_blank" rel="noopener" class="insta__link" aria-label={`Voir ${instagram.compte} sur Instagram`} tabindex={i > 0 ? -1 : undefined}>
+                <span class="insta__media" data-reveal="img">
+                  <Image src={src} alt="" widths={[400, 700]} sizes="(min-width: 900px) 24vw, 46vw" class="insta__img" />
+                </span>
+                <span class="insta__ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.4" /><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.4" /><circle cx="17.3" cy="6.7" r="1" fill="currentColor" /></svg>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="insta__more" data-reveal="fade">
+        <a href={instagram.url} target="_blank" rel="noopener" class="btn" data-magnetic>Suivre sur Instagram</a>
+      </div>
     </div>
   </section>
 
@@ -1222,5 +1257,102 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
       aspect-ratio: 4 / 5;
       max-height: 48vh;
     }
+  }
+  /* ─── Instagram ─── */
+  .insta__head {
+    display: grid;
+    gap: 24px;
+    margin-bottom: clamp(40px, 6vw, 80px);
+  }
+  .insta__t {
+    font-size: var(--fs-l);
+    max-width: 12ch;
+    margin-top: 16px;
+  }
+  .insta__p {
+    max-width: 44ch;
+    color: var(--muted);
+  }
+  .insta__p a {
+    color: var(--fg);
+  }
+  @media (min-width: 900px) {
+    .insta__head {
+      grid-template-columns: 7fr 5fr;
+      align-items: end;
+    }
+  }
+  .insta__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .insta__item--1,
+  .insta__item--3 {
+    margin-top: 40px;
+  }
+  .insta__item--2 {
+    margin-top: -40px;
+  }
+  @media (min-width: 900px) {
+    .insta__grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2vw;
+    }
+    .insta__item--2 {
+      margin-top: 0;
+    }
+    .insta__item--1 {
+      margin-top: 6vw;
+    }
+    .insta__item--3 {
+      margin-top: 3vw;
+    }
+  }
+  .insta__link {
+    position: relative;
+    display: block;
+  }
+  .insta__media {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+  }
+  .insta__media :global(.insta__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s var(--ease-out);
+  }
+  .insta__ico {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgb(26 25 23 / 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: var(--lin);
+    transition: transform 0.6s var(--ease-out);
+  }
+  .insta__ico svg {
+    width: 18px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .insta__link:hover .insta__img {
+      transform: scale(1.06);
+    }
+    .insta__link:hover .insta__ico {
+      transform: scale(1.15) rotate(-8deg);
+    }
+  }
+  .insta__more {
+    display: flex;
+    justify-content: center;
+    margin-top: clamp(56px, 8vw, 100px);
   }
 </style>

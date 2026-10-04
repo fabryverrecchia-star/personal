@@ -1,5 +1,5 @@
 ---
-import { site, zones, services, telHref } from '../data/site';
+import { site, zones, services, telHref, instagram } from '../data/site';
 import { u } from '../lib/url';
 import Logo from './Logo.astro';
 const annee = new Date().getFullYear();
@@ -26,6 +26,8 @@ const annee = new Date().getFullYear();
         <p class="label muted">Contact</p>
         <a href={telHref} class="link-u">{site.telephone}</a>
         <a href={`mailto:${site.email}`} class="link-u">{site.email}</a>
+        <p class="label muted footer__h">Suivez-nous</p>
+        <a href={instagram.url} class="link-u" target="_blank" rel="noopener me">Instagram · {instagram.compte}</a>
       </div>
       <div>
         <p class="label muted">Savoir-faire</p>

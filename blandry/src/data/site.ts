@@ -34,7 +34,13 @@ export const site = {
   assurance: 'Garantie décennale', // À COMPLÉTER : nom de l'assureur
   horaires: 'Du lundi au vendredi, de 8 h à 18 h',
   delaiReponse: 'Réponse sous 48 heures',
-  reseaux: {} as Record<string, string>,
+  reseaux: { instagram: 'https://www.instagram.com/benjamin_landry_finitions/' } as Record<string, string>,
+};
+
+export const instagram = {
+  compte: '@benjamin_landry_finitions',
+  url: site.reseaux.instagram,
+  photos: ['chambre-bleu-nuit', 'bibliotheque-rouge', 'cuisine-lineaire', 'sejour-poutres'].map(g),
 };
 
 export const telHref = `tel:${site.telephone.replace(/\s/g, '').replace(/^0/, '+33')}`;
@@ -43,7 +49,7 @@ export const photos = {
   artisan: { src: artisan, alt: 'Ponçage d’un plafond à la ponceuse girafe, sous une lumière rasante' },
   detail: { src: applique, alt: 'Applique murale sur un mur parfaitement lissé, sous un plafond rampant' },
   finition: { src: finition, alt: 'Angle de mur arrondi, enduit parfaitement lisse baigné de lumière' },
-  arche: { src: g('pierre-poutres'), alt: 'Mur de pierre, poutres et enduit clair' },
+  arche: { src: g('pierre-poutres'), alt: 'Mur en pierre apparente et enduit lissé, applique murale' },
 };
 
 // ── Nuancier du territoire ────────────────────────────────────

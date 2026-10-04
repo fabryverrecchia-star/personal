@@ -1,6 +1,6 @@
 ---
 import { Image } from 'astro:assets';
-import { site, zones, telHref, selection } from '../data/site';
+import { site, zones, telHref, instagram, selection } from '../data/site';
 import { u } from '../lib/url';
 import Logo from './Logo.astro';
 const nav = [
@@ -57,6 +57,10 @@ const nav = [
       <div>
         <p class="label muted">Téléphone</p>
         <a href={telHref} class="title menu__tel">{site.telephone}</a>
+      </div>
+      <div>
+        <p class="label muted">Instagram</p>
+        <a href={instagram.url} class="link-u" target="_blank" rel="noopener">{instagram.compte}</a>
       </div>
       <div>
         <p class="label muted">Zone d’intervention</p>
