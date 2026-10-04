@@ -242,7 +242,7 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
           [0, 1, 2, 3].map((k) =>
             marques.map((m) => (
               <li class="brand" aria-hidden={k > 0 ? 'true' : undefined}>
-                {m.logo ? <img src={m.logo.src} alt={k > 0 ? '' : m.nom} class="brand__logo" loading="lazy" /> : <span class="display brand__name">{m.nom}</span>}
+                {m.logo ? <img src={m.logo.src} alt={k > 0 ? '' : m.nom} class={`brand__logo brand__logo--${m.id}`} loading="lazy" /> : <span class="display brand__name">{m.nom}</span>}
               </li>
             )),
           )
@@ -893,7 +893,7 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     display: grid;
     place-items: center;
     width: clamp(170px, 24vw, 320px);
-    height: clamp(70px, 9vw, 110px);
+    height: clamp(84px, 10vw, 128px);
     padding-inline: 24px;
     border-left: 1px solid var(--line);
   }
@@ -905,16 +905,23 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     transition: opacity 0.4s;
   }
   .brand__logo {
-    max-height: 56%;
-    max-width: 78%;
+    display: block;
+    height: clamp(44px, 5.2vw, 66px);
+    width: auto;
+    max-width: 74%;
     object-fit: contain;
-    filter: grayscale(1);
-    opacity: 0.6;
     transition:
       filter 0.4s,
       opacity 0.4s;
   }
+  .brand__logo--caparol {
+    height: clamp(68px, 8vw, 102px);
+  }
   @media (hover: hover) and (pointer: fine) {
+    .brand__logo {
+      filter: grayscale(1);
+      opacity: 0.6;
+    }
     .brand:hover .brand__name {
       opacity: 1;
     }
