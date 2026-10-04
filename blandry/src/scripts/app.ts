@@ -736,7 +736,6 @@ function gallery() {
   if (!lb) return;
   const imgs = $$('.lb__img', lb);
   const countEl = $('[data-lb-count]', lb)!;
-  const titleEl = $('[data-lb-title]', lb)!;
   let idx = 0;
   let lastFocus: HTMLElement | null = null;
   const visible = () => items.map((it, i) => (it.hidden ? -1 : i)).filter((i) => i >= 0);
@@ -748,7 +747,6 @@ function gallery() {
     });
     const v = visible();
     countEl.textContent = `${v.indexOf(i) + 1} / ${v.length}`;
-    titleEl.textContent = (imgs[i] as HTMLImageElement).alt;
   };
   const step = (d: number) => {
     const v = visible();

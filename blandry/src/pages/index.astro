@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 import BeforeAfter from '../components/BeforeAfter.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
-import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale, equipe, garanties } from '../data/site';
+import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale, garanties } from '../data/site';
 import { u } from '../lib/url';
 
 const faqLd = {
@@ -190,12 +190,8 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
             <li class={`work work--${i}`}>
               <figure>
                 <div class="work__media" data-reveal="img" data-view>
-                  <Image src={p.src} alt={p.titre} widths={[500, 900, 1400]} sizes={i === 0 ? '(min-width: 1024px) 60vw, 92vw' : '(min-width: 1024px) 30vw, 80vw'} class="work__img" />
+                  <Image src={p.src} alt="Chantier de peinture réalisé par Benjamin Landry" widths={[500, 900, 1400]} sizes={i === 0 ? '(min-width: 1024px) 60vw, 92vw' : '(min-width: 1024px) 30vw, 80vw'} class="work__img" />
                 </div>
-                <figcaption class="work__cap">
-                  <span class="label muted">{p.cat}</span>
-                  <span class="work__t">{p.titre}</span>
-                </figcaption>
               </figure>
             </li>
           ))
@@ -204,32 +200,6 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
       <div class="works__more" data-reveal="fade">
         <a href={u('/realisations/')} class="btn" data-magnetic>Voir toutes les réalisations</a>
       </div>
-    </div>
-  </section>
-
-  <!-- ─── L'équipe ───────────────────────────── -->
-  <section class="team alt" id="equipe" aria-labelledby="team-t">
-    <figure class="team__media" data-parallax-wrap data-reveal="img">
-      <Image src={photos.artisan.src} alt={photos.artisan.alt} widths={[600, 1200]} sizes="(min-width: 1024px) 50vw, 100vw" class="team__img" data-parallax />
-    </figure>
-    <div class="team__body">
-      <p class="label muted" data-reveal="fade">L’équipe</p>
-      <h2 id="team-t" class="title team__t" data-split>{equipe.titre}</h2>
-      <p class="team__p" data-reveal="fade">{equipe.texte}</p>
-      <ol class="team__list">
-        {
-          equipe.points.map((pt, i) => (
-            <li data-reveal="fade">
-              <span class="team__n">{roman[i]}.</span>
-              <div>
-                <h3 class="team__h">{pt.titre}</h3>
-                <p class="muted">{pt.texte}</p>
-              </div>
-            </li>
-          ))
-        }
-      </ol>
-      <p class="script team__sign" aria-hidden="true">{site.nom}</p>
     </div>
   </section>
 
@@ -821,76 +791,6 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     display: flex;
     justify-content: center;
     margin-top: clamp(56px, 8vw, 110px);
-  }
-
-  /* ─── L'équipe ─── */
-  .team {
-    display: grid;
-  }
-  .team__media {
-    position: relative;
-    height: 70svh;
-    overflow: hidden;
-  }
-  .team__media :global(.team__img) {
-    position: absolute;
-    inset: -8% 0;
-    width: 100%;
-    height: 116%;
-    object-fit: cover;
-  }
-  .team__body {
-    display: grid;
-    gap: 22px;
-    align-content: center;
-    padding: clamp(64px, 10vw, 140px) var(--gutter);
-  }
-  .team__t {
-    font-size: var(--fs-l);
-    max-width: 16ch;
-  }
-  .team__p {
-    max-width: 50ch;
-    color: var(--muted);
-  }
-  .team__list {
-    border-top: 1px solid var(--line);
-    margin-top: 6px;
-  }
-  .team__list li {
-    display: grid;
-    grid-template-columns: 2.8rem 1fr;
-    gap: 10px;
-    padding: 18px 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .team__n {
-    font-family: var(--serif);
-    color: var(--argile);
-  }
-  .team__h {
-    font-family: var(--serif);
-    font-weight: 450;
-    font-size: 1.25rem;
-    margin-bottom: 2px;
-  }
-  .team__sign {
-    font-size: clamp(2.2rem, 5vw, 3.4rem);
-    line-height: 1;
-    color: var(--argile);
-    margin-top: 8px;
-  }
-  @media (min-width: 1024px) {
-    .team {
-      grid-template-columns: 1fr 1fr;
-      min-height: 100vh;
-    }
-    .team__media {
-      height: auto;
-    }
-    .team__body {
-      padding-inline: 6vw var(--gutter);
-    }
   }
 
   /* ─── Garanties ─── */

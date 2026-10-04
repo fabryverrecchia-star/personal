@@ -33,17 +33,13 @@ import { comparaisons } from '../data/site';
           </div>
           <span class="ba__tag ba__tag--l">Avant</span>
           <span class="ba__tag ba__tag--r">Après</span>
-          <input class="ba__range" type="range" min="0" max="100" value="50" step="0.5" aria-label={`Comparer avant et après : ${c.titre}`} data-ba-range />
+          <input class="ba__range" type="range" min="0" max="100" value="50" step="0.5" aria-label={`Comparer avant et après : ${c.onglet}`} data-ba-range />
           <span class="ba__line" aria-hidden="true">
             <span class="ba__knob">
               <svg viewBox="0 0 24 24"><path d="M9 6 3 12l6 6M15 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
             </span>
           </span>
         </div>
-        <figcaption class="ba__cap">
-          <strong>{c.titre}</strong>
-          <span>{c.texte}</span>
-        </figcaption>
       </figure>
     ))
   }

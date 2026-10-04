@@ -5,13 +5,11 @@ import Contact from '../components/Contact.astro';
 import { site, galerie } from '../data/site';
 import { u } from '../lib/url';
 
-const cats = ['Tout', ...Array.from(new Set(galerie.map((p) => p.cat)))];
-const pluriel: Record<string, string> = { Tout: 'Tout', Façade: 'Façades', Intérieur: 'Intérieurs', Extérieur: 'Extérieurs', Commerce: 'Commerces' };
 ---
 
 <Base
   title={`Réalisations — ${site.nom}, peintre en bâtiment dans le Puy-de-Dôme`}
-  description="Chantiers de peinture intérieure et extérieure réalisés par Benjamin Landry : façades, pièces à vivre, chambres, commerces. Combrailles, Riom, Clermont-Ferrand."
+  description="Chantiers de peinture intérieure et extérieure réalisés par Benjamin Landry. Combrailles, Riom, Clermont-Ferrand."
 >
   <section class="rhead wrap">
     <nav class="label muted rhead__crumbs" aria-label="Fil d’Ariane" data-hero-fade>
@@ -21,19 +19,8 @@ const pluriel: Record<string, string> = { Tout: 'Tout', Façade: 'Façades', Int
       <span class="line"><span class="line-inner">Réalisations</span></span>
     </h1>
     <p class="rhead__p" data-hero-fade>
-      {galerie.length} photographies de chantiers livrés : façades, pièces à vivre, chambres et commerces, dans les
-      Combrailles, à Riom et à Clermont-Ferrand.
+      {galerie.length} photographies de chantiers livrés dans les Combrailles, à Riom et à Clermont-Ferrand.
     </p>
-    <div class="filters" role="toolbar" aria-label="Filtrer par catégorie" data-hero-fade>
-      {
-        cats.map((c, i) => (
-          <button class="filter label" data-filter={c} aria-pressed={i === 0 ? 'true' : 'false'}>
-            {pluriel[c] ?? c}
-            <sup>{c === 'Tout' ? galerie.length : galerie.filter((p) => p.cat === c).length}</sup>
-          </button>
-        ))
-      }
-    </div>
   </section>
 
   <section class="wrap rgrid-wrap">
@@ -41,13 +28,9 @@ const pluriel: Record<string, string> = { Tout: 'Tout', Façade: 'Façades', Int
       {
         galerie.map((p, i) => (
           <li class="ritem" data-cat={p.cat} data-reveal="fade">
-            <button class="ritem__btn" data-open={i} data-view aria-label={`Agrandir : ${p.titre}`}>
-              <Image src={p.src} alt={p.titre} widths={[480, 900]} sizes="(min-width: 1100px) 30vw, (min-width: 700px) 45vw, 92vw" class="ritem__img" />
+            <button class="ritem__btn" data-open={i} data-view aria-label={`Agrandir la photo ${i + 1}`}>
+              <Image src={p.src} alt="Chantier de peinture réalisé par Benjamin Landry" widths={[480, 900]} sizes="(min-width: 1100px) 30vw, (min-width: 700px) 45vw, 92vw" class="ritem__img" />
             </button>
-            <p class="ritem__cap">
-              <span class="label muted">{p.cat}</span>
-              <span>{p.titre}</span>
-            </p>
           </li>
         ))
       }
@@ -56,9 +39,9 @@ const pluriel: Record<string, string> = { Tout: 'Tout', Façade: 'Façades', Int
 
   <div class="lb" data-lightbox hidden role="dialog" aria-modal="true" aria-label="Visionneuse">
     <div class="lb__stage" data-lb-stage>
-      {galerie.map((p) => <Image src={p.src} alt={p.titre} widths={[1000, 2000]} sizes="100vw" loading="lazy" class="lb__img" />)}
+      {galerie.map((p) => <Image src={p.src} alt="Chantier de peinture réalisé par Benjamin Landry" widths={[1000, 2000]} sizes="100vw" loading="lazy" class="lb__img" />)}
     </div>
-    <p class="lb__cap"><span class="label" data-lb-count></span><span data-lb-title></span></p>
+    <p class="lb__cap"><span class="label" data-lb-count></span></p>
     <button class="lb__close label" data-lb-close>Fermer</button>
     <button class="lb__nav lb__nav--prev" data-lb-prev aria-label="Photo précédente">←</button>
     <button class="lb__nav lb__nav--next" data-lb-next aria-label="Photo suivante">→</button>

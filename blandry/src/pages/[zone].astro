@@ -15,7 +15,7 @@ const autres = zones.filter((o) => o.slug !== z.slug);
 const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
 const listeCommunes = z.communes.slice(0, -1).join(', ') + ' et ' + z.communes.at(-1);
 const roman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
-const heroImg = { 'peintre-combrailles': 'mur-pierre-applique', 'peintre-riom': 'facade-balcon-pierre', 'peintre-clermont-ferrand': 'chambre-bleu-nuit' }[z.slug] ?? 'chambre-vert-sapin';
+const heroImg = { 'peintre-combrailles': 'mur-pierre-applique', 'peintre-riom': 'cuisine-lineaire', 'peintre-clermont-ferrand': 'chambre-bleu-nuit' }[z.slug] ?? 'chambre-vert-sapin';
 const hero = (galerie.find((p) => p.src.src.includes(heroImg)) ?? galerie[0]).src;
 const words = z.dans.split(' ');
 
@@ -82,9 +82,8 @@ const schema = [
           selection.slice(0, 3).map((p) => (
             <li>
               <div class="zworks__media" data-reveal="img" data-view>
-                <Image src={p.src} alt={p.titre} widths={[500, 900]} sizes="(min-width: 900px) 30vw, 92vw" />
+                <Image src={p.src} alt="Chantier de peinture réalisé par Benjamin Landry" widths={[500, 900]} sizes="(min-width: 900px) 30vw, 92vw" />
               </div>
-              <p class="zworks__cap"><span class="label muted">{p.cat}</span> {p.titre}</p>
             </li>
           ))
         }
