@@ -172,9 +172,9 @@
     var style = el("style", {}, svg);
     style.textContent =
       ".m-sea{font:italic 22px 'Cormorant',Garamond,serif;fill:#14295a;fill-opacity:.35;letter-spacing:.3em}" +
-      ".m-town{font:600 11px 'Cormorant',Garamond,serif;fill:#14295a;fill-opacity:.5;letter-spacing:.16em;text-transform:uppercase}" +
-      ".m-label{font:600 15px 'Cormorant',Garamond,serif;fill:#14295a;paint-order:stroke;stroke:#f7f3ec;stroke-width:4px;stroke-linejoin:round}" +
-      ".m-ap{font:600 11px 'Cormorant',Garamond,serif;fill:#14295a;letter-spacing:.2em;paint-order:stroke;stroke:#f7f3ec;stroke-width:3px}" +
+      ".m-town{font:600 12.5px 'Cormorant',Garamond,serif;fill:#14295a;fill-opacity:.5;letter-spacing:.16em;text-transform:uppercase}" +
+      ".m-label{font:600 17px 'Cormorant',Garamond,serif;fill:#14295a;paint-order:stroke;stroke:#f7f3ec;stroke-width:4px;stroke-linejoin:round}" +
+      ".m-ap{font:600 12.5px 'Cormorant',Garamond,serif;fill:#14295a;letter-spacing:.2em;paint-order:stroke;stroke:#f7f3ec;stroke-width:3px}" +
       ".m-n{font:600 11px 'Cormorant',Garamond,serif;fill:#14295a;fill-opacity:.6}";
 
     this.root.appendChild(svg);
