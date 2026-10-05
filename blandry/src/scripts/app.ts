@@ -670,8 +670,8 @@ function light() {
   const t = $('[data-light-t]', sec)!;
   gsap
     .timeline({ scrollTrigger: { trigger: sec, start: 'top top', end: 'bottom bottom', scrub: 0.8 } })
-    .fromTo($('[data-light-img]', sec), { clipPath: 'inset(12% 10% 12% 10%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', duration: 0.4 }, 0)
-    .fromTo($('.light__photo', sec), { scale: 1.25 }, { scale: 1, ease: 'none', duration: 0.8 }, 0)
+    .fromTo($('[data-light-img]', sec), { clipPath: 'inset(30% 26% 30% 26%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', duration: 0.5 }, 0)
+    .fromTo($('.light__photo', sec), { scale: 1.5 }, { scale: 1, ease: 'none', duration: 0.8 }, 0)
     .fromTo(t, { '--lx': '-40%' }, { '--lx': '140%', ease: 'none', duration: 0.7 }, 0.05)
     .to(t, { '--base': 1, ease: 'none', duration: 0.25 }, 0.6)
     .fromTo($('[data-light-p]', sec), { opacity: 0, y: 30 }, { opacity: 1, y: 0, ease: 'none', duration: 0.2 }, 0.72);
@@ -971,8 +971,22 @@ function init() {
   // Recalcul dans l'ordre de la page, une fois tous les déclencheurs créés
   ScrollTrigger.sort();
   ScrollTrigger.refresh();
+  // La hauteur de la page bouge encore (polices, images, vidéos) : on recalcule à chaque changement
+  let lastH = document.body.scrollHeight;
+  let rt: number | undefined;
+  new ResizeObserver(() => {
+    const hgt = document.body.scrollHeight;
+    if (Math.abs(hgt - lastH) < 2) return;
+    lastH = hgt;
+    clearTimeout(rt);
+    rt = window.setTimeout(() => ScrollTrigger.refresh(), 150);
+  }).observe(document.body);
+  document.fonts?.ready.then(() => ScrollTrigger.refresh());
 
-  preload(() => heroFloats());
+  preload(() => {
+    heroFloats();
+    ScrollTrigger.refresh();
+  });
   // Le titre apparaît pendant l'envol des photos
   const waitHero = () => (getComputedStyle(loader).visibility === 'hidden' || +getComputedStyle(loaderBg).opacity < 0.6 ? heroIn() : requestAnimationFrame(waitHero));
   requestAnimationFrame(waitHero);
