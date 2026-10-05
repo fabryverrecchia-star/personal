@@ -948,25 +948,29 @@ function init() {
   gsap.set($$('[data-hero-fade]'), { y: 24, opacity: 0 });
   gsap.set($$('[data-float]'), { opacity: 0 });
 
+  // Les sections épinglées d'abord : leurs espaces de défilement décalent tout ce qui suit
+  chain();
+  terre();
+  process();
   reveals();
   giant();
   brands();
   skills();
   beforeAfter();
-  process();
   stackSteps();
   light();
-  terre();
   depth();
   gallery();
   parallax();
   autoVideos();
   contactMono();
-  chain();
   tiles();
   faq();
   form();
   onScroll();
+  // Recalcul dans l'ordre de la page, une fois tous les déclencheurs créés
+  ScrollTrigger.sort();
+  ScrollTrigger.refresh();
 
   preload(() => heroFloats());
   // Le titre apparaît pendant l'envol des photos
