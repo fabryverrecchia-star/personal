@@ -711,36 +711,47 @@ function stackSteps() {
 /* ─── Territoire : piste horizontale ───────────────── */
 function terre() {
   const sec = $('[data-terre]');
-  const rail = $('[data-terre-rail]');
-  const track = $('[data-terre-track]');
-  const bar = $('[data-terre-bar]');
-  if (!sec || !rail || !track) return;
-  if (!reduced)
-    gsap.from($$('.tcard', track), {
-      x: 80,
-      opacity: 0,
-      duration: 1.2,
-      stagger: 0.08,
-      ease: EASE,
-      scrollTrigger: { trigger: track, start: 'top 85%', once: true },
-    });
+  const stage = $('[data-terre-stage]');
+  if (!sec || !stage) return;
+  const layers = $$('.land__l', stage);
+  const ridge = $<SVGPathElement>('.land__ridge', stage);
+  const land = $('.land', stage);
+  const cards = $$('[data-fan]', stage);
+  const pin = $('.fan__pin', stage);
+  const n = cards.length;
+  const angle = (i: number) => (i - (n - 1) / 2) * 10;
+  const len = ridge ? ridge.getTotalLength() : 0;
+
+  const build = (st: ScrollTrigger.Vars) => {
+    gsap.set(layers, { y: (i) => (i === 0 ? 0 : 160 + i * 18), opacity: (i) => (i === 0 ? 0 : 1) });
+    if (ridge) gsap.set(ridge, { strokeDasharray: len, strokeDashoffset: len });
+    gsap.set(cards, { rotation: 0, clipPath: 'inset(100% 0% 0% 0%)', y: 30 });
+    if (pin) gsap.set(pin, { scale: 0 });
+    const tl = gsap.timeline({ scrollTrigger: st, defaults: { ease: 'power2.out' } });
+    // 1. Le paysage se compose, couche après couche
+    tl.to(layers[0], { opacity: 1, duration: 0.6 }, 0);
+    layers.slice(1).forEach((l, i) => tl.to(l, { y: 0, duration: 1 }, 0.15 + i * 0.22));
+    if (ridge) tl.to(ridge, { strokeDashoffset: 0, duration: 1.2, ease: 'none' }, 0.6);
+    tl.to({}, { duration: 0.5 });
+    // 2. Ses couleurs deviennent les lames du nuancier
+    const t2 = tl.duration();
+    tl.to(land, { opacity: 0, scale: 0.92, transformOrigin: '50% 100%', duration: 1 }, t2);
+    tl.to(cards, { clipPath: 'inset(0% 0% 0% 0%)', y: 0, duration: 0.9, stagger: 0.08 }, t2 + 0.1);
+    if (pin) tl.to(pin, { scale: 1, duration: 0.4, ease: 'back.out(2)' }, t2 + 0.7);
+    // 3. L'éventail s'ouvre
+    tl.to(cards, { rotation: (i) => angle(i), duration: 1.6, ease: 'power3.inOut' }, t2 + 1.1);
+    tl.to({}, { duration: 0.4 });
+    return tl;
+  };
+
   ScrollTrigger.matchMedia({
     '(min-width: 1024px)': () => {
-      if (reduced) return;
-      const dist = () => Math.max(0, track.scrollWidth - innerWidth);
-      const tl = gsap.timeline({
-        scrollTrigger: { trigger: sec, start: 'top top', end: () => '+=' + dist(), pin: $('.terre__pin', sec), scrub: 0.6, invalidateOnRefresh: true },
-      });
-      tl.to(track, { x: () => -dist(), ease: 'none' }, 0);
-      if (bar) tl.fromTo(bar, { scaleX: 0.1 }, { scaleX: 1, ease: 'none' }, 0);
+      const tl = build({ trigger: sec, start: 'top top', end: '+=220%', pin: $('.terre__pin', sec), scrub: 0.8, invalidateOnRefresh: true });
+      return () => tl.kill();
     },
     '(max-width: 1023px)': () => {
-      const onS = () => {
-        const p = rail.scrollLeft / Math.max(1, rail.scrollWidth - rail.clientWidth);
-        if (bar) bar.style.transform = `scaleX(${0.1 + p * 0.9})`;
-      };
-      rail.addEventListener('scroll', onS, { passive: true });
-      return () => rail.removeEventListener('scroll', onS);
+      const tl = build({ trigger: stage, start: 'center 55%', end: '+=140%', pin: stage, scrub: 0.8, invalidateOnRefresh: true });
+      return () => tl.kill();
     },
   });
 }

@@ -53,20 +53,17 @@ export const photos = {
 };
 
 // ── Nuancier du territoire ────────────────────────────────────
-// Photos facultatives : déposer src/assets/region/<id>.jpg (ex. volvic.jpg)
-const regionFiles = import.meta.glob<{ default: ImageMetadata }>('../assets/region/*.{jpg,jpeg,png,webp}', { eager: true });
-const regionPhoto = (id: string) =>
-  Object.entries(regionFiles).find(([k]) => k.split('/').pop()!.split('.')[0] === id)?.[1].default;
-
+// Couleurs d'inspiration (affichées sans nom ni référence) : les teintes réelles
+// sont choisies avec le client sur les nuanciers des fabricants.
 export const palette = [
-  { id: 'chaux', nom: 'Blanc de chaux', origine: 'Enduits des maisons de bourg', hex: '#E2DACB', ink: '#1A1917' },
-  { id: 'volvic', nom: 'Gris Volvic', origine: 'Pierre de lave de Volvic et de Riom', hex: '#56595C', ink: '#F3EFE8' },
-  { id: 'sioule', nom: 'Vert Sioule', origine: 'Gorges de la Sioule, Combrailles', hex: '#3F5A45', ink: '#F3EFE8' },
-  { id: 'limagne', nom: 'Ocre Limagne', origine: 'Terres de la plaine de Limagne', hex: '#C08A3E', ink: '#1A1917' },
-  { id: 'tuile', nom: 'Rouge tuile', origine: 'Toitures des villages', hex: '#9B4B34', ink: '#F3EFE8' },
-  { id: 'puys', nom: 'Bleu des Puys', origine: 'Ciel de la Chaîne des Puys', hex: '#8DA3B3', ink: '#1A1917' },
-  { id: 'basalte', nom: 'Noir basalte', origine: 'Coulées volcaniques', hex: '#1F1D1A', ink: '#F3EFE8' },
-].map((c) => ({ ...c, photo: regionPhoto(c.id) }));
+  { id: 'chaux', origine: 'les enduits à la chaux des maisons de bourg', hex: '#E2DACB' },
+  { id: 'limagne', origine: 'les terres de Limagne', hex: '#C08A3E' },
+  { id: 'tuile', origine: 'les toits de tuile des villages', hex: '#9B4B34' },
+  { id: 'sioule', origine: 'les forêts des gorges de la Sioule', hex: '#3F5A45' },
+  { id: 'puys', origine: 'le ciel de la Chaîne des Puys', hex: '#8DA3B3' },
+  { id: 'volvic', origine: 'la pierre de Volvic', hex: '#56595C' },
+  { id: 'basalte', origine: 'les coulées de basalte', hex: '#1F1D1A' },
+];
 
 // ── Avant / après ─────────────────────────────────────────────
 export const comparaisons = [
@@ -364,6 +361,6 @@ export const faqGenerale = [
 
 // Compatibilité (anciens composants)
 export const realisations = selection.map((p) => ({ titre: p.titre, lieu: '', travaux: [p.cat], image: p.src, alt: p.titre }));
-export const nuancier = palette.map((p) => ({ id: p.id, nom: p.nom, lieu: p.origine, hex: p.hex, ink: p.ink }));
+export const nuancier = palette;
 export const teinte = (_id: string) => nuancier[0];
 export const zoneBySlug = (slug: string) => zones.find((z) => z.slug === slug)!;
