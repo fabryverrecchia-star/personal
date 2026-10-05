@@ -13,9 +13,6 @@ import {
 
 const CAMERA_Z = 1000;
 
-/** Apparition des images : 0 = stries de la DA, 1 = voile */
-export const REVEAL_STYLE = 0;
-
 type MediaKind = 'media' | 'cursor';
 
 interface Media {
@@ -188,7 +185,6 @@ export class World {
         uTime: { value: 0 },
         uAlpha: { value: kind === 'cursor' ? 0 : 1 },
         uBend: { value: new THREE.Vector2(0, 0) },
-        uStyle: { value: REVEAL_STYLE },
       },
     });
     mat.uniforms.uTex.value = this.texture(src, (w, h) => mat.uniforms.uImage.value.set(w, h));
@@ -347,7 +343,7 @@ export class World {
         if (!m.mesh.visible) continue;
         if (!m.revealed && r.top < this.height * 0.92 && r.left < this.width * 0.95) {
           m.revealed = true;
-          gsap.to(u.uReveal, { value: 1, duration: REVEAL_STYLE === 0 ? 2.4 : 2.2, ease: REVEAL_STYLE === 0 ? 'power2.inOut' : 'expo.inOut' });
+          gsap.to(u.uReveal, { value: 1, duration: 2.2, ease: 'expo.inOut' });
         }
         const bend = THREE.MathUtils.clamp(velocity * 0.45, -22, 22);
         // Dans la section horizontale, le défilement vertical devient un mouvement en x
