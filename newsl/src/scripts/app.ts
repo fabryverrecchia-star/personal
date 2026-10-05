@@ -293,9 +293,10 @@ function initReveals() {
       autoSplit: true,
       onSplit(self) {
         return gsap.from(self.lines, {
-          yPercent: 110,
-          duration: 1.5,
-          stagger: 0.1,
+          yPercent: 105,
+          opacity: 0,
+          duration: 1.9,
+          stagger: 0.14,
           ease: 'expo.out',
           scrollTrigger: { trigger: el, start: 'top 85%' },
         });
@@ -306,16 +307,16 @@ function initReveals() {
   $$('[data-reveal="fade"]').forEach((el) => {
     gsap.fromTo(
       el,
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 90%' } },
+      { opacity: 0, y: 14 },
+      { opacity: 1, y: 0, duration: 1.8, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%' } },
     );
   });
 
   $$('[data-reveal="line"]').forEach((el) => {
     gsap.fromTo(
       el,
-      { opacity: 0, y: 40 },
-      { opacity: 1, y: 0, duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 92%' } },
+      { opacity: 0, y: 18 },
+      { opacity: 1, y: 0, duration: 1.8, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 92%' } },
     );
   });
 

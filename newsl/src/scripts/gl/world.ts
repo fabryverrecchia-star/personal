@@ -90,7 +90,7 @@ export class World {
     this.bgScene.add(this.bg);
 
     // Poussière dorée
-    const count = window.innerWidth < 768 ? 140 : 320;
+    const count = window.innerWidth < 768 ? 70 : 160;
     const seeds = new Float32Array(count * 3);
     for (let i = 0; i < count * 3; i++) seeds[i] = Math.random();
     const dustGeo = new THREE.BufferGeometry();
@@ -301,7 +301,7 @@ export class World {
     dU.uAudio.value = audio;
     dU.uScroll.value = f.scroll / this.height * 0.15;
 
-    const shift = THREE.MathUtils.clamp(velocity * 0.0004, -0.012, 0.012);
+    const shift = THREE.MathUtils.clamp(velocity * 0.00012, -0.003, 0.003);
 
     // Vidéo
     if (this.hero) {
@@ -333,8 +333,8 @@ export class World {
         const box = m.el.getBoundingClientRect();
         r = { left: this.mousePxLerp.x - box.width / 2, top: this.mousePxLerp.y - box.height / 2, width: box.width, height: box.height };
         m.mesh.visible = u.uAlpha.value > 0.001;
-        u.uBend.value.set(THREE.MathUtils.clamp(mvx * 2.2, -60, 60), THREE.MathUtils.clamp(-mvy * 2.2, -60, 60));
-        u.uShift.value = THREE.MathUtils.clamp(mvx * 0.0008, -0.01, 0.01);
+        u.uBend.value.set(THREE.MathUtils.clamp(mvx * 0.8, -18, 18), THREE.MathUtils.clamp(-mvy * 0.8, -18, 18));
+        u.uShift.value = THREE.MathUtils.clamp(mvx * 0.0002, -0.002, 0.002);
       } else {
         const box = m.el.getBoundingClientRect();
         r = box;
@@ -343,9 +343,9 @@ export class World {
         if (!m.mesh.visible) continue;
         if (!m.revealed && r.top < this.height * 0.92 && r.left < this.width * 0.95) {
           m.revealed = true;
-          gsap.to(u.uReveal, { value: 1, duration: 2, ease: 'power3.out' });
+          gsap.to(u.uReveal, { value: 1, duration: 2.2, ease: 'expo.inOut' });
         }
-        const bend = THREE.MathUtils.clamp(velocity * 1.4, -70, 70);
+        const bend = THREE.MathUtils.clamp(velocity * 0.45, -22, 22);
         // Dans la section horizontale, le défilement vertical devient un mouvement en x
         if (m.axis === 'x') u.uBend.value.set(-bend * (document.dir === 'rtl' ? -1 : 1), 0);
         else u.uBend.value.set(0, -bend);
