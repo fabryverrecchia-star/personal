@@ -21,6 +21,10 @@ L'état (Prévue, En cours, Terminée) suit les dates, sauf s'il est choisi à l
 ## Espace équipe (code MANCLEM)
 
 Bouton flottant « Espace équipe » en bas à droite, puis le code (une fois par appareil, majuscules ou minuscules indifférentes).
+Menu : Publications, Sponsorisé, Tâches, Inspiration.
+- Dépensé sponsorisé : en mode équipe, chaque campagne a un champ « Dépensé à ce jour » + OK (montant lu dans le Gestionnaire de publicités Meta).
+  Vide = estimation au prorata des jours. La barre du mois se met à jour.
+- Formulaire « Modifier » en parties numérotées : post (date, visuel, texte) ; campagne (dépensé et budget, dates, visuel, texte, ciblage).
 - Équipe : Fabrizio (couleurs 18H22), Manon et Clément (couleurs du client).
 - Planning : en mode équipe, « Ajouter une publication » (fin du mois) et « Ajouter une campagne » (fin des campagnes)
   créent l'élément et ouvrent son formulaire. Changer une date, ajouter ou supprimer recharge la page (sans l'ouverture 18H22)

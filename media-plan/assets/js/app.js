@@ -572,6 +572,11 @@
       '</dl>' +
       '<div class="ad__budget"><div class="ad__bar"><span style="--p:' + pct.toFixed(1) + '%"></span></div>' +
       '<p class="label ad__spent"><b>' + euros(v.spent) + '</b> / ' + euros(v.budget) + (v.real ? '' : ' · estimé') + '</p></div>' +
+      // Équipe : dépensé saisi directement sur la campagne
+      '<form class="ad__quick" data-quick-spent="' + esc(v.id) + '" novalidate>' +
+      '<label class="label" for="qs-' + esc(v.id) + '">Dépensé à ce jour</label>' +
+      '<div class="ad__quick-row"><input id="qs-' + esc(v.id) + '" type="text" name="spent" inputmode="decimal" autocomplete="off" value="' + (v.real ? v.spent : '') + '" placeholder="' + (v.real ? '' : 'estimé ' + v.spent) + '">' +
+      '<span aria-hidden="true">€</span><button type="submit" class="label">OK</button></div></form>' +
       '<button type="button" class="label edit-btn" data-edit-ad="' + esc(v.id) + '">' + EDIT_ICON + 'Modifier la campagne</button>' +
       '</div>'
     );
@@ -640,7 +645,8 @@
         '<p class="label budget__legend">' +
         '<span><i class="budget__dot budget__dot--fill"></i>Dépensé' + (est ? ' (estimé)' : '') + '</span>' +
         '<span><i class="budget__dot budget__dot--planned"></i>Engagé ' + euros(planned) + '</span>' +
-        '<span>Reste ' + euros(Math.max(0, cap - spent)) + '</span></p>';
+        '<span>Reste ' + euros(Math.max(0, cap - spent)) + '</span></p>' +
+        '<p class="label budget__team">Dépensé : à saisir sur chaque campagne ci-dessous</p>';
       countEuros(b, spent);
     });
   }
@@ -929,8 +935,9 @@
       '<div class="team-fab" data-fab>' +
       '<div class="team-fab__menu" role="menu" aria-label="Espace équipe">' +
       (pubs ? '' : '<button type="button" class="team-fab__item" role="menuitem" data-goto="passages">' + SICONS.planning + '<span><b>Rendez-vous</b><small class="label">Calendrier des passages</small></span></button>') +
-      '<button type="button" class="team-fab__item" role="menuitem" data-goto="missions">' + SICONS.redaction + '<span><b>Tâche</b><small class="label">Missions en cours</small></span></button>' +
-      '<button type="button" class="team-fab__item" role="menuitem" data-goto="contenus">' + SICONS.image + '<span><b>Photos et légendes</b><small class="label">Posts et campagnes sponsorisées</small></span></button>' +
+      '<button type="button" class="team-fab__item" role="menuitem" data-goto="contenus">' + SICONS.image + '<span><b>Publications</b><small class="label">Date, visuel, texte · ajouter, supprimer</small></span></button>' +
+      (PLAN.ads ? '<button type="button" class="team-fab__item" role="menuitem" data-goto="ads">' + SICONS.ads + '<span><b>Sponsorisé</b><small class="label">Dépensé, budget, campagnes</small></span></button>' : '') +
+      '<button type="button" class="team-fab__item" role="menuitem" data-goto="missions">' + SICONS.redaction + '<span><b>Tâches</b><small class="label">Missions en cours</small></span></button>' +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="inspi">' + SICONS.spark + '<span><b>Inspiration</b><small class="label">Reels et carrousels du mois</small></span></button>' +
       '<button type="button" class="team-fab__item team-fab__quit" role="menuitem" data-fab-quit>' + SICONS.close + '<span><b>Fermer l’espace équipe</b></span></button>' +
       '</div>' +
@@ -954,28 +961,33 @@
       '<form class="editor__panel" data-editor-form role="dialog" aria-modal="true" aria-label="Modifier" autocomplete="off" novalidate>' +
       '<header class="editor__head"><div><p class="label editor__kicker" data-ed-kicker></p><h3 class="editor__title" data-ed-heading></h3></div>' +
       '<button type="button" class="inspi__close" data-editor-close aria-label="Fermer">' + SICONS.close + '</button></header>' +
-      '<div class="editor__body">' +
+      '<div class="editor__body" data-ed-body>' +
+      // Parties numérotées, dans l'ordre utile : post (date, visuel, texte), campagne (dépensé et budget, dates, visuel, texte, ciblage)
+      '<section class="ed-sec" data-sec="when"><h4 class="label ed-sec__title"><i></i>Date de publication</h4>' +
+      '<div class="admin-form__row"><label class="editor__field"><span class="label">Jour</span><input type="date" name="date"></label>' +
+      '<label class="editor__field"><span class="label">Heure</span><input type="text" name="time" maxlength="12" placeholder="18h30"></label></div></section>' +
+      '<section class="ed-sec" data-sec="budget"><h4 class="label ed-sec__title"><i></i>Dépensé et budget</h4>' +
+      '<div class="admin-form__row"><label class="editor__field"><span class="label">Dépensé à ce jour (€)</span><input type="text" name="spent" inputmode="decimal" autocomplete="off"></label>' +
+      '<label class="editor__field"><span class="label">Budget (€)</span><input type="text" name="budget" inputmode="decimal" autocomplete="off"></label></div>' +
+      '<p class="editor__hint">Le dépensé se lit dans le Gestionnaire de publicités Meta. Vide : estimé selon les jours de diffusion.</p></section>' +
+      '<section class="ed-sec" data-sec="dates"><h4 class="label ed-sec__title"><i></i>Dates de diffusion</h4>' +
+      '<div class="admin-form__row"><label class="editor__field"><span class="label">Début</span><input type="date" name="start"></label>' +
+      '<label class="editor__field"><span class="label">Fin</span><input type="date" name="end"></label></div>' +
+      '<label class="editor__field"><span class="label">État</span><select name="status"><option value="">Automatique (selon les dates)</option>' + options(AD_STATUS, '') + '</select></label></section>' +
+      '<section class="ed-sec" data-sec="visual"><h4 class="label ed-sec__title"><i></i><span data-ed-media-label></span></h4>' +
       '<div class="ed-format" data-ed-format-box role="group" aria-label="Format du post"></div>' +
-      '<p class="label editor__label" data-ed-media-label></p>' +
       '<div class="editor__media" data-ed-media></div>' +
       '<p class="editor__hint" data-ed-hint></p>' +
       '<div class="ed-cover" data-ed-cover></div>' +
       '<input type="file" accept="image/*" data-ed-file hidden>' +
-      '<input type="file" accept="video/mp4,video/quicktime,video/*" data-ed-video hidden>' +
-      '<div class="admin-form__row" data-ed-when><label class="editor__field"><span class="label">Date de publication</span><input type="date" name="date"></label>' +
-      '<label class="editor__field"><span class="label">Heure</span><input type="text" name="time" maxlength="12" placeholder="18h30"></label></div>' +
+      '<input type="file" accept="video/mp4,video/quicktime,video/*" data-ed-video hidden></section>' +
+      '<section class="ed-sec" data-sec="text"><h4 class="label ed-sec__title"><i></i>Texte</h4>' +
       '<label class="editor__field"><span class="label">Titre</span><input type="text" name="title" maxlength="140"></label>' +
-      '<label class="editor__field"><span class="label">Légende <small data-ed-count></small></span><textarea name="caption" rows="6" maxlength="2200" placeholder="Une ligne par paragraphe"></textarea></label>' +
-      '<div class="editor__ad" data-ed-ad>' +
-      '<div class="admin-form__row"><label class="editor__field"><span class="label">Début</span><input type="date" name="start"></label>' +
-      '<label class="editor__field"><span class="label">Fin</span><input type="date" name="end"></label></div>' +
-      '<div class="admin-form__row"><label class="editor__field"><span class="label">Budget (€)</span><input type="number" name="budget" min="0" step="1" inputmode="decimal"></label>' +
-      '<label class="editor__field"><span class="label">Dépensé réel (€)</span><input type="number" name="spent" min="0" step="0.01" inputmode="decimal"></label></div>' +
+      '<label class="editor__field"><span class="label">Légende <small data-ed-count></small></span><textarea name="caption" rows="6" maxlength="2200" placeholder="Une ligne par paragraphe"></textarea></label></section>' +
+      '<section class="ed-sec" data-sec="target"><h4 class="label ed-sec__title"><i></i>Ciblage</h4>' +
       '<label class="editor__field"><span class="label">Objectif</span><input type="text" name="objective" maxlength="160" placeholder="Notoriété, messages, trafic…"></label>' +
       '<label class="editor__field"><span class="label">Audience</span><input type="text" name="audience" maxlength="160" placeholder="Paris · 25-50 ans · centres d’intérêt"></label>' +
-      '<label class="editor__field"><span class="label">Bouton</span><input type="text" name="cta" maxlength="40" placeholder="En savoir plus"></label>' +
-      '<label class="editor__field"><span class="label">État</span><select name="status"><option value="">Automatique (selon les dates)</option>' + options(AD_STATUS, '') + '</select></label>' +
-      '</div>' +
+      '<label class="editor__field"><span class="label">Bouton</span><input type="text" name="cta" maxlength="40" placeholder="En savoir plus"></label></section>' +
       '<button type="button" class="label editor__delete" data-ed-delete></button>' +
       '</div>' +
       '<div class="editor__actions">' +
@@ -1569,7 +1581,7 @@
       cover.innerHTML = '';
       if (reelNow) {
         var v = postView(ed.post);
-        label.textContent = 'Vidéo et couverture du reel';
+        label.textContent = 'Visuel · vidéo et couverture';
         edBox.innerHTML =
           '<figure class="ed-tile ed-tile--video">' +
           (v.video ? '<video src="' + esc(src(v.video)) + '#t=0.5" muted playsinline preload="metadata"></video>' : '<span class="label ed-tile__soon">Pas encore de vidéo</span>') +
@@ -1592,7 +1604,7 @@
         }
       } else {
         var imgs = edList();
-        label.textContent = ed.kind === 'ad' ? 'Visuel de la campagne' : imgs.length > 1 ? 'Photos du carrousel · ' + imgs.length : 'Photo';
+        label.textContent = ed.kind === 'ad' ? 'Visuel' : imgs.length > 1 ? 'Visuel · carrousel de ' + imgs.length + ' photos' : 'Visuel';
         edBox.innerHTML = imgs.map(function (m, k) { return edTile(m, imgs.length > 1 ? k + 1 : '', 'media', k, imgs.length > 1); }).join('') +
           (ed.kind === 'post' && imgs.length < 10
             ? '<button type="button" class="ed-add" data-ed-pick="media" data-k="-1"><span>+</span><small class="label">Ajouter une photo</small></button>' : '');
@@ -1665,8 +1677,15 @@
         f.date.value = p.date || '';
         f.time.value = p.time || '';
       }
-      edEl.querySelector('[data-ed-ad]').hidden = kind !== 'ad';
-      edEl.querySelector('[data-ed-when]').hidden = kind !== 'post';
+      var order = kind === 'ad' ? ['budget', 'dates', 'visual', 'text', 'target'] : ['when', 'visual', 'text'];
+      var body = edEl.querySelector('[data-ed-body]');
+      edEl.querySelectorAll('[data-sec]').forEach(function (x) { x.hidden = order.indexOf(x.getAttribute('data-sec')) < 0; });
+      order.forEach(function (n, k) {
+        var sec = body.querySelector('[data-sec="' + n + '"]');
+        sec.querySelector('.ed-sec__title i').textContent = k + 1;
+        sec.classList.toggle('is-first', !k);
+        body.insertBefore(sec, body.querySelector('[data-ed-delete]'));
+      });
       var del = edEl.querySelector('[data-ed-delete]');
       del.classList.remove('is-confirm');
       del.textContent = kind === 'ad' ? 'Supprimer cette campagne' : 'Supprimer cette publication';
@@ -1933,6 +1952,23 @@
       });
     });
 
+    // Dépensé saisi directement sur la carte de la campagne
+    document.addEventListener('submit', function (e) {
+      var f = e.target.closest && e.target.closest('[data-quick-spent]');
+      if (!f) return;
+      e.preventDefault();
+      if (!admin) return;
+      var raw = String(f.elements.spent.value).replace(',', '.').trim();
+      var val = raw === '' ? null : Math.max(0, +raw);
+      if (raw !== '' && isNaN(+raw)) { toast('Montant non reconnu.'); return; }
+      var btn = f.querySelector('button');
+      btn.disabled = true;
+      send({ action: 'edit', kind: 'edits', id: f.getAttribute('data-quick-spent'), item: { spent: val } }).then(function (ok) {
+        btn.disabled = false;
+        if (ok) toast(val == null ? 'Dépensé : retour à l’estimation.' : 'Dépensé enregistré : ' + euros(val) + '.');
+      });
+    });
+
     // Ouvre le formulaire d'une section (l'autre se referme) et y descend en douceur
     function openSection(kind) {
       document.querySelectorAll('.suivi').forEach(function (x) {
@@ -2048,7 +2084,11 @@
           else if (kind === 'contenus') {
             var first = document.querySelector('.week');
             if (first) first.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            toast('Touchez « Modifier » sous un post ou une campagne.');
+            toast('Touchez « Modifier la publication » sous un post.');
+          } else if (kind === 'ads') {
+            var ads = document.querySelector('.ads .ad');
+            if (ads) window.scrollTo({ top: ads.getBoundingClientRect().top + window.pageYOffset - 90, behavior: 'smooth' });
+            toast('Saisissez le dépensé sur chaque campagne.');
           } else openSection(kind);
         });
       } else if ((t = e.target.closest('[data-inspi-play]'))) {
