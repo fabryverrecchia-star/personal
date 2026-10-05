@@ -23,7 +23,10 @@ L'état (Prévue, En cours, Terminée) suit les dates, sauf s'il est choisi à l
 Bouton flottant « Espace équipe » en bas à droite, puis le code (une fois par appareil, majuscules ou minuscules indifférentes).
 - Photos et légendes : un bouton « Modifier » apparaît sous chaque post et chaque campagne.
   - Remplacer, ajouter (le post devient un carrousel) ou retirer des photos. La photo est réduite sur le téléphone avant l'envoi.
-  - Reels : couverture (photo) et vidéo (MP4 ou MOV).
+  - Format : n'importe quel post peut passer en « Vidéo (reel) », et revenir en photo (la vidéo reste gardée).
+  - Reels : vidéo (MP4 ou MOV) et couverture. Après l'envoi, une image du début de la vidéo sert de couverture ;
+    le curseur permet d'en choisir une autre (« Utiliser cette image »), ou « Importer une photo ».
+    La couverture est l'image affichée dans le feed et sur le post avant lecture.
   - Titre et légende (un paragraphe par ligne).
   - Campagnes : dates, budget, dépensé réel, état.
   - « Revenir à l'original » efface les modifications et les fichiers envoyés.
@@ -41,4 +44,5 @@ Partagé entre tous les visiteurs via `clients/sounds-like-paris/suivi.php`, sto
 - Vérifier l'installation : `clients/sounds-like-paris/suivi.php?diag` (droits d'écriture, taille maximale d'envoi, curl).
 - Changer le code : `php -r 'echo password_hash(strtoupper("nouveau-code"), PASSWORD_DEFAULT);'` puis coller le résultat dans `config.php`.
 
-Sans PHP (aperçu statique), la page lit `data/suivi.json` et les modifications restent sur l'appareil.
+Sans PHP (aperçu statique), la page lit `data/suivi.json` et les modifications restent sur l'appareil (une vidéo n'y est gardée que le temps de la visite).
+L'hébergement doit accepter les requêtes partielles (Range, standard sur Apache et Nginx) pour lire les vidéos sur iPhone et choisir la couverture.

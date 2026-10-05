@@ -11,7 +11,8 @@
  *        { action: "edit",   kind: "missions"|"passages", id, item: {...} }
  *        { action: "delete", kind: "missions"|"passages"|"inspirations", id }
  *        { action: "refresh", kind: "inspirations" }  → récupère le contenu Instagram manquant
- *        { action: "edit",   kind: "edits", id, item: { title, caption, media, poster, video, budget, spent, status, start, end } }
+ *        { action: "edit",   kind: "edits", id, item: { title, caption, media, poster, video, format, budget, spent, status, start, end } }
+ *                            (format : "reel" pour passer un post photo en vidéo, "photo" pour l'inverse)
  *                            (une valeur null rétablit celle du planning)
  *        { action: "reset",  kind: "edits", id }      → revient au post ou à la campagne d'origine
  *        { action: "upload", kind: "edits", id, slot: "media"|"poster"|"video", index, base } + fichier "file"
@@ -245,6 +246,7 @@ if ($kind === 'edits') {
       } elseif (($k === 'poster' || $k === 'video') && media_path($v) !== '') $e[$k] = media_path($v);
       elseif (($k === 'budget' || $k === 'spent') && is_numeric($v) && $v >= 0 && $v < 1000000) $e[$k] = round((float) $v, 2);
       elseif ($k === 'status' && in_array($v, $AD_STATUS, true)) $e[$k] = $v;
+      elseif ($k === 'format' && in_array($v, ['reel', 'photo'], true)) $e[$k] = $v;
       elseif (($k === 'start' || $k === 'end') && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $v)) $e[$k] = $v;
     }
   } else {

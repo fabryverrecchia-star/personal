@@ -582,18 +582,28 @@
   function postView(p) {
     var o = p._orig, e = EDITS[p._key] || {};
     var v = { type: o.type || 'post', media: o.media, options: o.options, poster: o.poster, video: o.video, title: o.title, caption: o.caption };
-    if (v.type === 'reel') {
-      if (e.poster) v.poster = e.poster;
-      if (e.video) v.video = e.video;
-    } else if (e.media && e.media.length) {
-      v.media = e.media.length > 1 ? e.media : e.media[0];
+    var orig = o.type || 'post';
+    // e.format : l'équipe peut passer un post photo en reel (vidéo + couverture), ou un reel en photo
+    var reel = e.format ? e.format === 'reel' : orig === 'reel';
+    var photos = e.media && e.media.length ? e.media
+      : orig === 'reel' ? list(o.poster) : list(o.options).length > 1 ? [list(o.options)[0]] : list(o.media).map(firstPath);
+    if (reel) {
+      v.type = 'reel';
+      v.poster = e.poster || o.poster || photos[0];
+      v.video = e.video || o.video;
+      v.media = undefined;
       v.options = undefined;
-      v.type = e.media.length > 1 ? 'carousel' : 'post';
+    } else if (orig === 'reel' || (e.media && e.media.length)) {
+      v.media = photos.length > 1 ? photos : photos[0];
+      v.options = undefined;
+      v.poster = v.video = undefined;
+      v.type = photos.length > 1 ? 'carousel' : 'post';
     }
     if (e.title != null) v.title = e.title;
     if (e.caption != null) v.caption = String(e.caption).split(/\n+/).filter(Boolean);
     return v;
   }
+  function firstPath(m) { return m && typeof m === 'object' ? m.poster : m; }
   var postSig = {};
   function applyEdits(edits) {
     EDITS = edits && typeof edits === 'object' && !Array.isArray(edits) ? edits : {};
@@ -855,9 +865,11 @@
       '<header class="editor__head"><div><p class="label editor__kicker" data-ed-kicker></p><h3 class="editor__title" data-ed-heading></h3></div>' +
       '<button type="button" class="inspi__close" data-editor-close aria-label="Fermer">' + SICONS.close + '</button></header>' +
       '<div class="editor__body">' +
+      '<div class="ed-format" data-ed-format-box role="group" aria-label="Format du post"></div>' +
       '<p class="label editor__label" data-ed-media-label></p>' +
       '<div class="editor__media" data-ed-media></div>' +
       '<p class="editor__hint" data-ed-hint></p>' +
+      '<div class="ed-cover" data-ed-cover></div>' +
       '<input type="file" accept="image/*" data-ed-file hidden>' +
       '<input type="file" accept="video/mp4,video/quicktime,video/*" data-ed-video hidden>' +
       '<label class="editor__field"><span class="label">Titre</span><input type="text" name="title" maxlength="140"></label>' +
@@ -1413,11 +1425,12 @@
     var edBox = edEl.querySelector('[data-ed-media]');
     var ed = null; // { kind: 'post' | 'ad', key, post | camp, slot, index, busy }
     function edPath(m) { return m && typeof m === 'object' ? m.poster : m; }
-    function edIsReel() { return ed.kind === 'post' && (ed.post._orig.type || 'post') === 'reel'; }
+    function edIsReel() { return ed.kind === 'post' && postView(ed.post).type === 'reel'; }
     // Photos actuelles (plan.js ou déjà modifiées), dans l'ordre
     function edList() {
       if (ed.kind === 'ad') return [adView(ed.camp).media];
       var v = postView(ed.post);
+      if (v.type === 'reel') return [v.poster];
       if (list(v.options).length > 1) return [list(v.options)[0]];
       return list(v.media).map(edPath);
     }
@@ -1432,15 +1445,37 @@
       if (!ed) return;
       var label = edEl.querySelector('[data-ed-media-label]');
       var hint = edEl.querySelector('[data-ed-hint]');
-      if (edIsReel()) {
+      var fmt = edEl.querySelector('[data-ed-format-box]');
+      var reelNow = edIsReel();
+      fmt.innerHTML = ed.kind === 'post'
+        ? '<button type="button" class="label" data-ed-format="photo" aria-pressed="' + !reelNow + '">Photo ou carrousel</button>' +
+          '<button type="button" class="label" data-ed-format="reel" aria-pressed="' + reelNow + '">Vidéo (reel)</button>'
+        : '';
+      var cover = edEl.querySelector('[data-ed-cover]');
+      cover.innerHTML = '';
+      if (reelNow) {
         var v = postView(ed.post);
-        label.textContent = 'Couverture et vidéo du reel';
-        edBox.innerHTML = edTile(v.poster, 'Couverture', 'poster', 0, false) +
+        label.textContent = 'Vidéo et couverture du reel';
+        edBox.innerHTML =
           '<figure class="ed-tile ed-tile--video">' +
-          (v.video ? '<video src="' + esc(src(v.video)) + '#t=0.5" muted playsinline preload="metadata"></video>' : '<span class="label ed-tile__soon">Vidéo à venir</span>') +
+          (v.video ? '<video src="' + esc(src(v.video)) + '#t=0.5" muted playsinline preload="metadata"></video>' : '<span class="label ed-tile__soon">Pas encore de vidéo</span>') +
           '<figcaption class="label">Vidéo</figcaption>' +
-          '<div class="ed-tile__acts"><button type="button" class="label" data-ed-pick="video" data-k="0">' + (v.video ? 'Remplacer' : 'Choisir la vidéo') + '</button></div></figure>';
-        hint.textContent = 'Vidéo verticale MP4 ou MOV. La couverture s’affiche dans le feed.';
+          '<div class="ed-tile__acts"><button type="button" class="label" data-ed-pick="video" data-k="0">' + (v.video ? 'Remplacer' : 'Choisir la vidéo') + '</button></div></figure>' +
+          edTile(v.poster, 'Couverture', 'poster', 0, false);
+        hint.textContent = 'Vidéo verticale MP4 ou MOV. La couverture est l’image affichée dans le feed.';
+        // Couverture choisie dans la vidéo : on fait défiler, puis « Utiliser cette image »
+        if (v.video) {
+          cover.innerHTML =
+            '<p class="label editor__label">Choisir la couverture dans la vidéo</p>' +
+            '<div class="ed-cover__frame"><video data-ed-scrub src="' + esc(src(v.video)) + '" muted playsinline preload="auto"></video></div>' +
+            '<input type="range" class="ed-cover__range" min="0" max="1000" value="' + (ed.coverT == null ? 20 : ed.coverT) + '" step="1" data-ed-time aria-label="Moment de la vidéo">' +
+            '<div class="ed-cover__acts"><button type="button" class="label admin-form__go" data-ed-grab>Utiliser cette image</button>' +
+            '<button type="button" class="label admin-form__cancel" data-ed-pick="poster" data-k="0">Importer une photo</button></div>';
+          var sv = cover.querySelector('[data-ed-scrub]');
+          sv.addEventListener('loadedmetadata', function () {
+            try { sv.currentTime = ed && ed.coverT != null ? ed.coverT / 1000 * sv.duration : Math.min(0.5, sv.duration / 2); } catch (er) {}
+          });
+        }
       } else {
         var imgs = edList();
         label.textContent = ed.kind === 'ad' ? 'Visuel de la campagne' : imgs.length > 1 ? 'Photos du carrousel · ' + imgs.length : 'Photo';
@@ -1598,6 +1633,37 @@
         toast(isVideo ? 'Vidéo enregistrée.' : 'Photo enregistrée.');
       }, fail);
     }
+    // Image d'une vidéo → JPEG (couverture du reel)
+    function grabFrame(v) {
+      return new Promise(function (res, rej) {
+        try {
+          var w = v.videoWidth, h = v.videoHeight;
+          if (!w || !h) return rej();
+          var r = Math.min(1, 1600 / Math.max(w, h));
+          var c = document.createElement('canvas');
+          c.width = Math.round(w * r); c.height = Math.round(h * r);
+          c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+          c.toBlob(function (b) { if (b) res(b); else rej(); }, 'image/jpeg', 0.88);
+        } catch (er) { rej(er); }
+      });
+    }
+    // Après l'envoi d'une vidéo sans couverture choisie : une image du début sert de couverture
+    function autoCover(key) {
+      var e = EDITS[key] || {};
+      if (!e.video || e.poster || !ed || ed.key !== key) return;
+      var v = document.createElement('video');
+      v.muted = true; v.playsInline = true; v.preload = 'auto';
+      v.src = src(e.video);
+      v.addEventListener('loadeddata', function () { v.currentTime = Math.min(0.5, (v.duration || 1) / 2); }, { once: true });
+      v.addEventListener('seeked', function () {
+        grabFrame(v).then(function (b) {
+          if (!ed || ed.key !== key) return;
+          ed.slot = 'poster'; ed.index = 0;
+          return upload(b).then(function () { toast('Couverture prise au début de la vidéo : changez-la ci-dessous si besoin.'); });
+        }).catch(function () {});
+      }, { once: true });
+      v.load();
+    }
     function pickFile(input) {
       return function () {
         var f = input.files && input.files[0];
@@ -1607,15 +1673,39 @@
           toast(input === edVideo ? 'Choisissez une vidéo (MP4 ou MOV).' : 'Choisissez une photo.');
           return;
         }
-        upload(f);
+        var key = ed.key, isVid = input === edVideo;
+        if (isVid) ed.coverT = null;
+        Promise.resolve(upload(f)).then(function () { if (isVid) autoCover(key); });
       };
     }
     edFile.addEventListener('change', pickFile(edFile));
     edVideo.addEventListener('change', pickFile(edVideo));
     edForm.elements.caption.addEventListener('input', edCount);
+    edEl.addEventListener('input', function (e) {
+      var r = e.target.closest('[data-ed-time]');
+      if (!r) return;
+      var v = edEl.querySelector('[data-ed-scrub]');
+      ed.coverT = +r.value;
+      if (v && v.duration) v.currentTime = r.value / 1000 * v.duration;
+    });
     edEl.addEventListener('click', function (e) {
       var t;
       if (e.target.closest('[data-editor-close]')) closeEditor();
+      else if ((t = e.target.closest('[data-ed-format]'))) {
+        if (ed.busy) return;
+        var want = t.getAttribute('data-ed-format');
+        var orig = (ed.post._orig.type || 'post') === 'reel' ? 'reel' : 'photo';
+        send({ action: 'edit', kind: 'edits', id: ed.key, item: { format: want === orig ? null : want } }).then(function () {
+          edPaintMedia();
+          edEl.querySelector('[data-ed-reset]').hidden = !EDITS[ed.key];
+        });
+      } else if ((t = e.target.closest('[data-ed-grab]'))) {
+        if (ed.busy) return;
+        grabFrame(edEl.querySelector('[data-ed-scrub]')).then(function (b) {
+          ed.slot = 'poster'; ed.index = 0;
+          upload(b);
+        }, function () { toast('Image indisponible : laissez la vidéo se charger puis réessayez.'); });
+      }
       else if ((t = e.target.closest('[data-ed-pick]'))) {
         if (ed.busy) return;
         ed.slot = t.getAttribute('data-ed-pick');
