@@ -181,11 +181,11 @@ window.PLAN = {
   suivi: {
     api: 'suivi.php',
     data: 'data/suivi.json',
-    team: ['Fabrizio', 'Jade'],
+    team: ['Fabrizio', 'Manon', 'Clément'],
     // Pas de passage prévu : le calendrier montre seulement les publications et les campagnes sponsorisées
     passages: false,
-    // Fabrizio en couleurs 18H22, Jade aux couleurs du client
-    colors: { Fabrizio: '#22365f', Jade: '#a8834a' },
+    // Fabrizio en couleurs 18H22, Manon et Clément aux couleurs du client
+    colors: { Fabrizio: '#22365f', Manon: '#a8834a', 'Clément': '#6f9480' },
   },
 
   // Retours du client : Validé / À revoir + commentaire, envoyés en un récapitulatif.

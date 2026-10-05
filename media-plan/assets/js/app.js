@@ -155,6 +155,91 @@
     );
   }
 
+  /* ------------------------ planning modifié par l'équipe : dates, ajouts, retraits */
+  // Appliqué avant le rendu, depuis suivi.php : après ce type de changement, la page se recharge.
+  var BASE_MONTHS = PLAN && PLAN.months ? JSON.parse(JSON.stringify(PLAN.months)) : null;
+  var BASE_ADS = PLAN && PLAN.ads ? JSON.parse(JSON.stringify(list(PLAN.ads.campaigns))) : null;
+  var PH = '';
+  function timeVal(t) { var m = String(t || '').match(/(\d{1,2})(?:\D+(\d{2}))?/); return m ? +m[1] * 60 + (+m[2] || 0) : 0; }
+  // Visuel d'attente d'une publication ou campagne ajoutée, aux couleurs du client
+  function placeholder() {
+    if (PH) return PH;
+    var t = PLAN.theme || {};
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">' +
+      '<rect width="1080" height="1350" fill="' + (t.paper || t.bg || '#efeae0') + '"/>' +
+      '<rect x="70" y="70" width="940" height="1210" fill="none" stroke="' + (t.gold || t.ink || '#999') + '" stroke-opacity=".55" stroke-width="2" stroke-dasharray="12 16"/>' +
+      '<text x="540" y="690" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="34" letter-spacing="12" fill="' + (t.ink || '#333') + '" fill-opacity=".7">VISUEL À VENIR</text></svg>';
+    PH = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    return PH;
+  }
+  var REMOVED = [];
+  function applyStructure(edits) {
+    edits = edits && typeof edits === 'object' && !Array.isArray(edits) ? edits : {};
+    var keys = Object.keys(edits);
+    REMOVED = [];
+    if (BASE_MONTHS) {
+      var months = BASE_MONTHS.map(function (m) {
+        var c = JSON.parse(JSON.stringify(m));
+        c._key = String((list(m.posts)[0] || {}).date || '').slice(0, 7);
+        c.posts = [];
+        return c;
+      });
+      var posts = [];
+      BASE_MONTHS.forEach(function (m) { list(m.posts).forEach(function (p) { posts.push(JSON.parse(JSON.stringify(p))); }); });
+      keys.forEach(function (k) {
+        var e = edits[k];
+        if (e && e.added === 'post' && e.date) posts.push({ id: k, date: e.date, time: '', type: 'post', media: placeholder(), title: '', caption: [], _added: true });
+      });
+      posts = posts.filter(function (p) {
+        var e = (p.id && edits[p.id]) || {};
+        p._base = { date: p._added ? '' : p.date, time: p._added ? '' : p.time || '' };
+        if (e.date) p.date = e.date;
+        if (e.deleted) { REMOVED.push({ kind: 'post', id: p.id, title: e.title || p.title, date: p.date }); return false; }
+        if (e.time) p.time = e.time;
+        return true;
+      });
+      posts.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : timeVal(a.time) - timeVal(b.time); });
+      posts.forEach(function (p) {
+        var k = p.date.slice(0, 7);
+        var m = months.filter(function (x) { return x._key === k; })[0];
+        if (!m) {
+          var d = parseDate(k + '-01');
+          m = { title: MOIS_LONGS[d.getMonth()], posts: [], _key: k };
+          months.push(m);
+        }
+        m.posts.push(p);
+      });
+      PLAN.months = months.filter(function (m) { return m.posts.length; }).sort(function (a, b) { return a._key < b._key ? -1 : 1; });
+      if (!PLAN.months.length) PLAN.months = months.slice(0, 1);
+    }
+    if (BASE_ADS) {
+      var cs = BASE_ADS.map(function (c) { return JSON.parse(JSON.stringify(c)); });
+      keys.forEach(function (k) {
+        var e = edits[k];
+        if (e && e.added === 'ad' && e.start) cs.push({ id: k, start: e.start, end: e.end || e.start, media: placeholder(), title: '', caption: [], _added: true });
+      });
+      PLAN.ads.campaigns = cs.filter(function (c) {
+        var e = edits[c.id] || {};
+        c._base = { start: c._added ? '' : c.start, end: c._added ? '' : c.end };
+        if (e.start) c.start = e.start;
+        if (e.deleted) { REMOVED.push({ kind: 'ad', id: c.id, title: e.title || c.title, date: c.start }); return false; }
+        if (e.end) c.end = e.end;
+        return true;
+      }).sort(function (a, b) { return a.start < b.start ? -1 : a.start > b.start ? 1 : 0; });
+    }
+  }
+
+  // Équipe : publications et campagnes retirées du planning, avec « Rétablir »
+  function restoreHtml(kind, mk) {
+    var items = REMOVED.filter(function (x) { return x.kind === kind && (!mk || x.date.slice(0, 7) === mk); });
+    if (!items.length) return '';
+    return '<div class="restore">' + items.map(function (x) {
+      var d = parseDate(x.date);
+      return '<p><span class="label">Retirée · ' + pad(d.getDate()) + ' ' + MOIS[d.getMonth()] + '</span><b>' + esc(x.title || '') + '</b>' +
+        '<button type="button" class="label" data-restore="' + esc(x.id) + '" data-restore-kind="' + kind + '">Rétablir</button></p>';
+    }).join('') + '</div>';
+  }
+
   /* --------------------------------------------------------------- render */
   var allPosts = [];
 
@@ -182,7 +267,7 @@
       '<span class="label post__index">' + JOURS_LONGS[d.getDay()] + '</span></div>' +
       '<div class="slot" data-slot="media">' + mediaHtml(post) + '</div>' +
       '<div class="caption" data-reveal data-slot="caption">' + captionHtml(post) + '</div>' +
-      '<button type="button" class="label edit-btn" data-edit-post="' + esc(post._key) + '">' + EDIT_ICON + 'Modifier la photo et la légende</button>' +
+      '<button type="button" class="label edit-btn" data-edit-post="' + esc(post._key) + '">' + EDIT_ICON + 'Modifier la publication</button>' +
       feedbackHtml(post) + '</div></article>'
     );
   }
@@ -371,6 +456,7 @@
         (w.theme ? '<p class="week__theme" data-reveal>' + esc(w.theme) + '</p>' : '') +
         '</header>' +
         posts.map(function (p, i) { return renderPost(p, k, i); }).join('') +
+        (PLAN.suivi ? '<button type="button" class="label add-item" data-add-post="' + (w._key || iso(first)) + '"><span>+</span>Ajouter une publication</button>' + restoreHtml('post', w._key || iso(first).slice(0, 7)) : '') +
         '</section>';
     });
 
@@ -435,7 +521,10 @@
     var e = EDITS[c.id] || {};
     var same = adCampaigns().filter(function (x) { return adMonthKey(x) === adMonthKey(c); }).length || 1;
     var v = {
-      id: c.id, objective: c.objective, audience: c.audience, cta: c.cta || 'En savoir plus',
+      id: c.id,
+      objective: e.objective != null ? e.objective : c.objective,
+      audience: e.audience != null ? e.audience : c.audience,
+      cta: (e.cta != null ? e.cta : c.cta) || 'En savoir plus',
       title: e.title != null ? e.title : c.title,
       caption: e.caption != null ? String(e.caption).split(/\n+/).filter(Boolean) : list(c.caption),
       media: (e.media && e.media[0]) || c.media,
@@ -483,7 +572,7 @@
       '</dl>' +
       '<div class="ad__budget"><div class="ad__bar"><span style="--p:' + pct.toFixed(1) + '%"></span></div>' +
       '<p class="label ad__spent"><b>' + euros(v.spent) + '</b> / ' + euros(v.budget) + (v.real ? '' : ' · estimé') + '</p></div>' +
-      '<button type="button" class="label edit-btn" data-edit-ad="' + esc(v.id) + '">' + EDIT_ICON + 'Modifier la photo, la légende et le budget</button>' +
+      '<button type="button" class="label edit-btn" data-edit-ad="' + esc(v.id) + '">' + EDIT_ICON + 'Modifier la campagne</button>' +
       '</div>'
     );
   }
@@ -510,6 +599,7 @@
           (months.length > 1 ? '<p class="label ads__month-name">' + MOIS_LONGS[d.getMonth()] + '</p>' : '') +
           '</div>';
       }).join('') +
+      (PLAN.suivi ? '<button type="button" class="label add-item" data-add-ad="' + months[months.length - 1] + '"><span>+</span>Ajouter une campagne</button>' + restoreHtml('ad') : '') +
       '</section>'
     );
   }
@@ -872,6 +962,8 @@
       '<div class="ed-cover" data-ed-cover></div>' +
       '<input type="file" accept="image/*" data-ed-file hidden>' +
       '<input type="file" accept="video/mp4,video/quicktime,video/*" data-ed-video hidden>' +
+      '<div class="admin-form__row" data-ed-when><label class="editor__field"><span class="label">Date de publication</span><input type="date" name="date"></label>' +
+      '<label class="editor__field"><span class="label">Heure</span><input type="text" name="time" maxlength="12" placeholder="18h30"></label></div>' +
       '<label class="editor__field"><span class="label">Titre</span><input type="text" name="title" maxlength="140"></label>' +
       '<label class="editor__field"><span class="label">Légende <small data-ed-count></small></span><textarea name="caption" rows="6" maxlength="2200" placeholder="Une ligne par paragraphe"></textarea></label>' +
       '<div class="editor__ad" data-ed-ad>' +
@@ -879,8 +971,12 @@
       '<label class="editor__field"><span class="label">Fin</span><input type="date" name="end"></label></div>' +
       '<div class="admin-form__row"><label class="editor__field"><span class="label">Budget (€)</span><input type="number" name="budget" min="0" step="1" inputmode="decimal"></label>' +
       '<label class="editor__field"><span class="label">Dépensé réel (€)</span><input type="number" name="spent" min="0" step="0.01" inputmode="decimal"></label></div>' +
+      '<label class="editor__field"><span class="label">Objectif</span><input type="text" name="objective" maxlength="160" placeholder="Notoriété, messages, trafic…"></label>' +
+      '<label class="editor__field"><span class="label">Audience</span><input type="text" name="audience" maxlength="160" placeholder="Paris · 25-50 ans · centres d’intérêt"></label>' +
+      '<label class="editor__field"><span class="label">Bouton</span><input type="text" name="cta" maxlength="40" placeholder="En savoir plus"></label>' +
       '<label class="editor__field"><span class="label">État</span><select name="status"><option value="">Automatique (selon les dates)</option>' + options(AD_STATUS, '') + '</select></label>' +
       '</div>' +
+      '<button type="button" class="label editor__delete" data-ed-delete></button>' +
       '</div>' +
       '<div class="editor__actions">' +
       '<button type="button" class="label editor__reset" data-ed-reset>Revenir à l’original</button>' +
@@ -908,6 +1004,50 @@
     );
   }
 
+  /* ------------------------------------------------- données de suivi.php */
+  function json(r) {
+    if (!r.ok) return Promise.reject(r.status);
+    return r.text().then(function (t) { return JSON.parse(t); });
+  }
+  function valid(d) {
+    if (!d || !Array.isArray(d.passages) || !Array.isArray(d.missions)) return false;
+    if (!Array.isArray(d.inspirations)) d.inspirations = [];
+    if (!d.edits || typeof d.edits !== 'object' || Array.isArray(d.edits)) d.edits = {};
+    return true;
+  }
+  // Données partagées (suivi.php) ; sans PHP (aperçu statique) : fichier de départ, puis modifications gardées sur l'appareil
+  function getSuivi() {
+    var cfg = PLAN.suivi;
+    var API = cfg.api ? src(cfg.api) : '';
+    var LOCAL = 'suivi:' + BASE;
+    var fromApi = API ? fetch(API + '?t=' + Date.now(), { cache: 'no-store' }).then(json) : Promise.reject();
+    return fromApi.then(function (d) {
+      if (!valid(d)) throw 0;
+      return { d: d, mode: 'api' };
+    }).catch(function () {
+      var saved = null;
+      try { saved = JSON.parse(localStorage.getItem(LOCAL)); } catch (e) {}
+      // Un appareil qui a déjà des modifications garde les siennes, en récupérant les inspirations ajoutées depuis
+      if (saved && Array.isArray(saved.passages) && cfg.seed) {
+        var mine = Array.isArray(saved.inspirations) ? saved.inspirations : [];
+        var ids = mine.map(function (x) { return x.id; });
+        saved.inspirations = (cfg.seed.inspirations || []).filter(function (x) { return ids.indexOf(x.id) < 0; }).concat(mine);
+      }
+      var d = valid(saved) ? saved : valid(cfg.seed) ? JSON.parse(JSON.stringify(cfg.seed))
+        : fetch(src(cfg.data)).then(json).catch(function () { return { passages: [], missions: [] }; });
+      return Promise.resolve(d).then(function (x) { return { d: x, mode: 'local' }; });
+    });
+  }
+  var FIRST = null;
+  // Après un ajout, un retrait ou un changement de date, la page se recharge sans l'ouverture 18H22
+  var QUICK_KEY = 'mp-quick:' + BASE;
+  var QUICK = null;
+  try { QUICK = JSON.parse(sessionStorage.getItem(QUICK_KEY)); sessionStorage.removeItem(QUICK_KEY); } catch (e) {}
+  function relaunch(o) {
+    try { sessionStorage.setItem(QUICK_KEY, JSON.stringify(o)); } catch (e) {}
+    location.reload();
+  }
+
   function initSuivi() {
     var cfg = PLAN.suivi;
     if (!cfg) return;
@@ -929,38 +1069,12 @@
     var tasksEl = document.querySelector('[data-tasks]');
     var fab = document.querySelector('[data-fab]');
 
-    function json(r) {
-      if (!r.ok) return Promise.reject(r.status);
-      return r.text().then(function (t) { return JSON.parse(t); });
-    }
-    function valid(d) {
-      if (!d || !Array.isArray(d.passages) || !Array.isArray(d.missions)) return false;
-      if (!Array.isArray(d.inspirations)) d.inspirations = [];
-      if (!d.edits || typeof d.edits !== 'object' || Array.isArray(d.edits)) d.edits = {};
-      return true;
-    }
     function load() {
-      var fromApi = API ? fetch(API + '?t=' + Date.now(), { cache: 'no-store' }).then(json) : Promise.reject();
-      return fromApi.then(function (d) {
-        if (!valid(d)) throw 0;
-        mode = 'api';
-        return d;
-      }).catch(function () {
-        // Sans PHP (aperçu statique) : fichier de départ, puis modifications gardées sur l'appareil
-        mode = 'local';
-        var saved = null;
-        try { saved = JSON.parse(localStorage.getItem(LOCAL)); } catch (e) {}
-        // Un appareil qui a déjà des modifications garde les siennes, en récupérant les inspirations ajoutées depuis
-        if (saved && Array.isArray(saved.passages) && cfg.seed) {
-          var mine = Array.isArray(saved.inspirations) ? saved.inspirations : [];
-          var ids = mine.map(function (x) { return x.id; });
-          saved.inspirations = (cfg.seed.inspirations || []).filter(function (x) { return ids.indexOf(x.id) < 0; }).concat(mine);
-        }
-        if (valid(saved)) return saved;
-        if (valid(cfg.seed)) return JSON.parse(JSON.stringify(cfg.seed));
-        return fetch(src(cfg.data)).then(json).catch(function () { return { passages: [], missions: [] }; });
-      }).then(function (d) {
-        state = valid(d) ? d : { passages: [], missions: [] };
+      var p = FIRST || getSuivi();
+      FIRST = null;
+      return p.then(function (r) {
+        mode = r.mode;
+        state = valid(r.d) ? r.d : { passages: [], missions: [] };
         paint();
       });
     }
@@ -1019,8 +1133,8 @@
         if (!r.ok) return why(r).then(function (m) { return Promise.reject(m); });
         return json(r);
       });
-      return p.then(function (d) { if (valid(d)) { state = d; paint(); } })
-        .catch(function (e) { if (e !== 'code') toast(typeof e === 'string' ? e : 'La modification n’a pas pu être enregistrée. Réessayez.'); });
+      return p.then(function (d) { if (valid(d)) { state = d; paint(); } return true; })
+        .catch(function (e) { if (e !== 'code') toast(typeof e === 'string' ? e : 'La modification n’a pas pu être enregistrée. Réessayez.'); return false; });
     }
 
     /* Calendrier du mois */
@@ -1270,7 +1384,7 @@
       toastT = setTimeout(function () { toastEl.classList.remove('is-on'); }, 3200);
     }
 
-    /* Mode équipe (Fabrizio, Jade) : ajouter, faire avancer, supprimer */
+    /* Mode équipe (Fabrizio, Manon, Clément) : ajouter, faire avancer, supprimer */
     function setAdmin(on, badCode) {
       var before = anchor && anchor.getBoundingClientRect().top;
       admin = on;
@@ -1491,15 +1605,33 @@
     }
     function edOrig() {
       if (ed.kind === 'ad') {
-        var c = ed.camp, same = adCampaigns().filter(function (x) { return adMonthKey(x) === adMonthKey(c); }).length || 1;
-        return { title: c.title || '', caption: list(c.caption).join('\n'), start: c.start || '', end: c.end || '',
-          budget: c.budget != null ? +c.budget : (PLAN.ads.budget || 0) / same };
+        var c = ed.camp, b = c._base || c, same = adCampaigns().filter(function (x) { return adMonthKey(x) === adMonthKey(c); }).length || 1;
+        return { title: c.title || '', caption: list(c.caption).join('\n'), start: b.start || '', end: b.end || '',
+          budget: c.budget != null ? +c.budget : (PLAN.ads.budget || 0) / same,
+          objective: c.objective || '', audience: c.audience || '', cta: c.cta || '' };
       }
-      return { title: ed.post._orig.title || '', caption: list(ed.post._orig.caption).join('\n') };
+      var o = ed.post._orig, pb = o._base || o;
+      return { title: o.title || '', caption: list(o.caption).join('\n'), date: pb.date || '', time: pb.time || '' };
     }
     function edCount() {
       var t = edForm.elements.caption;
       edEl.querySelector('[data-ed-count]').textContent = '· ' + t.value.length + ' / 2200';
+    }
+    // Nouvelle publication ou campagne : créée dans le mois, puis la page se recharge sur son formulaire
+    function addItem(kind, mk) {
+      var t = today(), first = parseDate((mk || iso(t).slice(0, 7)) + '-01');
+      var lastDay = new Date(first.getFullYear(), first.getMonth() + 1, 0);
+      var day = t >= first && t <= lastDay ? t : first;
+      var id = (kind === 'ad' ? 'ad-' : 'pub-') + Date.now().toString(36);
+      var item;
+      if (kind === 'ad') {
+        var end = new Date(day.getFullYear(), day.getMonth(), day.getDate() + 13);
+        item = { added: 'ad', start: iso(day), end: iso(end > lastDay ? lastDay : end), title: 'Nouvelle campagne' };
+      } else item = { added: 'post', date: iso(day), time: '18h30', title: 'Nouvelle publication' };
+      toast(kind === 'ad' ? 'Création de la campagne…' : 'Création de la publication…');
+      send({ action: 'edit', kind: 'edits', id: id, item: item }).then(function (ok) {
+        if (ok) relaunch({ to: kind === 'ad' ? 'ad-' + id : 'p-' + id, admin: true, open: [kind, id], msg: 'Ajoutée : complétez la date, la photo et la légende.' });
+      });
     }
     function openEditor(kind, key) {
       var camp = kind === 'ad' ? adCampaigns().filter(function (c) { return c.id === key; })[0] : null;
@@ -1520,16 +1652,26 @@
         f.spent.value = e.spent != null ? e.spent : '';
         f.spent.placeholder = v.real ? '' : 'Estimé : ' + v.spent;
         f.status.value = e.status || '';
+        f.objective.value = v.objective || '';
+        f.audience.value = v.audience || '';
+        f.cta.value = e.cta != null ? e.cta : camp.cta || '';
+        if (!v.title) edEl.querySelector('[data-ed-heading]').textContent = 'Nouvelle campagne';
       } else {
         var pv = postView(p);
         edEl.querySelector('[data-ed-kicker]').textContent = TYPE_LABEL[pv.type] + ' · ' + JOURS_LONGS[p._date.getDay()] + ' ' + p._date.getDate() + ' ' + MOIS[p._date.getMonth()];
         edEl.querySelector('[data-ed-heading]').textContent = pv.title || 'Publication';
         f.title.value = pv.title || '';
         f.caption.value = list(pv.caption).join('\n');
+        f.date.value = p.date || '';
+        f.time.value = p.time || '';
       }
       edEl.querySelector('[data-ed-ad]').hidden = kind !== 'ad';
+      edEl.querySelector('[data-ed-when]').hidden = kind !== 'post';
+      var del = edEl.querySelector('[data-ed-delete]');
+      del.classList.remove('is-confirm');
+      del.textContent = kind === 'ad' ? 'Supprimer cette campagne' : 'Supprimer cette publication';
       var reset = edEl.querySelector('[data-ed-reset]');
-      reset.hidden = !EDITS[key];
+      reset.hidden = !EDITS[key] || !!e.added;
       reset.classList.remove('is-confirm');
       reset.textContent = 'Revenir à l’original';
       edCount();
@@ -1717,6 +1859,24 @@
         var l = edList();
         l.splice(+t.getAttribute('data-ed-remove'), 1);
         send({ action: 'edit', kind: 'edits', id: ed.key, item: { media: l } }).then(function () { edPaintMedia(); edEl.querySelector('[data-ed-reset]').hidden = false; });
+      } else if ((t = e.target.closest('[data-ed-delete]'))) {
+        if (ed.busy) return;
+        if (!t.classList.contains('is-confirm')) {
+          t.classList.add('is-confirm');
+          t.textContent = 'Toucher encore pour supprimer';
+          return;
+        }
+        var isAdDel = ed.kind === 'ad';
+        var back = isAdDel ? 'ads' : 's' + (ed.post._week + 1);
+        // Ajoutée par l'équipe : effacée ; prévue au planning : retirée (photos envoyées gardées jusqu'à « Revenir à l'original »)
+        var op = (EDITS[ed.key] || {}).added
+          ? { action: 'reset', kind: 'edits', id: ed.key }
+          : { action: 'edit', kind: 'edits', id: ed.key, item: { deleted: true } };
+        send(op).then(function (ok) {
+          if (!ok) return;
+          ed = null;
+          relaunch({ to: back, admin: true, msg: isAdDel ? 'Campagne supprimée.' : 'Publication supprimée.' });
+        });
       } else if ((t = e.target.closest('[data-ed-reset]'))) {
         if (!t.classList.contains('is-confirm')) {
           t.classList.add('is-confirm');
@@ -1744,11 +1904,30 @@
         item.start = f.start.value && f.start.value !== o.start ? f.start.value : null;
         item.end = f.end.value && f.end.value !== o.end ? f.end.value : null;
         item.status = f.status.value || null;
+        ['objective', 'audience', 'cta'].forEach(function (k) { var v = f[k].value.trim(); item[k] = v === o[k] ? null : v; });
+      } else {
+        item.date = f.date.value && f.date.value !== o.date ? f.date.value : null;
+        var tm = f.time.value.trim();
+        item.time = tm && tm !== o.time ? tm : null;
       }
+      var added = (EDITS[ed.key] || {}).added;
+      if (added) {
+        // Publication ou campagne ajoutée : ses dates restent toujours enregistrées
+        if (ed.kind === 'ad') { item.start = item.start || ed.camp.start; item.end = item.end || ed.camp.end; }
+        else item.date = item.date || ed.post.date;
+      }
+      if (ed.kind === 'ad' && (item.end || ed.camp.end) < (item.start || ed.camp.start)) { toast('La fin doit être après le début.'); return; }
+      // Nouvelle date : la page se recharge pour remettre le planning et le calendrier dans l'ordre
+      var moved = ed.kind === 'ad'
+        ? (f.start.value || ed.camp.start) !== ed.camp.start || (f.end.value || ed.camp.end) !== ed.camp.end
+        : (f.date.value || ed.post.date) !== ed.post.date || tm !== (ed.post.time || '');
+      var target = ed.kind === 'ad' ? 'ad-' + ed.key : ed.post._id;
       var go = edEl.querySelector('[data-ed-save]');
       go.disabled = true;
-      send({ action: 'edit', kind: 'edits', id: ed.key, item: item }).then(function () {
+      send({ action: 'edit', kind: 'edits', id: ed.key, item: item }).then(function (ok) {
         go.disabled = false;
+        if (!ok) return;
+        if (moved) { ed = null; relaunch({ to: target, admin: true, msg: 'Date enregistrée.' }); return; }
         closeEditor();
         toast('Modifications enregistrées.');
       });
@@ -1832,6 +2011,15 @@
         paintWho();
       } else if (admin && (t = e.target.closest('[data-status]'))) {
         send({ action: 'update', kind: 'missions', id: t.getAttribute('data-status'), status: NEXT_STATUS[t.getAttribute('data-now')] || 'todo' });
+      } else if ((t = e.target.closest('[data-add-post], [data-add-ad]'))) {
+        var addAd = t.hasAttribute('data-add-ad');
+        var mk = String(t.getAttribute(addAd ? 'data-add-ad' : 'data-add-post') || '').slice(0, 7);
+        askCode(function () { addItem(addAd ? 'ad' : 'post', mk); });
+      } else if (admin && (t = e.target.closest('[data-restore]'))) {
+        var rid = t.getAttribute('data-restore'), rAd = t.getAttribute('data-restore-kind') === 'ad';
+        send({ action: 'edit', kind: 'edits', id: rid, item: { deleted: null } }).then(function (ok) {
+          if (ok) relaunch({ to: rAd ? 'ad-' + rid : 'p-' + rid.replace(/[^a-z0-9-]/gi, ''), admin: true, msg: rAd ? 'Campagne rétablie.' : 'Publication rétablie.' });
+        });
       } else if ((t = e.target.closest('[data-edit-post], [data-edit-ad]'))) {
         var isAd = t.hasAttribute('data-edit-ad');
         var edKey = t.getAttribute(isAd ? 'data-edit-ad' : 'data-edit-post');
@@ -1910,6 +2098,12 @@
 
     load().then(function () {
       if (code && mode === 'api') setAdmin(true);
+      if (QUICK) {
+        if (QUICK.admin && !admin) setAdmin(true);
+        if (QUICK.msg) toast(QUICK.msg);
+        if (QUICK.open && admin) setTimeout(function () { openEditor(QUICK.open[0], QUICK.open[1]); }, 500);
+        return;
+      }
       // Lien direct vers le panneau d'inspiration pour l'équipe : ?inspi
       if (new URLSearchParams(location.search).has('inspi')) askCode(function () { inspi(true); });
       else if (!admin && wantsAdmin) menu(true);
@@ -2364,7 +2558,12 @@
     var heroBits = document.querySelectorAll('[data-hero]');
     var rule = document.querySelector('.hero__rule');
 
-    if (!gsap || reduce) { done(); return; }
+    if (!gsap || reduce || QUICK) {
+      done();
+      var to = QUICK && QUICK.to && document.getElementById(QUICK.to);
+      if (to) setTimeout(function () { window.scrollTo(0, to.getBoundingClientRect().top + window.pageYOffset - 90); }, 60);
+      return;
+    }
 
     paths.forEach(function (p) {
       var len = p.getTotalLength();
@@ -2418,6 +2617,7 @@
     document.body.classList.remove('is-loading');
     return;
   }
+  function boot() {
   render();
   inlineSvgs();
   initAnchors();
@@ -2430,4 +2630,13 @@
   initViewer();
   initScroll();
   preload();
+  }
+  // Le planning tient compte des ajouts, retraits et dates de l'équipe : données lues avant le rendu (3 s au plus)
+  if (PLAN.suivi) {
+    FIRST = getSuivi();
+    Promise.race([FIRST, new Promise(function (res) { setTimeout(res, 3000); })]).then(function (r) {
+      if (r && r.d) applyStructure(r.d.edits);
+      boot();
+    });
+  } else boot();
 })();

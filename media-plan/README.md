@@ -21,15 +21,21 @@ L'état (Prévue, En cours, Terminée) suit les dates, sauf s'il est choisi à l
 ## Espace équipe (code MANCLEM)
 
 Bouton flottant « Espace équipe » en bas à droite, puis le code (une fois par appareil, majuscules ou minuscules indifférentes).
+- Équipe : Fabrizio (couleurs 18H22), Manon et Clément (couleurs du client).
+- Planning : en mode équipe, « Ajouter une publication » (fin du mois) et « Ajouter une campagne » (fin des campagnes)
+  créent l'élément et ouvrent son formulaire. Changer une date, ajouter ou supprimer recharge la page (sans l'ouverture 18H22)
+  pour remettre le planning, le feed et le calendrier dans l'ordre. Une publication ou campagne du planning supprimée
+  reste listée en mode équipe avec « Rétablir » ; une ajoutée puis supprimée est effacée.
 - Photos et légendes : un bouton « Modifier » apparaît sous chaque post et chaque campagne.
+  - Posts : date et heure de publication.
   - Remplacer, ajouter (le post devient un carrousel) ou retirer des photos. La photo est réduite sur le téléphone avant l'envoi.
   - Format : n'importe quel post peut passer en « Vidéo (reel) », et revenir en photo (la vidéo reste gardée).
   - Reels : vidéo (MP4 ou MOV) et couverture. Après l'envoi, une image du début de la vidéo sert de couverture ;
     le curseur permet d'en choisir une autre (« Utiliser cette image »), ou « Importer une photo ».
     La couverture est l'image affichée dans le feed et sur le post avant lecture.
   - Titre et légende (un paragraphe par ligne).
-  - Campagnes : dates, budget, dépensé réel, état.
-  - « Revenir à l'original » efface les modifications et les fichiers envoyés.
+  - Campagnes : dates, budget, dépensé réel, objectif, audience, bouton, état.
+  - « Revenir à l'original » efface les modifications et les fichiers envoyés. « Supprimer » (deux touchers) retire du planning.
 - Tâche (missions) et Inspiration (liens Instagram) : comme les autres plannings.
 
 ## Hébergement

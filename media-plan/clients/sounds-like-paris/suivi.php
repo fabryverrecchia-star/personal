@@ -11,7 +11,8 @@
  *        { action: "edit",   kind: "missions"|"passages", id, item: {...} }
  *        { action: "delete", kind: "missions"|"passages"|"inspirations", id }
  *        { action: "refresh", kind: "inspirations" }  → récupère le contenu Instagram manquant
- *        { action: "edit",   kind: "edits", id, item: { title, caption, media, poster, video, format, budget, spent, status, start, end } }
+ *        { action: "edit",   kind: "edits", id, item: { title, caption, media, poster, video, format, date, time, budget, spent, status, start, end,
+ *                                                  objective, audience, cta, added: "post"|"ad", deleted: true } }
  *                            (format : "reel" pour passer un post photo en vidéo, "photo" pour l'inverse)
  *                            (une valeur null rétablit celle du planning)
  *        { action: "reset",  kind: "edits", id }      → revient au post ou à la campagne d'origine
@@ -109,7 +110,7 @@ if ($action === 'check') {
 $kind = isset($in['kind']) ? $in['kind'] : '';
 if (!in_array($kind, ['missions', 'passages', 'inspirations', 'edits'], true)) out(['error' => 'kind'], 400);
 
-$TEAM = ['Fabrizio', 'Jade'];
+$TEAM = ['Fabrizio', 'Manon', 'Clément'];
 $CATS = ['photo', 'video', 'montage', 'planning', 'redaction', 'ads', 'autre'];
 $AD_STATUS = ['prevue', 'live', 'done'];
 // Chemin d'une photo ou vidéo du site (planning ou envoi de l'équipe), jamais en dehors du dossier client
@@ -247,6 +248,12 @@ if ($kind === 'edits') {
       elseif (($k === 'budget' || $k === 'spent') && is_numeric($v) && $v >= 0 && $v < 1000000) $e[$k] = round((float) $v, 2);
       elseif ($k === 'status' && in_array($v, $AD_STATUS, true)) $e[$k] = $v;
       elseif ($k === 'format' && in_array($v, ['reel', 'photo'], true)) $e[$k] = $v;
+      // Publication ou campagne ajoutée depuis l'espace équipe, ou retirée du planning
+      elseif ($k === 'added' && in_array($v, ['post', 'ad'], true)) $e[$k] = $v;
+      elseif ($k === 'deleted' && $v === true) $e[$k] = true;
+      elseif ($k === 'date' && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $v)) $e[$k] = $v;
+      elseif ($k === 'time') { $t = clean($v, 12); if ($t !== '') $e[$k] = $t; else unset($e[$k]); }
+      elseif (in_array($k, ['objective', 'audience', 'cta'], true)) { $t = clean($v, 160); if ($t !== '') $e[$k] = $t; else unset($e[$k]); }
       elseif (($k === 'start' || $k === 'end') && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $v)) $e[$k] = $v;
     }
   } else {
