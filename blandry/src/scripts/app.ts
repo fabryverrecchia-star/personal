@@ -117,7 +117,7 @@ const foot = $('.loader__foot', loader)!;
 /* Préchargement réel : toutes les images de la page, la vidéo et les polices */
 function loadAssets(onProgress: (p: number) => void) {
   const imgs = $$<HTMLImageElement>('img');
-  const video = $<HTMLVideoElement>('[data-autovideo]');
+  const video = $<HTMLVideoElement>('[data-autovideo]:not([data-lazyvideo])');
   let done = 0;
   const total = imgs.length + (video ? 1 : 0) + 1;
   const tick = () => onProgress(++done / total);
@@ -833,6 +833,15 @@ function parallax() {
     gsap.fromTo(m, { yPercent: -7 }, { yPercent: 7, ease: 'none', scrollTrigger: { trigger: wrap, start: 'top bottom', end: 'bottom top', scrub: true } });
   });
 }
+function contactMono() {
+  const m = $('[data-contact-mono] .bl-logo');
+  if (!m) return;
+  gsap.fromTo(
+    m,
+    { clipPath: 'inset(100% 0 0 0)', yPercent: 20, opacity: 0 },
+    { clipPath: 'inset(0% 0 0 0)', yPercent: 0, opacity: 0.92, duration: 1.4, ease: EASE, scrollTrigger: { trigger: m, start: 'top 80%', once: true } },
+  );
+}
 function autoVideos() {
   $$<HTMLVideoElement>('[data-autovideo]').forEach((v) => {
     new IntersectionObserver(
@@ -922,6 +931,7 @@ function init() {
   gallery();
   parallax();
   autoVideos();
+  contactMono();
   faq();
   form();
   onScroll();
