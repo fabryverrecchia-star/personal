@@ -55,7 +55,7 @@ export class World {
   mouseLerp = new THREE.Vector2(0, 0);
   mousePx = new THREE.Vector2(-9999, -9999);
   mousePxLerp = new THREE.Vector2(-9999, -9999);
-  tone = new THREE.Color('#12291f');
+  tone = new THREE.Color('#1d4a32');
   intro = { value: 0 };
   activeCursor = -1;
 
@@ -81,6 +81,9 @@ export class World {
         uAudio: { value: 0 },
         uMouse: { value: this.mouseLerp },
         uIntro: { value: 0 },
+        uLight: { value: 0 },
+        uScroll: { value: 0 },
+        uDpr: { value: 1 },
       },
     });
     this.bg = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), bgMat);
@@ -106,6 +109,7 @@ export class World {
         uPixel: { value: 1 },
         uScroll: { value: 0 },
         uIntro: { value: 0 },
+        uLight: { value: 0 },
       },
     });
     this.dust = new THREE.Points(dustGeo, dustMat);
@@ -207,9 +211,16 @@ export class World {
   // ----------------------------------------------------------------
   // État
   // ----------------------------------------------------------------
-  setTone(hex: string) {
+  setTone(hex: string, light = false) {
     const c = new THREE.Color(hex);
     gsap.to(this.tone, { r: c.r, g: c.g, b: c.b, duration: 1.8, ease: 'power2.out' });
+    const target = light ? 1 : 0;
+    gsap.to([this.bg.material.uniforms.uLight, this.dust.material.uniforms.uLight], {
+      value: target,
+      duration: 1.1,
+      ease: 'power2.inOut',
+      overwrite: true,
+    });
   }
 
   setMouse(x: number, y: number) {
@@ -259,7 +270,8 @@ export class World {
     this.camera.aspect = this.width / this.height;
     this.camera.fov = (2 * Math.atan(this.height / 2 / CAMERA_Z) * 180) / Math.PI;
     this.camera.updateProjectionMatrix();
-    this.bg.material.uniforms.uRes.value.set(this.width, this.height);
+    this.bg.material.uniforms.uRes.value.set(this.width * dpr, this.height * dpr);
+    this.bg.material.uniforms.uDpr.value = dpr;
     this.dust.material.uniforms.uPixel.value = dpr;
   }
 
@@ -283,6 +295,7 @@ export class World {
     const bgU = this.bg.material.uniforms;
     bgU.uTime.value = time;
     bgU.uAudio.value = audio;
+    bgU.uScroll.value = f.scroll;
     const dU = this.dust.material.uniforms;
     dU.uTime.value = time;
     dU.uAudio.value = audio;

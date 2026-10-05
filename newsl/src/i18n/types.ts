@@ -26,8 +26,7 @@ export interface Dict {
   meta: { title: string; description: string; locale: string };
   langName: string;
   nav: { experiences: string; casting: string; maison: string; contact: string; menu: string; close: string };
-  loader: { hint: string; withSound: string; silent: string };
-  sound: { on: string; off: string };
+  sound: { label: string; on: string; off: string };
   hero: { eyebrow: string; tagline: string; sub: string; scroll: string };
   manifesto: { label: string; text: string; words: string[] };
   experiences: { label: string; title: string; intro: string; items: Experience[]; drag: string };

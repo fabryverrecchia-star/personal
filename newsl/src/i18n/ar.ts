@@ -16,12 +16,7 @@ const ar: Dict = {
     menu: 'القائمة',
     close: 'إغلاق',
   },
-  loader: {
-    hint: 'تجربة صوتية. ننصح باستخدام سماعات الرأس.',
-    withSound: 'الدخول مع الصوت',
-    silent: 'الدخول بصمت',
-  },
-  sound: { on: 'الصوت مفعّل', off: 'الصوت متوقف' },
+  sound: { label: 'الصوت', on: 'الصوت مفعّل', off: 'الصوت متوقف' },
   hero: {
     eyebrow: 'دار للإبداع الموسيقي — باريس',
     tagline: 'Sounds like you.',

@@ -79,47 +79,95 @@ export const bgFragment = /* glsl */ `
 precision highp float;
 uniform float uTime;
 uniform vec2 uRes;
+uniform float uDpr;
 uniform vec3 uTone;
 uniform float uAudio;
 uniform vec2 uMouse;
 uniform float uIntro;
+uniform float uLight;
+uniform float uScroll;
 varying vec2 vUv;
 ${noise}
+
+float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+
+// Onde « tresse » : paliers lissés entre -1 et 1
+float braidWave(float x){
+  float f = fract(x);
+  return smoothstep(0.08, 0.42, f) - smoothstep(0.58, 0.92, f);
+}
+
+// Faisceau de lignes verticales de ~1 px
+float lines(float x, float spacing, float px){
+  float d = abs(fract(x / spacing) - 0.5) * spacing;
+  return 1.0 - smoothstep(0.35 * px, 1.25 * px, d);
+}
+
 void main(){
-  vec2 p = (vUv - 0.5) * vec2(uRes.x / uRes.y, 1.0);
-  float t = uTime * 0.035;
+  float asp = uRes.x / uRes.y;
+  vec2 p = vUv;
+  vec2 q = vec2(p.x * asp, p.y);
+  float t = uTime * 0.06;
 
-  // Domaine déformé (Inigo Quilez) : plis de velours lents
-  vec2 q = vec2(fbm(vec3(p * 1.1, t)), fbm(vec3(p * 1.1 + 5.2, t)));
-  vec2 r = vec2(
-    fbm(vec3(p * 1.3 + 3.5 * q + vec2(1.7, 9.2), t * 1.4)),
-    fbm(vec3(p * 1.3 + 3.5 * q + vec2(8.3, 2.8), t * 1.4))
-  );
-  float f = fbm(vec3(p * 1.5 + 3.5 * r, t * 1.8 + uAudio * 0.15));
+  // Contours organiques
+  vec2 w = vec2(snoise(vec3(q * 1.3, t)), snoise(vec3(q * 1.3 + 4.0, t))) * 0.06;
+  vec2 r = q + w;
 
-  vec3 ink = vec3(0.027, 0.035, 0.031);
-  vec3 gold = vec3(0.78, 0.64, 0.42);
+  // --- Dégradé de la DA : or en haut, vert au centre, bleu nuit en bas, noir à droite
+  vec2 mouse = (uMouse * 0.5 + 0.5) * vec2(asp, 1.0);
+  vec2 cGold = vec2(0.06 * asp + 0.05 * sin(t * 1.3), 0.98 + 0.04 * cos(t));
+  vec2 cMid = vec2(0.22 * asp + 0.06 * sin(t * 0.8 + 2.0), 0.52 + 0.08 * cos(t * 0.9));
+  cMid = mix(cMid, mouse, 0.12);
+  vec2 cBlue = vec2(0.1 * asp + 0.05 * cos(t * 0.7), 0.06 + 0.05 * sin(t * 1.1));
 
-  float body = smoothstep(-0.25, 0.85, f);
-  vec3 col = mix(ink, uTone, body * 0.95);
+  vec3 gold = vec3(0.93, 0.66, 0.26);
+  vec3 blue = vec3(0.14, 0.27, 0.46);
+  vec3 mid = uTone;
 
-  // Reflets dorés dans les creux du tissu
-  float sheen = pow(clamp(length(r) * 0.9, 0.0, 1.0), 3.0);
-  col += gold * sheen * (0.12 + uAudio * 0.35);
+  float gG = smoothstep(0.85, 0.0, length(r - cGold));
+  float gM = smoothstep(0.95, 0.0, length(r - cMid));
+  float gB = smoothstep(0.9, 0.0, length(r - cBlue));
 
-  // Plis verticaux discrets (rideau)
-  float folds = sin(p.x * 11.0 + f * 5.0 + t * 3.0) * 0.5 + 0.5;
-  col *= 0.86 + 0.24 * pow(folds, 4.0);
+  vec3 dark = vec3(0.012, 0.02, 0.018);
+  dark = mix(dark, mid, gM * 0.95);
+  dark = mix(dark, blue, gB * 0.85);
+  dark = mix(dark, gold, pow(gG, 1.4) * (0.9 + uAudio * 0.25));
+  // Le noir gagne vers la droite
+  dark *= mix(1.0, 0.18, smoothstep(0.25 * asp, 0.95 * asp, r.x));
 
-  // Halo sous la souris
-  vec2 m = uMouse * 0.5 * vec2(uRes.x / uRes.y, 1.0);
-  float glow = smoothstep(0.75, 0.0, length(p - m));
-  col += mix(uTone, gold, 0.35) * glow * 0.18;
+  // --- Version ivoire
+  vec3 ivory = vec3(0.955, 0.935, 0.895);
+  vec3 light = ivory;
+  light = mix(light, vec3(0.95, 0.85, 0.66), pow(gG, 1.6) * 0.75);
+  light = mix(light, mix(ivory, mid * 2.2 + 0.25, 0.35), gM * 0.35);
+  light = mix(light, vec3(0.82, 0.86, 0.9), gB * 0.35);
 
-  // Vignette + intro
-  col *= smoothstep(1.3, 0.15, length(p * vec2(0.9, 1.1)));
+  vec3 col = mix(dark, light, uLight);
+
+  // --- Lignes tressées (motif de la DA)
+  vec2 px = vUv * uRes;
+  float band = clamp(uRes.x * 0.32, 220.0 * uDpr, 420.0 * uDpr);
+  float spacing = band / 18.0;
+  float period = band * 2.6;
+  float y = px.y + (uTime * 14.0 + uScroll * 0.25) * uDpr;
+  float bi = floor(px.x / band);
+  float amp = band * 0.24;
+  float phase = y / period + bi * 0.5;
+  float l1 = lines(px.x + amp * braidWave(phase), spacing, uDpr);
+  float l2 = lines(px.x - amp * braidWave(phase + 0.5), spacing, uDpr);
+  // Tissage : une famille passe au-dessus, puis l'autre
+  float over = step(0.5, fract(phase));
+  float braid = max(l1 * mix(1.0, 0.45, over), l2 * mix(0.45, 1.0, over));
+  float lineStrength = mix(0.3, 0.14, uLight) * (0.75 + 0.25 * uAudio);
+  vec3 lineCol = mix(col * 0.55, vec3(0.55, 0.42, 0.22), uLight);
+  col = mix(col, lineCol, braid * lineStrength);
+
+  // Grain
+  float g = hash(floor(px / uDpr) + fract(uTime * 7.0) * 113.0) - 0.5;
+  col += g * mix(0.07, 0.045, uLight);
+
+  // Entrée
   col *= uIntro;
-
   gl_FragColor = vec4(col, 1.0);
 }
 `;
@@ -133,6 +181,7 @@ uniform float uTime;
 uniform float uAudio;
 uniform float uPixel;
 uniform float uScroll;
+uniform float uLight;
 varying float vAlpha;
 void main(){
   float speed = 0.012 + aSeed.z * 0.03;
@@ -141,7 +190,7 @@ void main(){
   gl_Position = vec4(x, y, 0.0, 1.0);
   float twinkle = 0.5 + 0.5 * sin(uTime * (1.0 + aSeed.z * 3.0) + aSeed.x * 40.0);
   gl_PointSize = (1.0 + aSeed.z * 2.6) * uPixel * (1.0 + uAudio * 1.6);
-  vAlpha = (0.15 + 0.6 * twinkle) * (0.35 + aSeed.z * 0.65) * (0.6 + uAudio);
+  vAlpha = (0.15 + 0.6 * twinkle) * (0.35 + aSeed.z * 0.65) * (0.6 + uAudio) * (1.0 - uLight * 0.85);
 }
 `;
 

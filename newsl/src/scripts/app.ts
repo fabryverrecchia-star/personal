@@ -14,12 +14,20 @@ const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matc
 const $ = <T extends Element = HTMLElement>(s: string, el: ParentNode = document) => el.querySelector<T>(s);
 const $$ = <T extends Element = HTMLElement>(s: string, el: ParentNode = document) => [...el.querySelectorAll<T>(s)];
 
+// Teinte centrale du fond WebGL par section ; « ivory » passe la page en clair
 const TONES: Record<string, string> = {
-  forest: '#12291f',
-  bordeaux: '#4a0f1b',
-  night: '#0f1d17',
-  gold: '#2e2414',
+  forest: '#1d4a32',
+  bordeaux: '#4d1322',
+  night: '#123a44',
+  gold: '#4a3412',
+  ivory: '#2c5a44',
 };
+
+function applyTone(tone: string) {
+  const light = tone === 'ivory';
+  root.classList.toggle('is-light', light);
+  world?.setTone(TONES[tone] ?? TONES.forest, light);
+}
 
 // ------------------------------------------------------------------
 // Défilement fluide
@@ -82,30 +90,35 @@ async function initGL() {
       scroll: lenis.scroll,
     });
   });
+}
 
+function initTones() {
   $$('[data-tone]').forEach((section) => {
     ScrollTrigger.create({
       trigger: section,
-      start: 'top 60%',
-      end: 'bottom 40%',
+      start: 'top 55%',
+      end: 'bottom 55%',
       onToggle: (self) => {
-        if (self.isActive) world!.setTone(TONES[section.dataset.tone!] ?? TONES.forest);
+        if (self.isActive) applyTone(section.dataset.tone!);
       },
     });
   });
   ScrollTrigger.create({
     trigger: '[data-hero]',
     start: 'top top',
-    end: 'bottom 40%',
-    onEnterBack: () => world!.setTone(TONES.forest),
+    end: 'bottom 55%',
+    onEnterBack: () => applyTone('forest'),
   });
 }
 
 // ------------------------------------------------------------------
-// Entrée
+// Entrée : le logo s'écrit, se remplit, puis rejoint l'en-tête pendant
+// que le rideau s'ouvre sur la vidéo.
 // ------------------------------------------------------------------
 const loader = $('[data-loader]')!;
 const isReturn = root.classList.contains('is-return');
+const headerLogo = $('[data-header-logo]')!;
+const headerRest = () => $$('.header__nav, .header__tools');
 
 function waitFor<T>(p: Promise<T>, ms: number) {
   return Promise.race([p, new Promise((r) => setTimeout(r, ms))]);
@@ -124,74 +137,101 @@ async function boot() {
 
   if (isReturn) {
     await waitFor(assets, 2500);
-    enter(false, true);
+    enter(true);
     return;
   }
 
+  gsap.set(headerLogo, { opacity: 0 });
+  gsap.set(headerRest(), { opacity: 0, y: -12 });
+
   const counter = $('[data-count]', loader)!;
-  const logo = $('.loader__logo', loader)!;
-  const progress = { v: 0 };
-  const count = gsap.to(progress, {
-    v: 92,
-    duration: 2.2,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      counter.textContent = String(Math.round(progress.v)).padStart(3, '0');
-      const p = 100 - progress.v;
-      logo.style.clipPath = rtl ? `inset(0 0 0 ${p}%)` : `inset(0 ${p}% 0 0)`;
+  const strokes = $$<SVGPathElement>('.logo__strokes path', loader);
+  strokes.forEach((path) => {
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = `${len}`;
+    path.style.strokeDashoffset = `${len}`;
+  });
+
+  // Écriture : chaque lettre se trace, de gauche à droite
+  const write = gsap.timeline({
+    onUpdate() {
+      counter.textContent = String(Math.round(this.progress() * 100)).padStart(3, '0');
     },
   });
-  await Promise.all([count.then(), waitFor(assets, 6000)]);
-  await gsap.to(progress, {
-    v: 100,
-    duration: 0.6,
-    ease: 'power2.out',
-    onUpdate: count.vars.onUpdate,
+  write.to(strokes, {
+    strokeDashoffset: 0,
+    duration: 1.5,
+    ease: 'power2.inOut',
+    stagger: { each: 0.14 },
   });
 
-  const enterBox = $('.loader__enter', loader)!;
-  gsap.set(enterBox, { visibility: 'visible' });
-  gsap.from(enterBox.children, { opacity: 0, y: 24, duration: 1.2, stagger: 0.12, ease: 'expo.out' });
-  gsap.to(counter.parentElement, { opacity: 0, duration: 0.6 });
+  await Promise.all([write.then(), waitFor(assets, 6000)]);
+  counter.textContent = '100';
 
-  $$<HTMLButtonElement>('[data-enter]', loader).forEach((btn) =>
-    btn.addEventListener('click', () => enter(btn.dataset.enter === 'sound', false), { once: true }),
-  );
+  // Remplissage : l'encre succède au trait
+  const fill = $('.logo__fill', loader)!;
+  await gsap
+    .timeline()
+    .to(fill, { opacity: 1, duration: 0.9, ease: 'power2.out' })
+    .to(strokes, { opacity: 0, duration: 0.6 }, '<0.2')
+    .then();
+
+  enter(false);
 }
 
 let entered = false;
-function enter(withSound: boolean, quick: boolean) {
+function enter(quick: boolean) {
   if (entered) return;
   entered = true;
   try {
     sessionStorage.setItem('sl-entered', '1');
   } catch {}
 
-  // Les navigateurs bloquent le son sans geste : au retour, on entre en silence
-  if (withSound && !quick) setSound(true);
+  const done = () => {
+    root.classList.remove('is-loading');
+    loader.remove();
+    lenis.start();
+    ScrollTrigger.refresh();
+  };
 
-  const tl = gsap.timeline({
-    onComplete: () => {
-      root.classList.remove('is-loading');
-      loader.remove();
-      lenis.start();
-      ScrollTrigger.refresh();
-    },
-  });
-
-  if (!quick) {
-    tl.to($$('.loader__enter, .loader__logo', loader), { opacity: 0, y: -20, duration: 0.8, ease: 'power3.in' });
-    tl.to(loader, { clipPath: 'inset(0 0 100% 0)', duration: 1.2, ease: 'expo.inOut' }, '-=0.2');
-  } else {
-    tl.set(loader, { display: 'none' });
+  if (quick) {
+    gsap.set(loader, { display: 'none' });
+    world?.playIntro(1.6);
+    const tl = gsap.timeline({ onComplete: done });
+    tl.from('[data-hero-line]', { yPercent: 110, duration: 1.6, stagger: 0.12, ease: 'expo.out' }, 0.2);
+    tl.from('[data-hero-item]', { opacity: 0, y: 20, duration: 1.2, stagger: 0.1, ease: 'expo.out' }, '<0.3');
+    return;
   }
 
-  world?.playIntro(quick ? 1.6 : 2.6);
-  if (!world) gsap.from('.hero__video', { opacity: 0, scale: 1.08, duration: 2.4, ease: 'expo.out' });
+  // Le logo du loader rejoint celui de l'en-tête (FLIP)
+  const logo = $('[data-loader-logo]', loader)!;
+  const from = logo.getBoundingClientRect();
+  const to = headerLogo.getBoundingClientRect();
+  const curtains = $$('.loader__curtain', loader);
 
-  tl.from('[data-hero-line]', { yPercent: 110, duration: 1.6, stagger: 0.12, ease: 'expo.out' }, quick ? 0.2 : '-=0.5');
-  tl.from('[data-hero-item]', { opacity: 0, y: 20, duration: 1.2, stagger: 0.1, ease: 'expo.out' }, '<0.3');
-  tl.fromTo('.header', { yPercent: -100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 1.2, ease: 'expo.out' }, '<');
+  const tl = gsap.timeline({ onComplete: done });
+  tl.to($('.loader__count', loader), { opacity: 0, duration: 0.4 }, 0);
+  tl.to(
+    logo,
+    {
+      x: to.left - from.left,
+      y: to.top - from.top,
+      scale: to.width / from.width,
+      duration: 1.5,
+      ease: 'expo.inOut',
+    },
+    0,
+  );
+  // Le rideau s'ouvre en deux
+  tl.to(curtains[0], { xPercent: -100, duration: 1.6, ease: 'expo.inOut' }, 0.18);
+  tl.to(curtains[1], { xPercent: 100, duration: 1.6, ease: 'expo.inOut' }, 0.18);
+  tl.add(() => world?.playIntro(2.4), 0.35);
+  if (!world) tl.from('.hero__video', { opacity: 0, scale: 1.08, duration: 2.4, ease: 'expo.out' }, 0.35);
+  tl.set(headerLogo, { opacity: 1 }, 1.5);
+  tl.set(logo, { opacity: 0 }, 1.5);
+  tl.to(headerRest(), { opacity: 1, y: 0, duration: 1, stagger: 0.08, ease: 'expo.out' }, 1.15);
+  tl.from('[data-hero-line]', { yPercent: 110, duration: 1.6, stagger: 0.12, ease: 'expo.out' }, 0.95);
+  tl.from('[data-hero-item]', { opacity: 0, y: 20, duration: 1.2, stagger: 0.1, ease: 'expo.out' }, 1.25);
 }
 
 // ------------------------------------------------------------------
@@ -431,8 +471,10 @@ function initForm() {
 // ------------------------------------------------------------------
 // Lancement
 // ------------------------------------------------------------------
-initReveals();
+// L'épinglage d'abord : les déclencheurs suivants tiennent compte de son espace
 initHorizontal();
+initReveals();
+initTones();
 initCasting();
 initCursor();
 initForm();

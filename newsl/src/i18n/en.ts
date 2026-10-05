@@ -16,12 +16,7 @@ const en: Dict = {
     menu: 'Menu',
     close: 'Close',
   },
-  loader: {
-    hint: 'A sound experience. Headphones recommended.',
-    withSound: 'Enter with sound',
-    silent: 'Enter in silence',
-  },
-  sound: { on: 'Sound on', off: 'Sound off' },
+  sound: { label: 'Sound', on: 'Sound on', off: 'Sound off' },
   hero: {
     eyebrow: 'House of musical creation — Paris',
     tagline: 'Sounds like you.',

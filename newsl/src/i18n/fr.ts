@@ -16,12 +16,7 @@ const fr: Dict = {
     menu: 'Menu',
     close: 'Fermer',
   },
-  loader: {
-    hint: 'Une expérience sonore. Casque conseillé.',
-    withSound: 'Entrer avec le son',
-    silent: 'Entrer en silence',
-  },
-  sound: { on: 'Son activé', off: 'Son coupé' },
+  sound: { label: 'Son', on: 'Son activé', off: 'Son coupé' },
   hero: {
     eyebrow: 'Maison de création musicale — Paris',
     tagline: 'Sounds like you.',
