@@ -1422,7 +1422,7 @@
           var c = document.createElement('canvas');
           c.width = Math.round(w * r); c.height = Math.round(h * r);
           var x = c.getContext('2d');
-          x.fillStyle = '#f2ece1';
+          x.fillStyle = (PLAN.theme && PLAN.theme.bg) || '#f1eee6';
           x.fillRect(0, 0, c.width, c.height);
           x.drawImage(img, 0, 0, c.width, c.height);
           URL.revokeObjectURL(url);
@@ -2045,7 +2045,14 @@
         start: 'top 50%',
         end: 'bottom 50%',
         onToggle: function (self) {
-          if (self.isActive) links.forEach(function (a, j) { a.classList.toggle('is-active', j === k); });
+          if (self.isActive) {
+            links.forEach(function (a, j) { a.classList.toggle('is-active', j === k); });
+            // Le lien actif reste visible dans le menu qui défile en largeur
+            var nav = links[k] && links[k].parentNode;
+            if (nav && nav.scrollWidth > nav.clientWidth) {
+              nav.scrollTo({ left: links[k].offsetLeft - (nav.clientWidth - links[k].offsetWidth) / 2, behavior: 'smooth' });
+            }
+          }
           else if (k === 0 && self.direction < 0) links.forEach(function (a) { a.classList.remove('is-active'); });
         },
       });

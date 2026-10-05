@@ -11,32 +11,34 @@ window.PLAN = {
     badge: 'logo.svg',
     services: ['Live music', 'Photo', 'Vidéo', 'CM', 'Ads'],
     location: 'Paris',
-    // Logo en capitales fines : trait d'écriture adapté, pas de grand trait final
-    writeStroke: 24,
+    // Logo « sounds like » en minuscules fines : trait d'écriture adapté, pas de grand trait final
+    writeStroke: 12,
     writeFlourish: false,
     instagram: 'soundslike.paris',
   },
 
   title: 'Media planning',
   period: 'Octobre 2026',
+  brandText: 'Do you know what <em>sound</em> music makes&nbsp;?',
   intro:
     'Les plus belles adresses de Paris ont une <em>bande-son</em>. Un mois pour la faire entendre : les lieux, les formats, les artistes, et les soirées qu’on organise sur mesure.',
 
-  // Couleurs du site : ivoire, velours bordeaux, or champagne. Bascule en fondu après l'ouverture 18H22.
+  // Couleurs du site (DA Instagram) : vert nuit, ivoire champagne, or. Bascule en fondu après l'ouverture 18H22.
   theme: {
-    bg: '#f2ece1',
-    'bg-deep': '#e7ddcd',
-    ink: '#5e1a26',
-    'ink-soft': 'rgba(74, 28, 36, 0.76)',
-    'ink-faint': 'rgba(94, 26, 38, 0.2)',
-    bar: 'rgba(242, 236, 225, 0.9)',
-    tint: 'rgba(94, 26, 38, 0.05)',
+    bg: '#10261d',
+    'bg-deep': '#0b1c15',
+    ink: '#ece2cc',
+    'ink-soft': 'rgba(236, 226, 204, 0.72)',
+    'ink-faint': 'rgba(236, 226, 204, 0.18)',
+    bar: 'rgba(16, 38, 29, 0.9)',
+    tint: 'rgba(236, 226, 204, 0.05)',
+    paper: '#0c1f17',
+    gold: '#c6a062',
   },
-  accent: '#b08a52',
   // Typographie du client pour le texte ; titres et haut de page restent en 18H22
   fonts: {
     css: 'fonts/fonts.css',
-    text: "'Bodoni Moda', Didot, Georgia, serif",
+    text: "'Jost Sounds', Jost, 'Futura', 'Helvetica Neue', sans-serif",
   },
 
   // Un planning par mois. Chaque post a un id : ses modifications (photo, légende) y sont rattachées.
@@ -131,6 +133,9 @@ window.PLAN = {
     },
   ],
 
+  // Feed actuel du compte @soundslike.paris (du plus récent au plus ancien), affiché après le planning
+  feedExisting: ['media/live-1.jpg', 'media/live-2.jpg', 'media/live-3.jpg', 'media/live-4.jpg', 'media/live-5.jpg', 'media/live-6.jpg', 'media/live-7.jpg', 'media/live-8.jpg', 'media/live-9.jpg'],
+
   // Campagnes sponsorisées (Meta : Instagram et Facebook), deux par mois.
   // Budget indicatif mensuel ; chaque campagne a sa part. Le dépensé est estimé au prorata des jours
   // tant que l'équipe n'a pas saisi le montant réel dans l'espace équipe.
@@ -178,7 +183,7 @@ window.PLAN = {
     data: 'data/suivi.json',
     team: ['Fabrizio', 'Jade'],
     // Fabrizio en couleurs 18H22, Jade aux couleurs du client
-    colors: { Fabrizio: '#22365f', Jade: '#5e1a26' },
+    colors: { Fabrizio: '#22365f', Jade: '#a8834a' },
   },
 
   // Retours du client : Validé / À revoir + commentaire, envoyés en un récapitulatif.

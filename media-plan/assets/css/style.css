@@ -41,6 +41,7 @@
   --bar: rgba(241, 238, 230, 0.9);
   --tint: rgba(34, 54, 95, 0.04);
   --paper: #fbfaf6;
+  --gold: #b08a52;
   --night: #0e1424;
 
   --display: 'Cormorant Garamond', 'Times New Roman', serif;
@@ -58,6 +59,9 @@
 *::after { box-sizing: border-box; }
 
 html {
+  /* La page reste à la largeur du téléphone : aucun jeu sur les côtés */
+  overflow-x: clip;
+  max-width: 100%;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   background: var(--bg);
@@ -72,7 +76,8 @@ body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  overflow-x: clip;
+  max-width: 100%;
 }
 
 body.is-loading { overflow: hidden; }
@@ -363,16 +368,23 @@ a { color: inherit; }
   top: calc(env(safe-area-inset-top, 0px) + 50px);
   z-index: 30;
   display: flex;
-  justify-content: center;
+  justify-content: safe center;
   gap: 4px;
   padding: 8px var(--gutter) 9px;
   margin-top: 8px;
+  /* Menu plus large que l'écran : il défile seul en largeur, jamais la page */
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
   background: var(--bar);
   -webkit-backdrop-filter: blur(14px) saturate(1.2);
   backdrop-filter: blur(14px) saturate(1.2);
   box-shadow: 0 1px 0 var(--ink-faint);
 }
+.weeknav::-webkit-scrollbar { display: none; }
 .weeknav a {
+  flex: none;
+  white-space: nowrap;
   text-decoration: none;
   padding: 6px 11px 5px;
   border: 1px solid transparent;
@@ -1112,7 +1124,8 @@ a { color: inherit; }
   background: var(--ink); color: var(--bg);
 }
 .avatar--fabrizio { background: #22365f; }
-.avatar--jade { background: #5e1a26; }
+.avatar--jade { background: #a8834a; }
+.avatar { box-shadow: 0 0 0 1px var(--ink-faint); }
 .task__status {
   padding: 6px 11px 5px;
   border-radius: 99px;
@@ -1193,7 +1206,7 @@ a { color: inherit; }
 .chip.is-on { background: var(--ink); border-color: var(--ink); color: var(--bg); }
 /* Fabrizio en couleur 18H22, Jade aux couleurs de Sounds Like Paris */
 .chip.is-on[data-who="Fabrizio"] { background: #22365f; border-color: #22365f; color: #f1eee6; }
-.chip.is-on[data-who="Jade"] { background: #5e1a26; border-color: #5e1a26; color: #f2ece1; }
+.chip.is-on[data-who="Jade"] { background: #a8834a; border-color: #a8834a; color: #10261d; }
 .admin-form__go {
   justify-self: start;
   padding: 12px 22px 11px;
@@ -1215,9 +1228,9 @@ a { color: inherit; }
 }
 .admin-pill[hidden] { display: none; }
 
-/* Logo Soundslike : capitales fines en largeur */
-.lockup__client > svg { height: 30px; max-width: 112px; }
-.hero__lockup .lockup__client > svg { height: 64px; max-width: 180px; }
+/* Logo « sounds like » sur deux lignes */
+.lockup__client > svg { height: 32px; max-width: 80px; }
+.hero__lockup .lockup__client > svg { height: 66px; max-width: 150px; }
 .admin-form select {
   padding-right: 34px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='1.6'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
@@ -1621,9 +1634,9 @@ a { color: inherit; }
   border-radius: 99px;
   transition: width 1.6s var(--ease);
 }
-.budget__planned { background: color-mix(in srgb, #b08a52 40%, transparent); }
+.budget__planned { background: color-mix(in srgb, var(--gold) 45%, transparent); }
 .budget__fill {
-  background: linear-gradient(90deg, var(--ink), color-mix(in srgb, var(--ink) 70%, #b08a52));
+  background: linear-gradient(90deg, var(--ink), color-mix(in srgb, var(--ink) 55%, var(--gold)));
   transition-delay: 0.25s;
 }
 /* Reflet qui traverse la partie dépensée */
@@ -1648,7 +1661,7 @@ a { color: inherit; }
 .budget__legend span { display: inline-flex; align-items: center; gap: 7px; }
 .budget__dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
 .budget__dot--fill { background: var(--ink); }
-.budget__dot--planned { background: color-mix(in srgb, #b08a52 55%, transparent); }
+.budget__dot--planned { background: color-mix(in srgb, var(--gold) 60%, transparent); }
 
 .ad {
   display: grid;
@@ -1664,9 +1677,9 @@ a { color: inherit; }
   border-radius: 14px;
   background: var(--paper);
   border: 1px solid var(--ink-faint);
-  box-shadow: 0 18px 40px rgba(60, 20, 28, 0.1);
+  box-shadow: 0 18px 40px rgba(0, 12, 8, 0.25);
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
-  color: #2b1d20;
+  color: var(--ink);
 }
 .ad__head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
 .ad__avatar {
@@ -1677,11 +1690,11 @@ a { color: inherit; }
   color: var(--bg);
   font-family: var(--display);
   font-size: 18px;
-  box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px #b08a52;
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--gold);
 }
 .ad__who { display: grid; line-height: 1.2; font-size: 13px; }
-.ad__who small { font-size: 11px; color: #7a6a6c; }
-.ad__more { margin-left: auto; letter-spacing: 1px; color: #7a6a6c; }
+.ad__who small { font-size: 11px; color: var(--ink-soft); }
+.ad__more { margin-left: auto; letter-spacing: 1px; color: var(--ink-soft); }
 .ad__media { border-radius: 0; }
 .ad__cta {
   display: flex; align-items: center; justify-content: space-between;
@@ -1743,7 +1756,7 @@ a { color: inherit; }
 .editor.is-open { visibility: visible; pointer-events: auto; transition: visibility 0s; }
 .editor__backdrop {
   position: absolute; inset: 0;
-  background: rgba(40, 14, 20, 0.42);
+  background: rgba(4, 16, 11, 0.55);
   -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
   opacity: 0;
   transition: opacity 0.5s var(--ease);
@@ -1785,7 +1798,7 @@ a { color: inherit; }
 .ed-tile figcaption {
   position: absolute; left: 8px; top: 8px;
   padding: 4px 8px 3px; border-radius: 99px;
-  background: rgba(242, 236, 225, 0.88); color: var(--ink); font-size: 8px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent); color: var(--ink); font-size: 8px;
 }
 .ed-tile__soon { position: absolute; inset: 0; display: grid; place-items: center; font-size: 9px; color: var(--ink-soft); }
 .ed-tile__acts { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; gap: 6px; }
@@ -1801,7 +1814,7 @@ a { color: inherit; }
   display: grid; place-items: center;
   width: 30px; height: 30px; flex: none;
   border-radius: 50%;
-  background: rgba(242, 236, 225, 0.92);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
   color: var(--ink);
 }
 .ed-tile__del svg { width: 12px; height: 12px; }
