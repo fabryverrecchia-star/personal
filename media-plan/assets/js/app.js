@@ -877,7 +877,7 @@
         '<h2 class="suivi__title" data-reveal>Le calendrier</h2>' +
         '<p class="suivi__lead" data-reveal data-next>&nbsp;</p>' +
         '</header>' + calHtml +
-        '<ol class="visits" data-visits></ol>' +
+        '<p class="label cal__tip">Touchez un jour pour voir la publication</p>' +
         '</section>'
       : '';
     return (
@@ -1051,6 +1051,7 @@
     });
   }
   var FIRST = null;
+  var STRUCT_OK = false;
   // Après un ajout, un retrait ou un changement de date, la page se recharge sans l'ouverture 18H22
   var QUICK_KEY = 'mp-quick:' + BASE;
   var QUICK = null;
@@ -1152,13 +1153,34 @@
     /* Calendrier du mois */
     var PUBS = cfg.passages === false;
     // Mode publications : chaque post (date) et chaque campagne sponsorisée (du début à la fin)
+    // Recalculé à chaque modification (date, ajout, retrait, format, titre), depuis le planning et les modifications de l'équipe
+    function pubKind(type, e) {
+      if (e.format ? e.format === 'reel' : type === 'reel') return 'reel';
+      if (e.media && e.media.length) return e.media.length > 1 ? 'carousel' : 'post';
+      return type === 'reel' ? 'post' : type || 'post';
+    }
     function pubEvents() {
-      var ev = allPosts.map(function (p) {
-        return { date: p.date, kind: p.type || 'post', title: p.title, go: p._id };
+      var E = EDITS || {}, ev = [];
+      var base = [];
+      if (BASE_MONTHS) BASE_MONTHS.forEach(function (m) { list(m.posts).forEach(function (p) { base.push(p); }); });
+      else allPosts.forEach(function (p) { base.push(p._orig || p); });
+      base.forEach(function (p) {
+        var e = (p.id && E[p.id]) || {};
+        if (e.deleted || !p.date) return;
+        ev.push({ date: e.date || p.date, kind: pubKind(p.type, e), title: e.title != null ? e.title : p.title, go: p.id ? 'p-' + String(p.id).replace(/[^a-z0-9-]/gi, '') : '' });
       });
-      adCampaigns().forEach(function (c) {
-        var v = adView(c);
-        if (v.start) ev.push({ date: v.start, end: v.end, kind: 'ad', title: v.title, go: 'ad-' + c.id, budget: v.budget });
+      var ads = BASE_ADS ? BASE_ADS.slice() : adCampaigns();
+      ads.forEach(function (c) {
+        var e = E[c.id] || {};
+        if (e.deleted) return;
+        var st = e.start || c.start;
+        if (st) ev.push({ date: st, end: e.end || c.end || st, kind: 'ad', title: e.title != null ? e.title : c.title, go: 'ad-' + c.id });
+      });
+      Object.keys(E).forEach(function (k) {
+        var e = E[k];
+        if (!e || e.deleted) return;
+        if (e.added === 'post' && e.date) ev.push({ date: e.date, kind: pubKind('post', e), title: e.title || 'Nouvelle publication', go: 'p-' + k });
+        if (e.added === 'ad' && e.start) ev.push({ date: e.start, end: e.end || e.start, kind: 'ad', title: e.title || 'Nouvelle campagne', go: 'ad-' + k });
       });
       return ev.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
     }
@@ -1194,12 +1216,15 @@
           (+d === +t ? ' is-today' : '') +
           (d < t ? ' is-past' : '');
         var label = (p || []).concat(a || []).map(function (x) { return (x.kind === 'ad' ? 'Sponsorisé : ' : TYPE_LABEL[x.kind] + ' : ') + (x.title || ''); }).join(', ');
+        var go = ((p || [])[0] || (a || [])[0] || {}).go;
         cells += p || a
-          ? '<button type="button" class="' + cls + '" data-day="' + k + '" aria-label="' + esc(shortDate(k) + ' · ' + label) + '"><span>' + d.getDate() + '</span></button>'
-          : '<span class="' + cls + '"><span>' + d.getDate() + '</span></span>';
+          ? '<div class="' + cls + '" role="button" tabindex="0" data-day="' + k + '"' + (go ? ' data-cal-go="' + esc(go) + '"' : '') + ' aria-label="' + esc(shortDate(k) + ' · ' + label) + '">' +
+            (a ? '<i class="cal__band" aria-hidden="true"></i>' : '') + '<span>' + d.getDate() + '</span></div>'
+          : '<div class="' + cls + '"><span>' + d.getDate() + '</span></div>';
       }
       grid.innerHTML = cells;
     }
+    // Plus de liste sous le calendrier : seulement la phrase d'en-tête (prochaine publication, nombre de posts et campagnes)
     function paintPubList() {
       var t = today();
       var ev = pubEvents();
@@ -1207,26 +1232,11 @@
       var ads = ev.filter(function (x) { return x.kind === 'ad'; });
       var next = posts.filter(function (x) { return parseDate(x.date) >= t; })[0];
       var lead = document.querySelector('[data-next]');
+      var count = posts.length + ' publication' + (posts.length > 1 ? 's' : '') + ', ' + ads.length + ' campagne' + (ads.length > 1 ? 's' : '');
       if (next) {
         var n = Math.round((parseDate(next.date) - t) / 864e5);
-        lead.innerHTML = 'Prochaine publication <em>' + (n === 0 ? 'aujourd’hui' : n === 1 ? 'demain' : 'dans ' + n + ' jours') + '</em> · ' +
-          posts.length + ' publications, ' + ads.length + ' campagne' + (ads.length > 1 ? 's' : '');
-      } else lead.textContent = posts.length + ' publications, ' + ads.length + ' campagne' + (ads.length > 1 ? 's' : '') + ' sponsorisée' + (ads.length > 1 ? 's' : '') + '.';
-      var seen = {};
-      visitsEl.innerHTML = ev.map(function (x) {
-        var d = parseDate(x.date), e = x.end ? parseDate(x.end) : d;
-        var past = e < t, live = x.kind === 'ad' && d <= t && t <= e;
-        var n = Math.round((d - t) / 864e5);
-        var first = !seen[x.date];
-        seen[x.date] = true;
-        return '<li class="visit visit--' + x.kind + (past ? ' is-past' : '') + '"' + (first ? ' data-visit="' + esc(x.date) + '"' : '') + ' data-goto-id="' + esc(x.go) + '" role="link" tabindex="0">' +
-          '<span class="visit__date"><span class="label">' + JOURS[d.getDay()] + '</span><strong>' + pad(d.getDate()) + '</strong><span class="label">' + MOIS[d.getMonth()] + '</span></span>' +
-          '<span class="visit__body"><span class="label visit__kind">' + (x.kind === 'ad' ? SICONS.ads + 'Sponsorisé' : ICONS[x.kind] + TYPE_LABEL[x.kind]) + '</span>' +
-          (x.title ? '<span class="visit__title">' + esc(x.title) + '</span>' : '') +
-          (x.kind === 'ad' ? '<span class="visit__time">Jusqu’au ' + e.getDate() + ' ' + MOIS[e.getMonth()] + ' · ' + euros(x.budget) + '</span>' : '') + '</span>' +
-          '<span class="label visit__when">' + (live ? 'En cours' : past ? (x.kind === 'ad' ? 'Terminée' : 'Publié') : n === 0 ? 'Aujourd’hui' : n === 1 ? 'Demain' : 'J-' + n) + '</span>' +
-          '</li>';
-      }).join('');
+        lead.innerHTML = 'Prochaine publication <em>' + (n === 0 ? 'aujourd’hui' : n === 1 ? 'demain' : 'dans ' + n + ' jours') + '</em> · ' + count;
+      } else lead.textContent = count + '.';
     }
 
     function paintCalendar() {
@@ -2028,6 +2038,9 @@
       if ((t = e.target.closest('[data-cal]'))) {
         month = new Date(month.getFullYear(), month.getMonth() + +t.getAttribute('data-cal'), 1);
         paintCalendar();
+      } else if (PUBS && (t = e.target.closest('[data-cal-go]'))) {
+        var goEl = document.getElementById(t.getAttribute('data-cal-go'));
+        if (goEl) window.scrollTo({ top: goEl.getBoundingClientRect().top + window.pageYOffset - 90, behavior: 'smooth' });
       } else if ((t = e.target.closest('[data-day]'))) {
         var li = visitsEl.querySelector('[data-visit="' + t.getAttribute('data-day') + '"]');
         grid.querySelectorAll('.is-picked').forEach(function (x) { x.classList.remove('is-picked'); });
@@ -2137,6 +2150,10 @@
     });
 
     load().then(function () {
+      // Hébergement lent : le planning s'est affiché avant les données ; s'il y a des ajouts, retraits ou dates, on recharge une fois
+      var E = state.edits || {};
+      var moved = Object.keys(E).some(function (k) { var e = E[k] || {}; return e.added || e.deleted || e.date || e.start || e.end; });
+      if (!STRUCT_OK && moved && !(QUICK && QUICK.retry)) { relaunch({ retry: true, admin: admin }); return; }
       if (code && mode === 'api') setAdmin(true);
       if (QUICK) {
         if (QUICK.admin && !admin) setAdmin(true);
@@ -2674,8 +2691,8 @@
   // Le planning tient compte des ajouts, retraits et dates de l'équipe : données lues avant le rendu (3 s au plus)
   if (PLAN.suivi) {
     FIRST = getSuivi();
-    Promise.race([FIRST, new Promise(function (res) { setTimeout(res, 3000); })]).then(function (r) {
-      if (r && r.d) applyStructure(r.d.edits);
+    Promise.race([FIRST, new Promise(function (res) { setTimeout(res, 5000); })]).then(function (r) {
+      if (r && r.d) { applyStructure(r.d.edits); STRUCT_OK = true; }
       boot();
     });
   } else boot();

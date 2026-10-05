@@ -7,6 +7,7 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur (ex. `18h22.
 - Contenu : `clients/sounds-like-paris/plan.js` (planning du mois dans `months`, campagnes sponsorisées dans `ads`, couleurs, polices).
   Chaque post et chaque campagne a un `id` : les modifications faites depuis l'espace équipe y sont rattachées.
 - Ordre de la page : feed, posts du mois, campagnes sponsorisées, retours du client, calendrier, missions en cours.
+- Calendrier visuel seul (pas de liste) : recalculé à chaque modification de l'équipe ; toucher un jour descend au post ou à la campagne.
 - Pas de passage prévu pour ce client (`suivi.passages: false`) : le calendrier montre seulement les publications et les campagnes sponsorisées
   (bande dorée du début à la fin de chaque campagne). Toucher une ligne descend au post ou à la campagne.
 - Commentaires sous chaque post : gardés sur le téléphone du client, envoyés en un récapitulatif (WhatsApp).
@@ -56,3 +57,8 @@ Partagé entre tous les visiteurs via `clients/sounds-like-paris/suivi.php`, sto
 
 Sans PHP (aperçu statique), la page lit `data/suivi.json` et les modifications restent sur l'appareil (une vidéo n'y est gardée que le temps de la visite).
 L'hébergement doit accepter les requêtes partielles (Range, standard sur Apache et Nginx) pour lire les vidéos sur iPhone et choisir la couverture.
+
+## Mettre à jour un site déjà en ligne
+
+Utiliser le zip « mise à jour » : il ne contient ni `data/`, ni `uploads/`, ni `inspi/`, ni `config.php`.
+Le décompresser par-dessus le dossier en ligne : le planning modifié, les photos, vidéos et le code équipe restent intacts.
