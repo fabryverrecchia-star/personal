@@ -23,14 +23,19 @@ export const site = {
   telephone: '06 58 38 78 37',
   email: 'contact@blandry.fr', // À COMPLÉTER
   adresse: {
-    rue: '', // À COMPLÉTER (facultatif si vous ne recevez pas de clients)
-    codePostal: '63780', // À COMPLÉTER
-    ville: 'Saint-Georges-de-Mons', // À COMPLÉTER
+    rue: '59 rue du Boucheix',
+    codePostal: '63770',
+    ville: 'Les Ancizes-Comps',
     region: 'Auvergne-Rhône-Alpes',
     departement: 'Puy-de-Dôme',
   },
-  geo: { lat: 45.9406, lng: 2.8386 }, // À COMPLÉTER : coordonnées exactes du siège
-  siret: '', // À COMPLÉTER
+  geo: { lat: 45.9167, lng: 2.8167 }, // centre des Ancizes-Comps (à affiner avec la position exacte du siège)
+  formeJuridique: 'Entrepreneur individuel',
+  siren: '822 175 519',
+  siret: '822 175 519 00021',
+  registre: 'Inscrit au Registre national des entreprises (RNE) depuis le 15 octobre 2021',
+  // Zone d'intervention : chantiers à 1 h 30 de route maximum du siège
+  zoneIntervention: 'jusqu’à 1 h 30 de route autour des Ancizes-Comps',
   assurance: 'Garantie décennale', // À COMPLÉTER : nom de l'assureur
   horaires: 'Du lundi au vendredi, de 8 h à 18 h',
   delaiReponse: 'Réponse sous 48 heures',
@@ -278,24 +283,24 @@ export const zones: Zone[] = [
     slug: 'peintre-combrailles',
     nom: 'Combrailles',
     dans: 'dans les Combrailles',
-    court: 'Saint-Georges-de-Mons, Les Ancizes-Comps, Pontaumur',
+    court: 'Les Ancizes-Comps, Saint-Georges-de-Mons, Pontaumur',
     titreSeo: 'Peintre en bâtiment dans les Combrailles',
     descriptionSeo:
-      'Artisan peintre à Saint-Georges-de-Mons : peinture intérieure, préparation des supports, façades et boiseries dans les Combrailles. Visite et devis gratuits.',
+      'Artisan peintre aux Ancizes-Comps : peinture intérieure, préparation des supports, façades et boiseries dans les Combrailles. Visite et devis gratuits.',
     accroche: 'Notre secteur d’origine, où nous intervenons au quotidien.',
     intro:
-      'L’entreprise est installée à Saint-Georges-de-Mons. Maisons de bourg, fermes rénovées, résidences principales ou secondaires : nous accompagnons les propriétaires des Combrailles de la première visite à la réception des travaux.',
+      'L’entreprise est installée aux Ancizes-Comps, au cœur des Combrailles. Maisons de bourg, fermes rénovées, résidences principales ou secondaires : nous accompagnons les propriétaires des Combrailles de la première visite à la réception des travaux.',
     terrain: [
       { titre: 'Bâti ancien', texte: 'Sur les murs épais en pierre, nous privilégions la chaux et les peintures minérales, qui laissent la maçonnerie respirer.' },
       { titre: 'Climat du plateau', texte: 'Pour les volets et les façades, des produits microporeux conçus pour le gel et les fortes amplitudes de température.' },
       { titre: 'Résidences secondaires', texte: 'En votre absence, nous organisons le chantier et vous transmettons des photographies à chaque étape.' },
     ],
     communes: [
-      'Saint-Georges-de-Mons', 'Les Ancizes-Comps', 'Manzat', 'Pontaumur', 'Pontgibaud', 'Saint-Gervais-d’Auvergne',
+      'Les Ancizes-Comps', 'Saint-Georges-de-Mons', 'Manzat', 'Pontaumur', 'Pontgibaud', 'Saint-Gervais-d’Auvergne',
       'Saint-Éloy-les-Mines', 'Menat', 'Châteauneuf-les-Bains', 'Queuille', 'Miremont', 'Loubeyrat', 'Charbonnières-les-Vieilles',
     ],
     faq: [
-      { q: 'Dans quelles communes des Combrailles intervenez-vous ?', r: 'Principalement autour de Saint-Georges-de-Mons et des Ancizes-Comps, et plus largement dans l’ensemble des Combrailles. La visite et le devis sont gratuits.' },
+      { q: 'Dans quelles communes des Combrailles intervenez-vous ?', r: 'Principalement autour des Ancizes-Comps et de Saint-Georges-de-Mons, et plus largement dans l’ensemble des Combrailles. La visite et le devis sont gratuits.' },
       { q: 'Quelle peinture pour une maison en pierre ?', r: 'Sur des murs anciens, une peinture ou un enduit à la chaux, ou une peinture minérale respirante. Les peintures acryliques épaisses retiennent l’humidité et finissent par cloquer.' },
       { q: 'Pouvez-vous intervenir en notre absence ?', r: 'Oui. Nous convenons de la remise des clés, vous informons par photographies à chaque étape et organisons la réception sur place ou à distance.' },
     ],
@@ -309,9 +314,9 @@ export const zones: Zone[] = [
     titreSeo: 'Peintre en bâtiment à Riom et alentours',
     descriptionSeo:
       'Artisan peintre pour Riom, Châtel-Guyon, Volvic et Mozac : peinture intérieure, finitions, façades et boiseries. Visite et devis gratuits.',
-    accroche: 'Riom et ses environs, à proximité immédiate de notre atelier.',
+    accroche: 'Riom et ses environs, à une quarantaine de minutes de notre atelier.',
     intro:
-      'Riom se trouve à quelques kilomètres de notre base. Appartements du centre ancien, maisons de ville, pavillons : nous y réalisons des travaux de peinture intérieure et extérieure avec la même exigence.',
+      'Riom se trouve à une quarantaine de minutes de notre atelier des Ancizes-Comps. Appartements du centre ancien, maisons de ville, pavillons : nous y réalisons des travaux de peinture intérieure et extérieure avec la même exigence.',
     terrain: [
       { titre: 'Centre ancien', texte: 'Pour les façades et menuiseries visibles depuis la rue, nous vérifions avec vous les teintes autorisées avant le début des travaux.' },
       { titre: 'Menuiseries anciennes', texte: 'Volets, portes et fenêtres en bois sont préparés avec soin avant l’application de la lasure ou de la laque.' },
@@ -353,6 +358,7 @@ export const zones: Zone[] = [
 
 export const faqGenerale = [
   { q: 'La visite et le devis sont-ils gratuits ?', r: 'Oui. La visite sur place et le devis détaillé sont gratuits et sans engagement.' },
+  { q: 'Jusqu’où vous déplacez-vous ?', r: 'Nous intervenons jusqu’à 1 h 30 de route autour de notre atelier des Ancizes-Comps : les Combrailles, Riom, Clermont-Ferrand et leurs environs. La visite et le devis sont gratuits dans toute cette zone.' },
   { q: 'Réalisez-vous des rénovations complètes ?', r: 'Notre métier est la peinture et tout ce qui la prépare : enduits, reprises de plâtre, toile de verre, ainsi que certains revêtements de sol. Pour les autres corps de métier, nous pouvons vous orienter vers des artisans de confiance.' },
   { q: 'Quels produits utilisez-vous ?', r: 'Des peintures professionnelles en phase aqueuse, classées A+ pour l’intérieur, minérales ou siloxanes pour l’extérieur. Les marques et références figurent sur le devis.' },
   { q: 'Quelles garanties couvrent vos travaux ?', r: 'Nos travaux sont couverts par une garantie décennale et une assurance responsabilité civile professionnelle, dont l’attestation est jointe au devis. S’y ajoute la garantie de parfait achèvement : pendant un an après la réception, tout désordre signalé est repris à nos frais.' },

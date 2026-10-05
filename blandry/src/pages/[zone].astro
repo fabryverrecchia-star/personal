@@ -119,8 +119,7 @@ const schema = [
         Nous intervenons notamment à {listeCommunes}.
       </p>
       <p class="prose" data-reveal="fade">
-        Votre commune n’apparaît pas ? La visite reste gratuite dans un rayon d’une quarantaine de kilomètres autour de
-        {site.adresse.ville}.
+        Votre commune n’apparaît pas ? Nous intervenons {site.zoneIntervention}, et la visite reste gratuite.
       </p>
       <p class="zcom__links" data-reveal="fade">
         {autres.map((o) => <a href={u(`/${o.slug}/`)} class="cta">Peintre {o.dans}</a>)}

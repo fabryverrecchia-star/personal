@@ -36,6 +36,7 @@ const annee = new Date().getFullYear();
       <div>
         <p class="label muted">Zone d’intervention</p>
         {zones.map((z) => <a href={u(`/${z.slug}/`)} class="link-u">Peintre {z.dans}</a>)}
+        <p class="muted">Chantiers {site.zoneIntervention}</p>
         <p class="label muted footer__h">Horaires</p>
         <p>{site.horaires}</p>
       </div>
