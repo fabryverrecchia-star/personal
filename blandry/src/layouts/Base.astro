@@ -19,10 +19,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 
 const business = {
   '@context': 'https://schema.org',
-  '@type': 'HousePainter',
+  '@type': ['HomeAndConstructionBusiness', 'HousePainter'],
   '@id': `${site.url}/#entreprise`,
   name: site.nom,
-  description: `${site.metier} dans les Combrailles, à Riom et à Clermont-Ferrand : peinture intérieure, façades, volets et boiseries, décoration.`,
+  description: `${site.metier} dans les Combrailles, à Riom et à Clermont-Ferrand : cloisons et plafonds en plaques de plâtre, isolation, bandes et enduits, peinture, carrelage et faïence.`,
+  knowsAbout: ['Plâtrerie', 'Plaques de plâtre', 'Cloisons sèches', 'Faux plafonds', 'Isolation intérieure', 'Peinture en bâtiment', 'Carrelage'],
   url: site.url + '/',
   telephone: site.telephone.replace(/\s/g, ''),
   email: site.email,
@@ -102,7 +103,7 @@ const ld = [business, ...schema];
       </div>
       <p class="loader__mono" data-loader-mono><Logo class="loader__logo" /></p>
       <div class="loader__foot label">
-        <span>{site.nom} — Peinture &amp; finitions</span>
+        <span>{site.nom} — Plâtrerie, peinture &amp; carrelage</span>
         <span class="loader__count" data-loader-count>000</span>
       </div>
     </div>

@@ -833,6 +833,26 @@ function parallax() {
     gsap.fromTo(m, { yPercent: -7 }, { yPercent: 7, ease: 'none', scrollTrigger: { trigger: wrap, start: 'top bottom', end: 'bottom top', scrub: true } });
   });
 }
+function chain() {
+  const sec = $('[data-chain]');
+  if (!sec) return;
+  const imgs = $$('[data-chain-img]', sec);
+  const steps = $$('[data-chain-step]', sec);
+  const n = $('[data-chain-n]', sec);
+  const set = (i: number) => {
+    imgs.forEach((im, j) => {
+      // les images précédentes restent visibles dessous : la nouvelle se dévoile par-dessus
+      im.classList.toggle('is-on', j <= i);
+      im.style.zIndex = String(j);
+    });
+    steps.forEach((s, j) => s.classList.toggle('is-on', j === i));
+    if (n) n.textContent = String(i + 1).padStart(2, '0');
+  };
+  set(0);
+  steps.forEach((st, i) =>
+    ScrollTrigger.create({ trigger: st, start: 'top 55%', end: 'bottom 55%', onToggle: (self) => self.isActive && set(i) }),
+  );
+}
 function contactMono() {
   const m = $('[data-contact-mono] .bl-logo');
   if (!m) return;
@@ -932,6 +952,7 @@ function init() {
   parallax();
   autoVideos();
   contactMono();
+  chain();
   faq();
   form();
   onScroll();

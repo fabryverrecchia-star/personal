@@ -13,12 +13,17 @@ import applique from '../assets/chantiers/applique-lumiere.jpg';
 
 const galerieFiles = import.meta.glob<{ default: ImageMetadata }>('../assets/galerie/*.jpg', { eager: true });
 const g = (slug: string) => galerieFiles[`../assets/galerie/${slug}.jpg`].default;
+const metierFiles = import.meta.glob<{ default: ImageMetadata }>('../assets/metier/*.jpg', { eager: true });
+const m = (slug: string) => metierFiles[`../assets/metier/${slug}.jpg`].default;
+// Photo par identifiant, qu'elle vienne de la galerie ou des photos métier
+export const visuel = (slug: string) => metierFiles[`../assets/metier/${slug}.jpg`]?.default ?? g(slug);
 
 export const site = {
   url: 'https://18h22.com/blandry', // À COMPLÉTER : domaine définitif
   nom: 'Benjamin Landry',
   monogramme: 'BL',
-  metier: 'Peintre en bâtiment',
+  metier: 'Plâtrerie, peinture et carrelage',
+  metierCourt: 'Plaquiste et peintre',
   gerant: 'Benjamin Landry',
   telephone: '06 58 38 78 37',
   email: 'contact@blandry.fr', // À COMPLÉTER
@@ -93,7 +98,7 @@ export const comparaisons = [
 
 // ── Galerie ───────────────────────────────────────────────────
 export type Photo = { src: ImageMetadata; titre: string; cat: 'Façade' | 'Extérieur' | 'Intérieur' | 'Commerce' };
-const P = (slug: string, titre: string, cat: Photo['cat']): Photo => ({ src: g(slug), titre, cat });
+const P = (slug: string, titre: string, cat: Photo['cat']): Photo => ({ src: visuel(slug), titre, cat });
 
 // Sélection de l'accueil : façades et intérieurs terminés
 export const selection: Photo[] = [
@@ -139,15 +144,25 @@ export const galerie: Photo[] = [
 
 // Photos flottantes du hero
 export const heroPhotos: Photo[] = [
+  P('placo-vissage', '', 'Intérieur'),
   P('mur-pierre-applique', '', 'Intérieur'),
+  P('enduit-couteau', '', 'Intérieur'),
+  P('douche-carrelage', '', 'Intérieur'),
+  P('poncage-main', '', 'Intérieur'),
   P('chambre-vert-sapin', '', 'Intérieur'),
+  P('placo-plafond-bandes', '', 'Intérieur'),
   P('salon-papier-peint', '', 'Intérieur'),
-  P('bibliotheque-rouge', '', 'Commerce'),
-  P('chambre-bleu-nuit', '', 'Intérieur'),
-  P('portique-bois', '', 'Extérieur'),
-  P('wc-noir-graphique', '', 'Commerce'),
-  P('chambre-papier-peint', '', 'Intérieur'),
 ];
+
+// ── De l'ossature à la dernière couche (section « Le placo ») ─────
+export const chaine = [
+  { titre: 'Tracer et monter', texte: 'Rails et montants tracés au laser, plaques vissées à entraxe régulier. Une cloison droite commence par une ossature juste.', photo: m('placo-vissage'), alt: 'Vissage d’une plaque de plâtre hydrofuge le long d’un trait laser' },
+  { titre: 'Jointer', texte: 'Bandes et enduit à joints sur chaque raccord et chaque tête de vis, au plafond comme aux murs.', photo: m('placo-plafond-bandes'), alt: 'Pose de bandes et d’enduit à joints sur un plafond en plaques de plâtre' },
+  { titre: 'Lisser', texte: 'Enduit de finition tiré au couteau large, passe après passe, jusqu’à une surface parfaitement plane.', photo: m('enduit-couteau'), alt: 'Enduit de lissage appliqué au couteau sur un mur clair' },
+  { titre: 'Poncer et contrôler', texte: 'Ponçage à la main dans les angles, contrôle à la lumière rasante : aucun défaut ne doit survivre à cette étape.', photo: m('poncage-main'), alt: 'Ponçage à la main d’un angle de mur sous une lumière chaude' },
+  { titre: 'Peindre', texte: 'Impression, puis deux couches croisées, sous une baladeuse pour vérifier chaque passe.', photo: m('peinture-baladeuse'), alt: 'Peinture d’un mur au rouleau à la lumière d’une baladeuse' },
+];
+
 
 // ── Garanties et engagements (également utiles au référencement) ─
 // À VÉRIFIER : nom de l'assureur décennale à indiquer dans site.assurance
@@ -166,15 +181,15 @@ export const garanties = [
   },
   {
     titre: 'Devis détaillé, prix ferme',
-    texte: 'Surfaces, préparation, produits et nombre de couches sont chiffrés poste par poste. Le prix accepté est celui facturé.',
+    texte: 'Plâtrerie, préparation, peinture et carrelage sont chiffrés poste par poste. Le prix accepté est celui facturé.',
   },
   {
     titre: 'Visite et devis gratuits',
     texte: 'Le déplacement, l’examen des supports et l’établissement du devis ne vous engagent à rien et ne vous coûtent rien.',
   },
   {
-    titre: 'Produits professionnels A+',
-    texte: 'Peintures en phase aqueuse, faiblement émissives, pour une qualité de l’air intérieur préservée dès la fin du chantier.',
+    titre: 'Matériaux professionnels',
+    texte: 'Plaques et isolants conformes aux DTU, peintures en phase aqueuse classées A+ : une qualité de l’air intérieur préservée dès la fin du chantier.',
   },
 ];
 
@@ -193,39 +208,39 @@ export const marques = [
 // ── Savoir-faire ──────────────────────────────────────────────
 export const services = [
   {
-    id: 'interieur',
-    titre: 'Peinture intérieure',
+    id: 'platrerie',
+    titre: 'Plâtrerie et cloisons sèches',
     texte:
-      'Murs, plafonds, cages d’escalier et pièces d’eau. Chaque support reçoit l’impression qui lui convient, puis deux couches croisées. La finition, mate, velours ou satinée, se choisit selon l’usage de la pièce et la lumière qu’elle reçoit.',
-    photo: 'chambre-bleu-nuit',
+      'Cloisons, contre-cloisons et aménagements en plaques de plâtre sur ossature métallique. Rails tracés au laser, montants calés, plaques standard, hydrofuges, phoniques ou coupe-feu selon la pièce : une structure droite et solide, prête à recevoir la finition.',
+    photo: 'placo-vissage',
   },
   {
-    id: 'preparation',
-    titre: 'Préparation des supports',
+    id: 'plafonds',
+    titre: 'Plafonds, doublages et isolation',
     texte:
-      'Enduits de lissage, reprises de plâtre, bandes, toile de verre. C’est l’étape que l’on ne voit plus une fois le chantier terminé, et celle qui décide de tout : une peinture ne corrige pas un défaut, elle le révèle.',
-    photo: 'mur-pierre-applique',
+      'Faux plafonds suspendus, doublages collés ou sur ossature, isolation thermique et acoustique des murs et des combles. Des pièces plus confortables et des surfaces parfaitement planes, du sol au plafond.',
+    photo: 'placo-plafond-bandes',
   },
   {
-    id: 'facade',
-    titre: 'Façades et extérieurs',
+    id: 'bandes',
+    titre: 'Bandes, enduits et préparation',
     texte:
-      'Nettoyage, traitement des fissures, peintures minérales ou siloxanes qui laissent respirer la maçonnerie. Des systèmes choisis pour les écarts de température du Puy-de-Dôme, du plateau des Combrailles à la Limagne.',
-    photo: 'portique-charpente',
+      'Bandes à joints, enduits de lissage, reprises de plâtre et ponçage soigné. C’est l’étape que l’on ne voit plus une fois le chantier terminé, et celle qui décide de tout : une peinture ne corrige pas un défaut, elle le révèle.',
+    photo: 'enduit-couteau',
   },
   {
-    id: 'boiseries',
-    titre: 'Boiseries et menuiseries',
+    id: 'peinture',
+    titre: 'Peinture intérieure et extérieure',
     texte:
-      'Volets, portes, fenêtres, charpentes apparentes et sous-faces. Décapage, égrenage, puis lasure ou laque microporeuse pour une protection durable et une teinte homogène.',
-    photo: 'portique-bois',
+      'Murs, plafonds, boiseries, volets et façades. Chaque support reçoit l’impression qui lui convient, puis deux couches croisées, dans la finition mate, velours ou satinée adaptée à l’usage de la pièce et à sa lumière.',
+    photo: 'peinture-baladeuse',
   },
   {
-    id: 'decoration',
-    titre: 'Décoration et conseil couleur',
+    id: 'carrelage',
+    titre: 'Carrelage et faïence',
     texte:
-      'Murs d’accent, papiers peints, enduits décoratifs. Les échantillons sont posés chez vous : une teinte ne se valide qu’à la lumière réelle de la pièce, à différentes heures du jour.',
-    photo: 'salon-papier-peint',
+      'Sols, murs de salle de bains, douches à l’italienne et crédences. Support préparé et mis à niveau, étanchéité sous carrelage dans les pièces d’eau, calepinage étudié et joints réguliers.',
+    photo: 'douche-carrelage',
   },
 ];
 
@@ -238,12 +253,12 @@ export const etapes = [
   },
   {
     titre: 'Visite sur place',
-    texte: 'Nous examinons les supports, relevons les surfaces et vous conseillons sur les produits et les teintes. La visite est gratuite.',
+    texte: 'Nous examinons les murs, plafonds et sols, relevons les surfaces et vous conseillons sur les matériaux, les finitions et les teintes. La visite est gratuite.',
     duree: 'Sans frais',
   },
   {
     titre: 'Devis détaillé',
-    texte: 'Chaque poste est décrit : surfaces, préparation, produits, nombre de couches. Aucune ligne imprécise, aucun supplément découvert en cours de route.',
+    texte: 'Chaque poste est décrit : surfaces, type de plaques et d’isolant, préparation, produits, nombre de couches. Aucune ligne imprécise, aucun supplément découvert en cours de route.',
     duree: 'Sous une semaine',
   },
   {
@@ -280,19 +295,19 @@ export type Zone = {
 
 export const zones: Zone[] = [
   {
-    slug: 'peintre-combrailles',
+    slug: 'plaquiste-peintre-combrailles',
     nom: 'Combrailles',
     dans: 'dans les Combrailles',
     court: 'Les Ancizes-Comps, Saint-Georges-de-Mons, Pontaumur',
-    titreSeo: 'Peintre en bâtiment dans les Combrailles',
+    titreSeo: 'Plaquiste et peintre dans les Combrailles',
     descriptionSeo:
-      'Artisan peintre aux Ancizes-Comps : peinture intérieure, préparation des supports, façades et boiseries dans les Combrailles. Visite et devis gratuits.',
+      'Artisan plaquiste et peintre aux Ancizes-Comps : cloisons et plafonds en placo, isolation, peinture et carrelage dans les Combrailles. Visite et devis gratuits.',
     accroche: 'Notre secteur d’origine, où nous intervenons au quotidien.',
     intro:
-      'L’entreprise est installée aux Ancizes-Comps, au cœur des Combrailles. Maisons de bourg, fermes rénovées, résidences principales ou secondaires : nous accompagnons les propriétaires des Combrailles de la première visite à la réception des travaux.',
+      'L’entreprise est installée aux Ancizes-Comps, au cœur des Combrailles. Maisons de bourg, fermes rénovées, combles à aménager : nous montons les cloisons, isolons, préparons et peignons, de la première visite à la réception des travaux.',
     terrain: [
-      { titre: 'Bâti ancien', texte: 'Sur les murs épais en pierre, nous privilégions la chaux et les peintures minérales, qui laissent la maçonnerie respirer.' },
-      { titre: 'Climat du plateau', texte: 'Pour les volets et les façades, des produits microporeux conçus pour le gel et les fortes amplitudes de température.' },
+      { titre: 'Rénovation de l’ancien', texte: 'Murs irréguliers, combles, pièces à redistribuer : doublages et cloisons en plaques de plâtre redonnent des surfaces droites et isolées.' },
+      { titre: 'Climat du plateau', texte: 'Isolation des murs et des combles adaptée aux hivers des Combrailles, produits extérieurs conçus pour le gel.' },
       { titre: 'Résidences secondaires', texte: 'En votre absence, nous organisons le chantier et vous transmettons des photographies à chaque étape.' },
     ],
     communes: [
@@ -301,25 +316,26 @@ export const zones: Zone[] = [
     ],
     faq: [
       { q: 'Dans quelles communes des Combrailles intervenez-vous ?', r: 'Principalement autour des Ancizes-Comps et de Saint-Georges-de-Mons, et plus largement dans l’ensemble des Combrailles. La visite et le devis sont gratuits.' },
+      { q: 'Pouvez-vous aménager des combles ?', r: 'Oui : isolation, doublage des rampants, cloisons et plafonds en plaques de plâtre, puis bandes, enduits et peinture. Un seul artisan du début à la fin.' },
       { q: 'Quelle peinture pour une maison en pierre ?', r: 'Sur des murs anciens, une peinture ou un enduit à la chaux, ou une peinture minérale respirante. Les peintures acryliques épaisses retiennent l’humidité et finissent par cloquer.' },
       { q: 'Pouvez-vous intervenir en notre absence ?', r: 'Oui. Nous convenons de la remise des clés, vous informons par photographies à chaque étape et organisons la réception sur place ou à distance.' },
     ],
     teinte: 'sioule',
   },
   {
-    slug: 'peintre-riom',
+    slug: 'plaquiste-peintre-riom',
     nom: 'Riom',
     dans: 'à Riom',
     court: 'Riom, Châtel-Guyon, Volvic, Mozac',
-    titreSeo: 'Peintre en bâtiment à Riom et alentours',
+    titreSeo: 'Plaquiste et peintre à Riom et alentours',
     descriptionSeo:
-      'Artisan peintre pour Riom, Châtel-Guyon, Volvic et Mozac : peinture intérieure, finitions, façades et boiseries. Visite et devis gratuits.',
+      'Plaquiste et peintre pour Riom, Châtel-Guyon, Volvic et Mozac : cloisons et plafonds en placo, isolation, peinture et carrelage. Visite et devis gratuits.',
     accroche: 'Riom et ses environs, à une quarantaine de minutes de notre atelier.',
     intro:
-      'Riom se trouve à une quarantaine de minutes de notre atelier des Ancizes-Comps. Appartements du centre ancien, maisons de ville, pavillons : nous y réalisons des travaux de peinture intérieure et extérieure avec la même exigence.',
+      'Riom se trouve à une quarantaine de minutes de notre atelier des Ancizes-Comps. Appartements du centre ancien, maisons de ville, pavillons : plâtrerie, peinture et carrelage, avec la même exigence.',
     terrain: [
       { titre: 'Centre ancien', texte: 'Pour les façades et menuiseries visibles depuis la rue, nous vérifions avec vous les teintes autorisées avant le début des travaux.' },
-      { titre: 'Menuiseries anciennes', texte: 'Volets, portes et fenêtres en bois sont préparés avec soin avant l’application de la lasure ou de la laque.' },
+      { titre: 'Redistribution des pièces', texte: 'Création de cloisons, de faux plafonds et de rangements intégrés en plaques de plâtre, livrés prêts à vivre.' },
       { titre: 'Remise en état locative', texte: 'Pour les propriétaires bailleurs, des interventions rapides sur la base d’un devis ferme.' },
     ],
     communes: ['Riom', 'Châtel-Guyon', 'Mozac', 'Volvic', 'Ménétrol', 'Marsat', 'Enval', 'Combronde', 'Saint-Bonnet-près-Riom', 'Ennezat'],
@@ -331,18 +347,18 @@ export const zones: Zone[] = [
     teinte: 'volvic',
   },
   {
-    slug: 'peintre-clermont-ferrand',
+    slug: 'plaquiste-peintre-clermont-ferrand',
     nom: 'Clermont-Ferrand',
     dans: 'à Clermont-Ferrand',
     court: 'Clermont-Ferrand, Chamalières, Royat, Durtol',
-    titreSeo: 'Peintre en bâtiment à Clermont-Ferrand',
+    titreSeo: 'Plaquiste et peintre à Clermont-Ferrand',
     descriptionSeo:
-      'Artisan peintre pour Clermont-Ferrand, Chamalières, Royat et Durtol : appartements, maisons, parties communes. Visite et devis gratuits.',
+      'Plaquiste et peintre pour Clermont-Ferrand, Chamalières, Royat et Durtol : cloisons, faux plafonds, isolation, peinture et carrelage. Visite et devis gratuits.',
     accroche: 'Appartements, maisons et copropriétés de la métropole.',
     intro:
-      'Nous intervenons régulièrement à Clermont-Ferrand et dans l’ouest de la métropole. Appartements anciens, maisons individuelles ou parties communes : chaque chantier bénéficie d’une préparation soignée et d’un suivi attentif.',
+      'Nous intervenons régulièrement à Clermont-Ferrand et dans l’ouest de la métropole. Appartements anciens, maisons individuelles ou parties communes : plâtrerie, peinture et carrelage, avec une préparation soignée et un suivi attentif.',
     terrain: [
-      { titre: 'Appartements anciens', texte: 'Moulures, hauts plafonds, parquets : protection complète et finitions réalisées à la main, dans le respect du voisinage.' },
+      { titre: 'Appartements anciens', texte: 'Hauts plafonds, cloisons à reprendre, salles de bains à refaire : protection complète et finitions à la main, dans le respect du voisinage.' },
       { titre: 'Copropriétés', texte: 'Halls, cages d’escalier, paliers : coordination avec le syndic et accès sécurisés pendant les travaux.' },
       { titre: 'Remise en état locative', texte: 'Pour les propriétaires bailleurs, des interventions rapides sur la base d’un devis ferme.' },
     ],
@@ -359,10 +375,11 @@ export const zones: Zone[] = [
 export const faqGenerale = [
   { q: 'La visite et le devis sont-ils gratuits ?', r: 'Oui. La visite sur place et le devis détaillé sont gratuits et sans engagement.' },
   { q: 'Jusqu’où vous déplacez-vous ?', r: 'Nous intervenons jusqu’à 1 h 30 de route autour de notre atelier des Ancizes-Comps : les Combrailles, Riom, Clermont-Ferrand et leurs environs. La visite et le devis sont gratuits dans toute cette zone.' },
-  { q: 'Réalisez-vous des rénovations complètes ?', r: 'Notre métier est la peinture et tout ce qui la prépare : enduits, reprises de plâtre, toile de verre, ainsi que certains revêtements de sol. Pour les autres corps de métier, nous pouvons vous orienter vers des artisans de confiance.' },
-  { q: 'Quels produits utilisez-vous ?', r: 'Des peintures professionnelles en phase aqueuse, classées A+ pour l’intérieur, minérales ou siloxanes pour l’extérieur. Les marques et références figurent sur le devis.' },
+  { q: 'Quels travaux réalisez-vous ?', r: 'Le second œuvre intérieur, de l’ossature à la finition : cloisons et plafonds en plaques de plâtre, doublages et isolation, bandes et enduits, peinture intérieure et extérieure, carrelage et faïence. Pour l’électricité, la plomberie ou la menuiserie, nous vous orientons vers des artisans de confiance.' },
+  { q: 'Pourquoi confier le placo et la peinture au même artisan ?', r: 'Parce que la qualité d’une peinture dépend de la plâtrerie qui la porte. En réalisant les deux, nous maîtrisons la planéité, les joints et les angles : aucun défaut laissé par un autre corps de métier, un seul interlocuteur et un planning plus court.' },
+  { q: 'Quels matériaux utilisez-vous ?', r: 'Des plaques de plâtre standard, hydrofuges, phoniques ou coupe-feu selon la pièce, des isolants adaptés, et des peintures professionnelles classées A+ pour l’intérieur. Les marques et références figurent sur le devis.' },
   { q: 'Quelles garanties couvrent vos travaux ?', r: 'Nos travaux sont couverts par une garantie décennale et une assurance responsabilité civile professionnelle, dont l’attestation est jointe au devis. S’y ajoute la garantie de parfait achèvement : pendant un an après la réception, tout désordre signalé est repris à nos frais.' },
-  { q: 'Comment votre logement est-il protégé ?', r: 'Sols, mobilier et menuiseries sont protégés avant toute intervention. Le chantier est rangé chaque soir et remis propre à la livraison.' },
+  { q: 'Comment votre logement est-il protégé ?', r: 'Sols, mobilier et menuiseries sont protégés avant toute intervention. La poussière de ponçage est limitée et aspirée, le chantier est rangé chaque soir et remis propre à la livraison.' },
 ];
 
 // Compatibilité (anciens composants)

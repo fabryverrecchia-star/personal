@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 import BeforeAfter from '../components/BeforeAfter.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
-import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale, garanties, marques, instagram } from '../data/site';
+import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale, garanties, marques, instagram, chaine, visuel } from '../data/site';
 import { u } from '../lib/url';
 
 const faqLd = {
@@ -24,12 +24,12 @@ const spots = [
   { x: 21, y: 12, w: 6, mx: -99, my: 0, mw: 0, d: 0.7 },
   { x: 62, y: 11, w: 6, mx: -99, my: 0, mw: 0, d: 1 },
 ];
-const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) ?? galerie[0]).src;
+const svcImg = visuel;
 ---
 
 <Base
-  title={`${site.nom} — Peintre en bâtiment, peinture et finitions | Combrailles, Riom, Clermont-Ferrand`}
-  description="Artisan peintre aux Ancizes-Comps : peinture intérieure et extérieure, préparation des supports, boiseries et décoration. Interventions dans les Combrailles, à Riom et à Clermont-Ferrand. Visite et devis gratuits."
+  title={`${site.nom} — Plaquiste et peintre : placo, peinture, carrelage | Combrailles, Riom, Clermont-Ferrand`}
+  description="Artisan plaquiste et peintre aux Ancizes-Comps : cloisons et plafonds en plaques de plâtre, isolation, bandes et enduits, peinture et carrelage. Combrailles, Riom, Clermont-Ferrand. Visite et devis gratuits."
   schema={[faqLd]}
 >
   <!-- ─── Ouverture ──────────────────────────── -->
@@ -53,14 +53,14 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     </div>
 
     <div class="hero__center">
-      <p class="label hero__kicker" data-hero-fade>{site.nom} · Peintre en bâtiment · Combrailles</p>
+      <p class="label hero__kicker" data-hero-fade>{site.nom} · Plâtrerie · Peinture · Carrelage</p>
       <h1 class="display hero__t" data-hero-title>
-        <span class="line"><span class="line-inner">La peinture,</span></span>
-        <span class="line"><span class="line-inner"><em>sans</em> approximation</span></span>
+        <span class="line"><span class="line-inner">Du placo</span></span>
+        <span class="line"><span class="line-inner"><em>à la dernière</em> couche</span></span>
       </h1>
       <p class="hero__p" data-hero-fade>
-        Peinture intérieure et extérieure, préparation des supports et finitions, pour les particuliers et les
-        professionnels, des Combrailles à Clermont-Ferrand.
+        Cloisons et plafonds en plaques de plâtre, isolation, bandes et enduits, peinture et carrelage : un seul
+        artisan, de l’ossature à la finition, des Combrailles à Clermont-Ferrand.
       </p>
       <div class="hero__ctas" data-hero-fade>
         <a href="#contact" class="btn btn--solid" data-magnetic>Demander un devis</a>
@@ -75,15 +75,15 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
   <section class="atelier" id="atelier" aria-labelledby="atelier-t">
     <div class="atelier__text">
       <p class="label muted" data-reveal="fade">L’atelier</p>
-      <h2 id="atelier-t" class="title atelier__t" data-split>Un artisan, une exigence, <em>chaque mètre carré.</em></h2>
+      <h2 id="atelier-t" class="title atelier__t" data-split>Un artisan, une exigence, <em>de l’ossature à la finition.</em></h2>
       <p class="atelier__p" data-reveal="fade">
-        {site.nom} est une entreprise de peinture en bâtiment installée aux Ancizes-Comps, au cœur des Combrailles. Nous intervenons chez
-        les particuliers comme chez les professionnels, avec une conviction : la qualité d’une finition se décide
-        bien avant la dernière couche.
+        {site.nom} est une entreprise de plâtrerie, peinture et carrelage installée aux Ancizes-Comps, au cœur des
+        Combrailles. Nous montons les cloisons, posons les plafonds, isolons, jointons, puis peignons ou carrelons :
+        la qualité d’une finition se décide bien avant la dernière couche, et nous maîtrisons chaque étape.
       </p>
       <ul class="atelier__list">
         <li data-reveal="fade"><span>I.</span> Visite et devis détaillé, gratuits</li>
-        <li data-reveal="fade"><span>II.</span> Un seul interlocuteur, du devis à la réception</li>
+        <li data-reveal="fade"><span>II.</span> Un seul artisan pour le placo, la peinture et le carrelage</li>
         <li data-reveal="fade"><span>III.</span> Garantie décennale, attestation jointe au devis</li>
       </ul>
     </div>
@@ -103,6 +103,40 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
       </video>
       <figcaption class="label atelier__cap">Ponçage, enduit, reprise des joints</figcaption>
     </figure>
+  </section>
+
+  <!-- ─── Le placo : de l'ossature à la dernière couche ─── -->
+  <section class="chain" id="placo" aria-labelledby="chain-t" data-chain>
+    <div class="wrap chain__head">
+      <p class="label muted" data-reveal="fade">Plâtrerie et plaques de plâtre</p>
+      <h2 id="chain-t" class="display chain__t" data-split>Le placo, <em>notre cœur de métier</em></h2>
+      <p class="chain__lead" data-reveal="fade">
+        Cloisons, doublages, faux plafonds, isolation : une plâtrerie bien faite, c’est une peinture qui tient et un
+        mur qui reste droit. Voici comment nous menons une pièce, de l’ossature à la dernière couche.
+      </p>
+    </div>
+    <div class="wrap chain__grid">
+      <div class="chain__media" aria-hidden="true">
+        <div class="chain__frame">
+          {chaine.map((c, i) => (
+            <Image src={c.photo} alt="" widths={[600, 1100]} sizes="(min-width: 1024px) 42vw, 92vw" class:list={['chain__img', { 'is-on': i === 0 }]} data-chain-img={i} />
+          ))}
+        </div>
+        <p class="chain__count label"><span data-chain-n>01</span> / {String(chaine.length).padStart(2, '0')}</p>
+      </div>
+      <ol class="chain__list">
+        {chaine.map((c, i) => (
+          <li class="cstep" data-chain-step={i}>
+            <figure class="cstep__img" data-reveal="img">
+              <Image src={c.photo} alt={c.alt} widths={[500, 900]} sizes="92vw" />
+            </figure>
+            <span class="cstep__n">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="title cstep__t">{c.titre}</h3>
+            <p class="cstep__p">{c.texte}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
   </section>
 
   <!-- ─── Lumière rasante ────────────────────── -->
@@ -146,7 +180,8 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
       <div class="skills__body">
         <h2 id="skills-t" class="sr-only">Savoir-faire</h2>
         <p class="skills__intro" data-reveal="fade">
-          Cinq métiers réunis autour d’un même objectif : une surface juste, durable et belle à la lumière du jour.
+          La plâtrerie au cœur, la peinture et le carrelage pour finir : cinq savoir-faire réunis autour d’un même
+          objectif, des surfaces justes, durables et belles à la lumière du jour.
         </p>
         <ol class="skills__list">
           {
@@ -298,7 +333,7 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
             <li><span class="terre__dot" aria-hidden="true"></span>Conseil couleur lors de la visite</li>
           </ul>
           <p class="terre__zones" data-reveal="fade">
-            {zones.map((z) => <a href={u(`/${z.slug}/`)} class="cta">Peintre {z.dans}</a>)}
+            {zones.map((z) => <a href={u(`/${z.slug}/`)} class="cta">{site.metierCourt} {z.dans}</a>)}
           </p>
         </div>
 
@@ -544,6 +579,128 @@ const svcImg = (slug: string) => (galerie.find((p) => p.src.src.includes(slug)) 
     }
     .atelier__media {
       height: auto;
+    }
+  }
+
+  /* ─── Le placo ─── */
+  .chain {
+    padding-block: clamp(96px, 12vw, 170px);
+    background: var(--lin-2);
+  }
+  .chain__head {
+    display: grid;
+    gap: 20px;
+    margin-bottom: clamp(48px, 7vw, 96px);
+  }
+  .chain__t {
+    font-size: var(--fs-xl);
+    max-width: 11ch;
+  }
+  .chain__lead {
+    max-width: 52ch;
+    color: var(--muted);
+  }
+  .chain__media {
+    display: none;
+  }
+  .chain__list {
+    display: grid;
+    gap: 56px;
+  }
+  .cstep {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px 16px;
+    align-items: baseline;
+  }
+  .cstep__img {
+    grid-column: 1 / -1;
+    margin: 0 0 10px;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+  }
+  .cstep__img :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .cstep__n {
+    font-family: var(--serif);
+    font-size: 2.6rem;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--argile);
+  }
+  .cstep__t {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+  }
+  .cstep__p {
+    grid-column: 1 / -1;
+    max-width: 44ch;
+    color: var(--muted);
+  }
+  @media (min-width: 1024px) {
+    .chain__head {
+      grid-template-columns: 7fr 5fr;
+      align-items: end;
+    }
+    .chain__head .label {
+      grid-column: 1 / -1;
+    }
+    .chain__grid {
+      display: grid;
+      grid-template-columns: 6fr 5fr;
+      gap: 7vw;
+      align-items: start;
+    }
+    .chain__media {
+      display: grid;
+      gap: 16px;
+      position: sticky;
+      top: 12vh;
+    }
+    .chain__frame {
+      position: relative;
+      height: 76vh;
+      overflow: hidden;
+    }
+    .chain__frame :global(.chain__img) {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      clip-path: inset(100% 0 0 0);
+      transform: scale(1.08);
+      transition:
+        clip-path 1.1s var(--ease),
+        transform 1.6s var(--ease-out);
+    }
+    .chain__frame :global(.chain__img.is-on) {
+      clip-path: inset(0 0 0 0);
+      transform: none;
+    }
+    .chain__count {
+      color: var(--muted);
+    }
+    .chain__list {
+      gap: 0;
+      padding-block: 20vh 30vh;
+    }
+    .cstep {
+      min-height: 62vh;
+      align-content: center;
+      opacity: 0.25;
+      transition: opacity 0.6s var(--ease);
+    }
+    .cstep.is-on {
+      opacity: 1;
+    }
+    .cstep__img {
+      display: none;
+    }
+    .cstep__n {
+      font-size: 4rem;
     }
   }
 

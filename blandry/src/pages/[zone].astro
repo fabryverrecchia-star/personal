@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
 import BeforeAfter from '../components/BeforeAfter.astro';
-import { site, zones, services, etapes, selection, galerie, type Zone } from '../data/site';
+import { site, zones, services, etapes, selection, galerie, visuel, type Zone } from '../data/site';
 import { u } from '../lib/url';
 
 export function getStaticPaths() {
@@ -15,14 +15,14 @@ const autres = zones.filter((o) => o.slug !== z.slug);
 const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
 const listeCommunes = z.communes.slice(0, -1).join(', ') + ' et ' + z.communes.at(-1);
 const roman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
-const heroImg = { 'peintre-combrailles': 'mur-pierre-applique', 'peintre-riom': 'cuisine-lineaire', 'peintre-clermont-ferrand': 'chambre-bleu-nuit' }[z.slug] ?? 'chambre-vert-sapin';
-const hero = (galerie.find((p) => p.src.src.includes(heroImg)) ?? galerie[0]).src;
+const heroImg = { 'plaquiste-peintre-combrailles': 'placo-plafond-bandes', 'plaquiste-peintre-riom': 'enduit-couteau', 'plaquiste-peintre-clermont-ferrand': 'placo-vissage' }[z.slug] ?? 'placo-vissage';
+const hero = visuel(heroImg);
 const words = z.dans.split(' ');
 
 const schema = [
-  { '@context': 'https://schema.org', '@type': 'Service', serviceType: 'Peinture en bâtiment', name: `Peintre en bâtiment ${z.dans}`, provider: { '@id': `${site.url}/#entreprise` }, areaServed: z.communes.map((c) => ({ '@type': 'City', name: c })), url: pageUrl },
+  { '@context': 'https://schema.org', '@type': 'Service', serviceType: ['Plâtrerie', 'Peinture en bâtiment', 'Carrelage'], name: `${site.metierCourt} ${z.dans}`, provider: { '@id': `${site.url}/#entreprise` }, areaServed: z.communes.map((c) => ({ '@type': 'City', name: c })), url: pageUrl },
   { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: z.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.r } })) },
-  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Accueil', item: `${site.url}/` }, { '@type': 'ListItem', position: 2, name: `Peintre ${z.dans}`, item: pageUrl }] },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Accueil', item: `${site.url}/` }, { '@type': 'ListItem', position: 2, name: `${site.metierCourt} ${z.dans}`, item: pageUrl }] },
 ];
 ---
 
@@ -30,10 +30,10 @@ const schema = [
   <section class="zhero">
     <div class="zhero__text">
       <nav class="label muted" aria-label="Fil d’Ariane" data-hero-fade>
-        <a href={u('/')} class="link-u">Accueil</a> / <span aria-current="page">Peintre {z.dans}</span>
+        <a href={u('/')} class="link-u">Accueil</a> / <span aria-current="page">{site.metierCourt} {z.dans}</span>
       </nav>
       <h1 class="display zhero__t" data-hero-title>
-        <span class="line"><span class="line-inner">Peintre</span></span>
+        <span class="line"><span class="line-inner">Placo &amp; peinture</span></span>
         <span class="line"><span class="line-inner"><em>{words.join(' ')}</em></span></span>
       </h1>
       <p class="zhero__p" data-hero-fade>{z.intro}</p>
@@ -122,7 +122,7 @@ const schema = [
         Votre commune n’apparaît pas ? Nous intervenons {site.zoneIntervention}, et la visite reste gratuite.
       </p>
       <p class="zcom__links" data-reveal="fade">
-        {autres.map((o) => <a href={u(`/${o.slug}/`)} class="cta">Peintre {o.dans}</a>)}
+        {autres.map((o) => <a href={u(`/${o.slug}/`)} class="cta">{site.metierCourt} {o.dans}</a>)}
       </p>
     </div>
   </section>
