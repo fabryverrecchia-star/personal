@@ -833,6 +833,16 @@ function parallax() {
     gsap.fromTo(m, { yPercent: -7 }, { yPercent: 7, ease: 'none', scrollTrigger: { trigger: wrap, start: 'top bottom', end: 'bottom top', scrub: true } });
   });
 }
+function tiles() {
+  const t = $$('[data-tile]');
+  if (!t.length) return;
+  // Les carreaux se posent un à un, comme sur un chantier
+  gsap.fromTo(
+    t,
+    { clipPath: 'inset(0 0 100% 0)', y: 30 },
+    { clipPath: 'inset(0 0 0% 0)', y: 0, duration: 1.2, ease: EASE, stagger: 0.12, scrollTrigger: { trigger: t[0].parentElement!, start: 'top 75%', once: true } },
+  );
+}
 function chain() {
   const sec = $('[data-chain]');
   if (!sec) return;
@@ -953,6 +963,7 @@ function init() {
   autoVideos();
   contactMono();
   chain();
+  tiles();
   faq();
   form();
   onScroll();

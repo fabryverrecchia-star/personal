@@ -4,7 +4,8 @@ import Base from '../layouts/Base.astro';
 import BeforeAfter from '../components/BeforeAfter.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
-import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale, garanties, marques, instagram, chaine, visuel } from '../data/site';
+import Chapitre from '../components/Chapitre.astro';
+import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale, garanties, marques, instagram, chaine, visuel, univers, peinture, carrelage } from '../data/site';
 import { u } from '../lib/url';
 
 const faqLd = {
@@ -22,7 +23,7 @@ const spots = [
   { x: 19, y: 84, w: 8, mx: -99, my: 0, mw: 0, d: 0.9 },
   { x: 71, y: 83, w: 8, mx: -99, my: 0, mw: 0, d: 1.2 },
   { x: 21, y: 12, w: 6, mx: -99, my: 0, mw: 0, d: 0.7 },
-  { x: 62, y: 11, w: 6, mx: -99, my: 0, mw: 0, d: 1 },
+  { x: 16, y: 40, w: 6, mx: -99, my: 0, mw: 0, d: 1 },
 ];
 const svcImg = visuel;
 ---
@@ -53,18 +54,28 @@ const svcImg = visuel;
     </div>
 
     <div class="hero__center">
-      <p class="label hero__kicker" data-hero-fade>{site.nom} · Plâtrerie · Peinture · Carrelage</p>
+      <p class="label hero__kicker" data-hero-fade>Artisan aux Ancizes-Comps</p>
       <h1 class="display hero__t" data-hero-title>
-        <span class="line"><span class="line-inner">Du placo</span></span>
-        <span class="line"><span class="line-inner"><em>à la dernière</em> couche</span></span>
+        <span class="line"><span class="line-inner">Plâtrerie,</span></span>
+        <span class="line"><span class="line-inner">peinture</span></span>
+        <span class="line"><span class="line-inner"><em>&amp; carrelage</em></span></span>
       </h1>
       <p class="hero__p" data-hero-fade>
-        Cloisons et plafonds en plaques de plâtre, isolation, bandes et enduits, peinture et carrelage : un seul
-        artisan, de l’ossature à la finition, des Combrailles à Clermont-Ferrand.
+        Trois métiers, un seul artisan : de l’ossature en plaques de plâtre à la dernière couche de peinture ou au
+        dernier joint de carrelage, des Combrailles à Clermont-Ferrand.
       </p>
+      <nav class="hero__uni" aria-label="Les trois métiers" data-hero-fade>
+        {univers.map((x) => (
+          <a href={`#${x.id}`} class="hero__u">
+            <span class="hero__un">{x.n}</span>
+            <span class="hero__ut">{x.nom}</span>
+            <span class="hero__uc">{x.court}</span>
+          </a>
+        ))}
+      </nav>
       <div class="hero__ctas" data-hero-fade>
         <a href="#contact" class="btn btn--solid" data-magnetic>Demander un devis</a>
-        <a href="#atelier" class="cta">Découvrir l’atelier</a>
+        <a href="#atelier" class="cta">Découvrir l’artisan</a>
       </div>
     </div>
 
@@ -107,14 +118,13 @@ const svcImg = visuel;
 
   <!-- ─── Le placo : de l'ossature à la dernière couche ─── -->
   <section class="chain" id="placo" aria-labelledby="chain-t" data-chain>
-    <div class="wrap chain__head">
-      <p class="label muted" data-reveal="fade">Plâtrerie et plaques de plâtre</p>
-      <h2 id="chain-t" class="display chain__t" data-split>Le placo, <em>notre cœur de métier</em></h2>
-      <p class="chain__lead" data-reveal="fade">
-        Cloisons, doublages, faux plafonds, isolation : une plâtrerie bien faite, c’est une peinture qui tient et un
-        mur qui reste droit. Voici comment nous menons une pièce, de l’ossature à la dernière couche.
+    <Chapitre n="01" nom="Plâtrerie" id="chain-t">
+      <Fragment slot="titre">Le placo, <em>notre cœur de métier</em></Fragment>
+      <p>
+        Cloisons, doublages, faux plafonds, isolation : une plâtrerie bien faite, c’est un mur qui reste droit et une
+        finition qui tient. Voici comment une pièce est menée, de l’ossature à la dernière couche.
       </p>
-    </div>
+    </Chapitre>
     <div class="wrap chain__grid">
       <div class="chain__media" aria-hidden="true">
         <div class="chain__frame">
@@ -139,6 +149,110 @@ const svcImg = visuel;
     </div>
   </section>
 
+
+
+  <!-- ─── 02 Peinture ────────────────────────── -->
+  <section class="uni uni--peinture" id="peinture" aria-labelledby="peinture-t">
+    <Chapitre n="02" nom="Peinture" id="peinture-t">
+      <Fragment slot="titre">Peinture <em>intérieure et extérieure</em></Fragment>
+      <p>
+        Murs, plafonds, boiseries, volets et façades. Chaque support reçoit l’impression qui lui convient, puis deux
+        couches croisées, dans la finition adaptée à l’usage de la pièce et à sa lumière.
+      </p>
+    </Chapitre>
+    <div class="wrap pein">
+      <figure class="pein__a" data-reveal="img" data-parallax-wrap>
+        <Image src={peinture.photos[0].src} alt={peinture.photos[0].alt} widths={[600, 1100]} sizes="(min-width: 1024px) 40vw, 92vw" data-parallax />
+      </figure>
+      <figure class="pein__b" data-reveal="img">
+        <Image src={peinture.photos[1].src} alt={peinture.photos[1].alt} widths={[500, 900]} sizes="(min-width: 1024px) 26vw, 60vw" />
+      </figure>
+      <figure class="pein__c" data-reveal="img">
+        <Image src={peinture.photos[2].src} alt={peinture.photos[2].alt} widths={[500, 900]} sizes="(min-width: 1024px) 22vw, 50vw" />
+      </figure>
+      <ul class="uni__points pein__pts">
+        {peinture.points.map((x) => <li data-reveal="fade"><span class="uni__dot" aria-hidden="true"></span>{x}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ─── Territoire : nuancier du Puy-de-Dôme ─── -->
+  <section class="terre" aria-labelledby="terre-t" data-terre>
+    <div class="terre__pin">
+      <div class="wrap terre__grid">
+        <div class="terre__text">
+          <p class="label muted" data-reveal="fade">Territoire et couleur</p>
+          <h2 id="terre-t" class="title terre__t" data-split>Un nuancier né <em>du Puy-de-Dôme</em></h2>
+          <p class="prose" data-reveal="fade">
+            Le ciel des Puys, la pierre de Volvic, les forêts de la Sioule, les terres de Limagne, les toits de tuile des
+            villages : la région inspire nos harmonies. Pour les mettre en œuvre, nous travaillons exclusivement avec les
+            nuanciers professionnels des fabricants, des centaines de teintes référencées et reproductibles à l’identique.
+          </p>
+          <ul class="terre__points" data-reveal="fade">
+            <li><span class="terre__dot" aria-hidden="true"></span>Teintes référencées chez le fabricant</li>
+            <li><span class="terre__dot" aria-hidden="true"></span>Échantillons posés chez vous, à la lumière réelle</li>
+            <li><span class="terre__dot" aria-hidden="true"></span>Conseil couleur lors de la visite</li>
+          </ul>
+          <p class="terre__zones" data-reveal="fade">
+            {zones.map((z) => <a href={u(`/${z.slug}/`)} class="cta">{site.metierCourt} {z.dans}</a>)}
+          </p>
+        </div>
+
+        <figure class="terre__stage" data-terre-stage>
+          <svg class="land" viewBox="0 0 600 640" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+            <rect class="land__l" data-c="puys" width="600" height="640" fill="#8DA3B3" />
+            <path class="land__l" data-c="volvic" fill="#56595C" d="M0 330 L40 300 Q70 280 95 296 L130 318 L175 262 Q205 226 235 258 L262 288 L300 238 Q330 150 360 232 L392 286 L430 252 Q455 232 482 256 L520 290 L560 270 L600 284 V640 H0Z" />
+            <path class="land__l" data-c="basalte" fill="#1F1D1A" d="M0 372 L60 352 Q110 336 160 356 L220 378 Q260 392 300 372 L360 344 Q400 330 450 350 L520 374 Q560 386 600 370 V640 H0Z" />
+            <path class="land__l" data-c="sioule" fill="#3F5A45" d="M0 410 Q60 384 120 402 T240 404 T360 398 T480 406 T600 396 V640 H0Z" />
+            <path class="land__l" data-c="limagne" fill="#C08A3E" d="M0 468 Q150 440 300 462 T600 452 V640 H0Z" />
+            <path class="land__l" data-c="tuile" fill="#9B4B34" d="M0 524 L30 500 L60 524 L84 504 L110 526 L150 494 L190 526 L220 506 L250 528 L292 498 L334 528 L360 508 L392 530 L430 500 L470 530 L500 510 L530 530 L566 502 L600 526 V640 H0Z" />
+            <path class="land__l" data-c="chaux" fill="#E2DACB" d="M0 548 H600 V640 H0Z" />
+            <path class="land__ridge" d="M262 288 L300 238 Q330 150 360 232 L392 286" />
+          </svg>
+          <div class="fan" aria-hidden="true">
+            {
+              palette.map((c, i) => (
+                <span class="fan__card" style={`--c:${c.hex};--i:${i}`} data-fan>
+                  <span class="fan__main" />
+                  <span class="fan__tint" style="--m:72%" />
+                  <span class="fan__tint" style="--m:50%" />
+                  <span class="fan__tint" style="--m:28%" />
+                  <span class="fan__foot"><span class="fan__line" /><span class="fan__line fan__line--s" /></span>
+                </span>
+              ))
+            }
+            <span class="fan__pin" />
+          </div>
+          <figcaption class="terre__note label muted">
+            Couleurs d’inspiration. La teinte exacte est choisie avec vous sur nuancier fabricant.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+  <!-- ─── 03 Carrelage ───────────────────────── -->
+  <section class="uni uni--carrelage dark" id="carrelage" aria-labelledby="carrelage-t">
+    <Chapitre n="03" nom="Carrelage" id="carrelage-t">
+      <Fragment slot="titre">Carrelage <em>et faïence</em></Fragment>
+      <p>
+        Sols, salles de bains, douches à l’italienne, crédences. Un carrelage se juge à la régularité de ses joints et
+        à la netteté de ses coupes : tout se prépare avant la première colle.
+      </p>
+    </Chapitre>
+    <div class="wrap">
+      <div class="tiles" data-tiles>
+        {carrelage.photos.map((x, i) => (
+          <figure class={`tile tile--${i}`} data-tile>
+            <Image src={x.src} alt={x.alt} widths={[500, 1000]} sizes={i === 0 ? '(min-width: 1024px) 40vw, 92vw' : '(min-width: 1024px) 26vw, 46vw'} />
+          </figure>
+        ))}
+      </div>
+      <ul class="uni__points carr__pts">
+        {carrelage.points.map((x) => <li data-reveal="fade"><span class="uni__dot" aria-hidden="true"></span>{x}</li>)}
+      </ul>
+    </div>
+  </section>
+
   <!-- ─── Lumière rasante ────────────────────── -->
   <section class="light dark" aria-labelledby="light-t" data-light>
     <div class="light__sticky">
@@ -156,53 +270,6 @@ const svcImg = visuel;
       </div>
     </div>
   </section>
-
-  <!-- ─── Savoir-faire ───────────────────────── -->
-  <section class="skills" id="savoir-faire" aria-labelledby="skills-t" data-skills>
-    <p class="skills__giant display" aria-hidden="true" data-giant>
-      <span>Savoir-faire&nbsp;·&nbsp;Savoir-faire&nbsp;·&nbsp;Savoir-faire&nbsp;·&nbsp;</span>
-    </p>
-    <div class="wrap skills__grid">
-      <figure class="skills__media" data-reveal="img">
-        {
-          services.map((s, i) => (
-            <Image
-              src={svcImg(s.photo)}
-              alt=""
-              widths={[500, 900]}
-              sizes="(min-width: 1024px) 38vw, 92vw"
-              class:list={['skills__img', { 'is-on': i === 0 }]}
-              data-skill-img={i}
-            />
-          ))
-        }
-      </figure>
-      <div class="skills__body">
-        <h2 id="skills-t" class="sr-only">Savoir-faire</h2>
-        <p class="skills__intro" data-reveal="fade">
-          La plâtrerie au cœur, la peinture et le carrelage pour finir : cinq savoir-faire réunis autour d’un même
-          objectif, des surfaces justes, durables et belles à la lumière du jour.
-        </p>
-        <ol class="skills__list">
-          {
-            services.map((s, i) => (
-              <li class="skill" data-skill={i}>
-                <button class="skill__head" aria-expanded={i === 0 ? 'true' : 'false'} aria-controls={`skill-${s.id}`}>
-                  <span class="skill__n">{roman[i]}.</span>
-                  <span class="skill__t">{s.titre}</span>
-                  <span class="skill__plus" aria-hidden="true" />
-                </button>
-                <div class="skill__body" id={`skill-${s.id}`} hidden={i !== 0}>
-                  <p>{s.texte}</p>
-                </div>
-              </li>
-            ))
-          }
-        </ol>
-      </div>
-    </div>
-  </section>
-
   <!-- ─── Avant, après ───────────────────────── -->
   <section class="ba-sec section dark" id="avant-apres" aria-labelledby="ba-t">
     <div class="wrap ba-sec__in">
@@ -315,60 +382,6 @@ const svcImg = visuel;
     </div>
   </section>
 
-  <!-- ─── Territoire : nuancier du Puy-de-Dôme ─── -->
-  <section class="terre" aria-labelledby="terre-t" data-terre>
-    <div class="terre__pin">
-      <div class="wrap terre__grid">
-        <div class="terre__text">
-          <p class="label muted" data-reveal="fade">Territoire et couleur</p>
-          <h2 id="terre-t" class="title terre__t" data-split>Un nuancier né <em>du Puy-de-Dôme</em></h2>
-          <p class="prose" data-reveal="fade">
-            Le ciel des Puys, la pierre de Volvic, les forêts de la Sioule, les terres de Limagne, les toits de tuile des
-            villages : la région inspire nos harmonies. Pour les mettre en œuvre, nous travaillons exclusivement avec les
-            nuanciers professionnels des fabricants, des centaines de teintes référencées et reproductibles à l’identique.
-          </p>
-          <ul class="terre__points" data-reveal="fade">
-            <li><span class="terre__dot" aria-hidden="true"></span>Teintes référencées chez le fabricant</li>
-            <li><span class="terre__dot" aria-hidden="true"></span>Échantillons posés chez vous, à la lumière réelle</li>
-            <li><span class="terre__dot" aria-hidden="true"></span>Conseil couleur lors de la visite</li>
-          </ul>
-          <p class="terre__zones" data-reveal="fade">
-            {zones.map((z) => <a href={u(`/${z.slug}/`)} class="cta">{site.metierCourt} {z.dans}</a>)}
-          </p>
-        </div>
-
-        <figure class="terre__stage" data-terre-stage>
-          <svg class="land" viewBox="0 0 600 640" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-            <rect class="land__l" data-c="puys" width="600" height="640" fill="#8DA3B3" />
-            <path class="land__l" data-c="volvic" fill="#56595C" d="M0 330 L40 300 Q70 280 95 296 L130 318 L175 262 Q205 226 235 258 L262 288 L300 238 Q330 150 360 232 L392 286 L430 252 Q455 232 482 256 L520 290 L560 270 L600 284 V640 H0Z" />
-            <path class="land__l" data-c="basalte" fill="#1F1D1A" d="M0 372 L60 352 Q110 336 160 356 L220 378 Q260 392 300 372 L360 344 Q400 330 450 350 L520 374 Q560 386 600 370 V640 H0Z" />
-            <path class="land__l" data-c="sioule" fill="#3F5A45" d="M0 410 Q60 384 120 402 T240 404 T360 398 T480 406 T600 396 V640 H0Z" />
-            <path class="land__l" data-c="limagne" fill="#C08A3E" d="M0 468 Q150 440 300 462 T600 452 V640 H0Z" />
-            <path class="land__l" data-c="tuile" fill="#9B4B34" d="M0 524 L30 500 L60 524 L84 504 L110 526 L150 494 L190 526 L220 506 L250 528 L292 498 L334 528 L360 508 L392 530 L430 500 L470 530 L500 510 L530 530 L566 502 L600 526 V640 H0Z" />
-            <path class="land__l" data-c="chaux" fill="#E2DACB" d="M0 548 H600 V640 H0Z" />
-            <path class="land__ridge" d="M262 288 L300 238 Q330 150 360 232 L392 286" />
-          </svg>
-          <div class="fan" aria-hidden="true">
-            {
-              palette.map((c, i) => (
-                <span class="fan__card" style={`--c:${c.hex};--i:${i}`} data-fan>
-                  <span class="fan__main" />
-                  <span class="fan__tint" style="--m:72%" />
-                  <span class="fan__tint" style="--m:50%" />
-                  <span class="fan__tint" style="--m:28%" />
-                  <span class="fan__foot"><span class="fan__line" /><span class="fan__line fan__line--s" /></span>
-                </span>
-              ))
-            }
-            <span class="fan__pin" />
-          </div>
-          <figcaption class="terre__note label muted">
-            Couleurs d’inspiration. La teinte exacte est choisie avec vous sur nuancier fabricant.
-          </figcaption>
-        </figure>
-      </div>
-    </div>
-  </section>
 
   <!-- ─── Instagram ──────────────────────────── -->
   <section class="insta section" aria-labelledby="insta-t">
@@ -468,6 +481,51 @@ const svcImg = visuel;
   }
   .hero__t em {
     font-weight: 400;
+  }
+  .hero__uni {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: min(100%, 640px);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .hero__u {
+    display: grid;
+    gap: 2px;
+    padding: 12px 10px;
+    text-align: left;
+    border-left: 1px solid var(--line);
+    transition: background 0.4s var(--ease);
+  }
+  .hero__u:first-child {
+    border-left: 0;
+  }
+  .hero__un {
+    font-family: var(--serif);
+    color: var(--argile);
+    font-size: 0.95rem;
+  }
+  .hero__ut {
+    font-family: var(--serif);
+    font-size: clamp(1.05rem, 2vw, 1.35rem);
+  }
+  .hero__uc {
+    display: none;
+    font-size: var(--fs-xs, 0.75rem);
+    color: var(--muted);
+  }
+  @media (min-width: 700px) {
+    .hero__u {
+      padding: 16px 18px;
+    }
+    .hero__uc {
+      display: block;
+    }
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .hero__u:hover {
+      background: rgb(255 255 255 / 0.4);
+    }
   }
   .hero__p {
     max-width: 44ch;
@@ -582,23 +640,159 @@ const svcImg = visuel;
     }
   }
 
+  /* ─── Univers : peinture et carrelage ─── */
+  .uni {
+    padding-block: clamp(96px, 12vw, 170px);
+  }
+  .uni__points {
+    display: grid;
+    gap: 0;
+    border-top: 1px solid var(--line);
+  }
+  .uni__points li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .uni__dot {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--argile);
+  }
+  .pein {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+  }
+  .pein figure {
+    margin: 0;
+    overflow: hidden;
+  }
+  .pein :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pein__a {
+    grid-column: 1 / -1;
+    aspect-ratio: 4 / 5;
+    position: relative;
+  }
+  .pein__a :global(img) {
+    position: absolute;
+    inset: -8% 0;
+    height: 116%;
+  }
+  .pein__b {
+    grid-column: 1 / 5;
+    aspect-ratio: 4 / 5;
+  }
+  .pein__c {
+    grid-column: 4 / 7;
+    aspect-ratio: 3 / 4;
+    margin-top: -30% !important;
+  }
+  .pein__pts {
+    grid-column: 1 / -1;
+    margin-top: 32px;
+  }
+  @media (min-width: 1024px) {
+    .pein {
+      grid-template-columns: repeat(12, 1fr);
+      gap: 2vw;
+      align-items: start;
+    }
+    .pein__a {
+      grid-column: 1 / 6;
+      grid-row: 1 / 3;
+    }
+    .pein__b {
+      grid-column: 7 / 10;
+      margin-top: 6vw !important;
+    }
+    .pein__c {
+      grid-column: 10 / 13;
+      margin-top: 16vw !important;
+    }
+    .pein__pts {
+      grid-column: 7 / 13;
+      margin-top: 4vw;
+    }
+  }
+  /* Carrelage : la grille de photos dessine des joints */
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    padding: 6px;
+    background: rgb(243 239 232 / 0.16);
+  }
+  .tile {
+    margin: 0;
+    overflow: hidden;
+    aspect-ratio: 1;
+  }
+  .tile :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .tile--0 {
+    grid-column: 1 / -1;
+    aspect-ratio: 4 / 5;
+  }
+  .tile--1,
+  .tile--4 {
+    grid-column: 1 / -1;
+    aspect-ratio: 3 / 2;
+  }
+  .carr__pts {
+    margin-top: 40px;
+  }
+  @media (min-width: 1024px) {
+    .tiles {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 22vw);
+      gap: 8px;
+      padding: 8px;
+    }
+    .tile {
+      aspect-ratio: auto !important;
+    }
+    .tile--0 {
+      grid-column: 1 / 2;
+      grid-row: 1 / 3;
+    }
+    .tile--1 {
+      grid-column: 2 / 4;
+      grid-row: 1 / 2;
+    }
+    .tile--2 {
+      grid-column: 4 / 5;
+      grid-row: 1 / 2;
+    }
+    .tile--3 {
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+    }
+    .tile--4 {
+      grid-column: 3 / 5;
+      grid-row: 2 / 3;
+    }
+    .carr__pts {
+      grid-template-columns: repeat(2, 1fr);
+      column-gap: 4vw;
+    }
+  }
+
   /* ─── Le placo ─── */
   .chain {
     padding-block: clamp(96px, 12vw, 170px);
     background: var(--lin-2);
-  }
-  .chain__head {
-    display: grid;
-    gap: 20px;
-    margin-bottom: clamp(48px, 7vw, 96px);
-  }
-  .chain__t {
-    font-size: var(--fs-xl);
-    max-width: 11ch;
-  }
-  .chain__lead {
-    max-width: 52ch;
-    color: var(--muted);
   }
   .chain__media {
     display: none;
@@ -640,13 +834,6 @@ const svcImg = visuel;
     color: var(--muted);
   }
   @media (min-width: 1024px) {
-    .chain__head {
-      grid-template-columns: 7fr 5fr;
-      align-items: end;
-    }
-    .chain__head .label {
-      grid-column: 1 / -1;
-    }
     .chain__grid {
       display: grid;
       grid-template-columns: 6fr 5fr;

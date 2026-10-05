@@ -4,8 +4,9 @@ import { site, zones, telHref, instagram, selection } from '../data/site';
 import { u } from '../lib/url';
 import Logo from './Logo.astro';
 const nav = [
-  { href: u('/#placo'), label: 'Le placo' },
-  { href: u('/#savoir-faire'), label: 'Savoir-faire' },
+  { href: u('/#placo'), label: 'Plâtrerie' },
+  { href: u('/#peinture'), label: 'Peinture' },
+  { href: u('/#carrelage'), label: 'Carrelage' },
   { href: u('/#avant-apres'), label: 'Avant, après' },
   { href: u('/realisations/'), label: 'Réalisations' },
   { href: u('/#contact'), label: 'Contact' },
@@ -42,7 +43,7 @@ const nav = [
           nav.map((l, i) => (
             <li class="menu__li">
               <a href={l.href} class="menu__a" data-menu-link data-menu-i={i}>
-                <span class="label menu__n">{['I', 'II', 'III', 'IV', 'V'][i]}.</span>
+                <span class="label menu__n">{['I', 'II', 'III', 'IV', 'V', 'VI'][i]}.</span>
                 <span class="display menu__t">{l.label}</span>
               </a>
             </li>

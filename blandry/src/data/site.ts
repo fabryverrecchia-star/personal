@@ -143,16 +143,44 @@ export const galerie: Photo[] = [
 ];
 
 // Photos flottantes du hero
+// Photos du préchargement et du haut de page (visuels professionnels uniquement)
 export const heroPhotos: Photo[] = [
   P('placo-vissage', '', 'Intérieur'),
-  P('mur-pierre-applique', '', 'Intérieur'),
+  P('carrelage-salle-de-bain', '', 'Intérieur'),
   P('enduit-couteau', '', 'Intérieur'),
-  P('douche-carrelage', '', 'Intérieur'),
+  P('carrelage-faience-grise', '', 'Intérieur'),
   P('poncage-main', '', 'Intérieur'),
-  P('chambre-vert-sapin', '', 'Intérieur'),
+  P('peinture-baladeuse', '', 'Intérieur'),
   P('placo-plafond-bandes', '', 'Intérieur'),
-  P('salon-papier-peint', '', 'Intérieur'),
+  P('carrelage-mur-courbe', '', 'Intérieur'),
 ];
+
+// ── Les trois univers ─────────────────────────────────────────
+export const univers = [
+  { id: 'placo', n: '01', nom: 'Plâtrerie', court: 'Cloisons, plafonds, isolation' },
+  { id: 'peinture', n: '02', nom: 'Peinture', court: 'Intérieur, extérieur, finitions' },
+  { id: 'carrelage', n: '03', nom: 'Carrelage', court: 'Sols, faïence, salles de bains' },
+];
+
+export const peinture = {
+  points: ['Préparation complète des supports', 'Finitions mate, velours ou satinée', 'Murs, plafonds, boiseries et façades', 'Échantillons posés chez vous'],
+  photos: [
+    { src: m('peinture-baladeuse'), alt: 'Peinture d’un mur au rouleau à la lumière d’une baladeuse' },
+    { src: g('chambre-vert-sapin'), alt: 'Chambre au mur d’accent vert sapin' },
+    { src: g('salon-papier-peint'), alt: 'Salon au papier peint panoramique' },
+  ],
+};
+
+export const carrelage = {
+  points: ['Calepinage étudié avant la pose', 'Support mis à niveau, étanchéité dans les pièces d’eau', 'Nivellement des grands formats', 'Joints réguliers, coupes nettes'],
+  photos: [
+    { src: m('carrelage-salle-de-bain'), alt: 'Salle de bains en carrelage grand format gris' },
+    { src: m('carrelage-pose-croisillons'), alt: 'Pose de carrelage grand format avec système de nivellement' },
+    { src: m('carrelage-faience-grise'), alt: 'Faïence murale en baguettes émaillées grises' },
+    { src: m('carrelage-douche-sombre'), alt: 'Douche en carrelage sombre, joints fins' },
+    { src: m('carrelage-mur-courbe'), alt: 'Mur courbe habillé de grands carreaux blancs' },
+  ],
+};
 
 // ── De l'ossature à la dernière couche (section « Le placo ») ─────
 export const chaine = [
@@ -209,6 +237,7 @@ export const marques = [
 export const services = [
   {
     id: 'platrerie',
+    ancre: 'placo',
     titre: 'Plâtrerie et cloisons sèches',
     texte:
       'Cloisons, contre-cloisons et aménagements en plaques de plâtre sur ossature métallique. Rails tracés au laser, montants calés, plaques standard, hydrofuges, phoniques ou coupe-feu selon la pièce : une structure droite et solide, prête à recevoir la finition.',
@@ -216,6 +245,7 @@ export const services = [
   },
   {
     id: 'plafonds',
+    ancre: 'placo',
     titre: 'Plafonds, doublages et isolation',
     texte:
       'Faux plafonds suspendus, doublages collés ou sur ossature, isolation thermique et acoustique des murs et des combles. Des pièces plus confortables et des surfaces parfaitement planes, du sol au plafond.',
@@ -223,6 +253,7 @@ export const services = [
   },
   {
     id: 'bandes',
+    ancre: 'placo',
     titre: 'Bandes, enduits et préparation',
     texte:
       'Bandes à joints, enduits de lissage, reprises de plâtre et ponçage soigné. C’est l’étape que l’on ne voit plus une fois le chantier terminé, et celle qui décide de tout : une peinture ne corrige pas un défaut, elle le révèle.',
@@ -230,6 +261,7 @@ export const services = [
   },
   {
     id: 'peinture',
+    ancre: 'peinture',
     titre: 'Peinture intérieure et extérieure',
     texte:
       'Murs, plafonds, boiseries, volets et façades. Chaque support reçoit l’impression qui lui convient, puis deux couches croisées, dans la finition mate, velours ou satinée adaptée à l’usage de la pièce et à sa lumière.',
@@ -237,6 +269,7 @@ export const services = [
   },
   {
     id: 'carrelage',
+    ancre: 'carrelage',
     titre: 'Carrelage et faïence',
     texte:
       'Sols, murs de salle de bains, douches à l’italienne et crédences. Support préparé et mis à niveau, étanchéité sous carrelage dans les pièces d’eau, calepinage étudié et joints réguliers.',

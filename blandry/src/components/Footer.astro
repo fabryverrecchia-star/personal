@@ -31,7 +31,7 @@ const annee = new Date().getFullYear();
       </div>
       <div>
         <p class="label muted">Savoir-faire</p>
-        {services.map((s) => <a href={u('/#savoir-faire')} class="link-u">{s.titre}</a>)}
+        {services.map((s) => <a href={u(`/#${s.ancre}`)} class="link-u">{s.titre}</a>)}
       </div>
       <div>
         <p class="label muted">Zone d’intervention</p>
