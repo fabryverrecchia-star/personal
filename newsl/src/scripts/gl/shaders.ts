@@ -236,11 +236,26 @@ uniform float uHover;
 uniform float uShift;
 uniform float uTime;
 uniform float uAlpha;
+uniform float uStyle;
 varying vec2 vUv;
 ${noise}
 ${cover}
+
+// Progression d'une strie verticale (pas des lignes tressées de la DA)
+float stripeCount(){ return max(1.0, floor(uPlane.x / 22.0)); }
+float stripeProgress(float x){
+  float n = stripeCount();
+  float i = floor(x * n);
+  float delay = (i / n) * 0.55 + fract(sin(i * 91.7) * 4375.85) * 0.08;
+  float p = clamp(uReveal * 1.63 - delay, 0.0, 1.0);
+  return p * p * (3.0 - 2.0 * p);
+}
+
 void main(){
   vec2 uv = coverUv(vUv, uPlane, uImage);
+  float sp = uStyle < 0.5 ? stripeProgress(vUv.x) : 1.0;
+  // Chaque strie glisse légèrement vers le haut en apparaissant
+  uv.y -= (1.0 - sp) * 0.08;
   float zoom = 1.0 - 0.04 * uHover - 0.16 * (1.0 - uReveal);
   uv = (uv - 0.5) * zoom + 0.5;
 
@@ -256,9 +271,19 @@ void main(){
   col = mix(col, col * vec3(0.92, 1.0, 0.95), (1.0 - lum) * 0.35);
   col = mix(vec3(lum), col, 0.92 + 0.08 * uHover);
 
-  // Révélation : un voile qui se lève par le bas, bord net,
-  // l'image s'éclaire doucement en même temps
-  float mask = smoothstep(1.0 - uReveal - 0.004, 1.0 - uReveal + 0.004, 1.0 - vUv.y);
+  // Révélation
+  float mask;
+  if (uStyle < 0.5) {
+    // « Stries de la DA » : chaque bande se lève à son tour, de gauche à droite
+    mask = step(vUv.y, sp);
+    // Fin filet entre les bandes tant qu'elles bougent
+    float f = fract(vUv.x * stripeCount());
+    float seam = smoothstep(0.0, 0.06, f) * smoothstep(1.0, 0.94, f);
+    mask *= mix(seam, 1.0, smoothstep(0.85, 1.0, uReveal));
+  } else {
+    // « Voile » : un rideau qui se lève par le bas, bord net
+    mask = smoothstep(1.0 - uReveal - 0.004, 1.0 - uReveal + 0.004, 1.0 - vUv.y);
+  }
   mask = uReveal >= 0.999 ? 1.0 : mask;
   col *= mix(0.55, 1.0, smoothstep(0.2, 1.0, uReveal));
 
