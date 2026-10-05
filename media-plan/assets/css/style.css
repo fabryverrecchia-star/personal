@@ -1863,3 +1863,22 @@ a { color: inherit; }
 .editor__reset { padding: 12px 4px; font-size: 9px; color: var(--ink-soft); text-decoration: underline; text-underline-offset: 4px; }
 .editor__reset[hidden] { display: none; }
 .editor__reset.is-confirm { color: #b3261e; }
+
+/* Calendrier des publications et du sponsorisé (suivi.passages: false) */
+.cal__day.is-ad::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  height: 36px;
+  margin-top: -18px;
+  background: color-mix(in srgb, var(--gold) 26%, transparent);
+}
+.cal__day.is-ad-double::before { background: color-mix(in srgb, var(--gold) 46%, transparent); }
+.cal__day.is-ad-start::before { left: 3px; border-radius: 99px 0 0 99px; }
+.cal__day.is-ad-end::before { right: 3px; border-radius: 0 99px 99px 0; }
+.cal__day.is-ad-start.is-ad-end::before { border-radius: 99px; }
+.cal__day > span { position: relative; z-index: 1; }
+.cal__key--ad { width: 18px; border-radius: 99px; background: color-mix(in srgb, var(--gold) 46%, transparent); }
+.suivi--pubs .visit { grid-template-columns: 52px 1fr auto; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.suivi--pubs .visit:active { background: var(--tint); }
+.visit--ad .visit__kind { color: var(--gold); }

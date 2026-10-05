@@ -1,27 +1,5 @@
 {
-  "passages": [
-    {
-      "id": "p1",
-      "date": "2026-10-09",
-      "time": "20h – 23h",
-      "kind": "both",
-      "title": "Live du soir : photos du duo et images pour le reel du week-end"
-    },
-    {
-      "id": "p2",
-      "date": "2026-10-16",
-      "time": "19h – 22h",
-      "kind": "both",
-      "title": "Bar des Ambassadeurs : piano, salle et coulisses"
-    },
-    {
-      "id": "p3",
-      "date": "2026-10-27",
-      "time": "11h",
-      "kind": "meeting",
-      "title": "Point mensuel : bilan des campagnes et planning de novembre"
-    }
-  ],
+  "passages": [],
   "missions": [
     {
       "id": "m1",

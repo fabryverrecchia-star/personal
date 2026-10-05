@@ -6,7 +6,9 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur (ex. `18h22.
 - `index.html` ouvre Sounds Like Paris (`?c=sounds-like-paris`).
 - Contenu : `clients/sounds-like-paris/plan.js` (planning du mois dans `months`, campagnes sponsorisées dans `ads`, couleurs, polices).
   Chaque post et chaque campagne a un `id` : les modifications faites depuis l'espace équipe y sont rattachées.
-- Ordre de la page : feed, posts du mois, campagnes sponsorisées, retours du client, jours de passage, missions en cours.
+- Ordre de la page : feed, posts du mois, campagnes sponsorisées, retours du client, calendrier, missions en cours.
+- Pas de passage prévu pour ce client (`suivi.passages: false`) : le calendrier montre seulement les publications et les campagnes sponsorisées
+  (bande dorée du début à la fin de chaque campagne). Toucher une ligne descend au post ou à la campagne.
 - Commentaires sous chaque post : gardés sur le téléphone du client, envoyés en un récapitulatif (WhatsApp).
 
 ## Campagnes sponsorisées
@@ -25,7 +27,7 @@ Bouton flottant « Espace équipe » en bas à droite, puis le code (une fois pa
   - Titre et légende (un paragraphe par ligne).
   - Campagnes : dates, budget, dépensé réel, état.
   - « Revenir à l'original » efface les modifications et les fichiers envoyés.
-- Rendez-vous (calendrier des passages), Tâche (missions), Inspiration (liens Instagram) : comme les autres plannings.
+- Tâche (missions) et Inspiration (liens Instagram) : comme les autres plannings.
 
 ## Hébergement
 

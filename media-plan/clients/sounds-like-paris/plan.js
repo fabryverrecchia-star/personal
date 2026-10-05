@@ -176,12 +176,14 @@ window.PLAN = {
     ],
   },
 
-  // Passages (shootings, tournages, rendez-vous), missions en cours et modifications de l'équipe :
+  // Missions en cours et modifications de l'équipe :
   // partagés entre tous les visiteurs via suivi.php. Sans PHP (aperçu), data/suivi.json est lu tel quel.
   suivi: {
     api: 'suivi.php',
     data: 'data/suivi.json',
     team: ['Fabrizio', 'Jade'],
+    // Pas de passage prévu : le calendrier montre seulement les publications et les campagnes sponsorisées
+    passages: false,
     // Fabrizio en couleurs 18H22, Jade aux couleurs du client
     colors: { Fabrizio: '#22365f', Jade: '#a8834a' },
   },

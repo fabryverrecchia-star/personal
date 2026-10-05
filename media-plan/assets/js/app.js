@@ -346,7 +346,7 @@
       '<a class="label" href="#feed">Feed</a>' +
       weeks.map(function (w, k) { return '<a class="label" href="#s' + (k + 1) + '">' + (monthly ? MOIS_LONGS[firstDate(w).getMonth()] : 'S' + pad(k + 1)) + '</a>'; }).join('') +
       (PLAN.ads ? '<a class="label" href="#ads">Sponsorisé</a>' : '') +
-      (PLAN.suivi ? '<a class="label" href="#passages">Passages</a><a class="label" href="#missions">Missions</a>' : '') +
+      (PLAN.suivi ? '<a class="label" href="#passages">' + (PLAN.suivi.passages === false ? 'Calendrier' : 'Passages') + '</a><a class="label" href="#missions">Missions</a>' : '') +
       '</nav>';
 
     // Le feed passe en premier (vue d'ensemble), le détail des posts suit
@@ -748,8 +748,35 @@
     var who = team.map(function (n, k) {
       return '<button type="button" class="label chip' + (k ? '' : ' is-on') + '" data-who="' + esc(n) + '" aria-pressed="' + (k ? 'false' : 'true') + '">' + esc(n) + '</button>';
     }).join('');
+    // Sans passages prévus (suivi.passages: false) : le calendrier ne montre que les publications et le sponsorisé
+    var pubs = PLAN.suivi.passages === false;
+    var calHtml =
+      '<div class="cal" data-reveal>' +
+      '<div class="cal__top">' +
+      '<button type="button" class="cal__nav" data-cal="-1" aria-label="Mois précédent">' + SICONS.prev + '</button>' +
+      '<span class="cal__month" data-cal-month aria-live="polite"></span>' +
+      '<button type="button" class="cal__nav" data-cal="1" aria-label="Mois suivant">' + SICONS.next + '</button>' +
+      '</div>' +
+      '<div class="cal__dow label" aria-hidden="true"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>' +
+      '<div class="cal__grid" data-cal-grid></div>' +
+      '<div class="cal__legend label">' + (pubs
+        ? '<span><i class="cal__key cal__key--visit"></i>Publication</span><span><i class="cal__key cal__key--ad"></i>Sponsorisé</span>'
+        : '<span><i class="cal__key cal__key--visit"></i>Passage</span><span><i class="cal__key cal__key--post"></i>Publication</span>') +
+      '<span><i class="cal__key cal__key--today"></i>Aujourd’hui</span></div>' +
+      '</div>';
+    var passagesHtml = pubs
+      ? '<section class="suivi suivi--pubs" id="passages">' +
+        '<header class="suivi__head">' +
+        '<p class="label suivi__kicker" data-reveal>Publications et sponsorisé</p>' +
+        '<h2 class="suivi__title" data-reveal>Le calendrier</h2>' +
+        '<p class="suivi__lead" data-reveal data-next>&nbsp;</p>' +
+        '</header>' + calHtml +
+        '<ol class="visits" data-visits></ol>' +
+        '</section>'
+      : '';
     return (
-      '<section class="suivi" id="passages">' +
+      passagesHtml +
+      (pubs ? '' : '<section class="suivi" id="passages">' +
       '<header class="suivi__head">' +
       '<p class="label suivi__kicker" data-reveal>Sur place</p>' +
       '<h2 class="suivi__title" data-reveal>Jours de passage</h2>' +
@@ -776,7 +803,7 @@
       '<div class="cal__legend label"><span><i class="cal__key cal__key--visit"></i>Passage</span><span><i class="cal__key cal__key--post"></i>Publication</span><span><i class="cal__key cal__key--today"></i>Aujourd’hui</span></div>' +
       '</div>' +
       '<ol class="visits" data-visits></ol>' +
-      '</section>' +
+      '</section>') +
 
       '<section class="suivi" id="missions">' +
       '<header class="suivi__head">' +
@@ -801,7 +828,7 @@
       // Espace équipe : bouton flottant en bas à droite, on choisit le formulaire à ouvrir
       '<div class="team-fab" data-fab>' +
       '<div class="team-fab__menu" role="menu" aria-label="Espace équipe">' +
-      '<button type="button" class="team-fab__item" role="menuitem" data-goto="passages">' + SICONS.planning + '<span><b>Rendez-vous</b><small class="label">Calendrier des passages</small></span></button>' +
+      (pubs ? '' : '<button type="button" class="team-fab__item" role="menuitem" data-goto="passages">' + SICONS.planning + '<span><b>Rendez-vous</b><small class="label">Calendrier des passages</small></span></button>') +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="missions">' + SICONS.redaction + '<span><b>Tâche</b><small class="label">Missions en cours</small></span></button>' +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="contenus">' + SICONS.image + '<span><b>Photos et légendes</b><small class="label">Posts et campagnes sponsorisées</small></span></button>' +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="inspi">' + SICONS.spark + '<span><b>Inspiration</b><small class="label">Reels et carrousels du mois</small></span></button>' +
@@ -985,7 +1012,87 @@
     }
 
     /* Calendrier du mois */
+    var PUBS = cfg.passages === false;
+    // Mode publications : chaque post (date) et chaque campagne sponsorisée (du début à la fin)
+    function pubEvents() {
+      var ev = allPosts.map(function (p) {
+        return { date: p.date, kind: p.type || 'post', title: p.title, go: p._id };
+      });
+      adCampaigns().forEach(function (c) {
+        var v = adView(c);
+        if (v.start) ev.push({ date: v.start, end: v.end, kind: 'ad', title: v.title, go: 'ad-' + c.id, budget: v.budget });
+      });
+      return ev.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+    }
+    function paintPubCalendar() {
+      var t = today();
+      var ev = pubEvents();
+      if (!month) {
+        var first = ev.filter(function (x) { return parseDate(x.end || x.date) >= t; })[0] || ev[0];
+        var ref = first ? parseDate(first.date) : t;
+        if (ref < t && (!first || parseDate(first.end || first.date) >= t)) ref = t;
+        month = new Date(ref.getFullYear(), ref.getMonth(), 1);
+      }
+      monthEl.textContent = MOIS_LONGS[month.getMonth()] + ' ' + month.getFullYear();
+      var pubDays = {}, adDays = {};
+      ev.forEach(function (x) {
+        if (x.kind !== 'ad') { (pubDays[x.date] = pubDays[x.date] || []).push(x); return; }
+        for (var d = parseDate(x.date), e = parseDate(x.end || x.date); d <= e; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)) {
+          (adDays[iso(d)] = adDays[iso(d)] || []).push(x);
+        }
+      });
+      var start = new Date(month);
+      start.setDate(1 - ((month.getDay() + 6) % 7));
+      var cells = '';
+      for (var i = 0; i < 42; i++) {
+        var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+        if (i >= 35 && d.getMonth() !== month.getMonth()) break;
+        var k = iso(d), p = pubDays[k], a = adDays[k];
+        var prev = iso(new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1)), next = iso(new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1));
+        var cls = 'cal__day' +
+          (d.getMonth() !== month.getMonth() ? ' is-out' : '') +
+          (p ? ' is-visit' : '') +
+          (a ? ' is-ad' + (adDays[prev] ? '' : ' is-ad-start') + (adDays[next] ? '' : ' is-ad-end') + (a.length > 1 ? ' is-ad-double' : '') : '') +
+          (+d === +t ? ' is-today' : '') +
+          (d < t ? ' is-past' : '');
+        var label = (p || []).concat(a || []).map(function (x) { return (x.kind === 'ad' ? 'Sponsorisé : ' : TYPE_LABEL[x.kind] + ' : ') + (x.title || ''); }).join(', ');
+        cells += p || a
+          ? '<button type="button" class="' + cls + '" data-day="' + k + '" aria-label="' + esc(shortDate(k) + ' · ' + label) + '"><span>' + d.getDate() + '</span></button>'
+          : '<span class="' + cls + '"><span>' + d.getDate() + '</span></span>';
+      }
+      grid.innerHTML = cells;
+    }
+    function paintPubList() {
+      var t = today();
+      var ev = pubEvents();
+      var posts = ev.filter(function (x) { return x.kind !== 'ad'; });
+      var ads = ev.filter(function (x) { return x.kind === 'ad'; });
+      var next = posts.filter(function (x) { return parseDate(x.date) >= t; })[0];
+      var lead = document.querySelector('[data-next]');
+      if (next) {
+        var n = Math.round((parseDate(next.date) - t) / 864e5);
+        lead.innerHTML = 'Prochaine publication <em>' + (n === 0 ? 'aujourd’hui' : n === 1 ? 'demain' : 'dans ' + n + ' jours') + '</em> · ' +
+          posts.length + ' publications, ' + ads.length + ' campagne' + (ads.length > 1 ? 's' : '');
+      } else lead.textContent = posts.length + ' publications, ' + ads.length + ' campagne' + (ads.length > 1 ? 's' : '') + ' sponsorisée' + (ads.length > 1 ? 's' : '') + '.';
+      var seen = {};
+      visitsEl.innerHTML = ev.map(function (x) {
+        var d = parseDate(x.date), e = x.end ? parseDate(x.end) : d;
+        var past = e < t, live = x.kind === 'ad' && d <= t && t <= e;
+        var n = Math.round((d - t) / 864e5);
+        var first = !seen[x.date];
+        seen[x.date] = true;
+        return '<li class="visit visit--' + x.kind + (past ? ' is-past' : '') + '"' + (first ? ' data-visit="' + esc(x.date) + '"' : '') + ' data-goto-id="' + esc(x.go) + '" role="link" tabindex="0">' +
+          '<span class="visit__date"><span class="label">' + JOURS[d.getDay()] + '</span><strong>' + pad(d.getDate()) + '</strong><span class="label">' + MOIS[d.getMonth()] + '</span></span>' +
+          '<span class="visit__body"><span class="label visit__kind">' + (x.kind === 'ad' ? SICONS.ads + 'Sponsorisé' : ICONS[x.kind] + TYPE_LABEL[x.kind]) + '</span>' +
+          (x.title ? '<span class="visit__title">' + esc(x.title) + '</span>' : '') +
+          (x.kind === 'ad' ? '<span class="visit__time">Jusqu’au ' + e.getDate() + ' ' + MOIS[e.getMonth()] + ' · ' + euros(x.budget) + '</span>' : '') + '</span>' +
+          '<span class="label visit__when">' + (live ? 'En cours' : past ? (x.kind === 'ad' ? 'Terminée' : 'Publié') : n === 0 ? 'Aujourd’hui' : n === 1 ? 'Demain' : 'J-' + n) + '</span>' +
+          '</li>';
+      }).join('');
+    }
+
     function paintCalendar() {
+      if (PUBS) return paintPubCalendar();
       var t = today();
       if (!month) {
         var next = state.passages.filter(function (p) { return parseDate(p.date) >= t; })[0];
@@ -1019,6 +1126,7 @@
     }
 
     function paintVisits() {
+      if (PUBS) return paintPubList();
       var t = today();
       var items = state.passages.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
       var upcoming = items.filter(function (p) { return parseDate(p.date) >= t; });
@@ -1625,6 +1733,9 @@
           void li.offsetWidth;
           li.classList.add('is-flash');
         }
+      } else if ((t = e.target.closest('[data-goto-id]'))) {
+        var target = document.getElementById(t.getAttribute('data-goto-id'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else if ((t = e.target.closest('[data-who]'))) {
         who = t.getAttribute('data-who');
         try { localStorage.setItem(WHO, who); } catch (e2) {}
