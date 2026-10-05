@@ -47,6 +47,7 @@ const en: Dict = {
         where: 'Châteaux · Estates · Palaces',
         text: 'From the ceremony to the ball, one musical direction: string quartet, soul voices, evening orchestra — a single signature.',
         image: 'guitariste-noeud',
+        video: 'mariage',
       },
       {
         id: 'maisons',

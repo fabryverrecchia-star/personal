@@ -47,6 +47,7 @@ const fr: Dict = {
         where: 'Châteaux · Domaines · Palaces',
         text: "De la cérémonie au bal, une direction musicale unique : quatuor à cordes, voix soul, orchestre de soirée — une seule signature.",
         image: 'guitariste-noeud',
+        video: 'mariage',
       },
       {
         id: 'maisons',

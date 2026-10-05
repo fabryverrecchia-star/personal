@@ -9,6 +9,8 @@ export interface Experience {
   where: string;
   text: string;
   image: string;
+  /** Vidéo en boucle à la place de l'image (public/media/<video>.webm|mp4) */
+  video?: string;
 }
 
 export interface Act {

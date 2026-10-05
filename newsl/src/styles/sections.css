@@ -492,7 +492,8 @@ html:not(.js) .manifesto__text .w {
   aspect-ratio: 4 / 5;
   overflow: hidden;
 }
-.exp__media img {
+.exp__media img,
+.exp__media video {
   width: 100%;
   height: 100%;
   object-fit: cover;

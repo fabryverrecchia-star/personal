@@ -166,9 +166,10 @@ export class World {
     this.hero = { el: video.parentElement as HTMLElement, mesh };
   }
 
-  addMedia(img: HTMLImageElement, kind: MediaKind = 'media') {
-    const src = img.getAttribute('src');
-    if (!src) return;
+  addMedia(img: HTMLImageElement | HTMLVideoElement, kind: MediaKind = 'media') {
+    const isVideo = img instanceof HTMLVideoElement;
+    const src = isVideo ? '' : img.getAttribute('src');
+    if (!isVideo && !src) return;
     const mat = new THREE.ShaderMaterial({
       vertexShader: mediaVertex,
       fragmentShader: mediaFragment,
@@ -187,7 +188,17 @@ export class World {
         uBend: { value: new THREE.Vector2(0, 0) },
       },
     });
-    mat.uniforms.uTex.value = this.texture(src, (w, h) => mat.uniforms.uImage.value.set(w, h));
+    if (isVideo) {
+      const tex = new THREE.VideoTexture(img);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.minFilter = THREE.LinearFilter;
+      mat.uniforms.uTex.value = tex;
+      const setSize = () => img.videoWidth && mat.uniforms.uImage.value.set(img.videoWidth, img.videoHeight);
+      img.addEventListener('loadedmetadata', setSize);
+      setSize();
+    } else {
+      mat.uniforms.uTex.value = this.texture(src!, (w, h) => mat.uniforms.uImage.value.set(w, h));
+    }
     const mesh = new THREE.Mesh(this.geometry, mat);
     mesh.visible = false;
     this.scene.add(mesh);

@@ -45,7 +45,7 @@ Sans WebGL ou avec « réduire les animations », le site reste complet (images 
 
 ```
 newsl/
-├── brand/                 # sources : photos, logos, polices
+├── brand/                 # sources : photos, logos, polices, vidéo « mariage » (sans logo)
 ├── scripts/build-assets.py# génère public/fonts et public/media depuis brand/
 ├── public/                # polices web, médias optimisés, vidéo (webm + mp4)
 └── src/

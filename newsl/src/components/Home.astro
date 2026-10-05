@@ -165,7 +165,14 @@ const year = new Date().getFullYear();
           t.experiences.items.map((item, i) => (
             <article class="exp">
               <div class="exp__media">
-                <img data-gl="media" src={photo(item.image)} alt="" loading="lazy" decoding="async" />
+                {item.video ? (
+                  <video data-gl="media" data-inline-video muted loop playsinline preload="metadata" poster={asset(`media/${item.video}-poster.webp`)} aria-hidden="true">
+                    <source src={asset(`media/${item.video}.webm`)} type="video/webm" />
+                    <source src={asset(`media/${item.video}.mp4`)} type="video/mp4" />
+                  </video>
+                ) : (
+                  <img data-gl="media" src={photo(item.image)} alt="" loading="lazy" decoding="async" />
+                )}
               </div>
               <div class="exp__body">
                 <p class="exp__num label label--gold">

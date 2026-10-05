@@ -76,7 +76,7 @@ async function initGL() {
     return;
   }
   world.addHero(video);
-  $$<HTMLImageElement>('[data-gl="media"]').forEach((img) => world!.addMedia(img, 'media'));
+  $$<HTMLImageElement | HTMLVideoElement>('[data-gl="media"]').forEach((el) => world!.addMedia(el, 'media'));
   if (finePointer) $$<HTMLImageElement>('[data-gl="cursor"]').forEach((img) => world!.addMedia(img, 'cursor'));
   root.classList.add('has-gl');
 
@@ -370,6 +370,26 @@ function initHorizontal() {
 }
 
 // ------------------------------------------------------------------
+// Vidéos de contenu : lecture seulement quand elles sont à l'écran
+// ------------------------------------------------------------------
+function initInlineVideos() {
+  const videos = $$<HTMLVideoElement>('[data-inline-video]');
+  if (!videos.length) return;
+  const io = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((e) => {
+        const v = e.target as HTMLVideoElement;
+        if (e.isIntersecting) {
+          if (v.preload !== 'auto') v.preload = 'auto';
+          v.play().catch(() => {});
+        } else v.pause();
+      }),
+    { rootMargin: '25% 25%' },
+  );
+  videos.forEach((v) => io.observe(v));
+}
+
+// ------------------------------------------------------------------
 // Casting : vignette qui suit le curseur
 // ------------------------------------------------------------------
 function initCasting() {
@@ -475,6 +495,7 @@ function initForm() {
 initHorizontal();
 initReveals();
 initTones();
+initInlineVideos();
 initCasting();
 initCursor();
 initForm();

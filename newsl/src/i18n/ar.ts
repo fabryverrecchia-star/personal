@@ -47,6 +47,7 @@ const ar: Dict = {
         where: 'قلاع · ضيعات · قصور',
         text: 'من المراسم إلى الحفل، إدارة موسيقية واحدة: رباعي وتري، أصوات سول، أوركسترا سهرة — توقيع واحد.',
         image: 'guitariste-noeud',
+        video: 'mariage',
       },
       {
         id: 'maisons',
