@@ -1,0 +1,53 @@
+---
+import '../styles/global.css';
+import '../styles/sections.css';
+import { asset, dicts, isRtl, langPath, LANGS, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = dicts[lang];
+const canonical = new URL(langPath(lang), Astro.site).href;
+const ogImage = new URL(asset('media/og.jpg'), Astro.site).href;
+---
+
+<!doctype html>
+<html lang={lang} dir={isRtl(lang) ? 'rtl' : 'ltr'} class="is-loading">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{t.meta.title}</title>
+    <meta name="description" content={t.meta.description} />
+    <meta name="theme-color" content="#070908" />
+    <link rel="canonical" href={canonical} />
+    {LANGS.map((l) => <link rel="alternate" hreflang={l} href={new URL(langPath(l), Astro.site).href} />)}
+    <link rel="alternate" hreflang="x-default" href={new URL(langPath('fr'), Astro.site).href} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Soundslike" />
+    <meta property="og:locale" content={t.meta.locale} />
+    <meta property="og:title" content={t.meta.title} />
+    <meta property="og:description" content={t.meta.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" type="image/svg+xml" href={asset('favicon.svg')} />
+    <link rel="apple-touch-icon" href={asset('apple-touch-icon.png')} />
+
+    <link rel="preload" href={asset('fonts/apoc-hairline.woff2')} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={asset('fonts/agrandir.woff2')} as="font" type="font/woff2" crossorigin />
+
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      try {
+        if (sessionStorage.getItem('sl-entered')) document.documentElement.classList.add('is-return');
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
