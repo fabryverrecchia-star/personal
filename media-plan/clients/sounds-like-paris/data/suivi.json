@@ -1,0 +1,61 @@
+{
+  "passages": [
+    {
+      "id": "p1",
+      "date": "2026-10-09",
+      "time": "20h – 23h",
+      "kind": "both",
+      "title": "Live du soir : photos du duo et images pour le reel du week-end"
+    },
+    {
+      "id": "p2",
+      "date": "2026-10-16",
+      "time": "19h – 22h",
+      "kind": "both",
+      "title": "Bar des Ambassadeurs : piano, salle et coulisses"
+    },
+    {
+      "id": "p3",
+      "date": "2026-10-27",
+      "time": "11h",
+      "kind": "meeting",
+      "title": "Point mensuel : bilan des campagnes et planning de novembre"
+    }
+  ],
+  "missions": [
+    {
+      "id": "m1",
+      "title": "Paramétrage des deux campagnes sponsorisées d’octobre",
+      "cat": "ads",
+      "status": "doing",
+      "by": "Fabrizio",
+      "at": "2026-10-05"
+    },
+    {
+      "id": "m2",
+      "title": "Carrousel « Nos formats », cinq visuels",
+      "cat": "redaction",
+      "status": "doing",
+      "by": "Jade",
+      "at": "2026-10-05"
+    },
+    {
+      "id": "m3",
+      "title": "Reel « Le week-end, en live »",
+      "cat": "montage",
+      "status": "todo",
+      "by": "Jade",
+      "at": "2026-10-05"
+    },
+    {
+      "id": "m4",
+      "title": "Media planning de novembre",
+      "cat": "planning",
+      "status": "todo",
+      "by": "Fabrizio",
+      "at": "2026-10-05"
+    }
+  ],
+  "inspirations": [],
+  "edits": {}
+}
