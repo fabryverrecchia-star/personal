@@ -50,3 +50,11 @@ for (const file of pages) {
   writeFileSync(join(out, flat(rel)), html);
   console.log(flat(rel), Math.round(html.length / 1024) + ' KB');
 }
+
+// Page publiée de l'artefact : copie de l'accueil (squelette du document fourni à la publication)
+{
+  const home = readFileSync(join(out, 'accueil.html'), 'utf8');
+  const i = home.indexOf('<title>');
+  writeFileSync(join(out, 'index.html'), home.slice(i).replace(/<title>[^<]*<\/title>/, '<title>Benjamin Landry Peinture</title>'));
+  console.log('index.html (copie de l’accueil)');
+}
