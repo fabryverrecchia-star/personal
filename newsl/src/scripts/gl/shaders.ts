@@ -190,7 +190,7 @@ void main(){
   gl_Position = vec4(x, y, 0.0, 1.0);
   float twinkle = 0.5 + 0.5 * sin(uTime * (1.0 + aSeed.z * 3.0) + aSeed.x * 40.0);
   gl_PointSize = (1.0 + aSeed.z * 2.6) * uPixel * (1.0 + uAudio * 1.6);
-  vAlpha = 0.5 * (0.15 + 0.6 * twinkle) * (0.35 + aSeed.z * 0.65) * (0.6 + uAudio) * (1.0 - uLight * 0.85);
+  vAlpha = (0.15 + 0.6 * twinkle) * (0.35 + aSeed.z * 0.65) * (0.6 + uAudio) * (1.0 - uLight * 0.85);
 }
 `;
 
@@ -221,7 +221,7 @@ void main(){
   world.y -= sin(uv.x * PI) * uBend.y;
   world.x -= sin(uv.y * PI) * uBend.x;
   // Bombé au survol
-  world.z += sin(uv.x * PI) * sin(uv.y * PI) * uHover * 10.0;
+  world.z += sin(uv.x * PI) * sin(uv.y * PI) * uHover * 36.0;
   gl_Position = projectionMatrix * viewMatrix * world;
 }
 `;
@@ -241,9 +241,11 @@ ${noise}
 ${cover}
 void main(){
   vec2 uv = coverUv(vUv, uPlane, uImage);
-  float zoom = 1.0 - 0.04 * uHover - 0.16 * (1.0 - uReveal);
+  float zoom = 1.0 - 0.07 * uHover - 0.18 * (1.0 - uReveal);
   uv = (uv - 0.5) * zoom + 0.5;
 
+  // Ondulation légère au survol
+  uv += vec2(snoise(vec3(vUv * 3.0, uTime * 0.4))) * 0.006 * uHover;
 
   float s = uShift;
   vec3 col;
@@ -256,11 +258,13 @@ void main(){
   col = mix(col, col * vec3(0.92, 1.0, 0.95), (1.0 - lum) * 0.35);
   col = mix(vec3(lum), col, 0.92 + 0.08 * uHover);
 
-  // Révélation : un voile qui se lève par le bas, bord net,
-  // l'image s'éclaire doucement en même temps
-  float mask = smoothstep(1.0 - uReveal - 0.004, 1.0 - uReveal + 0.004, 1.0 - vUv.y);
-  mask = uReveal >= 0.999 ? 1.0 : mask;
-  col *= mix(0.55, 1.0, smoothstep(0.2, 1.0, uReveal));
+  // Révélation par le bas, bord bruité et liseré doré
+  float n = snoise(vec3(vUv * 2.6, uTime * 0.15)) * 0.5 + 0.5;
+  float d = (1.0 - vUv.y) * 0.7 + n * 0.3;
+  float p = uReveal * 1.2 - 0.1;
+  float mask = smoothstep(d - 0.06, d + 0.06, p);
+  float edge = mask * (1.0 - mask) * 4.0;
+  col += vec3(0.85, 0.66, 0.38) * edge * 0.9;
 
   // Vignette
   col *= 0.82 + 0.18 * smoothstep(0.9, 0.2, length(vUv - 0.5));
@@ -311,7 +315,7 @@ void main(){
   vec2 mp = (vUv - uMouse) * aspect;
   float md = length(mp);
   float ripple = sin(md * 46.0 - uTime * 5.0) * smoothstep(0.42, 0.0, md);
-  uv += normalize(mp + 1e-5) * ripple * 0.0014 * uMouseForce;
+  uv += normalize(mp + 1e-5) * ripple * 0.0045 * uMouseForce;
 
   float s = uShift + uScroll * 0.012 + uAudio * 0.002;
   vec3 col;
@@ -338,8 +342,10 @@ void main(){
 
   // Entrée : ouverture circulaire au bord bruité
   float r = length((vUv - 0.5) * aspect);
-  float open = smoothstep(r - 0.12, r + 0.12, uIntro * 1.3);
+  float edgeN = snoise(vec3(vUv * 4.0, uTime * 0.3)) * 0.08;
+  float open = smoothstep(r - 0.05, r + 0.05, uIntro * 1.25 + edgeN);
   col *= open;
+  col += vec3(0.85, 0.66, 0.38) * open * (1.0 - open) * 2.0;
 
   gl_FragColor = vec4(col, open);
 }
