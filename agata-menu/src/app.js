@@ -80,7 +80,8 @@ root.innerHTML =
     '<div class="pre-word" id="preWord">' + SVG.word("") + '</div><div class="pre-sub" id="preSub">Pizzeria · Rive Gauche</div></div>' +
   '<header class="top" id="top"><div class="wrap"><div class="top-row">' + SVG.word("top-word") +
     '<button class="lang-btn" id="langBtn" aria-haspopup="dialog">' + SVG.globe + '<span id="langCode"></span></button></div>' +
-    '<nav class="chips" id="chips" aria-label="Menu"></nav></div></header>' +
+    '<div class="navrow"><div class="seg" id="seg" role="tablist"><button data-seg="cucina">Cucina</button><button data-seg="bar">Bar</button></div>' +
+    '<nav class="chips" id="chips" aria-label="Menu"></nav></div></div></header>' +
   '<section class="hero"><div class="wrap hero-in"><div>' + SVG.face("face") + '</div>' +
     '<div>' + SVG.word("hero-word") + '</div>' +
     '<div class="hero-sub">Pizzeria · Rive Gauche</div></div></section>' +
@@ -265,16 +266,40 @@ function setOpen(id, on, noScroll) {
     if (y < 80 || y > innerHeight * .6) setTimeout(function () { el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); }, 60);
   }
 }
+var SHORT = { antipasti: "Antipasti", burrata: "Burrata", "piatti-caldi": "Piatti caldi", insalate: "Insalate", "pizze-classiche": "Classiche",
+  "pizze-signature": "Signature", extra: "Extra", dolci: "Dolci", cocktails: "Cocktails", calice: "Al calice", champagne: "Champagne",
+  "vini-italiani": "Vini italiani", "vins-france": "Vins français", spiriti: "Spiriti", liquori: "Liquori", birre: "Birre & soft", caffetteria: "Caffè" };
+var navGroup = "cucina", activeId = null;
 function renderChips() {
-  var D = cur(), h = "", last = null;
+  var D = cur(), h = '<span class="cheek" id="cheek" aria-hidden="true"></span>';
   D.sections.forEach(function (s) {
-    if (s.hidden && !admin) return;
-    if (last && s.group !== last) h += '<span class="chip-sep"></span>';
-    last = s.group;
-    h += '<button class="chip ' + s.group + '" data-chip="' + s.id + '">' + esc(tx(s.title)) + "</button>";
+    if ((s.hidden && !admin) || s.group !== navGroup) return;
+    h += '<button class="chip ' + s.group + (s.id === activeId ? " on" : "") + '" data-chip="' + s.id + '">' + esc(SHORT[s.id] || tx(s.title)) + "</button>";
   });
   $("#chips").innerHTML = h;
+  $$("#seg button").forEach(function (b) { b.classList.toggle("on", b.dataset.seg === navGroup); b.setAttribute("aria-selected", b.dataset.seg === navGroup); });
+  $("#top").classList.toggle("is-bar", navGroup === "bar");
+  moveCheek(true);
   spy();
+}
+function moveCheek(instant) {
+  var ch = $("#cheek"), c = activeId && $('.chip[data-chip="' + activeId + '"]');
+  if (!ch) return;
+  if (!c) { ch.style.opacity = 0; return; }
+  if (instant) { ch.style.transition = "none"; requestAnimationFrame(function () { ch.style.transition = ""; }); }
+  ch.style.opacity = 1;
+  ch.style.width = (c.offsetWidth + 6) + "px";
+  ch.style.transform = "translateX(" + (c.offsetLeft - 3) + "px)";
+  var bar = $("#chips");
+  bar.scrollTo({ left: c.offsetLeft - bar.clientWidth / 2 + c.clientWidth / 2, behavior: reduce || instant ? "auto" : "smooth" });
+}
+function setActive(id) {
+  if (id === activeId) return;
+  activeId = id;
+  var sec = cur().sections.filter(function (s) { return s.id === id; })[0];
+  if (sec && sec.group !== navGroup) { navGroup = sec.group; renderChips(); return; }
+  $$(".chip").forEach(function (c) { c.classList.toggle("on", c.dataset.chip === id); });
+  moveCheek(false);
 }
 function renderFoot() {
   var I = DATA.info;
@@ -297,10 +322,7 @@ function spy() {
   spyObs = new IntersectionObserver(function (es) {
     es.forEach(function (e) {
       if (!e.isIntersecting) return;
-      var id = e.target.id.slice(2);
-      $$(".chip").forEach(function (c) { c.classList.toggle("on", c.dataset.chip === id); });
-      var c = $('.chip[data-chip="' + id + '"]');
-      if (c) { var bar = $("#chips"); bar.scrollTo({ left: c.offsetLeft - bar.clientWidth / 2 + c.clientWidth / 2, behavior: reduce ? "auto" : "smooth" }); }
+      setActive(e.target.id.slice(2));
     });
   }, { rootMargin: "-120px 0px -65% 0px" });
   $$(".sec").forEach(function (s) { spyObs.observe(s); });
@@ -365,7 +387,13 @@ document.addEventListener("click", function (e) {
   var b = e.target.closest("button"); if (!b) return;
   var d = b.dataset;
   if (d.toggle) return setOpen(d.toggle, !openSet[d.toggle]);
-  if (d.chip) { if (!openSet[d.chip]) setOpen(d.chip, true, true); var el = $("#s-" + d.chip); setTimeout(function () { el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); }, 30); return; }
+  if (d.seg) {
+    navGroup = d.seg; renderChips();
+    var first = cur().sections.filter(function (s) { return s.group === d.seg && (!s.hidden || admin); })[0];
+    if (first) { if (!openSet[first.id]) setOpen(first.id, true, true); setTimeout(function () { $("#s-" + first.id).scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); }, 30); }
+    return;
+  }
+  if (d.chip) { setActive(d.chip); if (!openSet[d.chip]) setOpen(d.chip, true, true); var el = $("#s-" + d.chip); setTimeout(function () { el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); }, 30); return; }
   if (d.go) { var g = $("#g-" + d.go); if (g) g.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" }); return; }
   if (d.view) { var p = d.view.split("|"); return openViewer(p[0], p[1]); }
   if (d.vstep) return step(+d.vstep);
