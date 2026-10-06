@@ -14,7 +14,7 @@ var UI = {
   ar:{new:"جديد",bio:"عضوي",nature:"طبيعي",biodyn:"بيوديناميكي",lang:"اللغة",open:"فتح الكل",close:"طي الكل",soon:"الصورة قريبًا",veggie:"نباتي",vegan:"نباتي صرف",spicy:"حار",cucina:"La Cucina",bar:"Il Bar",copy:"نسخ",copied:"تم نسخ رمز الواي فاي",dishes:"أطباق",refs:"أصناف",ph:["نفرد العجينة باليد…","رشّة من زيت الزيتون…","الفرن يصل إلى 485 درجة…"],closeV:"إغلاق",prev:"السابق",next:"التالي"}
 };
 var FONT_EXTRA = {
-  ru:"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap",
+  ru:"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&subset=cyrillic&display=swap",
   ar:"https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Arabic:wght@400;600&display=swap"
 };
 var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
