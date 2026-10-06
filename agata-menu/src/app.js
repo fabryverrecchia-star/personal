@@ -5,13 +5,13 @@ var DATA = JSON.parse(document.getElementById("agata-data").textContent);
 var IMGS = {};
 var LANGS = [["fr","Français"],["en","English"],["it","Italiano"],["es","Español"],["de","Deutsch"],["ru","Русский"],["ar","العربية"]];
 var UI = {
-  fr:{lang:"Langue",open:"Tout déplier",close:"Tout replier",soon:"photo à venir",veggie:"Végétarien",vegan:"Vegan",spicy:"Épicé",cucina:"La Cucina",bar:"Il Bar",copy:"Copier",copied:"Code Wi-Fi copié",dishes:"plats",refs:"références",ph:["On étale la pâte à la main…","Un filet d'huile d'olive…","Le four grimpe à 485 °C…"],closeV:"Fermer",prev:"Précédent",next:"Suivant"},
-  en:{lang:"Language",open:"Expand all",close:"Collapse all",soon:"photo coming soon",veggie:"Vegetarian",vegan:"Vegan",spicy:"Spicy",cucina:"La Cucina",bar:"Il Bar",copy:"Copy",copied:"Wi-Fi code copied",dishes:"dishes",refs:"items",ph:["Stretching the dough by hand…","A drizzle of olive oil…","The oven climbs to 485 °C…"],closeV:"Close",prev:"Previous",next:"Next"},
-  it:{lang:"Lingua",open:"Apri tutto",close:"Chiudi tutto",soon:"foto in arrivo",veggie:"Vegetariano",vegan:"Vegano",spicy:"Piccante",cucina:"La Cucina",bar:"Il Bar",copy:"Copia",copied:"Codice Wi-Fi copiato",dishes:"piatti",refs:"proposte",ph:["Stendiamo la pasta a mano…","Un filo d'olio d'oliva…","Il forno sale a 485 °C…"],closeV:"Chiudi",prev:"Precedente",next:"Successivo"},
-  es:{lang:"Idioma",open:"Abrir todo",close:"Cerrar todo",soon:"foto próximamente",veggie:"Vegetariano",vegan:"Vegano",spicy:"Picante",cucina:"La Cucina",bar:"Il Bar",copy:"Copiar",copied:"Código Wi-Fi copiado",dishes:"platos",refs:"referencias",ph:["Estiramos la masa a mano…","Un chorrito de aceite de oliva…","El horno sube a 485 °C…"],closeV:"Cerrar",prev:"Anterior",next:"Siguiente"},
-  de:{lang:"Sprache",open:"Alle öffnen",close:"Alle schließen",soon:"Foto folgt",veggie:"Vegetarisch",vegan:"Vegan",spicy:"Scharf",cucina:"La Cucina",bar:"Il Bar",copy:"Kopieren",copied:"WLAN-Code kopiert",dishes:"Gerichte",refs:"Positionen",ph:["Der Teig wird von Hand gezogen…","Ein Schuss Olivenöl…","Der Ofen klettert auf 485 °C…"],closeV:"Schließen",prev:"Zurück",next:"Weiter"},
-  ru:{lang:"Язык",open:"Развернуть всё",close:"Свернуть всё",soon:"фото скоро",veggie:"Вегетарианское",vegan:"Веганское",spicy:"Острое",cucina:"La Cucina",bar:"Il Bar",copy:"Копировать",copied:"Код Wi-Fi скопирован",dishes:"блюд",refs:"позиций",ph:["Раскатываем тесто вручную…","Капля оливкового масла…","Печь разогревается до 485 °C…"],closeV:"Закрыть",prev:"Назад",next:"Далее"},
-  ar:{lang:"اللغة",open:"فتح الكل",close:"طي الكل",soon:"الصورة قريبًا",veggie:"نباتي",vegan:"نباتي صرف",spicy:"حار",cucina:"La Cucina",bar:"Il Bar",copy:"نسخ",copied:"تم نسخ رمز الواي فاي",dishes:"أطباق",refs:"أصناف",ph:["نفرد العجينة باليد…","رشّة من زيت الزيتون…","الفرن يصل إلى 485 درجة…"],closeV:"إغلاق",prev:"السابق",next:"التالي"}
+  fr:{new:"Nouveau",bio:"Bio",nature:"Nature",biodyn:"Biodynamie",lang:"Langue",open:"Tout déplier",close:"Tout replier",soon:"photo à venir",veggie:"Végétarien",vegan:"Vegan",spicy:"Épicé",cucina:"La Cucina",bar:"Il Bar",copy:"Copier",copied:"Code Wi-Fi copié",dishes:"plats",refs:"références",ph:["On étale la pâte à la main…","Un filet d'huile d'olive…","Le four grimpe à 485 °C…"],closeV:"Fermer",prev:"Précédent",next:"Suivant"},
+  en:{new:"New",bio:"Organic",nature:"Natural",biodyn:"Biodynamic",lang:"Language",open:"Expand all",close:"Collapse all",soon:"photo coming soon",veggie:"Vegetarian",vegan:"Vegan",spicy:"Spicy",cucina:"La Cucina",bar:"Il Bar",copy:"Copy",copied:"Wi-Fi code copied",dishes:"dishes",refs:"items",ph:["Stretching the dough by hand…","A drizzle of olive oil…","The oven climbs to 485 °C…"],closeV:"Close",prev:"Previous",next:"Next"},
+  it:{new:"Novità",bio:"Bio",nature:"Naturale",biodyn:"Biodinamico",lang:"Lingua",open:"Apri tutto",close:"Chiudi tutto",soon:"foto in arrivo",veggie:"Vegetariano",vegan:"Vegano",spicy:"Piccante",cucina:"La Cucina",bar:"Il Bar",copy:"Copia",copied:"Codice Wi-Fi copiato",dishes:"piatti",refs:"proposte",ph:["Stendiamo la pasta a mano…","Un filo d'olio d'oliva…","Il forno sale a 485 °C…"],closeV:"Chiudi",prev:"Precedente",next:"Successivo"},
+  es:{new:"Novedad",bio:"Ecológico",nature:"Natural",biodyn:"Biodinámico",lang:"Idioma",open:"Abrir todo",close:"Cerrar todo",soon:"foto próximamente",veggie:"Vegetariano",vegan:"Vegano",spicy:"Picante",cucina:"La Cucina",bar:"Il Bar",copy:"Copiar",copied:"Código Wi-Fi copiado",dishes:"platos",refs:"referencias",ph:["Estiramos la masa a mano…","Un chorrito de aceite de oliva…","El horno sube a 485 °C…"],closeV:"Cerrar",prev:"Anterior",next:"Siguiente"},
+  de:{new:"Neu",bio:"Bio",nature:"Naturwein",biodyn:"Biodynamisch",lang:"Sprache",open:"Alle öffnen",close:"Alle schließen",soon:"Foto folgt",veggie:"Vegetarisch",vegan:"Vegan",spicy:"Scharf",cucina:"La Cucina",bar:"Il Bar",copy:"Kopieren",copied:"WLAN-Code kopiert",dishes:"Gerichte",refs:"Positionen",ph:["Der Teig wird von Hand gezogen…","Ein Schuss Olivenöl…","Der Ofen klettert auf 485 °C…"],closeV:"Schließen",prev:"Zurück",next:"Weiter"},
+  ru:{new:"Новинка",bio:"Органик",nature:"Натуральное",biodyn:"Биодинамика",lang:"Язык",open:"Развернуть всё",close:"Свернуть всё",soon:"фото скоро",veggie:"Вегетарианское",vegan:"Веганское",spicy:"Острое",cucina:"La Cucina",bar:"Il Bar",copy:"Копировать",copied:"Код Wi-Fi скопирован",dishes:"блюд",refs:"позиций",ph:["Раскатываем тесто вручную…","Капля оливкового масла…","Печь разогревается до 485 °C…"],closeV:"Закрыть",prev:"Назад",next:"Далее"},
+  ar:{new:"جديد",bio:"عضوي",nature:"طبيعي",biodyn:"بيوديناميكي",lang:"اللغة",open:"فتح الكل",close:"طي الكل",soon:"الصورة قريبًا",veggie:"نباتي",vegan:"نباتي صرف",spicy:"حار",cucina:"La Cucina",bar:"Il Bar",copy:"نسخ",copied:"تم نسخ رمز الواي فاي",dishes:"أطباق",refs:"أصناف",ph:["نفرد العجينة باليد…","رشّة من زيت الزيتون…","الفرن يصل إلى 485 درجة…"],closeV:"إغلاق",prev:"السابق",next:"التالي"}
 };
 var FONT_EXTRA = {
   ru:"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap",
@@ -47,7 +47,7 @@ applyLang();
 var SVG = {
   face: function (cls) { return '<svg class="' + (cls || "face") + '" viewBox="740 255 380 375" aria-hidden="true">' + A.face + "</svg>"; },
   word: function (cls) { return '<svg class="' + cls + '" viewBox="818 100 210 48" role="img" aria-label="Agata">' + A.word + "</svg>"; },
-  plus: '<svg viewBox="0 0 14 14"><path d="M7 1v12M1 7h12"/></svg>',
+  plus: '<svg viewBox="0 0 14 14"><path d="M2 5l5 5 5-5"/></svg>',
   pen: '<svg viewBox="0 0 16 16"><path d="M10.5 2.5l3 3L5 14H2v-3z"/></svg>',
   leaf: '<svg class="ic leaf" viewBox="0 0 16 16" aria-hidden="true"><path d="M14 2C6 2 2 6 2.5 12.5c.3 1 1 1.5 1.6 1.5C4.7 9.8 7 7 10.5 5.5 7.6 7.6 5.6 10.4 5 14c6.5.5 9.6-4.4 9-12z"/></svg>',
   chili: '<svg class="ic chili" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.8 3.2c.4-.9.2-1.9-.4-2.4l-.6.5c.4.3.5.9.3 1.4-1.3-.2-2.3.6-2.5 1.8C8 9 5.2 12 1 13.8c4.6 1.5 10.6.3 12.2-6.5.4-1.6-.2-3.1-1.4-4.1z"/></svg>',
@@ -70,13 +70,9 @@ root.innerHTML =
   '<header class="top" id="top"><div class="wrap"><div class="top-row">' + SVG.word("top-word") +
     '<button class="lang-btn" id="langBtn" aria-haspopup="dialog">' + SVG.globe + '<span id="langCode"></span></button></div>' +
     '<nav class="chips" id="chips" aria-label="Menu"></nav></div></header>' +
-  '<section class="hero"><svg class="blob b1" viewBox="0 0 100 100" aria-hidden="true"><path d="M60 4c22 0 38 18 36 42S78 92 52 96 4 84 4 58 38 4 60 4z"/></svg>' +
-    '<svg class="blob b2" viewBox="0 0 100 100" aria-hidden="true"><path d="M44 6c26-6 50 14 52 40s-16 50-46 48S2 76 4 50 18 12 44 6z"/></svg>' +
-    '<div class="wrap hero-in"><div data-in style="--d:0">' + SVG.face("face") + '</div>' +
+  '<section class="hero"><div class="wrap hero-in"><div data-in style="--d:0">' + SVG.face("face") + '</div>' +
     '<div data-in style="--d:1">' + SVG.word("hero-word") + '</div>' +
-    '<div class="hero-sub" data-in style="--d:2">Pizzeria · Rive Gauche</div>' +
-    '<p class="hero-quote" data-in style="--d:3" id="quote"></p>' +
-    '<div class="hero-go" data-in style="--d:4"><button class="go" data-go="cucina">La Cucina</button><button class="go bar" data-go="bar">Il Bar</button></div></div></section>' +
+    '<div class="hero-sub" data-in style="--d:2">Pizzeria · Rive Gauche</div></div></section>' +
   '<main class="wrap" id="menu"></main>' +
   '<footer class="foot" id="foot"></footer>' +
   '<div class="scrim" id="scrim"></div>' +
@@ -146,6 +142,13 @@ function tagsInline(it) {
   if (tg.indexOf("spicy") > -1) s += '<span title="' + esc(t("spicy")) + '">' + SVG.chili + "</span>";
   return s;
 }
+var MK = {new:"new",veggie:"veggie",vegan:"vegan",spicy:"spicy",bio:"bio",nature:"nature",biodyn:"biodyn"};
+function marks(it) {
+  if (cur().settings.tags === false) return "";
+  var tg = it.tags || [], out = [];
+  ["new","veggie","vegan","spicy","bio","nature","biodyn"].forEach(function (k) { if (tg.indexOf(k) > -1) out.push('<span class="' + (k === "new" || k === "spicy" ? "hot" : "") + '">' + esc(t(k)) + "</span>"); });
+  return out.length ? '<span class="marks">' + out.join(" · ") + "</span>" : "";
+}
 function pills(it) {
   var tg = it.tags || [], s = "";
   if (tg.indexOf("new") > -1) s += '<span class="pill new">New</span>';
@@ -163,18 +166,15 @@ function cardHTML(sec, it, i, span) {
   if (photos) {
     ph = '<div class="ph">' + (src
       ? '<button class="ph-btn" data-view="' + sec.id + "|" + it.id + '" aria-label="' + esc(tx(it.name)) + '"></button><img alt="" decoding="async" src="' + src + '" onload="this.classList.add(\'ld\')">'
-      : '<div class="ph-empty">' + SVG.face("") + "<span>" + esc(t("soon")) + "</span></div>") +
-      (st.tags !== false && pills(it) ? '<div class="badges">' + pills(it) + "</div>" : "") + "</div>";
+      : '<div class="ph-empty">' + SVG.face("") + "</div>") + "</div>";
   }
   return '<article class="card' + (span ? " span2" : "") + (it.hidden ? " is-hidden" : "") + '" style="--i:' + i + '">' + ph + editBtn(sec, it) +
-    '<div class="meta"><h3 class="name">' + esc(tx(it.name)) + (st.tags !== false ? tagsInline(it) : "") + "</h3>" + priceHTML(it.price) +
-    (it.desc ? '<p class="desc">' + esc(tx(it.desc)) + (!photos && st.tags !== false && pills(it) ? " " + pills(it) : "") + "</p>" : "") + "</div></article>";
+    '<div class="meta"><h3 class="name">' + esc(tx(it.name)) + "</h3>" + priceHTML(it.price) +
+    (it.desc ? '<p class="desc">' + esc(tx(it.desc)) + "</p>" : "") + marks(it) + "</div></article>";
 }
 function rowHTML(sec, it) {
-  var st = cur().settings;
-  return '<div class="row' + (admin ? " has-edit" : "") + (it.hidden ? " is-hidden" : "") + '"><span class="name">' + esc(tx(it.name)) +
-    (st.tags !== false ? tagsInline(it) + (pills(it) ? " " + pills(it) : "") : "") + "</span>" + priceHTML(it.price) + editBtn(sec, it) +
-    (it.desc ? '<span class="desc">' + esc(tx(it.desc)) + "</span>" : "") + "</div>";
+  return '<div class="row' + (admin ? " has-edit" : "") + (it.hidden ? " is-hidden" : "") + '"><span class="name">' + esc(tx(it.name)) + "</span>" + priceHTML(it.price) + editBtn(sec, it) +
+    (it.desc ? '<span class="desc">' + esc(tx(it.desc)) + "</span>" : "") + marks(it) + "</div>";
 }
 function bodyHTML(sec) {
   var items = visibleItems(sec), h = "";
@@ -188,13 +188,9 @@ function bodyHTML(sec) {
   } else {
     var groups = [], last = null;
     items.forEach(function (it) { var k = tx(it.sub); if (!last || last.k !== k) { last = { k: k, items: [] }; groups.push(last); } last.items.push(it); });
-    var drinks = lay === "drinks";
-    h += '<div class="' + (drinks ? "panel drinks" : "") + '">';
+    h += "<div>";
     groups.forEach(function (g) {
-      var hot = sec.id === "cocktails" && g.items[0] && g.items[0].sub && g.items[0].sub.en === "Signature cocktails";
-      if (hot) h += '</div><div class="panel hot drinks">';
       h += (g.k ? '<div class="sub">' + esc(g.k) + "</div>" : "") + '<div class="list' + (g.items.length > 8 ? " cols" : "") + '">' + g.items.map(function (it) { return rowHTML(sec, it); }).join("") + "</div>";
-      if (hot) h += '</div><div class="panel drinks">';
     });
     if (admin) h += '<div class="list"><button class="add-item" data-add="' + sec.id + '" style="margin-top:14px">+ Ajouter une ligne</button></div>';
     h += "</div>";
@@ -212,8 +208,7 @@ function renderMenu() {
   var D = cur(), h = "", lastGroup = null;
   var main = $("#menu");
   main.className = "wrap" + (D.settings.prices === false ? " hide-prices" : "") + (D.settings.desc === false ? " hide-desc" : "");
-  h += '<div class="tools"><div class="legend">' + (D.settings.tags !== false ? "<span>" + SVG.leaf + esc(t("veggie")) + "</span><span>" + SVG.chili + esc(t("spicy")) + "</span>" : "") +
-    '</div><button class="fold-all" id="foldAll"></button></div>';
+  h += '<div class="tools"><button class="fold-all" id="foldAll"></button></div>';
   D.sections.forEach(function (sec) {
     if (sec.hidden && !admin) return;
     if (sec.group !== lastGroup) { lastGroup = sec.group; h += '<div class="group-title" id="g-' + sec.group + '">' + esc(sec.group === "bar" ? t("bar") : t("cucina")) + "</div>"; }
@@ -222,7 +217,7 @@ function renderMenu() {
       '<button class="sec-head" aria-expanded="' + isOpen + '" aria-controls="b-' + sec.id + '" data-toggle="' + sec.id + '">' +
       '<span class="sec-title">' + esc(tx(sec.title)) + "</span>" +
       '<span class="plus" aria-hidden="true">' + SVG.plus + "</span>" +
-      '<span class="sec-kicker">' + esc(tx(sec.kicker)) + " · <b>" + n + "</b> " + esc(sec.group === "bar" ? t("refs") : t("dishes")) + "</span>" + thumbs(sec) + "</button>" +
+      '<span class="sec-kicker">' + esc(tx(sec.kicker)) + "</span></button>" +
       '<div class="sec-body" id="b-' + sec.id + '"><div class="sec-inner"><div class="sec-pad">' + (isOpen ? bodyHTML(sec) : "") + "</div></div></div></section>";
   });
   main.innerHTML = h;
@@ -263,7 +258,6 @@ function renderChips() {
 }
 function renderFoot() {
   var I = DATA.info;
-  $("#quote").textContent = I.quote;
   $("#foot").innerHTML = '<div class="wrap foot-in">' +
     '<button class="seal-btn" id="seal" aria-label="Agata"><svg class="seal" viewBox="0 0 201.2 169.85" aria-hidden="true">' + A.logo + "</svg></button>" +
     '<div class="foot-quote">' + esc(I.quote) + "</div>" +
