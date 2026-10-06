@@ -2,6 +2,7 @@
  * Media planning — Jacqueline, table gastronomique, Paris 9e. Semaine du 28 septembre 2026 (lancement).
  * Photos : originaux envoyés le 28 septembre. Vendredi (poissons) et samedi (rideaux) : propositions, un seul visuel publié.
  * live-* : publications déjà en ligne sur le compte (@jacqueline_restaurant_paris).
+ * Missions et modifications de l'équipe (photos, légendes, dates, ajouts) : data/suivi.json, via suivi.php.
  */
 window.PLAN = {
   client: {
@@ -28,12 +29,14 @@ window.PLAN = {
   },
   brandText: 'Précision, générosité, simplicité. Bienvenue chez <em>Jacqueline</em>.',
 
-  weeks: [
+  // Planning au mois. Chaque post a un id : les modifications de l'espace équipe y sont rattachées.
+  months: [
     {
       title: 'Lancement, <em>textures</em> & branding',
-      theme: 'Six rendez-vous, du lundi au samedi, jusqu’à l’ouverture.',
+      theme: 'Trois premiers rendez-vous pour installer l’univers.',
       posts: [
         {
+          id: 'jq-01',
           date: '2026-09-28',
           type: 'post',
           media: 'media/lundi-courges.jpg',
@@ -41,6 +44,7 @@ window.PLAN = {
           caption: ['Premiers services la semaine prochaine.', 'Réservations ouvertes.'],
         },
         {
+          id: 'jq-02',
           date: '2026-09-29',
           time: '18h45',
           type: 'post',
@@ -49,13 +53,21 @@ window.PLAN = {
           caption: ['Une table intime, pensée dans le détail.', 'Jacqueline ouvre la semaine prochaine.'],
         },
         {
+          id: 'jq-03',
           date: '2026-09-30',
           type: 'post',
           media: 'media/mercredi-accords.jpg',
           title: 'Les accords',
           caption: ['Des accords précis, au fil des séquences.'],
         },
+      ],
+    },
+    {
+      title: 'L’ouverture <em>approche</em>',
+      theme: 'Trois derniers rendez-vous avant les premiers services.',
+      posts: [
         {
+          id: 'jq-04',
           date: '2026-10-01',
           type: 'post',
           media: 'media/jeudi-paris.jpg',
@@ -67,6 +79,7 @@ window.PLAN = {
           ],
         },
         {
+          id: 'jq-05',
           date: '2026-10-02',
           type: 'post',
           // Trois propositions de visuel, un seul sera publié
@@ -75,6 +88,7 @@ window.PLAN = {
           caption: ['Une lecture iodée, franche et maîtrisée.'],
         },
         {
+          id: 'jq-06',
           date: '2026-10-03',
           type: 'post',
           // Trois propositions de visuel, un seul sera publié
@@ -91,6 +105,18 @@ window.PLAN = {
     'media/live-1.jpg', 'media/live-2.jpg', 'media/live-3.jpg', 'media/live-4.jpg', 'media/live-5.jpg',
     'media/live-6.jpg', 'media/live-7.jpg', 'media/live-8.jpg', 'media/live-9.jpg', 'media/live-10.jpg',
   ],
+
+  // Missions en cours et modifications de l'équipe :
+  // partagées entre tous les visiteurs via suivi.php. Sans PHP (aperçu), data/suivi.json est lu tel quel.
+  suivi: {
+    api: 'suivi.php',
+    data: 'data/suivi.json',
+    team: ['Fabrizio', 'Manon', 'Clément'],
+    // Pas de passage prévu : le calendrier montre seulement les publications
+    passages: false,
+    // Fabrizio en couleurs 18H22, Manon et Clément aux couleurs du client
+    colors: { Fabrizio: '#22365f', Manon: '#a35a4a', 'Clément': '#7d5a3c' },
+  },
 
   // Retours du client : Validé / À revoir + commentaire, envoyés en un récapitulatif.
   // whatsapp: numéro au format international (vide = le client choisit le contact).
