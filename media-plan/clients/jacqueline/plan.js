@@ -69,8 +69,8 @@ window.PLAN = {
         {
           date: '2026-10-02',
           type: 'post',
-          // Deux propositions de visuel, un seul sera publié
-          options: ['media/vendredi-1.jpg', 'media/vendredi-2.jpg'],
+          // Trois propositions de visuel, un seul sera publié
+          options: ['media/vendredi-1.jpg', 'media/vendredi-2.jpg', 'media/vendredi-3.jpg'],
           title: 'Iodé',
           caption: ['Une lecture iodée, franche et maîtrisée.'],
         },
