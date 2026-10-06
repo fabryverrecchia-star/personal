@@ -83,14 +83,15 @@ root.innerHTML =
 /* ---------- Preloader ---------- */
 var pre = $("#pre"), hl = $("#hl"), hr = $("#hr"), degEl = $("#deg"), phraseEl = $("#phrase");
 var seen = ss("agata-seen");
-var minTime = reduce ? 300 : (seen ? 900 : 2300);
-var t0 = performance.now(), shown = 0, target = 0.15, finished = false, phraseIdx = -1;
+var minTime = reduce ? 300 : (seen ? 1200 : 2800);
+var t0 = performance.now(), finished = false, phraseIdx = -1, loaded = false, holdAt = 0, tail = null;
 function setPhrase(i) {
   if (i === phraseIdx) return; phraseIdx = i;
-  var txt = i < 3 ? t("ph")[i] : "Mamma mia! 🤌";
+  var txt = i < 3 ? t("ph")[i] : "Mamma mia! \uD83E\uDD0C";
   phraseEl.classList.add("swap");
   setTimeout(function () { phraseEl.textContent = txt; phraseEl.classList.remove("swap"); }, 160);
 }
+function easeInOut(x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
 function drawPre(p) {
   var gap = (1 - p) * 120;
   hl.style.transform = "translateX(" + (-gap + p * 9) + "px)";
@@ -98,14 +99,17 @@ function drawPre(p) {
   degEl.textContent = Math.round(p * 485);
   setPhrase(p < .33 ? 0 : p < .66 ? 1 : p < .999 ? 2 : 3);
 }
-function tick() {
-  var el = performance.now() - t0;
-  var timeCap = Math.min(1, el / minTime);
-  var goal = Math.min(target, timeCap);
-  shown += (goal - shown) * 0.12;
-  if (goal >= 1 && shown > 0.995) shown = 1;
-  drawPre(shown);
-  if (shown >= 1) return endPre();
+/* Une seule courbe ease-in-out sur minTime. Si la page n'est pas prête,
+   on attend juste avant la fin puis on termine en douceur. */
+function tick(now) {
+  var x = Math.min(1, (now - t0) / minTime), p, from = easeInOut(.82);
+  if (!holdAt && !loaded && x > .82) holdAt = now;
+  if (holdAt) {
+    if (!loaded) p = from;
+    else { if (!tail) tail = now; var y = Math.min(1, (now - tail) / 700); p = y >= 1 ? 1 : from + (1 - from) * (1 - Math.pow(1 - y, 3)); }
+  } else p = easeInOut(x);
+  drawPre(p);
+  if (p >= 1) return endPre();
   requestAnimationFrame(tick);
 }
 function endPre() {
@@ -120,9 +124,7 @@ function endPre() {
 }
 drawPre(0);
 requestAnimationFrame(tick);
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { target = Math.max(target, .6); });
-setTimeout(function () { target = Math.max(target, .45); }, 400);
-setTimeout(function () { target = 1; }, 6000);
+setTimeout(function () { loaded = true; }, 7000);
 
 /* ---------- Menu ---------- */
 var openSet = {};
@@ -377,7 +379,7 @@ function selectCode() { var r = document.createRange(); r.selectNodeContents($("
 window.__agataImages = function () {
   try { IMGS = JSON.parse(document.getElementById("agata-images").textContent) || {}; } catch (e) { IMGS = {}; }
   renderMenu();
-  target = 1;
+  loaded = true;
 };
 
 renderAll();

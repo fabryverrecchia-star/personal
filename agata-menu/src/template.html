@@ -43,7 +43,7 @@ svg{display:block}
 #pre.gone{display:none}
 .pre-in{width:min(92vw,560px);display:grid;justify-items:center;gap:14px;text-align:center}
 .hands{width:100%;height:auto;overflow:visible}
-.hands g{fill:var(--red);transition:transform .25s linear}
+.hands g{fill:var(--red)}
 .hands .spark{fill:var(--mustard);opacity:0;transform-origin:209px 50px;transform-box:view-box}
 #pre.touch .spark{animation:spark .7s var(--ease) forwards}
 @keyframes spark{0%{opacity:1;transform:scale(.2)}60%{opacity:.9}100%{opacity:0;transform:scale(4.5)}}
@@ -119,8 +119,8 @@ body.ready .hero [data-in]{opacity:1;transform:none;transition:opacity .9s var(-
 .ph{position:relative;aspect-ratio:4/5;border-radius:3px;overflow:hidden;background:var(--peach);isolation:isolate}
 .wide .ph,.card.span2 .ph{aspect-ratio:3/2}
 .card.span2{grid-column:1/-1}
-.ph img{width:100%;height:100%;object-fit:cover;transform:scale(1.03);transition:transform 1.4s var(--ease),opacity .7s;opacity:0}
-.ph img.ld{opacity:1;transform:none}
+.ph img{width:100%;height:100%;object-fit:cover;transition:opacity .7s;opacity:0}
+.ph img.ld{opacity:1}
 .ph-btn{position:absolute;inset:0;z-index:1}
 .ph-empty{position:absolute;inset:0;display:grid;place-items:center;background:var(--peach)}
 .ph-empty svg{width:38%;opacity:.9}
