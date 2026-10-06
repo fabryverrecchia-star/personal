@@ -754,18 +754,29 @@ html:not(.js) .manifesto__text .w {
   gap: clamp(56px, 7vw, 120px);
   padding-inline-end: clamp(56px, 7vw, 120px);
   animation: marquee 38s linear infinite;
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
-.marquee:hover .marquee__row {
-  animation-play-state: paused;
+@media (hover: hover) {
+  .marquee:hover .marquee__row {
+    animation-play-state: paused;
+  }
 }
 @keyframes marquee {
   to { transform: translateX(-100%); }
 }
 .brand {
+  flex-shrink: 0;
   height: clamp(26px, 3vw, 44px);
   width: auto;
   opacity: 0.78;
-  transition: opacity 0.4s;
+  transition: opacity 0.4s, filter 1.1s var(--ease-in-out);
+}
+/* Logos blancs : ils passent en noir quand la page est ivoire */
+html.is-light .brand {
+  filter: invert(1);
+  opacity: 0.7;
 }
 .brand:hover {
   opacity: 1;
@@ -1108,7 +1119,9 @@ html:not(.js) .manifesto__text .w {
    Mouvement réduit
    ================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  .marquee__row,
+  .marquee__row {
+    animation-duration: 70s;
+  }
   .hero__scroll i::after,
   .eq i {
     animation: none !important;

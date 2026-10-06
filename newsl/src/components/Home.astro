@@ -23,6 +23,18 @@ const brandNames: Record<string, string> = {
   'dolce-gabbana': 'Dolce & Gabbana',
   mac: 'MAC',
 };
+// Dimensions réelles des logos : la bande garde sa largeur même avant chargement
+const logoSize: Record<string, [number, number]> = {
+  chanel: [336, 216],
+  dior: [518, 145],
+  'louis-vuitton': [186, 225],
+  cartier: [449, 129],
+  messika: [512, 169],
+  balmain: [448, 123],
+  guerlain: [502, 70],
+  'dolce-gabbana': [268, 132],
+  mac: [493, 66],
+};
 const year = new Date().getFullYear();
 ---
 
@@ -249,7 +261,7 @@ const year = new Date().getFullYear();
           [0, 1].map((k) => (
             <div class="marquee__row" aria-hidden={k === 1 ? 'true' : undefined}>
               {brands.map((b) => (
-                <img src={asset(`media/logos/${b}.png`)} alt={k === 0 ? brandNames[b] : ''} loading="lazy" class={`brand brand--${b}`} />
+                <img src={asset(`media/logos/${b}.png`)} alt={k === 0 ? brandNames[b] : ''} width={logoSize[b][0]} height={logoSize[b][1]} decoding="async" class={`brand brand--${b}`} />
               ))}
             </div>
           ))

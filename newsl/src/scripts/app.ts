@@ -64,7 +64,8 @@ soundBtn.addEventListener('click', () => setSound(!ambience.enabled));
 let world: World | null = null;
 
 async function initGL() {
-  if (reduced) return;
+  // « Réduire les animations » : on garde le WebGL (fonds de la DA),
+  // mais le temps s'écoule plus lentement et sans déformation au défilement.
   const canvas = $<HTMLCanvasElement>('#gl')!;
   const test = document.createElement('canvas');
   if (!(test.getContext('webgl2') || test.getContext('webgl'))) return;
@@ -84,8 +85,8 @@ async function initGL() {
 
   gsap.ticker.add((time) => {
     world!.render({
-      time,
-      velocity: lenis.velocity,
+      time: reduced ? time * 0.35 : time,
+      velocity: reduced ? 0 : lenis.velocity,
       audio: ambience.read(time),
       scroll: lenis.scroll,
     });

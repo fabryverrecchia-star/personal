@@ -2,6 +2,8 @@
 // GLSL partagé
 // ------------------------------------------------------------------
 
+// NB : smoothstep(a, b, x) exige a < b (sinon résultat indéfini, noir sur iOS).
+
 /** Bruit simplex 3D (Ashima Arts / Stefan Gustavson, licence MIT) + fbm */
 export const noise = /* glsl */ `
 vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
@@ -124,16 +126,16 @@ void main(){
   vec3 blue = vec3(0.14, 0.27, 0.46);
   vec3 mid = uTone;
 
-  float gG = smoothstep(0.85, 0.0, length(r - cGold));
-  float gM = smoothstep(0.95, 0.0, length(r - cMid));
-  float gB = smoothstep(0.9, 0.0, length(r - cBlue));
+  float gG = (1.0 - smoothstep(0.0, 0.85, length(r - cGold)));
+  float gM = (1.0 - smoothstep(0.0, 0.95, length(r - cMid)));
+  float gB = (1.0 - smoothstep(0.0, 0.9, length(r - cBlue)));
 
   vec3 dark = vec3(0.012, 0.02, 0.018);
   dark = mix(dark, mid, gM * 0.95);
   dark = mix(dark, blue, gB * 0.85);
   dark = mix(dark, gold, pow(gG, 1.4) * (0.9 + uAudio * 0.25));
   // Le noir gagne vers la droite
-  dark *= mix(1.0, 0.18, smoothstep(0.25 * asp, 0.95 * asp, r.x));
+  dark *= mix(1.0, 0.2, smoothstep(0.3, 1.0, p.x + w.x));
 
   // --- Version ivoire
   vec3 ivory = vec3(0.955, 0.935, 0.895);
@@ -200,7 +202,7 @@ uniform float uIntro;
 varying float vAlpha;
 void main(){
   float d = length(gl_PointCoord - 0.5);
-  float a = smoothstep(0.5, 0.0, d);
+  float a = (1.0 - smoothstep(0.0, 0.5, d));
   gl_FragColor = vec4(vec3(0.89, 0.79, 0.6) * a * vAlpha * uIntro, a * vAlpha * uIntro);
 }
 `;
@@ -267,7 +269,7 @@ void main(){
   col += vec3(0.85, 0.66, 0.38) * edge * 0.9;
 
   // Vignette
-  col *= 0.82 + 0.18 * smoothstep(0.9, 0.2, length(vUv - 0.5));
+  col *= 0.82 + 0.18 * (1.0 - smoothstep(0.2, 0.9, length(vUv - 0.5)));
 
   float a = mask * uAlpha;
   gl_FragColor = vec4(col * a, a);
@@ -314,7 +316,7 @@ void main(){
   // Ondes sous la souris
   vec2 mp = (vUv - uMouse) * aspect;
   float md = length(mp);
-  float ripple = sin(md * 46.0 - uTime * 5.0) * smoothstep(0.42, 0.0, md);
+  float ripple = sin(md * 46.0 - uTime * 5.0) * (1.0 - smoothstep(0.0, 0.42, md));
   uv += normalize(mp + 1e-5) * ripple * 0.0045 * uMouseForce;
 
   float s = uShift + uScroll * 0.012 + uAudio * 0.002;
@@ -334,8 +336,8 @@ void main(){
 
   // Lisibilité du texte : haut et bas assombris
   col *= mix(0.45, 1.0, smoothstep(0.0, 0.35, vUv.y));
-  col *= mix(0.62, 1.0, smoothstep(1.0, 0.72, vUv.y));
-  col *= smoothstep(1.35, 0.25, length((vUv - 0.5) * aspect * 0.9));
+  col *= mix(0.62, 1.0, (1.0 - smoothstep(0.72, 1.0, vUv.y)));
+  col *= (1.0 - smoothstep(0.25, 1.35, length((vUv - 0.5) * aspect * 0.9)));
 
   // Sortie : on s'enfonce dans le noir
   col *= 1.0 - uScroll * 0.75;
