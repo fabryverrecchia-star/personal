@@ -1,0 +1,31 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Sticker from '../../components/Sticker.astro';
+import CtaBand from '../../components/CtaBand.astro';
+const steps = [
+  { title: 'Demandez', script: 'votre carte', text: 'En restaurant, auprès de l’équipe de salle, ou en ligne en quelques clics.' },
+  { title: 'Présentez-la', script: 'à chaque repas', text: 'Sur place comme à emporter, dans tous les restaurants Il Ristorante.' },
+  { title: 'Profitez', script: 'de vos avantages', text: 'Vos repas vous rapportent des avantages et des attentions, au fil de l’année.' },
+];
+---
+<Base title="Fidélité UNICA" label="Fidélité UNICA" description="UNICA, la carte de fidélité Il Ristorante.">
+  <PageHero image="/img/drinks.webp" alt="Deux spritz sur une table de restaurant" crumbs={[{ label: 'News & Fidélité', href: '/news-fidelite' }, { label: 'Fidélité UNICA', href: '/news-fidelite/fidelite-unica' }]} short>
+    <Fragment slot="title">La carte<br />UNICA, <span class="script">fidélité</span></Fragment>
+    <Fragment slot="lead">Une seule carte pour tous nos restaurants. Parce qu’on aime vous revoir.</Fragment>
+    <Sticker shape="stickers-02" style="right:calc(var(--gutter) + 3vw);top:26vh;width:clamp(150px,16vw,230px)">Une<br />seule carte</Sticker>
+  </PageHero>
+  <section class="section wrap t-peonia" style="--bg:var(--peonia);--fg:var(--chianti);background:var(--bg);color:var(--fg)">
+    <div class="sec-head"><span class="eyebrow">Comment ça marche</span><span class="idx">I.</span></div>
+    <div class="cols">
+      {steps.map((s, i) => (
+        <div class="col" data-reveal>
+          <span class="num" style="font-size:var(--fs-xl);line-height:1">{String(i + 1).padStart(2, '0')}</span>
+          <h3>{s.title}<span class="script" style="color:var(--dolce)">{s.script}</span></h3>
+          <p>{s.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+  <CtaBand href="#" label="Demander ma carte" theme="t-chianti">À très vite, <span class="script">à table</span></CtaBand>
+</Base>

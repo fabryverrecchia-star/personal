@@ -1,0 +1,18 @@
+---
+import Media from './Media.astro';
+// Galerie horizontale épinglée au défilement.
+interface Item { src: string; alt: string; caption: string; note?: string }
+interface Props { items: Item[] }
+const { items } = Astro.props;
+---
+<section class="hscroll" data-hscroll>
+  <div class="hscroll-track" data-hscroll-track>
+    <div class="hscroll-intro"><slot /></div>
+    {items.map((it, i) => (
+      <figure class="hscroll-item" data-cursor="Défiler">
+        <Media src={it.src} alt={it.alt} />
+        <figcaption><em>{it.caption}</em><span>{it.note ?? String(i + 1).padStart(2, '0')}</span></figcaption>
+      </figure>
+    ))}
+  </div>
+</section>

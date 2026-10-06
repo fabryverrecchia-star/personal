@@ -1,0 +1,9 @@
+---
+// Sticker de la charte graphique : forme SVG + texte libre (voir stickers.txt).
+interface Props { shape?: string; style?: string; spin?: boolean; class?: string }
+const { shape = 'stickers-08', style, spin = false, class: cls = '' } = Astro.props;
+---
+<div class:list={['sticker', cls, { 'sticker--spin': spin }]} style={style} data-sticker aria-hidden="true">
+  <img src={`/brand/stickers/${shape}.svg`} alt="" />
+  <span><slot /></span>
+</div>

@@ -1,0 +1,38 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Media from '../../components/Media.astro';
+import CtaBand from '../../components/CtaBand.astro';
+const items = [
+  { title: 'Apprendre', script: 'en cuisine', text: 'Des formations en succursale, aux côtés de chefs qui transmettent leurs gestes : pétrir, trancher, napper.' },
+  { title: 'Transmettre', script: 'à son tour', text: 'Ce qu’on a appris, on le passe aux nouveaux. La transmission fait partie du métier.' },
+  { title: 'Évoluer', script: 'avec nous', text: 'De commis à chef, de serveur à directeur : on accompagne celles et ceux qui veulent aller plus loin.' },
+];
+---
+<Base title="Grandir ensemble" description="Formation, transmission et évolution chez Il Ristorante.">
+  <PageHero image="/img/chef-2.webp" alt="Un chef en cuisine" crumbs={[{ label: 'Il Ristorante recrute', href: '/recrute' }, { label: 'Grandir ensemble', href: '/recrute/grandir-ensemble' }]} short>
+    <Fragment slot="title">Grandir<br /><span class="script">ensemble</span></Fragment>
+    <Fragment slot="lead">Un apprentissage permanent, une culture de la transmission, de la passion et de la reconnaissance.</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="cols">
+      {items.map((s) => (
+        <div class="col" data-reveal>
+          <h3>{s.title}<span class="script">{s.script}</span></h3>
+          <p>{s.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+  <section class="section wrap t-dolce" style="padding-top:0">
+    <div class="split split--rev">
+      <Media src="/img/team.webp" alt="Une équipe Il Ristorante au complet" />
+      <div class="txt">
+        <p class="eyebrow">Depuis 2006</p>
+        <h2 class="display h-xl" data-split>Un geste appris <span class="script">se transmet</span></h2>
+        <p class="body-text" data-reveal>En cuisine, on transmet les mêmes gestes depuis 2006. Et chaque nouvelle recette est l’occasion d’en apprendre un autre.</p>
+      </div>
+    </div>
+  </section>
+  <CtaBand href="/recrute/nos-metiers" label="Voir nos métiers">Commencez <span class="script">ici</span></CtaBand>
+</Base>

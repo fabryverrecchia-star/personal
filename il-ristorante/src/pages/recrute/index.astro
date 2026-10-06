@@ -1,0 +1,30 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Rows from '../../components/Rows.astro';
+import Stats from '../../components/Stats.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { nav } from '../../data/site';
+const texts: Record<string, string> = {
+  'Nos métiers': 'En cuisine, en salle, au siège : trouvez votre place dans la brigade.',
+  'Grandir ensemble': 'Formation, transmission, évolution : on apprend ici, et on apprend toujours.',
+  'S’épanouir': 'Une équipe soudée, des produits qui donnent envie, et la reconnaissance du travail bien fait.',
+};
+const imgs = ['/img/chef.webp', '/img/chef-2.webp', '/img/team.webp'];
+const children = nav.find((n) => n.href === '/recrute')!.children!;
+---
+<Base title="Il Ristorante recrute" label="Il Ristorante recrute">
+  <PageHero image="/img/team.webp" alt="L’équipe d’un restaurant Il Ristorante, en salle et en cuisine" crumbs={[{ label: 'Il Ristorante recrute', href: '/recrute' }]}>
+    <Fragment slot="title">Rejoignez<br />la <span class="script">brigade</span></Fragment>
+    <Fragment slot="lead">Chefs, pizzaiolos, serveurs, directeurs : 610 personnes font vivre Il Ristorante chaque jour. Et si c’était vous ?</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="sec-head"><span class="eyebrow">Travailler chez nous</span><span class="idx">I.</span></div>
+    <Rows rows={children.map((c, i) => ({ title: c.label, text: texts[c.label], img: imgs[i], href: c.href }))} />
+  </section>
+  <section class="section wrap t-giardino">
+    <div class="sec-head"><span class="eyebrow">En chiffres</span><span class="idx">II.</span></div>
+    <Stats only={[4, 2, 5, 0]} note={false} />
+  </section>
+  <CtaBand href="#" label="Voir les offres" eyebrow="Candidature spontanée bienvenue">On vous <span class="script">attend</span></CtaBand>
+</Base>

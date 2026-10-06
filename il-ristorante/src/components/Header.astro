@@ -1,0 +1,39 @@
+---
+import Logo from './Logo.astro';
+import { nav, socials } from '../data/site';
+---
+<header class="header" data-header>
+  <Logo />
+  <nav aria-label="Navigation principale">
+    <ul class="nav">
+      {nav.map((item) => (
+        <li>
+          <a href={item.href} class:list={[item.highlight ? 'is-cta' : 'link-u']} data-nav-link>
+            {item.label}
+            {item.children && <svg class="caret" viewBox="0 0 8 5" fill="none" stroke="currentColor" aria-hidden="true"><path d="M.5.5 4 4 7.5.5" /></svg>}
+          </a>
+          {item.children && (
+            <ul class="dropdown">
+              {item.children.map((c) => <li><a href={c.href} data-nav-link>{c.label}</a></li>)}
+            </ul>
+          )}
+        </li>
+      ))}
+    </ul>
+  </nav>
+  <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" data-burger><span></span><span></span></button>
+</header>
+<div class="menu" id="menu" data-menu>
+  <ul class="menu-list">
+    {nav.map((item) => (
+      <li>
+        <a href={item.href} data-nav-link>{item.label}</a>
+        {item.children && <div class="menu-sub">{item.children.map((c) => <a href={c.href} data-nav-link>{c.label}</a>)}</div>}
+      </li>
+    ))}
+  </ul>
+  <div class="menu-foot">
+    <span>Depuis 2006</span>
+    <span>{socials.map((s, i) => <>{i > 0 && ' · '}<a href={s.href} target="_blank" rel="noopener">{s.label}</a></>)}</span>
+  </div>
+</div>

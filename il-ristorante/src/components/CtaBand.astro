@@ -1,0 +1,13 @@
+---
+import Arrow from './Arrow.astro';
+interface Props { eyebrow?: string; href: string; label: string; theme?: string; secondary?: { href: string; label: string; download?: boolean } }
+const { eyebrow, href, label, theme = 't-pomodoro', secondary } = Astro.props;
+---
+<section class:list={['section wrap cta-band', theme]}>
+  {eyebrow && <p class="eyebrow" data-reveal>{eyebrow}</p>}
+  <h2 class="display h-xxl" data-split><slot /></h2>
+  <div class="actions" data-reveal>
+    <a class="btn" style="--b-bg:var(--dolce);--b-fg:var(--ink)" href={href} data-magnetic data-label={label}>{label} <Arrow /></a>
+    {secondary && <a class="btn btn--ghost" href={secondary.href} download={secondary.download}>{secondary.label}</a>}
+  </div>
+</section>

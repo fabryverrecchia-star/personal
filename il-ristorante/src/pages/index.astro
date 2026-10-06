@@ -1,0 +1,108 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Media from '../components/Media.astro';
+import Sticker from '../components/Sticker.astro';
+import Stats from '../components/Stats.astro';
+import Rows from '../components/Rows.astro';
+import Gallery from '../components/Gallery.astro';
+import Arrow from '../components/Arrow.astro';
+import { pillars, brochure } from '../data/site';
+
+const gallery = [
+  { src: '/img/dough.webp', alt: 'Un pizzaiolo étale la pâte à la main sur le marbre fariné', caption: 'La pâte, étalée à la main' },
+  { src: '/img/chef.webp', alt: 'Un chef dresse une assiette en cuisine ouverte', caption: 'En cuisine, une vraie brigade' },
+  { src: '/img/parmesan.webp', alt: 'Meules de Parmigiano Reggiano en cave d’affinage', caption: 'Parmigiano Reggiano, 36 mois' },
+  { src: '/img/pasta.webp', alt: 'Assiettes de pâtes fraîches et lasagnes vues du dessus', caption: 'Des plats pensés pour être partagés' },
+  { src: '/img/wine.webp', alt: 'Bouteilles de vins italiens alignées sur des étagères en bois', caption: 'La cave, du Piémont aux Pouilles' },
+  { src: '/img/interior-blue.webp', alt: 'Salle de restaurant, fauteuils en velours bleu et tables en marbre', caption: 'Velours, marbre et laiton' },
+  { src: '/img/drinks.webp', alt: 'Deux spritz et des assiettes à partager sur une table', caption: 'L’aperitivo, à 18 h' },
+];
+---
+<Base title="Accueil" label="Il Ristorante">
+  <PageHero image="/img/hero.webp" alt="La salle d’un restaurant Il Ristorante, banquettes bleues et étagères garnies de produits italiens">
+    <Fragment slot="title">Le vrai dans<br />l’assiette, <span class="script">l’Italie dans le cœur</span></Fragment>
+    <Fragment slot="lead">Depuis 2006, on partage l’Italie telle qu’on l’aime : vraie, généreuse, gourmande. Des producteurs que l’on connaît, des produits que l’on respecte.</Fragment>
+    <Sticker shape="stickers-08" style="right:calc(var(--gutter) + 4vw);top:22vh" spin>Depuis<br />2006</Sticker>
+  </PageHero>
+
+  <section class="section wrap t-dolce">
+    <div class="sec-head"><span class="eyebrow">Notre recette secrète</span><span class="idx">I.</span></div>
+    <div class="grid intro-grid">
+      <p class="big" data-split>S’entourer de talents formidables et utiliser des <em>produits d’excellence.</em></p>
+      <div class="side body-text" data-reveal>
+        <p>Le temps d’un repas à table, on vous offre l’expérience de l’art de vivre à l’italienne. Un jambon de Parme coupé à la minute, une mozzarella di bufala qui fond sous la fourchette, une pâte qui crépite au four.</p>
+        <p>Nos chefs cuisinent tout ici, avec leurs brigades. Et la carte change avec les saisons.</p>
+        <a class="btn btn--ghost" style="margin-top:2rem" href="/decouvrir" data-magnetic>Découvrir Il Ristorante <Arrow /></a>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee t-dolce" aria-hidden="true">
+    <div class="marquee-track">
+      {[0, 1].map(() => (<><span>Parmigiano Reggiano</span><span>Prosciutto di Parma</span><span>Mozzarella di Bufala</span><span>Gorgonzola</span><span>Fait maison</span></>))}
+    </div>
+  </div>
+
+  <div class="t-dolce">
+    <Gallery items={gallery}>
+      <p class="eyebrow">En salle, en cuisine</p>
+      <h2 class="display h-xl" style="margin-top:1.2rem" data-split>Noi <span class="script">cuciniamo</span></h2>
+      <p style="margin-top:1.4rem;max-width:36ch">Nous cuisinons. Chaque matin, des gestes appris et transmis : pétrir, étaler, trancher, napper.</p>
+    </Gallery>
+  </div>
+
+  <section class="section wrap t-dolce">
+    <div class="sec-head"><span class="eyebrow">Nos 4 piliers</span><span class="idx">II.</span></div>
+    <Rows rows={pillars.map((p) => ({ n: p.n, title: p.title, text: p.text, img: p.img }))} />
+  </section>
+
+  <section class="section wrap t-giardino" style="overflow:hidden">
+    <div class="sec-head"><span class="eyebrow">Devenir franchisé</span><span class="idx">III.</span></div>
+    <div class="grid intro-grid" style="margin-bottom:clamp(48px,7vw,110px)">
+      <h2 class="display h-xxl" style="grid-column:1/span 8" data-split>Rejoindre la <span class="script">famiglia</span></h2>
+      <div class="side body-text" style="align-self:end" data-reveal>
+        <p>23 restaurants, dont 8 en franchise. Vous ouvrez avec une marque installée, un concept éprouvé et des équipes qui vous accompagnent de la recherche du local jusqu’au quotidien.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:.7rem;margin-top:2rem">
+          <a class="btn" style="--b-bg:var(--dolce);--b-fg:var(--giardino)" href="/devenir-franchise" data-magnetic data-label="Devenir franchisé">Devenir franchisé <Arrow /></a>
+          <a class="btn btn--ghost" href={brochure} download>La brochure</a>
+        </div>
+      </div>
+    </div>
+    <Stats only={[1, 2, 3, 6]} note={false} />
+    <Sticker shape="stickers-05-ristorante" style="left:50%;top:14vh;width:clamp(150px,16vw,240px)"></Sticker>
+  </section>
+
+  <section class="section wrap t-dolce">
+    <div class="split">
+      <Media src="/img/takeaway.webp" alt="Pots de pâtes à emporter empilés sur une table" class="media--r" />
+      <div class="txt">
+        <p class="eyebrow">Il Ristorante chez vous</p>
+        <h2 class="display h-xl" data-split>Ce soir, la pasta <span class="script">à la maison</span></h2>
+        <p class="body-text" data-reveal>À emporter, en livraison ou en click & collect : les mêmes recettes qu’au restaurant, préparées par la même brigade. Il ne reste qu’à mettre la table.</p>
+        <div data-reveal><a class="btn" href="/il-ristorante-chez-vous" data-magnetic>Commander <Arrow /></a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section wrap t-cielo">
+    <div class="sec-head"><span class="eyebrow">L’Italie, son charme, ses saveurs, ses recettes</span><span class="idx">IV.</span></div>
+    <div class="cards">
+      <a class="card" href="/news-fidelite/blog" data-cursor="Lire">
+        <Media src="/img/lemons.webp" alt="Citrons de Sicile coupés en deux" />
+        <div class="meta"><span>Produit</span><span>5 min</span></div>
+        <h3>Le citron de Sicile, du zeste au limoncello</h3>
+      </a>
+      <a class="card" href="/news-fidelite/blog" data-cursor="Lire" style="margin-top:8vh">
+        <Media src="/img/bruschetta.webp" alt="Bruschetta aux tomates et basilic" />
+        <div class="meta"><span>Recette</span><span>4 min</span></div>
+        <h3>La bruschetta, une affaire de pain grillé</h3>
+      </a>
+      <a class="card" href="/news-fidelite/blog" data-cursor="Lire">
+        <Media src="/img/gelato.webp" alt="Vitrine de glaces artisanales" />
+        <div class="meta"><span>Dolci</span><span>3 min</span></div>
+        <h3>Gelato : pourquoi il est plus dense</h3>
+      </a>
+    </div>
+  </section>
+</Base>

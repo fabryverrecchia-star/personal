@@ -1,0 +1,20 @@
+---
+import Arrow from './Arrow.astro';
+// Liste éditoriale avec image qui suit le pointeur (WebGL).
+interface Row { n?: string; title: string; text?: string; img: string; href?: string }
+interface Props { rows: Row[] }
+const { rows } = Astro.props;
+---
+<div class="rows" data-follow>
+  {rows.map((r, i) => {
+    const Tag = r.href ? 'a' : 'div';
+    return (
+      <Tag class="row" href={r.href} data-img={r.img} data-reveal data-label={r.title}>
+        <span class="n">{r.n ?? String(i + 1).padStart(2, '0')}</span>
+        <h3>{r.title}</h3>
+        {r.text && <p>{r.text}</p>}
+        {r.href && <span class="go"><Arrow /></span>}
+      </Tag>
+    );
+  })}
+</div>

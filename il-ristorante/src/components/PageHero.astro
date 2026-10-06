@@ -1,0 +1,19 @@
+---
+interface Props { image: string; alt: string; eyebrow?: string; crumbs?: { label: string; href: string }[]; short?: boolean }
+const { image, alt, eyebrow, crumbs, short = false } = Astro.props;
+---
+<section class:list={['hero', { 'hero--short': short }]} data-hero>
+  <div class="hero-media"><img src={image} alt={alt} data-gl="hero" loading="eager" fetchpriority="high" /></div>
+  {crumbs && (
+    <nav class="crumbs" aria-label="Fil d’Ariane" data-reveal>
+      <a href="/">Accueil</a>
+      {crumbs.map((c) => (<><span aria-hidden="true">/</span><a href={c.href}>{c.label}</a></>))}
+    </nav>
+  )}
+  <h1 class="hero-title display h-xxl" data-split data-hero-title><slot name="title" /></h1>
+  <div class="hero-foot">
+    <p class="lead" data-reveal><slot name="lead" /></p>
+    <div class="hero-scroll eyebrow" data-reveal>{eyebrow ?? 'Faites défiler'}<i aria-hidden="true"></i></div>
+  </div>
+  <slot />
+</section>

@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Media from '../components/Media.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { restaurants } from '../data/restaurants';
+import { brochure } from '../data/site';
+const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+---
+<Base title="Restaurants" description="23 restaurants Il Ristorante en France : trouvez le vôtre et réservez votre table.">
+  <PageHero image="/img/facade.webp" alt="Façade d’un restaurant Il Ristorante, pierre et bois" crumbs={[{ label: 'Restaurants', href: '/restaurants' }]} short>
+    <Fragment slot="title">23 tables<br /><span class="script">vous attendent</span></Fragment>
+    <Fragment slot="lead">Trouvez le restaurant le plus proche de chez vous et réservez en quelques secondes.</Fragment>
+  </PageHero>
+
+  <section class="section wrap t-dolce">
+    <div class="sec-head" style="align-items:end">
+      <label class="field" style="flex:1;max-width:560px">
+        <span class="eyebrow">Rechercher une ville</span>
+        <input type="search" placeholder="Votre ville, votre code postal…" data-filter style="font:400 var(--fs-xl)/1 var(--f-display);border-bottom:1px solid var(--line);padding:.4rem 0;background:none;border-top:0;border-inline:0;width:100%" />
+      </label>
+      <span class="idx">{restaurants.length}</span>
+    </div>
+    <div class="cards">
+      {restaurants.map((r) => (
+        <article class="card" data-filter-item={norm(`${r.city} ${r.address}`)} data-reveal>
+          <Media src={r.img} alt={`Restaurant Il Ristorante ${r.city}`} />
+          <div class="meta"><span>{r.franchise ? 'Franchise' : 'Succursale'}</span><span>Réservation en ligne</span></div>
+          <h3>{r.city}</h3>
+          <p class="muted">{r.address}</p>
+          <a class="btn btn--ghost" style="justify-self:start" href={r.booking}>Réserver</a>
+        </article>
+      ))}
+    </div>
+    <p data-filter-empty hidden style="font:400 var(--fs-xl)/1 var(--f-display);margin-top:2rem">Pas encore de restaurant ici… et si c’était le vôtre ?</p>
+  </section>
+
+  <CtaBand href="/devenir-franchise" label="Devenir franchisé" eyebrow="Pas de restaurant près de chez vous ?" secondary={{ href: brochure, label: 'La brochure', download: true }}>Ouvrez <span class="script">le prochain</span></CtaBand>
+</Base>

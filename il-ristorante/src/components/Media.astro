@@ -1,0 +1,8 @@
+---
+// Image affichée en WebGL (déformations, révélation) avec repli DOM.
+interface Props { src: string; alt: string; class?: string; gl?: string; eager?: boolean; width?: number; height?: number }
+const { src, alt, class: cls = '', gl = '', eager = false, width, height } = Astro.props;
+---
+<div class:list={['media', cls]}>
+  <img src={src} alt={alt} data-gl={gl} loading={eager ? 'eager' : 'lazy'} decoding="async" width={width} height={height} />
+</div>

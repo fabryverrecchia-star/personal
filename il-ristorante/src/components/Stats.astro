@@ -1,0 +1,20 @@
+---
+import { stats } from '../data/site';
+interface Props { only?: number[]; note?: boolean }
+const { only, note = true } = Astro.props;
+const list = only ? only.map((i) => stats[i]) : stats;
+---
+<div class="stats">
+  {list.map((s) => (
+    <div class="stat" data-reveal>
+      <span class="num"><span data-count={s.value} data-decimals={s.decimals} data-group={s.group === false ? 'false' : 'true'} data-from={s.value === 2006 ? 1950 : undefined}>{s.value}</span>{s.suffix && <small>{s.suffix}</small>}</span>
+      <p>{s.label}</p>
+    </div>
+  ))}
+  {note && (
+    <div class="stat stat--note" data-reveal>
+      <span class="eyebrow">Prévisions 2026</span>
+      <p style="font:400 var(--fs-l)/1.1 var(--f-display);text-transform:uppercase;max-width:none">Ouvertures : opportunités dans la France entière</p>
+    </div>
+  )}
+</div>
