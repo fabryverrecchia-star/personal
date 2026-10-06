@@ -6,7 +6,6 @@ import {
   mediaVertex, mediaFragment, heroFragment, flowFragment, quadVertex, followVertex, followFragment,
 } from './shaders';
 
-const TINTS = ['#ff3636', '#a5d2f5', '#fb71ad', '#11573b'].map((c) => new THREE.Color(c));
 const CAMERA_Z = 800;
 
 type Pointer = { x: number; y: number; vx: number; vy: number; moved: number };
@@ -101,7 +100,7 @@ export class GL {
     return this.medias.filter((m) => m.kind === 'hero');
   }
 
-  update(dt: number, velocity: number) {
+  update(dt: number) {
     this.time += dt;
     const p = this.pointer;
     if (performance.now() - p.moved > 60) {
@@ -109,7 +108,7 @@ export class GL {
       p.vy *= 0.85;
     }
     this.flow.update(p, this.w, this.h);
-    this.medias.forEach((m) => m.update(velocity));
+    this.medias.forEach((m) => m.update());
     this.follow.update();
     this.renderer.render(this.scene, this.camera);
   }
@@ -134,14 +133,11 @@ class Media {
       uPlane: { value: new THREE.Vector2(1, 1) },
       uViewport: { value: new THREE.Vector2(gl.w, gl.h) },
       uResolution: { value: new THREE.Vector2(1, 1) },
-      uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       uRadius: { value: new THREE.Vector4() },
-      uTint: { value: TINTS[gl.medias.length % TINTS.length] },
       uReveal: { value: 0 },
       uHover: { value: 0 },
       uScroll: { value: 0 },
-      uTime: { value: 0 },
-      uVel: { value: 0 },
+      uParallax: { value: 0 },
       uLoaded: { value: 0 },
     };
     const material = new THREE.ShaderMaterial({
@@ -172,7 +168,7 @@ class Media {
       this.io = new IntersectionObserver(
         ([entry]) => {
           if (!entry.isIntersecting) return;
-          gsap.to(this.uniforms.uReveal, { value: 1, duration: 1.8, ease: 'power2.out', delay: 0.05 });
+          gsap.to(this.uniforms.uReveal, { value: 1, duration: 1.7, ease: 'power3.inOut' });
           this.io?.disconnect();
         },
         { rootMargin: '0px 0px -12% 0px' },
@@ -183,10 +179,6 @@ class Media {
       const opts = { signal: this.ac.signal, passive: true };
       target.addEventListener('pointerenter', () => (this.hoverTarget = 1), opts);
       target.addEventListener('pointerleave', () => (this.hoverTarget = 0), opts);
-      target.addEventListener('pointermove', (e) => {
-        const r = img.getBoundingClientRect();
-        this.uniforms.uMouse.value.set((e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height);
-      }, opts);
     }
   }
 
@@ -209,10 +201,10 @@ class Media {
 
   /** Révélation pilotée de l'extérieur (hero). */
   reveal(delay = 0) {
-    return gsap.to(this.uniforms.uReveal, { value: 1, duration: 2.2, ease: 'power3.out', delay });
+    return gsap.to(this.uniforms.uReveal, { value: 1, duration: 2, ease: 'power3.inOut', delay });
   }
 
-  update(velocity: number) {
+  update() {
     const r = this.img.getBoundingClientRect();
     const { w, h } = this.gl;
     const visible = r.bottom > -50 && r.top < h + 50 && r.right > -50 && r.left < w + 50 && r.width > 0;
@@ -224,9 +216,9 @@ class Media {
     this.mesh.position.set(r.left + r.width / 2 - w / 2, -(r.top + r.height / 2) + h / 2, 0);
     const u = this.uniforms;
     u.uPlane.value.set(r.width, r.height);
-    u.uTime.value = this.gl.time;
     u.uHover.value = this.hover;
-    u.uVel.value += (velocity - u.uVel.value) * 0.12;
+    // Parallaxe interne : -1 en bas de l'écran, 1 en haut
+    u.uParallax.value = Math.max(-1, Math.min(1, (h / 2 - (r.top + r.height / 2)) / (h / 2 + r.height / 2)));
     if (this.kind === 'hero') {
       u.uFlow.value = this.gl.flow.texture;
       u.uScroll.value = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height)));
@@ -293,7 +285,7 @@ class Follow {
   pos = new THREE.Vector2();
   active = false;
   private ac?: AbortController;
-  private size = new THREE.Vector2(300, 380);
+  private size = new THREE.Vector2(280, 380);
 
   constructor(private gl: GL) {
     this.uniforms = {
@@ -341,7 +333,7 @@ class Follow {
       this.pos.set(p.x, p.y);
     }
     this.active = true;
-    gsap.to(this.uniforms.uAlpha, { value: 1, duration: 0.9, ease: 'power3.out', overwrite: true });
+    gsap.to(this.uniforms.uAlpha, { value: 1, duration: 0.8, ease: 'power3.out', overwrite: true });
     gsap.fromTo(this.uniforms.uSwap, { value: 1 }, { value: 0, duration: 1, ease: 'power3.out', overwrite: true });
   }
 
@@ -360,11 +352,11 @@ class Follow {
     this.pos.x += (p.x - this.pos.x) * 0.12;
     this.pos.y += (p.y - this.pos.y) * 0.12;
     const v = this.uniforms.uVelocity.value as THREE.Vector2;
-    v.x += (this.pos.x - prevX - v.x) * 0.3;
-    v.y += (this.pos.y - prevY - v.y) * 0.3;
+    v.x += (this.pos.x - prevX - v.x) * 0.2;
+    v.y += (this.pos.y - prevY - v.y) * 0.2;
     const s = this.gl.w < 1200 ? 0.75 : 1;
     this.mesh.scale.set(this.size.x * s, this.size.y * s, 1);
     this.mesh.position.set(this.pos.x - this.gl.w / 2 + 40, -(this.pos.y - this.gl.h / 2), 0);
-    this.mesh.rotation.z = -v.x * 0.004;
+    this.mesh.rotation.z = -v.x * 0.0025;
   }
 }

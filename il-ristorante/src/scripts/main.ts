@@ -30,7 +30,7 @@ if (canvas && GL.supported() && !reduced) {
 
 gsap.ticker.add((time, dt) => {
   lenis.raf(time * 1000);
-  gl?.update(dt / 1000, lenis.velocity);
+  gl?.update(dt / 1000);
 });
 gsap.ticker.lagSmoothing(0);
 
@@ -98,7 +98,8 @@ lenis.on('scroll', ({ scroll }: { scroll: number }) => {
 });
 
 function updateHeader() {
-  const path = location.pathname.replace(/\/$/, '') || '/';
+  // L'aperçu autonome (scripts/build-preview.mjs) fournit son propre chemin courant
+  const path = ((window as { __previewPath?: string }).__previewPath ?? location.pathname).replace(/\/$/, '') || '/';
   $$<HTMLAnchorElement>('[data-nav-link]').forEach((a) => {
     const href = a.getAttribute('href')!;
     const active = href === path || (href !== '/' && path.startsWith(href + '/'));

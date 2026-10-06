@@ -17,7 +17,7 @@ const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacrit
     <div class="sec-head" style="align-items:end">
       <label class="field" style="flex:1;max-width:560px">
         <span class="eyebrow">Rechercher une ville</span>
-        <input type="search" placeholder="Votre ville, votre code postal…" data-filter style="font:400 var(--fs-xl)/1 var(--f-display);border-bottom:1px solid var(--line);padding:.4rem 0;background:none;border-top:0;border-inline:0;width:100%" />
+        <input type="search" placeholder="Votre ville, votre code postal…" data-filter style="font:300 var(--fs-xl)/1 var(--f-display);letter-spacing:-0.045em;border-bottom:1px solid var(--line);padding:.4rem 0;background:none;border-top:0;border-inline:0;width:100%" />
       </label>
       <span class="idx">{restaurants.length}</span>
     </div>
@@ -32,7 +32,7 @@ const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacrit
         </article>
       ))}
     </div>
-    <p data-filter-empty hidden style="font:400 var(--fs-xl)/1 var(--f-display);margin-top:2rem">Pas encore de restaurant ici… et si c’était le vôtre ?</p>
+    <p data-filter-empty hidden style="font:300 var(--fs-xl)/1 var(--f-display);letter-spacing:-0.045em;margin-top:2rem">Pas encore de restaurant ici… et si c’était le vôtre ?</p>
   </section>
 
   <CtaBand href="/devenir-franchise" label="Devenir franchisé" eyebrow="Pas de restaurant près de chez vous ?" secondary={{ href: brochure, label: 'La brochure', download: true }}>Ouvrez <span class="script">le prochain</span></CtaBand>
