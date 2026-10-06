@@ -38,23 +38,22 @@ svg{display:block}
 .wrap{max-width:1040px;margin:0 auto;padding-inline:16px}
 
 /* ---------- Preloader ---------- */
-#pre{position:fixed;inset:0;z-index:100;background:var(--peach);display:grid;place-items:center;overflow:hidden;
-  transition:clip-path 1s var(--ease);clip-path:inset(0 0 0 0 round 0)}
-#pre.out{clip-path:inset(0 0 100% 0 round 0 0 50% 50%)}
-#pre.gone{display:none}
-.pre-in{width:min(92vw,560px);display:grid;justify-items:center;gap:14px;text-align:center}
-.hands{width:100%;height:auto;overflow:visible}
-.hands g{fill:var(--red)}
-.hands .spark{fill:var(--mustard);opacity:0;transform-origin:209px 50px;transform-box:view-box}
-#pre.touch .spark{animation:spark .7s var(--ease) forwards}
-@keyframes spark{0%{opacity:1;transform:scale(.2)}60%{opacity:.9}100%{opacity:0;transform:scale(4.5)}}
-.temp{font:400 40px/1 var(--name);color:var(--red);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.temp small{font-size:.42em;vertical-align:.95em;margin-inline-start:2px}
-.phrase{font:400 15px/1.4 var(--display);color:var(--ink);min-height:1.4em;transition:opacity .3s,transform .3s}
-.phrase.swap{opacity:0;transform:translateY(6px)}
-.pre-word{width:min(56vw,300px);fill:var(--red);opacity:0;transform:translateY(10px);transition:opacity .5s,transform .6s var(--ease)}
-#pre.touch .pre-word{opacity:1;transform:none}
-.pre-foot{position:absolute;bottom:calc(22px + env(safe-area-inset-bottom,0px));inset-inline:0;text-align:center;font:11px/1 var(--body);letter-spacing:.32em;color:var(--red);text-transform:uppercase}
+#pre{position:fixed;inset:0;z-index:100;background:var(--peach);overflow:hidden}
+.pre-face{position:absolute;transform-origin:50% 50%}
+.pre-face svg{width:100%;height:auto;overflow:visible}
+.pf .ck{animation:none!important;opacity:0}
+.pf .wipe{transform-box:fill-box;transform-origin:0 50%;transform:scaleX(0)}
+.pf .eye-r{transform-box:fill-box;transform-origin:50% 60%}
+.pre-word,.pre-sub{position:absolute;text-align:center}
+.pre-word svg{width:100%;height:auto;fill:var(--red)}
+.pre-word{clip-path:inset(0 0 100% 0)}
+.pre-sub{opacity:0;font:400 10px/1 var(--body);letter-spacing:.42em;color:var(--red);text-transform:uppercase;text-indent:.42em}
+/* Le menu se dévoile quand le preloader s'efface */
+body:not(.ready) .top{transform:translateY(-100%)}
+.top{transition:transform .9s var(--ease)}
+body:not(.ready) .card,body:not(.ready) .card .ph{animation-play-state:paused!important}
+.sec.open .card .ph{animation:unveil 1.2s var(--ease) both;animation-delay:calc(var(--i,0) * 70ms + 150ms)}
+@keyframes unveil{from{clip-path:inset(22% 8% 22% 8% round 3px)}to{clip-path:inset(0 0 0 0 round 3px)}}
 
 /* ---------- Barre du haut ---------- */
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:color-mix(in srgb,var(--paper) 92%,transparent);
@@ -87,7 +86,7 @@ svg{display:block}
 @keyframes float1{50%{transform:translate(3px,-4px) rotate(-3deg)}}
 @keyframes float2{50%{transform:translate(-3px,3px) rotate(3deg)}}
 .hero-word{width:min(58vw,250px);fill:var(--red)}
-.hero-sub{font:400 10px/1 var(--body);letter-spacing:.42em;color:var(--red);text-transform:uppercase;margin-inline-start:.42em}
+.hero-sub{font:400 10px/1 var(--body);letter-spacing:.42em;color:var(--red);text-transform:uppercase;text-indent:.42em}
 .hero [data-in]{opacity:0;transform:translateY(12px)}
 body.ready .hero [data-in]{opacity:1;transform:none;transition:opacity .9s var(--ease),transform 1.1s var(--ease);transition-delay:calc(var(--d,0) * 110ms)}
 

@@ -59,20 +59,31 @@ var SVG = {
   down: '<svg viewBox="0 0 16 16"><path d="M3 6l5 5 5-5"/></svg>'
 };
 
+/* Visage du preloader : le trait principal est révélé par un « pinceau » (masque),
+   les yeux par un balayage, les pommettes apparaissent ensuite. */
+function preFaceSVG() {
+  var f = A.face
+    .replace('<path class="fl" d=', '<path class="fl" mask="url(#pmL)" d=')
+    .replace('<path class="fl eye-r" d=', '<path class="fl eye-r" mask="url(#pmR)" d=')
+    .replace('<path class="fl eye-l" d=', '<path class="fl eye-l" mask="url(#pmE)" d=');
+  return '<svg class="face pf" viewBox="740 255 380 375" aria-hidden="true"><defs>' +
+    '<mask id="pmL" maskUnits="userSpaceOnUse" x="740" y="255" width="380" height="375"><path id="pmLine" d="' + A.faceLine + '" fill="none" stroke="#fff" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/></mask>' +
+    '<mask id="pmE" maskUnits="userSpaceOnUse" x="740" y="255" width="380" height="375"><rect class="wipe" id="wipeL" x="748" y="335" width="125" height="66" fill="#fff"/></mask>' +
+    '<mask id="pmR" maskUnits="userSpaceOnUse" x="740" y="255" width="380" height="375"><rect class="wipe" id="wipeR" x="938" y="322" width="136" height="68" fill="#fff"/></mask>' +
+    "</defs>" + f + "</svg>";
+}
+
 /* ---------- Coquille de la page ---------- */
 var root = document.getElementById("agata-root");
 root.innerHTML =
-  '<div id="pre" aria-hidden="true"><div class="pre-in">' +
-    '<svg class="hands" viewBox="-30 -10 478 140"><g id="hl">' + A.handL + '</g><g id="hr">' + A.handR + '</g><circle class="spark" cx="209" cy="50" r="7"/></svg>' +
-    '<div class="temp"><span id="deg">0</span><small>°C</small></div>' +
-    '<div class="phrase" id="phrase"></div>' + SVG.word("pre-word") +
-  '</div><div class="pre-foot">Agata · Pizzeria · Rive Gauche</div></div>' +
+  '<div id="pre" aria-hidden="true"><div class="pre-face" id="preFace">' + preFaceSVG() + '</div>' +
+    '<div class="pre-word" id="preWord">' + SVG.word("") + '</div><div class="pre-sub" id="preSub">Pizzeria · Rive Gauche</div></div>' +
   '<header class="top" id="top"><div class="wrap"><div class="top-row">' + SVG.word("top-word") +
     '<button class="lang-btn" id="langBtn" aria-haspopup="dialog">' + SVG.globe + '<span id="langCode"></span></button></div>' +
     '<nav class="chips" id="chips" aria-label="Menu"></nav></div></header>' +
-  '<section class="hero"><div class="wrap hero-in"><div data-in style="--d:0">' + SVG.face("face") + '</div>' +
-    '<div data-in style="--d:1">' + SVG.word("hero-word") + '</div>' +
-    '<div class="hero-sub" data-in style="--d:2">Pizzeria · Rive Gauche</div></div></section>' +
+  '<section class="hero"><div class="wrap hero-in"><div>' + SVG.face("face") + '</div>' +
+    '<div>' + SVG.word("hero-word") + '</div>' +
+    '<div class="hero-sub">Pizzeria · Rive Gauche</div></div></section>' +
   '<main class="wrap" id="menu"></main>' +
   '<footer class="foot" id="foot"></footer>' +
   '<div class="scrim" id="scrim"></div>' +
@@ -81,49 +92,56 @@ root.innerHTML =
   '<div class="toast" id="toast" role="status"></div>';
 
 /* ---------- Preloader ---------- */
-var pre = $("#pre"), hl = $("#hl"), hr = $("#hr"), degEl = $("#deg"), phraseEl = $("#phrase");
+try { history.scrollRestoration = "manual"; } catch (e) {}
+scrollTo(0, 0);
+var pre = $("#pre"), preFace = $("#preFace"), loaded = false;
 var seen = ss("agata-seen");
-var minTime = reduce ? 300 : (seen ? 1200 : 2800);
-var t0 = performance.now(), finished = false, phraseIdx = -1, loaded = false, holdAt = 0, tail = null;
-function setPhrase(i) {
-  if (i === phraseIdx) return; phraseIdx = i;
-  var txt = i < 3 ? t("ph")[i] : "Mamma mia! \uD83E\uDD0C";
-  phraseEl.classList.add("swap");
-  setTimeout(function () { phraseEl.textContent = txt; phraseEl.classList.remove("swap"); }, 160);
+var K = reduce ? 0 : (seen ? .55 : 1);
+var E = "cubic-bezier(.65,0,.35,1)", OUT = "cubic-bezier(.16,1,.3,1)", SPRING = "cubic-bezier(.34,1.5,.64,1)";
+function anim(el, kf, o) {
+  if (!el || !el.animate) return Promise.resolve();
+  var a = el.animate(kf, { duration: (o.duration || 0) * K, delay: (o.delay || 0) * K, easing: o.easing || E, fill: o.fill || "both" });
+  return a.finished.catch(function () {});
 }
-function easeInOut(x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
-function drawPre(p) {
-  var gap = (1 - p) * 120;
-  hl.style.transform = "translateX(" + (-gap + p * 9) + "px)";
-  hr.style.transform = "translateX(" + (gap - p * 9) + "px)";
-  degEl.textContent = Math.round(p * 485);
-  setPhrase(p < .33 ? 0 : p < .66 ? 1 : p < .999 ? 2 : 3);
+function wait(ms) { return new Promise(function (r) { setTimeout(r, ms * K); }); }
+function whenLoaded() { return new Promise(function (r) { (function c() { if (loaded) r(); else setTimeout(c, 60); })(); }); }
+function placePreFace() {
+  var hf = $(".hero .face").getBoundingClientRect(), w = Math.min(hf.width * 1.7, innerWidth * .7);
+  preFace.style.width = w + "px";
+  preFace.style.left = (innerWidth - w) / 2 + "px";
+  preFace.style.top = (innerHeight * .44 - w * 375 / 380 / 2) + "px";
 }
-/* Une seule courbe ease-in-out sur minTime. Si la page n'est pas prête,
-   on attend juste avant la fin puis on termine en douceur. */
-function tick(now) {
-  var x = Math.min(1, (now - t0) / minTime), p, from = easeInOut(.82);
-  if (!holdAt && !loaded && x > .82) holdAt = now;
-  if (holdAt) {
-    if (!loaded) p = from;
-    else { if (!tail) tail = now; var y = Math.min(1, (now - tail) / 700); p = y >= 1 ? 1 : from + (1 - from) * (1 - Math.pow(1 - y, 3)); }
-  } else p = easeInOut(x);
-  drawPre(p);
-  if (p >= 1) return endPre();
-  requestAnimationFrame(tick);
+function runPre() {
+  placePreFace();
+  var line = $("#pmLine"), L = line.getTotalLength();
+  line.style.strokeDasharray = L + " " + L;
+  var ckA = $(".pf .ck2"), ckB = $(".pf .ck1"), eyeR = $(".pf .eye-r");
+  anim(line, [{ strokeDashoffset: L }, { strokeDashoffset: 0 }], { duration: 1600, delay: 150 });
+  anim($("#wipeL"), [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: 650, delay: 900 });
+  anim($("#wipeR"), [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: 650, delay: 1100 });
+  anim(ckA, [{ transform: "scale(0) rotate(-25deg)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 950, delay: 1450, easing: SPRING });
+  anim(ckB, [{ transform: "scale(0) rotate(25deg)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 950, delay: 1600, easing: SPRING });
+  wait(2450).then(function () {
+    if (!reduce) anim(eyeR, [{ transform: "none" }, { transform: "scaleY(.12) translateY(10px)", offset: .4 }, { transform: "scaleY(.12) translateY(10px)", offset: .6 }, { transform: "none" }], { duration: 600, fill: "none" });
+    return wait(650);
+  }).then(whenLoaded).then(rise);
 }
-function endPre() {
-  if (finished) return; finished = true;
-  pre.classList.add("touch");
+function rise() {
   ss("agata-seen", "1");
-  setTimeout(function () {
-    pre.classList.add("out");
+  var hf = $(".hero .face").getBoundingClientRect(), pf = preFace.getBoundingClientRect();
+  var dx = hf.left + hf.width / 2 - (pf.left + pf.width / 2), dy = hf.top + hf.height / 2 - (pf.top + pf.height / 2), s = hf.width / pf.width;
+  anim(preFace, [{ transform: "none" }, { transform: "translate(" + dx + "px," + dy + "px) scale(" + s + ")" }], { duration: 1100 });
+  ["hero-word", "hero-sub"].forEach(function (c) {
+    var r = $(".hero ." + c).getBoundingClientRect(), el = $(c === "hero-word" ? "#preWord" : "#preSub");
+    el.style.left = r.left + "px"; el.style.top = r.top + "px"; el.style.width = r.width + "px";
+  });
+  anim($("#preWord"), [{ clipPath: "inset(0 0 100% 0)", transform: "translateY(18px)" }, { clipPath: "inset(0 0 0% 0)", transform: "none" }], { duration: 1000, delay: 550, easing: OUT });
+  anim($("#preSub"), [{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 800, delay: 900, easing: OUT });
+  wait(1700).then(function () {
     document.body.classList.add("ready");
-    setTimeout(function () { pre.classList.add("gone"); var f = $(".hero .face"); if (f && !reduce) { f.classList.add("wink"); } }, 950);
-  }, reduce ? 50 : 820);
+    return anim(pre, [{ opacity: 1 }, { opacity: 0 }], { duration: 700 });
+  }).then(function () { pre.style.display = "none"; });
 }
-drawPre(0);
-requestAnimationFrame(tick);
 setTimeout(function () { loaded = true; }, 7000);
 
 /* ---------- Menu ---------- */
@@ -383,6 +401,7 @@ window.__agataImages = function () {
 };
 
 renderAll();
+requestAnimationFrame(runPre);
 if (location.hash === "#admin") setTimeout(function () { enterAdmin(); }, 300);
 
 /* ======================================================================
