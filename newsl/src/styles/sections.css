@@ -1114,3 +1114,29 @@ html:not(.js) .manifesto__text .w {
     animation: none !important;
   }
 }
+
+/* ==================================================================
+   Lisibilité des paragraphes sur mobile
+   ================================================================== */
+@media (max-width: 720px) {
+  .lead,
+  .hero__sub,
+  .step__text {
+    font-size: 1.125rem;
+    line-height: 1.55;
+    max-width: none;
+  }
+  .lead,
+  .exp__text,
+  .venue__line,
+  .step__text {
+    color: color-mix(in srgb, var(--cream) 78%, transparent);
+  }
+  .exp__text,
+  .venue__line {
+    font-size: 1rem;
+  }
+  .label {
+    letter-spacing: 0.16em;
+  }
+}
