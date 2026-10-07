@@ -1,0 +1,92 @@
+[
+  {
+    "slug": "01-ambiance-teasing",
+    "title": "01_Ambiance teasing_MAJ_2208",
+    "duration": 12.75,
+    "width": 1080,
+    "height": 1920,
+    "hasAudio": true,
+    "sizeMo1080": 7.4,
+    "sizeMo720": 3.2
+  },
+  {
+    "slug": "02-question-producteur-parmesan",
+    "title": "2.Question producteur – Parmesan.mp4_MAJ_2308",
+    "duration": 45.42,
+    "width": 1080,
+    "height": 1920,
+    "hasAudio": true,
+    "sizeMo1080": 19.1,
+    "sizeMo720": 8.1
+  },
+  {
+    "slug": "03-jambon-de-parme-fabrication",
+    "title": "3.Jambon de Parme – Fabrication",
+    "duration": 20.25,
+    "width": 1080,
+    "height": 1920,
+    "hasAudio": true,
+    "sizeMo1080": 9.9,
+    "sizeMo720": 4.2
+  },
+  {
+    "slug": "04-service-qualite",
+    "title": "4.Le service qualité en pleine mission. Spoiler",
+    "duration": 18.9,
+    "width": 1080,
+    "height": 1920,
+    "hasAudio": true,
+    "sizeMo1080": 11.3,
+    "sizeMo720": 4.7
+  },
+  {
+    "slug": "05a-parmesan-fabrication",
+    "title": "5A.Parmesan – Fabrication",
+    "duration": 32.79,
+    "width": 1080,
+    "height": 1920,
+    "hasAudio": true,
+    "sizeMo1080": 16.3,
+    "sizeMo720": 6.8
+  },
+  {
+    "slug": "05b-parmesan-fabrication-edit",
+    "title": "5B.-EDIT-Parmesan – Fabrication",
+    "duration": 33.51,
+    "width": 1080,
+    "height": 1920,
+    "hasAudio": true,
+    "sizeMo1080": 16.1,
+    "sizeMo720": 6.7
+  },
+  {
+    "slug": "05c-parmesan-fabrication",
+    "title": "5C.Parmesan – Fabrication",
+    "duration": 33.51,
+    "width": 1080,
+    "height": 1920,
+    "hasAudio": true,
+    "sizeMo1080": 16.4,
+    "sizeMo720": 6.8
+  },
+  {
+    "slug": "06-conclusion",
+    "title": "6.CONCLUSION",
+    "duration": 34.71,
+    "width": 1080,
+    "height": 1920,
+    "hasAudio": true,
+    "sizeMo1080": 24.5,
+    "sizeMo720": 10.1
+  },
+  {
+    "slug": "07-producteur-jambon-question-1",
+    "title": "7.PRODUCTEUR - JAMBON QUESTION 1",
+    "duration": 29.97,
+    "width": 1080,
+    "height": 1920,
+    "hasAudio": true,
+    "sizeMo1080": 16.4,
+    "sizeMo720": 6.9
+  }
+]
