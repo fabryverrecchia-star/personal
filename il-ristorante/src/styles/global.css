@@ -597,3 +597,12 @@ html:not(.js) .step { opacity: 1; }
 
 /* Pendant et juste après une navigation, les sous-menus restent fermés */
 .header.nav-lock :is(.dropdown, .mega) { opacity: 0 !important; visibility: hidden !important; pointer-events: none; }
+
+/* Lecteur vidéo plein écran */
+.player { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: rgb(11 30 20 / 0.94); color: var(--dolce); }
+.player[open] { display: grid; place-items: center; grid-template-rows: 1fr auto; gap: 1rem; padding: 4vh 0; animation: player-in 0.5s var(--ease-out); }
+.player::backdrop { background: transparent; }
+.player video { height: min(84dvh, 100%); max-width: 92vw; aspect-ratio: 9 / 16; border-radius: 16px; background: #000; }
+.player-title { font: 400 var(--fs-l) / 1 var(--f-display); text-transform: uppercase; }
+.player-close { position: fixed; top: var(--gutter); right: var(--gutter); width: 52px; height: 52px; border-radius: 50%; background: var(--dolce); color: var(--ink); font-size: 1.8rem; line-height: 1; }
+@keyframes player-in { from { opacity: 0; } to { opacity: 1; } }

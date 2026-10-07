@@ -8,6 +8,8 @@ import Rows from '../components/Rows.astro';
 import Gallery from '../components/Gallery.astro';
 import Arrow from '../components/Arrow.astro';
 import PostCards from '../components/PostCards.astro';
+import VideoReels from '../components/VideoReels.astro';
+import { series } from '../data/videos';
 import FranceMap from '../components/FranceMap.astro';
 import { pillars, brochure, ext, restaurants, restaurantHref } from '../data/site';
 
@@ -60,6 +62,15 @@ const gallery = [
   </section>
 
   <section class="section wrap t-giardino" style="overflow:hidden">
+    <div class="sec-head"><span class="eyebrow">Chez nos producteurs</span><span class="idx">▶</span></div>
+    <div class="grid intro-grid" style="margin-bottom:clamp(32px,5vw,64px)">
+      <h2 class="display h-xxl" style="grid-column:1/span 8" data-split>En Émilie-<span class="script">Romagne</span></h2>
+      <p class="side body-text" data-reveal>On est allés voir d’où viennent notre Parmigiano Reggiano et notre jambon de Parme. Les producteurs racontent, les meules s’affinent, les jambons sèchent. Le vrai, de l’étable à l’assiette.</p>
+    </div>
+    <VideoReels items={series} />
+  </section>
+
+  <section class="section wrap t-chianti" style="overflow:hidden">
     <div class="sec-head"><span class="eyebrow">Devenir franchisé</span><span class="idx">III.</span></div>
     <div class="grid intro-grid" style="margin-bottom:clamp(48px,7vw,110px)">
       <h2 class="display h-xxl" style="grid-column:1/span 8" data-split>Rejoindre la <span class="script">famiglia</span></h2>

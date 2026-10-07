@@ -1,0 +1,49 @@
+---
+// Carrousel de vidéos verticales : lecture muette en boucle à l’écran,
+// clic = lecture plein écran avec le son (lecteur dans Base.astro).
+import { src, poster, type Video } from '../data/videos';
+interface Props { items: Video[] }
+const { items } = Astro.props;
+const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+---
+<div class="reels" data-reels>
+  <div class="reels-track">
+    {items.map((v, i) => (
+      <button class="reel" type="button" data-reel data-src={src(v, '1080')} data-src-sm={src(v, '720')} data-title={v.title} data-cursor="Regarder" aria-label={`Regarder la vidéo : ${v.title}`} data-reveal style={`--i:${i}`}>
+        <video muted loop playsinline preload="none" poster={poster(v)} data-reel-video>
+          <source src={src(v, '720')} type="video/mp4" />
+        </video>
+        <span class="reel-shade" aria-hidden="true"></span>
+        <span class="reel-meta">
+          <span class="reel-kicker">{v.kicker}</span>
+          <span class="reel-title">{v.title}</span>
+        </span>
+        <span class="reel-time">{fmt(v.duration)}</span>
+        <span class="reel-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor" /></svg></span>
+      </button>
+    ))}
+  </div>
+</div>
+<style>
+  .reels { position: relative; margin-inline: calc(-1 * var(--gutter)); overflow-x: auto; overflow-y: hidden; scrollbar-width: none; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); -webkit-overflow-scrolling: touch; }
+  .reels::-webkit-scrollbar { display: none; }
+  .reels-track { display: flex; gap: clamp(12px, 1.4vw, 20px); padding: 0.5rem var(--gutter) 1rem; width: max-content; }
+  .reel {
+    position: relative; flex: none; width: clamp(200px, 20vw, 300px); aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden;
+    background: var(--giardino-deep); color: var(--dolce); text-align: left; scroll-snap-align: start; isolation: isolate;
+    transition: transform 0.7s var(--ease-out), box-shadow 0.7s var(--ease-out);
+  }
+  .reel:nth-child(even) { margin-top: 5vh; }
+  .reel:hover { transform: translateY(-8px) rotate(-0.6deg); box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.55); }
+  .reel video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.04); transition: transform 1.2s var(--ease-out); }
+  .reel:hover video { transform: scale(1.1); }
+  .reel-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(0 0 0 / 0.35), transparent 30%, transparent 55%, rgb(0 0 0 / 0.75)); }
+  .reel-meta { position: absolute; left: 1rem; right: 1rem; bottom: 1rem; display: grid; gap: 0.4rem; }
+  .reel-kicker { font: 500 var(--fs-xs) / 1 var(--f-sans); letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.85; }
+  .reel-title { font: 400 clamp(1.2rem, 0.9rem + 0.8vw, 1.7rem) / 1 var(--f-display); text-transform: uppercase; }
+  .reel-time { position: absolute; top: 0.9rem; left: 1rem; font-size: var(--fs-xs); letter-spacing: 0.1em; }
+  .reel-play { position: absolute; top: 0.7rem; right: 0.7rem; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--pomodoro); transition: transform 0.5s var(--ease-out); }
+  .reel-play svg { width: 16px; margin-left: 2px; }
+  .reel:hover .reel-play { transform: scale(1.15); }
+  @media (max-width: 640px) { .reel { width: 62vw; } .reel:nth-child(even) { margin-top: 0; } }
+</style>

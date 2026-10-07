@@ -74,6 +74,10 @@ Les textes suivent la charte rédactionnelle 2026 : on vouvoie, on reste concret
 - page Restaurants : les restaurants de `src/data/restaurants.ts` qui ont des coordonnées (`lat`, `lng`) ;
 - page Devenir franchisé : restaurants + agglomérations de 70 000 habitants et plus (`src/data/agglomerations.ts`, liste indicative).
 
+## Vidéos
+
+Série tournée en Émilie-Romagne chez nos producteurs (format vertical) : `public/videos/` (versions 1080 et 720, H.264, son conservé) et `src/data/videos.ts`. Le composant `VideoReels` les lit en boucle et sans le son à l’écran ; un clic ouvre le lecteur plein écran avec le son. Les originaux restent sur le Google Drive.
+
 ## Aperçu autonome
 
 `npm run apercu` génère `preview/il-ristorante-apercu.html` : tout le site dans un seul fichier, navigable hors ligne.

@@ -2,6 +2,8 @@
 // Usage : npm run build && node scripts/build-preview.mjs  →  preview/il-ristorante-apercu.html
 import { build } from 'esbuild';
 import sharp from 'sharp';
+import { execFileSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, extname } from 'node:path';
 
@@ -28,6 +30,21 @@ for (const file of walk(dist)) {
   }
 }
 
+// Vidéos : une version très légère par vidéo (360 px), partagée par les sources 1080 et 720
+const videoDir = join(dist, 'videos');
+const cache = join(tmpdir(), 'ilr-preview-videos');
+mkdirSync(cache, { recursive: true });
+for (const f of readdirSync(videoDir).filter((f) => f.endsWith('-720.mp4'))) {
+  const slug = f.replace('-720.mp4', '');
+  const out = join(cache, slug + '.mp4');
+  try { statSync(out); } catch {
+    execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-i', join(videoDir, f), '-vf', 'scale=270:-2', '-c:v', 'libx264', '-preset', 'veryslow', '-crf', '33', '-maxrate', '260k', '-bufsize', '520k', '-c:a', 'aac', '-ac', '1', '-b:a', '40k', '-movflags', '+faststart', out]);
+  }
+  const uri = `data:video/mp4;base64,${readFileSync(out).toString('base64')}`;
+  assets[`/videos/${slug}-720.mp4`] = uri;
+  assets[`/videos/${slug}-poster.webp`] = `data:image/webp;base64,${(await sharp(join(videoDir, slug + '-poster.webp')).resize({ width: 360 }).webp({ quality: 55 }).toBuffer()).toString('base64')}`;
+}
+
 const pages = {};
 const styles = new Set();
 for (const file of walk(dist).filter((f) => f.endsWith('.html'))) {
@@ -51,9 +68,10 @@ const js = (await build({
 })).outputFiles[0].text;
 
 const index = readFileSync(join(dist, 'index.html'), 'utf8');
-const inline = (h) => h.replace(/\/(?:img|brand|fonts)\/[^"')\s]+|\/favicon\.svg/g, (m) => assets[m] ?? m);
+// Les vidéos ne sont pas incrustées dans le HTML de départ (le routeur les résout au chargement)
+const inline = (h, withVideos = true) => h.replace(/\/(?:img|brand|fonts|videos)\/[^"')\s]+|\/favicon\.svg/g, (m) => (!withVideos && m.startsWith('/videos/') ? m : assets[m.replace('-1080.mp4', '-720.mp4')] ?? m));
 let body = index.match(/<body[^>]*>([\s\S]*)<\/body>/)[1].replace(/<script[\s\S]*?<\/script>/g, '');
-body = inline(body).replace(/href="\/docs\/[^"]+"/g, 'href="#"');
+body = inline(body, false).replace(/href="\/docs\/[^"]+"/g, 'href="#"');
 for (const p of Object.values(pages)) p.main = p.main.replace(/href="\/docs\/[^"]+"/g, 'href="#"');
 
 const json = (o) => JSON.stringify(o).replace(/</g, '\\u003c');

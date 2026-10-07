@@ -7,6 +7,8 @@ import Stats from '../components/Stats.astro';
 import Rows from '../components/Rows.astro';
 import Arrow from '../components/Arrow.astro';
 import FranceMap from '../components/FranceMap.astro';
+import VideoReels from '../components/VideoReels.astro';
+import { videos } from '../data/videos';
 import { agglomerations } from '../data/agglomerations';
 import { restaurants } from '../data/site';
 import { pillars, conditions, contact, brochure } from '../data/site';
@@ -96,6 +98,7 @@ const cities = ['Lyon', 'Bordeaux', 'Nantes', 'Lille', 'Montpellier', 'Rennes', 
       <p class="big" data-split>Ateliers de cuisine, dégustations avec nos producteurs, show cooking : <em>l’art de vivre à l’italienne se vit.</em></p>
       <p class="side body-text" data-reveal>Nos restaurants, aux designs singuliers, sont des invitations à la découverte sensorielle. Ces rendez-vous enrichissent l’expérience de nos clients et de nos partenaires.</p>
     </div>
+    <div style="margin-bottom:clamp(48px,7vw,110px)"><VideoReels items={[videos.teasing, videos.parmesanFabrication, videos.jambonQuestion, videos.service, videos.conclusion]} /></div>
     <div class="mosaic">
       <Media src="/img/site/show-cooking.webp" alt="Un show cooking en restaurant" />
       <Media src="/img/site/franchise-salle.webp" alt="Une salle Il Ristorante" />

@@ -161,6 +161,7 @@ document.addEventListener('astro:before-preparation', (e) => {
   // Referme les sous-menus : le lien cliqué garderait sinon le focus (et le menu ouvert)
   (document.activeElement as HTMLElement | null)?.blur();
   header.classList.add('nav-lock');
+  if (player?.open) { playerVideo?.pause(); player.close(); }
   lenis.stop();
   ev.loader = async () => {
     await Promise.all([reduced ? Promise.resolve() : curtainIn(label).then(), original()]);
@@ -206,6 +207,7 @@ document.addEventListener('astro:page-load', async () => {
   filters(main, page.signal);
   rotators(main);
   maps(main);
+  reels(main);
   stepsLine(main);
 
   requestAnimationFrame(() => ScrollTrigger.refresh());
@@ -473,4 +475,43 @@ function stepsLine(main: HTMLElement) {
     if (fill) gsap.to(fill, { scaleY: 1, ease: 'none', scrollTrigger: { trigger: list, start: 'top 65%', end: 'bottom 65%', scrub: 0.5 } });
     items.forEach((it) => ScrollTrigger.create({ trigger: it, start: 'top 66%', onToggle: (st) => it.classList.toggle('is-on', st.isActive || st.progress === 1), end: 'max' }));
   });
+}
+
+/* ---------- Vidéos : aperçu muet à l'écran, lecture avec le son au clic ---------- */
+const player = $<HTMLDialogElement>('[data-player]');
+const playerVideo = $<HTMLVideoElement>('[data-player-video]');
+const playerTitle = $('[data-player-title]');
+function closePlayer() {
+  if (!player?.open) return;
+  playerVideo?.pause();
+  player.close();
+  lenis.start();
+}
+$('[data-player-close]')?.addEventListener('click', closePlayer);
+player?.addEventListener('close', () => { playerVideo?.pause(); lenis.start(); });
+player?.addEventListener('click', (e) => { if (e.target === player) closePlayer(); });
+
+function reels(main: HTMLElement) {
+  const cards = $$<HTMLButtonElement>('[data-reel]', main);
+  if (!cards.length) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      const v = en.target.querySelector('video');
+      if (!v || reduced) return;
+      if (en.isIntersecting) { v.preload = 'auto'; v.play().catch(() => {}); } else v.pause();
+    });
+  }, { threshold: 0.35 });
+  cards.forEach((c) => io.observe(c));
+  page?.signal.addEventListener('abort', () => io.disconnect());
+  cards.forEach((c) => c.addEventListener('click', () => {
+    if (!player || !playerVideo) return;
+    const small = matchMedia('(max-width: 760px)').matches;
+    playerVideo.src = (small ? c.dataset.srcSm : c.dataset.src) ?? '';
+    playerVideo.poster = c.querySelector('video')?.poster ?? '';
+    if (playerTitle) playerTitle.textContent = c.dataset.title ?? '';
+    player.showModal();
+    lenis.stop();
+    playerVideo.currentTime = 0;
+    playerVideo.play().catch(() => {});
+  }, { signal: page!.signal }));
 }

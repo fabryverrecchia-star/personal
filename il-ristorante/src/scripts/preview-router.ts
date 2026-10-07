@@ -7,7 +7,7 @@ const pages: Record<string, Page> = JSON.parse(document.getElementById('pages')!
 const assets: Record<string, string> = JSON.parse(document.getElementById('assets')!.textContent!);
 const w = window as { __previewPath?: string };
 
-const inline = (html: string) => html.replace(/\/(?:img|brand|fonts)\/[^"')\s]+|\/favicon\.svg/g, (m) => assets[m] ?? m);
+const inline = (html: string) => html.replace(/\/(?:img|brand|fonts|videos)\/[^"')\s]+|\/favicon\.svg/g, (m) => assets[m.replace('-1080.mp4', '-720.mp4')] ?? m);
 const norm = (p: string) => p.replace(/\/$/, '') || '/';
 const main = document.querySelector<HTMLElement>('[data-page]')!;
 
@@ -37,6 +37,7 @@ window.addEventListener('popstate', (e) => go((e.state as { path?: string })?.pa
 // Première page : celle du hash si présente, sinon l'accueil (déjà dans le HTML)
 const start = location.hash.startsWith('#/') ? norm(location.hash.slice(1)) : '/';
 w.__previewPath = start;
+main.innerHTML = inline(main.innerHTML);
 if (start !== '/' && pages[start]) {
   main.innerHTML = inline(pages[start].main);
   document.title = pages[start].title;

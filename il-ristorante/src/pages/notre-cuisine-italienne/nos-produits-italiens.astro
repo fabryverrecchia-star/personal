@@ -3,6 +3,8 @@ import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import products from '../../data/products.json';
+import VideoReels from '../../components/VideoReels.astro';
+import { videos } from '../../data/videos';
 const title = (s: string) => s.charAt(0) + s.slice(1).toLowerCase().replace(/parmigiano-reggiano/, 'Parmigiano-Reggiano').replace(/parme/, 'Parme').replace(/di bufala/, 'di bufala');
 ---
 <Base title="Nos produits italiens" description="Mozzarella di bufala, Parmigiano Reggiano, jambon de Parme, gorgonzola, pesto : les produits italiens d’Il Ristorante.">
@@ -10,6 +12,11 @@ const title = (s: string) => s.charAt(0) + s.slice(1).toLowerCase().replace(/par
     <Fragment slot="title">Nos produits <span class="script">italiens</span></Fragment>
     <Fragment slot="lead">Notre chef est allé chercher les meilleures matières premières pour vous proposer une cuisine italienne de qualité et authentique.</Fragment>
   </PageHero>
+  <section class="section wrap t-giardino" style="overflow:hidden">
+    <div class="sec-head"><span class="eyebrow">Rencontrez nos producteurs</span><span class="idx">▶</span></div>
+    <h2 class="display h-xl" style="max-width:16ch;margin-bottom:clamp(28px,4vw,56px)" data-split>De Parme <span class="script">à votre assiette</span></h2>
+    <VideoReels items={[videos.parmesanFabrication, videos.parmesanQuestion, videos.jambonFabrication, videos.jambonQuestion]} />
+  </section>
   <section class="section wrap t-dolce">
     <ol class="products">
       {products.map((p, i) => (
