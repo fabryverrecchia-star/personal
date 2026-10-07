@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Media from '../../components/Media.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { ext } from '../../data/site';
+const steps = [
+  { title: '#Apprentissage', text: 'Faciliter l’intégration de nos collaborateurs, expérimentés ou non en restauration.' },
+  { title: '#Polyvalence', text: 'Développer la polyvalence, d’un poste à l’autre, en cuisine comme en salle.' },
+  { title: '#Formation', text: 'Faire monter en compétence, avec des formations en restaurant et une culture de la transmission.' },
+  { title: '#Créer', text: 'Détecter les potentiels et laisser chacun proposer, essayer, inventer.' },
+  { title: '#Évoluer', text: 'Privilégier la promotion interne : 73 % de nos encadrants en sont issus.' },
+];
+---
+<Base title="Grandir ensemble" description="Apprentissage, polyvalence, formation, promotion interne : grandir chez Il Ristorante.">
+  <PageHero image="/img/site/team-rouen.webp" alt="L’équipe d’Il Ristorante Rouen" crumbs={[{ label: 'Il Ristorante recrute', href: '/il-ristorante-recrute' }, { label: 'Grandir ensemble', href: '/il-ristorante-recrute/grandir-ensemble' }]} short>
+    <Fragment slot="title">Grandir <span class="script">ensemble</span></Fragment>
+    <Fragment slot="lead">Détecter les potentiels, développer la polyvalence, faire monter en compétence, privilégier la promotion interne. Chez Il Ristorante, tout est possible.</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <ol class="steps" data-steps>
+      <li class="steps-line" aria-hidden="true"><i data-steps-fill></i></li>
+      {steps.map((st, i) => (
+        <li class="step" data-step><span class="step-n num">{String(i + 1).padStart(2, '0')}</span><div><h3>{st.title}</h3><p>{st.text}</p></div></li>
+      ))}
+    </ol>
+  </section>
+  <section class="section wrap t-giardino">
+    <div class="split">
+      <Media src="/img/site/show-cooking.webp" alt="Un chef anime un show cooking" class="media--r" />
+      <div class="txt">
+        <p class="eyebrow">#respect #attention #passion #rigueur</p>
+        <h2 class="display h-xl" data-split>Un geste appris <span class="script">se transmet</span></h2>
+        <p class="body-text" data-reveal>En cuisine comme en salle, on apprend aux côtés de chefs et de responsables qui transmettent leurs gestes. Et on valorise la prise de responsabilité.</p>
+      </div>
+    </div>
+  </section>
+  <CtaBand href={ext.offres} label="Postuler">Commencez <span class="script">ici</span></CtaBand>
+</Base>

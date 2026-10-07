@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Arrow from '../components/Arrow.astro';
+import { restaurants, ext } from '../data/site';
+---
+<Base title="Contact" description="Une question, une suggestion, la fidélité UNICA ? Contactez Il Ristorante.">
+  <PageHero image="/img/site/franchise-spritz.webp" alt="Une cliente trinque avec un spritz" crumbs={[{ label: 'Contact', href: '/contact' }]} short>
+    <Fragment slot="title">On vous <span class="script">écoute</span></Fragment>
+    <Fragment slot="lead">Vous avez des questions ou des suggestions ? Vous souhaitez en savoir plus sur notre programme fidélité UNICA ? Écrivez-nous.</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="grid" style="row-gap:3rem">
+      <aside style="grid-column:1/span 4;display:grid;gap:1.6rem;align-content:start">
+        <a class="contact-card" href={ext.avis} target="_blank" rel="noopener" data-reveal><strong>Votre avis nous intéresse</strong><span>Partagez votre expérience, laissez-nous un avis.</span></a>
+        <a class="contact-card" href="/il-ristorante-recrute/nos-metiers" data-reveal><strong>Vous cherchez un emploi ?</strong><span>Voir nos métiers et les offres.</span></a>
+        <a class="contact-card" href="/devenir-franchise-il-ristorante" data-reveal><strong>Devenir franchisé</strong><span>Parlez de votre projet à notre directeur du développement.</span></a>
+      </aside>
+      <form class="form t-dolce" style="grid-column:6/span 7" data-contact-form data-reveal>
+        <div class="field"><label for="c-nom">Nom *</label><input id="c-nom" name="nom" autocomplete="family-name" required /></div>
+        <div class="field"><label for="c-prenom">Prénom *</label><input id="c-prenom" name="prenom" autocomplete="given-name" required /></div>
+        <div class="field field--full"><label for="c-email">E-mail *</label><input id="c-email" name="email" type="email" autocomplete="email" required /></div>
+        <div class="field">
+          <label for="c-objet">Votre demande concerne *</label>
+          <select id="c-objet" name="objet" required>
+            <option value="">Choisir</option>
+            <option>Une réservation</option>
+            <option>Une commande à emporter</option>
+            <option>La carte de fidélité UNICA</option>
+            <option>Une commande Oenoteca</option>
+            <option>Une suggestion</option>
+            <option>Autre</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="c-resto">Votre restaurant *</label>
+          <select id="c-resto" name="restaurant" required>
+            <option value="">Choisir</option>
+            {restaurants.map((r) => <option value={r.email ?? ''} data-name={r.name}>{r.name}</option>)}
+          </select>
+        </div>
+        <div class="field field--full"><label for="c-msg">Quel est votre message ?</label><textarea id="c-msg" name="message"></textarea></div>
+        <label class="consent"><input type="checkbox" required /> J’accepte que mes données soient utilisées par Il Ristorante pour traiter ma demande (voir les <a href="/mentions-legales" style="text-decoration:underline">mentions légales</a>).</label>
+        <div><button class="btn" type="submit" data-magnetic>Envoyer <Arrow /></button></div>
+        <p class="form-msg" data-form-msg aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+</Base>
+<style>
+  .contact-card { display: grid; gap: 0.3rem; padding: 1.4rem 1.6rem; border-radius: 16px; background: color-mix(in srgb, var(--giardino) 7%, transparent); transition: background-color 0.4s, transform 0.5s var(--ease-out); }
+  .contact-card strong { font: 400 1.5rem / 1 var(--f-display); text-transform: uppercase; color: var(--chianti); }
+  .contact-card:hover { background: color-mix(in srgb, var(--pomodoro) 14%, transparent); transform: translateY(-3px); }
+  @media (max-width: 900px) { aside, form.form { grid-column: 1 / -1 !important; } }
+</style>

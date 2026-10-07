@@ -7,20 +7,22 @@ import Stats from '../components/Stats.astro';
 import Rows from '../components/Rows.astro';
 import Gallery from '../components/Gallery.astro';
 import Arrow from '../components/Arrow.astro';
-import { pillars, brochure } from '../data/site';
+import PostCards from '../components/PostCards.astro';
+import FranceMap from '../components/FranceMap.astro';
+import { pillars, brochure, ext, restaurants, restaurantHref } from '../data/site';
 
 const gallery = [
   { src: '/img/dough.webp', alt: 'Un pizzaiolo étale la pâte à la main sur le marbre fariné', caption: 'La pâte, étalée à la main' },
-  { src: '/img/chef.webp', alt: 'Un chef dresse une assiette en cuisine ouverte', caption: 'En cuisine, une vraie brigade' },
+  { src: '/img/site/chef-bar.webp', alt: 'Un chef et une serveuse dressent une assiette au passe', caption: 'En cuisine, une vraie brigade' },
   { src: '/img/parmesan.webp', alt: 'Meules de Parmigiano Reggiano en cave d’affinage', caption: 'Parmigiano Reggiano, 36 mois' },
-  { src: '/img/pasta.webp', alt: 'Assiettes de pâtes fraîches et lasagnes vues du dessus', caption: 'Des plats pensés pour être partagés' },
-  { src: '/img/wine.webp', alt: 'Bouteilles de vins italiens alignées sur des étagères en bois', caption: 'La cave, du Piémont aux Pouilles' },
-  { src: '/img/interior-blue.webp', alt: 'Salle de restaurant, fauteuils en velours bleu et tables en marbre', caption: 'Velours, marbre et laiton' },
-  { src: '/img/drinks.webp', alt: 'Deux spritz et des assiettes à partager sur une table', caption: 'L’aperitivo, à 18 h' },
+  { src: '/img/site/plats-ete.webp', alt: 'Assiettes de la carte d’été vues du dessus', caption: 'Des plats pensés pour être partagés' },
+  { src: '/img/site/cave.webp', alt: 'Un mur de vins italiens', caption: 'La cave, du Piémont à la Sicile' },
+  { src: '/img/site/interieur-plan-de-campagne.webp', alt: 'Salle de restaurant, banquettes bleues et suspensions', caption: 'Un cadre contemporain' },
+  { src: '/img/site/aperitivo.webp', alt: 'Des amies trinquent autour de l’aperitivo', caption: 'L’aperitivo, tous les jeudis' },
 ];
 ---
 <Base title="Accueil" label="Il Ristorante">
-  <PageHero image="/img/hero.webp" alt="La salle d’un restaurant Il Ristorante, banquettes bleues et étagères garnies de produits italiens">
+  <PageHero image="/img/site/home-hero.webp" alt="La salle d’un restaurant Il Ristorante, banquettes bleues et étagères garnies de produits italiens">
     <Fragment slot="title">Le vrai dans<br />l’assiette, <span class="script">l’Italie dans le cœur</span></Fragment>
     <Fragment slot="lead">Depuis 2006, on partage l’Italie telle qu’on l’aime : vraie, généreuse, gourmande. Des producteurs que l’on connaît, des produits que l’on respecte.</Fragment>
     <Sticker shape="stickers-08" style="right:calc(var(--gutter) + 4vw);top:22vh" spin>Depuis<br />2006</Sticker>
@@ -33,7 +35,7 @@ const gallery = [
       <div class="side body-text" data-reveal>
         <p>Le temps d’un repas à table, on vous offre l’expérience de l’art de vivre à l’italienne. Un jambon de Parme coupé à la minute, une mozzarella di bufala qui fond sous la fourchette, une pâte qui crépite au four.</p>
         <p>Nos chefs cuisinent tout ici, avec leurs brigades. Et la carte change avec les saisons.</p>
-        <a class="btn btn--ghost" style="margin-top:2rem" href="/decouvrir" data-magnetic>Découvrir Il Ristorante <Arrow /></a>
+        <a class="btn btn--ghost" style="margin-top:2rem" href="/notre-cuisine-italienne" data-magnetic>Découvrir Il Ristorante <Arrow /></a>
       </div>
     </div>
   </section>
@@ -64,7 +66,7 @@ const gallery = [
       <div class="side body-text" style="align-self:end" data-reveal>
         <p>23 restaurants, dont 8 en franchise. Vous ouvrez avec une marque installée, un concept éprouvé et des équipes qui vous accompagnent de la recherche du local jusqu’au quotidien.</p>
         <div style="display:flex;flex-wrap:wrap;gap:.7rem;margin-top:2rem">
-          <a class="btn" style="--b-bg:var(--dolce);--b-fg:var(--giardino)" href="/devenir-franchise" data-magnetic data-label="Devenir franchisé">Devenir franchisé <Arrow /></a>
+          <a class="btn" style="--b-bg:var(--dolce);--b-fg:var(--giardino)" href="/devenir-franchise-il-ristorante" data-magnetic data-label="Devenir franchisé">Devenir franchisé <Arrow /></a>
           <a class="btn btn--ghost" href={brochure} download>La brochure</a>
         </div>
       </div>
@@ -75,34 +77,24 @@ const gallery = [
 
   <section class="section wrap t-dolce">
     <div class="split">
-      <Media src="/img/takeaway.webp" alt="Pots de pâtes à emporter empilés sur une table" class="media--r" />
+      <Media src="/img/site/plats-partage.webp" alt="Plats italiens à partager" class="media--r" />
       <div class="txt">
         <p class="eyebrow">Il Ristorante chez vous</p>
         <h2 class="display h-xl" data-split>Ce soir, la pasta <span class="script">à la maison</span></h2>
         <p class="body-text" data-reveal>À emporter, en livraison ou en click & collect : les mêmes recettes qu’au restaurant, préparées par la même brigade. Il ne reste qu’à mettre la table.</p>
-        <div data-reveal><a class="btn" href="/il-ristorante-chez-vous" data-magnetic>Commander <Arrow /></a></div>
+        <div data-reveal style="display:flex;gap:.6rem;flex-wrap:wrap"><a class="btn" href={ext.commander} target="_blank" rel="noopener" data-magnetic>Commander <Arrow /></a><a class="btn btn--ghost" href="/il-ristorante-chez-vous">Traiteur & épicerie</a></div>
       </div>
     </div>
   </section>
 
+  <FranceMap points={restaurants.map((r) => ({ name: r.name, lat: r.lat, lng: r.lng, href: restaurantHref(r) }))} theme="t-giardino" countLabel="restaurants, de Lille à Toulon." legend={[{ kind: 'restaurant', label: 'Il Ristorante' }]}>
+    <p slot="before" class="eyebrow">Près de chez vous</p>
+    <a class="btn" style="--b-bg:var(--dolce);--b-fg:var(--giardino);justify-self:start" href="/reserver">Réserver une table</a>
+  </FranceMap>
+
   <section class="section wrap t-cielo">
-    <div class="sec-head"><span class="eyebrow">L’Italie, son charme, ses saveurs, ses recettes</span><span class="idx">IV.</span></div>
-    <div class="cards">
-      <a class="card" href="/news-fidelite/blog" data-cursor="Lire">
-        <Media src="/img/lemons.webp" alt="Citrons de Sicile coupés en deux" />
-        <div class="meta"><span>Produit</span><span>5 min</span></div>
-        <h3>Le citron de Sicile, du zeste au limoncello</h3>
-      </a>
-      <a class="card" href="/news-fidelite/blog" data-cursor="Lire" style="margin-top:8vh">
-        <Media src="/img/bruschetta.webp" alt="Bruschetta aux tomates et basilic" />
-        <div class="meta"><span>Recette</span><span>4 min</span></div>
-        <h3>La bruschetta, une affaire de pain grillé</h3>
-      </a>
-      <a class="card" href="/news-fidelite/blog" data-cursor="Lire">
-        <Media src="/img/gelato.webp" alt="Vitrine de glaces artisanales" />
-        <div class="meta"><span>Dolci</span><span>3 min</span></div>
-        <h3>Gelato : pourquoi il est plus dense</h3>
-      </a>
-    </div>
+    <div class="sec-head"><span class="eyebrow">L’Italie, son charme, ses saveurs, ses recettes</span><span class="idx">V.</span></div>
+    <PostCards limit={3} />
+    <div style="margin-top:3rem" data-reveal><a class="btn btn--ghost" href="/actualite">Tous les articles <Arrow /></a></div>
   </section>
 </Base>

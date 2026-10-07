@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Rows from '../../components/Rows.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { ext } from '../../data/site';
+const values = [
+  { title: '#Bonheur au travail', text: 'Une équipe soudée, des produits qui donnent envie et la fierté du travail bien fait.', img: '/img/site/team-fun.webp' },
+  { title: '#Mon meilleur moment', text: 'Le coup de feu du samedi soir, l’assiette qui revient vide, le client qui revient la semaine suivante.', img: '/img/site/aperitivo.webp' },
+  { title: '#Nous sommes différents', text: 'Des parcours variés, issus ou non de la restauration, réunis par la passion de l’Italie.', img: '/img/site/team.webp' },
+  { title: '#Notre approche clients', text: 'Recevoir nos convives comme nos invités : un service premium, attentif et chaleureux.', img: '/img/site/serveur.webp' },
+];
+---
+<Base title="S’épanouir" label="S’épanouir" description="Nos collaborateurs racontent leur aventure Il Ristorante.">
+  <PageHero image="/img/site/team-fun.webp" alt="Une équipe Il Ristorante en salle" crumbs={[{ label: 'Il Ristorante recrute', href: '/il-ristorante-recrute' }, { label: 'S’épanouir', href: '/il-ristorante-recrute/sepanouir' }]} short>
+    <Fragment slot="title">S’épanouir, <span class="script">ensemble</span></Fragment>
+    <Fragment slot="lead">Ce sont nos collaborateurs qui en parlent le mieux : passionnés, fiers et heureux d’être chez Il Ristorante. L’humain est notre priorité.</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="sec-head"><span class="eyebrow">#respect #attention #passion #rigueur #solidaritedesequipes</span><span class="idx">{values.length}</span></div>
+    <Rows rows={values} />
+  </section>
+  <CtaBand href={ext.offres} label="Postuler" theme="t-giardino">La famiglia <span class="script">s’agrandit</span></CtaBand>
+</Base>

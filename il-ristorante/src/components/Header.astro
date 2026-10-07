@@ -1,21 +1,36 @@
 ---
 import Logo from './Logo.astro';
-import { nav, socials } from '../data/site';
+import { nav, socials, restaurants, regions, restaurantHref } from '../data/site';
+const byRegion = regions.map((r) => ({ region: r, list: restaurants.filter((x) => x.region === r) }));
+const caret = '<svg class="caret" viewBox="0 0 8 5" fill="none" stroke="currentColor" aria-hidden="true"><path d="M.5.5 4 4 7.5.5" /></svg>';
 ---
 <header class="header" data-header>
   <Logo />
   <nav aria-label="Navigation principale">
     <ul class="nav">
       {nav.map((item) => (
-        <li>
+        <li class:list={{ 'has-mega': item.mega }}>
           <a href={item.href} class:list={[item.highlight ? 'is-cta' : 'link-u']} data-nav-link>
             {item.label}
-            {item.children && <svg class="caret" viewBox="0 0 8 5" fill="none" stroke="currentColor" aria-hidden="true"><path d="M.5.5 4 4 7.5.5" /></svg>}
+            {(item.children || item.mega) && <Fragment set:html={caret} />}
           </a>
           {item.children && (
             <ul class="dropdown">
               {item.children.map((c) => <li><a href={c.href} data-nav-link>{c.label}</a></li>)}
             </ul>
+          )}
+          {item.mega && (
+            <div class="mega">
+              <div class="mega-cols">
+                {byRegion.map((g) => (
+                  <div>
+                    <p class="mega-region">{g.region}</p>
+                    <ul>{g.list.map((r) => <li><a href={restaurantHref(r)} data-nav-link data-label={r.name}>{r.name}</a></li>)}</ul>
+                  </div>
+                ))}
+              </div>
+              <a class="mega-all" href="/restaurants" data-nav-link>Voir la carte des {restaurants.length} restaurants →</a>
+            </div>
           )}
         </li>
       ))}
@@ -29,6 +44,7 @@ import { nav, socials } from '../data/site';
       <li>
         <a href={item.href} data-nav-link>{item.label}</a>
         {item.children && <div class="menu-sub">{item.children.map((c) => <a href={c.href} data-nav-link>{c.label}</a>)}</div>}
+        {item.mega && <div class="menu-sub">{restaurants.map((r) => <a href={restaurantHref(r)} data-nav-link>{r.name}</a>)}</div>}
       </li>
     ))}
   </ul>

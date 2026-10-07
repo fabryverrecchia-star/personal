@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Media from '../../components/Media.astro';
+import DocLinks from '../../components/DocLinks.astro';
+import { ext } from '../../data/site';
+const promises = ['Des matières premières italiennes de qualité (AOP et labels)', 'Des plats faits maison', 'Des pizzas à pâte à pousse lente (24 h minimum), pétrie sur place', 'Des salades et des pâtes renouvelées selon les arrivages', 'Des pâtes labellisées « pasta di Gragnano »', 'Des emballages en carton écoresponsable ou en plastique réutilisable'];
+---
+<Base title="Click and Collect" label="Click & Collect" description="Pizzas, spécialités italiennes, plateaux repas à emporter : le Click & Collect Il Ristorante.">
+  <PageHero image="/img/site/pizza.webp" alt="Pizza garnie sortie du four" crumbs={[{ label: 'Chez vous', href: '/il-ristorante-chez-vous' }, { label: 'Click and Collect', href: '/notre-cuisine-italienne/vente-a-emporter' }]} short>
+    <Fragment slot="title">Vente <span class="script">à emporter</span></Fragment>
+    <Fragment slot="lead">Une envie de pizza à la maison ? D’un repas italien au bureau ? Pizzas, spécialités italiennes, plateaux repas et produits de la boutique vous attendent.</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="split">
+      <Media src="/img/site/plats-ete.webp" alt="Plats de la carte d’été" class="media--r" />
+      <div class="txt">
+        <p class="eyebrow">La vente à emporter signée Il Ristorante</p>
+        <h2 class="display h-xl" data-split>Comme <span class="script">au restaurant</span></h2>
+        <ul class="checks" data-reveal>{promises.map((p) => <li>{p}</li>)}</ul>
+        <DocLinks links={[{ label: 'Commander en Click & Collect', href: ext.commander }, { label: 'Allergènes', href: ext.allergenes }]} />
+      </div>
+    </div>
+  </section>
+  <section class="section wrap t-giardino">
+    <div class="grid intro-grid">
+      <p class="big" data-split>À Strasbourg, Nancy, Metz et Rouen, <em>commandez sur place ou par téléphone.</em></p>
+      <div class="side body-text" data-reveal>
+        <p>Ces restaurants n’ont pas encore la commande en ligne. Consultez la carte à emporter et appelez directement votre restaurant.</p>
+        <div style="margin-top:1.6rem"><DocLinks light links={[{ label: 'La carte à emporter', href: ext.vae }, { label: 'Nos restaurants', href: '/restaurants' }]} /></div>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .checks { display: grid; gap: 0.7rem; }
+  .checks li { padding-left: 1.8rem; position: relative; }
+  .checks li::before { content: '✓'; position: absolute; left: 0; color: var(--pomodoro); font-weight: 600; }
+</style>

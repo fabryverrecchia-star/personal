@@ -1,30 +1,20 @@
 ---
 import Base from '../layouts/Base.astro';
-import { contact } from '../data/site';
-// Les informations de la société éditrice et de l'hébergeur sont à compléter avant la mise en ligne.
-const sections = [
-  { id: 'editeur', title: 'Éditeur du site', body: ['Il Ristorante — La Cucina Italiana.', 'Raison sociale, siège social, numéro RCS et directeur de la publication : à compléter.'] },
-  { id: 'hebergement', title: 'Hébergement', body: ['Nom et adresse de l’hébergeur : à compléter.'] },
-  { id: 'propriete', title: 'Propriété intellectuelle', body: ['Les textes, photographies, logos, monogrammes et stickers présents sur ce site sont la propriété d’Il Ristorante. Toute reproduction sans autorisation est interdite.'] },
-  { id: 'confidentialite', title: 'Confidentialité', body: ['Le formulaire de candidature franchise n’enregistre aucune donnée sur ce site : il prépare un e-mail que vous envoyez vous-même, depuis votre messagerie, à notre direction du développement.', `Pour toute question sur vos données, écrivez à ${contact.email}.`] },
-  { id: 'cookies', title: 'Cookies', body: ['Ce site ne dépose aucun cookie publicitaire ni de mesure d’audience. Les polices sont hébergées sur le site lui-même : aucune donnée n’est transmise à un service tiers lors de votre visite.'] },
-];
+import { Content } from '../content-md/mentions-legales.md';
 ---
-<Base title="Mentions légales" description="Mentions légales, confidentialité et cookies du site Il Ristorante.">
+<Base title="Mentions légales" description="Mentions légales et politique de confidentialité du site Il Ristorante.">
   <section class="section wrap t-dolce" style="padding-top:calc(var(--header-h) + 8vw)">
     <h1 class="display h-xxl" data-split>Mentions <span class="script">légales</span></h1>
     <div class="grid" style="margin-top:clamp(40px,6vw,90px)">
-      <div style="grid-column:3/span 8;display:grid;gap:3rem" class="legal">
-        {sections.map((s) => (
-          <section id={s.id} data-reveal>
-            <h2 class="display h-xl" style="font-size:clamp(1.6rem,1rem + 1.6vw,2.4rem);margin-bottom:1rem">{s.title}</h2>
-            {s.body.map((b) => <p class="body-text" style="max-width:none">{b}</p>)}
-          </section>
-        ))}
-      </div>
+      <div class="legal" style="grid-column:3/span 8"><Content /></div>
     </div>
   </section>
 </Base>
 <style>
+  .legal { font-size: var(--fs-m); }
+  .legal :global(h2) { font: 400 clamp(1.6rem, 1rem + 1.6vw, 2.4rem) / 1 var(--f-display); text-transform: uppercase; margin: 3rem 0 1rem; color: var(--chianti); }
+  .legal :global(h3), .legal :global(h4) { font-weight: 500; margin: 2rem 0 0.6rem; }
+  .legal :global(p) { margin-bottom: 0.9em; max-width: 72ch; }
+  .legal :global(a) { text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
   @media (max-width: 900px) { .legal { grid-column: 1 / -1 !important; } }
 </style>

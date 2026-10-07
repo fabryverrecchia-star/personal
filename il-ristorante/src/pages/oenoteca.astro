@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Sticker from '../components/Sticker.astro';
+import CtaBand from '../components/CtaBand.astro';
+const reds = [
+  { tag: 'Classique', name: 'Chianti', sub: 'Montalbano', price: '12,50 €' },
+  { tag: 'Découverte · Bio', name: 'Montepulciano', sub: 'Teseo', price: '13,90 €' },
+  { tag: 'Découverte', name: 'Nebbiolo', sub: 'Langhe Nebbiolo', price: '19,90 €' },
+  { tag: 'Découverte', name: 'Nero d’Avola', sub: 'Ikano', price: '17,90 €' },
+];
+const packs = [
+  { name: 'Aperol Spritz', price: '29,00 €' },
+  { name: 'Découverte vins de Toscane', price: '47,00 €' },
+  { name: 'Grands vins d’Italie', price: '108,00 €' },
+  { name: 'Vins bio italiens', price: '40,00 €' },
+];
+---
+<Base title="Oenoteca, cave à vin italienne en ligne" label="Oenoteca" description="Oenoteca, la cave à vin italienne en ligne d’Il Ristorante : vins, bières et packs livrés chez vous.">
+  <PageHero image="/img/site/cave.webp" alt="Bouteilles de vins italiens" crumbs={[{ label: 'Chez vous', href: '/il-ristorante-chez-vous' }, { label: 'Oenoteca', href: '/oenoteca' }]} short>
+    <Fragment slot="title">Œnoteca, <span class="script">cave à vin italienne</span></Fragment>
+    <Fragment slot="lead">Nos vins italiens livrés chez vous. La boutique en ligne est momentanément indisponible : nous serons bientôt de retour.</Fragment>
+    <Sticker shape="stickers-04" style="right:calc(var(--gutter) + 3vw);top:26vh;width:clamp(150px,15vw,220px)">Bientôt<small>de retour</small></Sticker>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="sec-head"><span class="eyebrow">Nos rouges du moment</span><span class="idx">{reds.length}</span></div>
+    <div class="wines">
+      {reds.map((w) => (
+        <div class="wine" data-reveal><span class="eyebrow">{w.tag}</span><h3>{w.name}</h3><p>{w.sub}</p><span class="num price">{w.price}</span></div>
+      ))}
+    </div>
+  </section>
+  <section class="section wrap t-chianti">
+    <div class="sec-head"><span class="eyebrow">Découvrez nos packs</span><span class="idx">{packs.length}</span></div>
+    <div class="wines">
+      {packs.map((w) => (
+        <div class="wine" data-reveal><h3>{w.name}</h3><span class="num price">{w.price}</span></div>
+      ))}
+    </div>
+    <p class="muted" style="margin-top:2.4rem;font-size:var(--fs-s)">Interdiction de vente de boissons alcooliques aux mineurs de moins de 18 ans. L’abus d’alcool est dangereux pour la santé, à consommer avec modération.</p>
+  </section>
+  <CtaBand href="/notre-cuisine-italienne/notre-boutique" label="L’épicerie fine" theme="t-giardino" eyebrow="En attendant">Nos vins <span class="script">en restaurant</span></CtaBand>
+</Base>
+<style>
+  .wines { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--col-gap); }
+  .wine { display: grid; gap: 0.5rem; align-content: start; padding: 1.6rem; border-radius: 18px; background: color-mix(in srgb, var(--fg) 6%, transparent); }
+  .wine h3 { font: 400 clamp(1.8rem, 1rem + 1.8vw, 2.8rem) / 0.95 var(--f-display); text-transform: uppercase; }
+  .wine .price { font-size: 2.2rem; color: var(--accent); margin-top: 0.8rem; }
+  @media (max-width: 1000px) { .wines { grid-template-columns: 1fr 1fr; } }
+</style>

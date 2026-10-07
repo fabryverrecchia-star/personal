@@ -4,19 +4,18 @@ import PageHero from '../components/PageHero.astro';
 import Media from '../components/Media.astro';
 import CtaBand from '../components/CtaBand.astro';
 import FranceMap from '../components/FranceMap.astro';
-import { restaurants } from '../data/restaurants';
-import { brochure } from '../data/site';
-const located = restaurants.filter((r) => r.lat != null && r.lng != null);
-const mapPoints = located.map((r) => ({ name: r.city, lat: r.lat!, lng: r.lng!, kind: (r.franchise ? 'franchise' : 'restaurant') as 'franchise' | 'restaurant', href: `#r-${restaurants.indexOf(r)}` }));
+import { restaurants, regions, restaurantHref, brochure } from '../data/site';
+
+const mapPoints = restaurants.map((r) => ({ name: r.name, lat: r.lat, lng: r.lng, kind: 'restaurant' as const, href: restaurantHref(r) }));
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
 ---
-<Base title="Restaurants" description="23 restaurants Il Ristorante en France : trouvez le vôtre et réservez votre table.">
-  <PageHero image="/img/facade.webp" alt="Façade d’un restaurant Il Ristorante, pierre et bois" crumbs={[{ label: 'Restaurants', href: '/restaurants' }]} short>
-    <Fragment slot="title">23 tables<br /><span class="script">vous attendent</span></Fragment>
-    <Fragment slot="lead">Trouvez le restaurant le plus proche de chez vous et réservez en quelques secondes.</Fragment>
+<Base title="Restaurants" description={`Les ${restaurants.length} restaurants Il Ristorante en France : adresses, horaires et réservation.`}>
+  <PageHero image="/img/site/franchise-facade.webp" alt="Façade d’un restaurant Il Ristorante" crumbs={[{ label: 'Restaurants', href: '/restaurants' }]} short>
+    <Fragment slot="title">{restaurants.length} tables <span class="script">vous attendent</span></Fragment>
+    <Fragment slot="lead">Du Nord à la Méditerranée, trouvez votre Il Ristorante et réservez votre table.</Fragment>
   </PageHero>
 
-  <FranceMap points={mapPoints} theme="t-giardino" count={23} countLabel="restaurants, de la Manche à la Méditerranée." legend={[{ kind: 'restaurant', label: 'Succursale' }, { kind: 'franchise', label: 'En franchise' }]}>
+  <FranceMap points={mapPoints} theme="t-giardino" countLabel="restaurants, de Lille à Toulon." legend={[{ kind: 'restaurant', label: 'Il Ristorante' }]}>
     <p slot="before" class="eyebrow">Nos restaurants en France</p>
     <a class="btn" style="--b-bg:var(--dolce);--b-fg:var(--giardino);justify-self:start" href="#liste">Voir la liste</a>
   </FranceMap>
@@ -25,23 +24,31 @@ const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacrit
     <div class="sec-head" style="align-items:end">
       <label class="field" style="flex:1;max-width:560px">
         <span class="eyebrow">Rechercher une ville</span>
-        <input type="search" placeholder="Votre ville, votre code postal…" data-filter style="font:300 var(--fs-xl)/1 var(--f-display);letter-spacing:-0.045em;border-bottom:1px solid var(--line);padding:.4rem 0;background:none;border-top:0;border-inline:0;width:100%" />
+        <input type="search" placeholder="Lille, Bordeaux, 31700…" data-filter style="font:400 var(--fs-xl)/1 var(--f-display);text-transform:uppercase;border-bottom:1px solid var(--line);padding:.4rem 0;background:none;border-top:0;border-inline:0;width:100%" />
       </label>
       <span class="idx">{restaurants.length}</span>
     </div>
-    <div class="cards">
-      {restaurants.map((r) => (
-        <article class="card" id={`r-${restaurants.indexOf(r)}`} data-filter-item={norm(`${r.city} ${r.address}`)} data-reveal>
-          <Media src={r.img} alt={`Restaurant Il Ristorante ${r.city}`} />
-          <div class="meta"><span>{r.franchise ? 'Franchise' : 'Succursale'}</span><span>Réservation en ligne</span></div>
-          <h3>{r.city}</h3>
-          <p class="muted">{r.address}</p>
-          <a class="btn btn--ghost" style="justify-self:start" href={r.booking}>Réserver</a>
-        </article>
-      ))}
-    </div>
-    <p data-filter-empty hidden style="font:300 var(--fs-xl)/1 var(--f-display);letter-spacing:-0.045em;margin-top:2rem">Pas encore de restaurant ici… et si c’était le vôtre ?</p>
+    {regions.map((reg) => (
+      <div class="region-block" data-filter-group>
+        <h2 class="region-title">{reg}</h2>
+        <div class="cards">
+          {restaurants.filter((r) => r.region === reg).map((r) => (
+            <a class="card" href={restaurantHref(r)} data-filter-item={norm(`${r.name} ${r.city} ${r.postalCode} ${r.region}`)} data-label={r.name} data-cursor="Voir" data-reveal>
+              <Media src={r.img} alt={`Il Ristorante ${r.name}`} />
+              <div class="meta"><span>{r.postalCode} {r.city}</span><span>{r.phone}</span></div>
+              <h3>{r.name}</h3>
+            </a>
+          ))}
+        </div>
+      </div>
+    ))}
+    <p data-filter-empty hidden style="font:400 var(--fs-xl)/1 var(--f-display);text-transform:uppercase;margin-top:2rem">Pas encore de restaurant ici… et si c’était le vôtre ?</p>
   </section>
 
-  <CtaBand href="/devenir-franchise" label="Devenir franchisé" eyebrow="Pas de restaurant près de chez vous ?" secondary={{ href: brochure, label: 'La brochure', download: true }}>Ouvrez <span class="script">le prochain</span></CtaBand>
+  <CtaBand href="/devenir-franchise-il-ristorante" label="Devenir franchisé" eyebrow="Pas de restaurant près de chez vous ?" secondary={{ href: brochure, label: 'La brochure', download: true }}>Ouvrez <span class="script">le prochain</span></CtaBand>
 </Base>
+<style>
+  .region-block + .region-block { margin-top: clamp(56px, 7vw, 110px); }
+  .region-title { font: 400 clamp(2.4rem, 1.4rem + 3vw, 4.6rem) / 1 var(--f-display); text-transform: uppercase; color: var(--chianti); margin-bottom: 1.6rem; }
+  .region-block[hidden] { display: none; }
+</style>

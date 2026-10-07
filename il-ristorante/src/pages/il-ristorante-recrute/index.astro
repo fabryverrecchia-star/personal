@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Rows from '../../components/Rows.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Sticker from '../../components/Sticker.astro';
+import { ext } from '../../data/site';
+const rows = [
+  { title: 'Nos métiers', text: 'Chefs, seconds, cuisiniers, commis, directeurs, responsables de salle, serveurs : trouvez votre place.', img: '/img/site/franchise-cuisine.webp', href: '/il-ristorante-recrute/nos-metiers' },
+  { title: 'Grandir ensemble', text: 'Polyvalence, formation et promotion interne : 73 % de nos encadrants en sont issus.', img: '/img/site/team-rouen.webp', href: '/il-ristorante-recrute/grandir-ensemble' },
+  { title: 'S’épanouir', text: 'Ils en parlent mieux que nous : nos collaborateurs, passionnés et fiers de leur aventure Il Ristorante.', img: '/img/site/team-fun.webp', href: '/il-ristorante-recrute/sepanouir' },
+];
+---
+<Base title="Il Ristorante recrute" label="Il Ristorante recrute" description="Vivre, cuisiner et partager : rejoignez les équipes Il Ristorante partout en France.">
+  <PageHero image="/img/site/team.webp" alt="L’équipe d’un restaurant Il Ristorante" crumbs={[{ label: 'Il Ristorante recrute', href: '/il-ristorante-recrute' }]}>
+    <Fragment slot="title">Vivre, cuisiner <span class="script">et partager</span></Fragment>
+    <Fragment slot="lead">Une équipe animée par deux points communs : la passion de l’Italie, du client et de l’humain, et la fierté de cuisiner une véritable cucina italiana.</Fragment>
+    <Sticker shape="stickers-08" style="right:calc(var(--gutter) + 4vw);top:22vh" spin>On recrute<br />partout</Sticker>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:clamp(48px,7vw,110px)">
+      <div class="stat" data-reveal><span class="num"><span data-count="610">610</span></span><p>collaborateurs passionnés</p></div>
+      <div class="stat" data-reveal><span class="num"><span data-count="73">73</span><small> %</small></span><p>de nos encadrants issus de la promotion interne</p></div>
+      <div class="stat" data-reveal><span class="num"><span data-count="23">23</span></span><p>restaurants en France</p></div>
+    </div>
+    <Rows rows={rows} />
+  </section>
+  <CtaBand href={ext.offres} label="Postuler" eyebrow="#respect #attention #passion">Rejoignez <span class="script">la brigade</span></CtaBand>
+</Base>

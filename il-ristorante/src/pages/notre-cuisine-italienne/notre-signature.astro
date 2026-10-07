@@ -1,0 +1,31 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Media from '../../components/Media.astro';
+import Arrow from '../../components/Arrow.astro';
+const values = [
+  { title: 'L’authenticité', script: 'produits & AOP', img: '/img/site/board.webp', text: 'Nous privilégions des produits italiens de qualité, soigneusement sélectionnés et issus de producteurs reconnus. Plusieurs bénéficient d’AOP et de labels, au cœur d’une cuisine faite maison, fidèle aux traditions italiennes.', link: { label: 'Découvrir nos produits', href: '/notre-cuisine-italienne/nos-produits-italiens' } },
+  { title: 'La générosité', script: 'au cœur de la tradition', img: '/img/site/plats-partage.webp', text: 'Une cuisine italienne authentique, généreuse et savoureuse, préparée avec des produits choisis pour vous offrir chaque jour une expérience gourmande et raffinée.' },
+  { title: 'La convivialité', script: 'notre plaisir : vous faire plaisir', img: '/img/site/serveur.webp', text: 'En famille, entre amis, en couple ou simplement pour vous : une cuisine italienne faite maison, pensée pour partager de bons moments autour de la table.', link: { label: 'Découvrir la carte', href: '/notre-cuisine-italienne/notre-carte' } },
+  { title: 'Le confort', script: 'une ambiance unique', img: '/img/site/interieur-plan-de-campagne.webp', text: 'Une décoration moderne et soignée, des matériaux nobles, des espaces privatisables. Un lieu où l’on se sent bien, du déjeuner au dîner.', link: { label: 'Réserver votre table', href: '/reserver' } },
+];
+---
+<Base title="Notre signature" description="L’authenticité, la générosité, la convivialité et le confort : la signature Il Ristorante.">
+  <PageHero image="/img/site/plats-selection.webp" alt="Plats italiens servis à table" crumbs={[{ label: 'Découvrir', href: '/notre-cuisine-italienne' }, { label: 'Notre signature', href: '/notre-cuisine-italienne/notre-signature' }]} short>
+    <Fragment slot="title">Simplement mais <span class="script">passionnément</span></Fragment>
+    <Fragment slot="lead">L’idée est simple : des produits de qualité, une cuisine de chef authentique, un lieu contemporain et convivial. Ce que nous sommes.</Fragment>
+  </PageHero>
+  {values.map((v, i) => (
+    <section class:list={['section wrap', i % 2 ? 't-giardino' : 't-dolce']}>
+      <div class:list={['split', { 'split--rev': i % 2 }]}>
+        <Media src={v.img} alt="" class={i % 2 ? '' : 'media--r'} />
+        <div class="txt">
+          <p class="eyebrow">{String(i + 1).padStart(2, '0')}</p>
+          <h2 class="display h-xl" data-split>{v.title} <span class="script">{v.script}</span></h2>
+          <p class="body-text" data-reveal>{v.text}</p>
+          {v.link && <div data-reveal><a class="btn btn--ghost" href={v.link.href}>{v.link.label} <Arrow /></a></div>}
+        </div>
+      </div>
+    </section>
+  ))}
+</Base>

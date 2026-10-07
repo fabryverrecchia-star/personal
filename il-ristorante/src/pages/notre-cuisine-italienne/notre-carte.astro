@@ -1,0 +1,55 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import DocLinks from '../../components/DocLinks.astro';
+import Media from '../../components/Media.astro';
+import { ext } from '../../data/site';
+const courses = [
+  { title: 'Antipasti à partager', it: 'Per iniziare una bella serata non c’è niente di meglio che condividere un antipasto in compagnia.', fr: 'Pour commencer une belle soirée, rien de mieux que de partager une entrée en bonne compagnie.', who: 'Anonyme', img: '/img/site/plats-partage.webp' },
+  { title: 'Salades gourmandes', it: 'Non esiste un profumo più buono del pomodoro e basilico. Sa di casa, di felicità, di condivisione.', fr: 'Il n’existe pas de meilleur parfum que celui de la tomate et du basilic. C’est le parfum de la maison, du bonheur et du partage.', who: 'Fabrizio Caramagna, auteur', img: '/img/site/plats-ete.webp' },
+  { title: 'Tartare et carpaccio', img: '/img/site/plat-saumon.webp' },
+  { title: 'Pizza', it: 'Fatte ’na pizza c’a pummarola ’ncoppa, vedrai che il mondo poi ti sorriderà.', fr: 'Mange une pizza à la tomate, tu verras que le monde te sourira.', who: 'Pino Daniele, chanteur napolitain', img: '/img/site/pizza.webp' },
+  { title: 'Pasta', it: 'La vita è una combinazione di pasta e magia.', fr: 'La vie est une combinaison de pâtes et de magie.', who: 'Federico Fellini, réalisateur', img: '/img/site/plats-selection.webp' },
+  { title: 'Risotto', it: 'La pazienza è la virtù di chi vuole cucinare il risotto.', fr: 'La patience est la vertu de celui qui veut cuisiner le risotto.', who: 'Proverbe', img: '/img/site/plat-cocotte.webp' },
+  { title: 'Spécialités', it: 'Soltanto gli idioti non sono buongustai.', fr: 'Il n’y a que les imbéciles qui ne soient pas gourmands.', who: 'Guy de Maupassant, écrivain', img: '/img/site/franchise-cuisine.webp' },
+  { title: 'Desserts', it: 'L’arte di preparare dolci è molto più che saper eseguire ricette alla perfezione: è un vero e proprio gesto d’amore.', fr: 'L’art de préparer des desserts, c’est un vrai geste d’amour.', who: 'Ernst Knam, pâtissier', img: '/img/site/desserts.webp' },
+  { title: 'Les vins', it: 'Un pasto senza vino è come un giorno senza sole.', fr: 'Un repas sans vin est comme un jour sans soleil.', who: 'Anthelme Brillat-Savarin', img: '/img/site/cave.webp' },
+];
+---
+<Base title="Notre carte" description="Antipasti, pizza, pasta, risotto, desserts : la carte Il Ristorante, menus, sélection végétarienne et sans gluten, allergènes.">
+  <PageHero image="/img/site/pizza.webp" alt="Pizza garnie de roquette et de mozzarella" crumbs={[{ label: 'Découvrir', href: '/notre-cuisine-italienne' }, { label: 'Notre carte', href: '/notre-cuisine-italienne/notre-carte' }]} short>
+    <Fragment slot="title">Découvrez <span class="script">notre carte</span></Fragment>
+    <Fragment slot="lead">Une cuisine de chef, généreuse et authentique, préparée avec des matières premières italiennes choisies avec soin.</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="sec-head"><span class="eyebrow">La carte, au fil des saisons</span><span class="idx">{courses.length}</span></div>
+    <ol class="courses">
+      {courses.map((c, i) => (
+        <li class="course" data-reveal>
+          <Media src={c.img} alt="" />
+          <div>
+            <span class="n">{String(i + 1).padStart(2, '0')}</span>
+            <h2>{c.title}</h2>
+            {c.it && <blockquote><p lang="it" class="it">« {c.it} »</p><p>{c.fr} <cite>— {c.who}</cite></p></blockquote>}
+          </div>
+        </li>
+      ))}
+    </ol>
+    <div style="margin-top:3rem">
+      <DocLinks links={[{ label: 'Voir la carte', href: ext.carteFood }, { label: 'Nos menus', href: ext.menus }, { label: 'Végétarien et sans gluten', href: ext.vegetarien }, { label: 'Allergènes', href: ext.allergenes }, { label: 'English menu', href: ext.englishMenu }]} />
+    </div>
+  </section>
+</Base>
+<style>
+  .courses { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(32px, 4vw, 64px) var(--col-gap); }
+  .course { display: grid; gap: 1.2rem; align-content: start; }
+  .course :global(.media) { aspect-ratio: 4 / 3; border-radius: 6px; }
+  .course .n { font-size: var(--fs-xs); letter-spacing: 0.14em; opacity: 0.6; }
+  .course h2 { font: 400 clamp(1.8rem, 1rem + 1.8vw, 2.8rem) / 1 var(--f-display); text-transform: uppercase; color: var(--chianti); margin: 0.2rem 0 0.8rem; }
+  .course blockquote { margin: 0; display: grid; gap: 0.5rem; }
+  .course blockquote .it { font-style: italic; font-size: var(--fs-l); line-height: 1.3; color: var(--giardino); }
+  .course blockquote p:last-child { font-size: var(--fs-s); }
+  .course cite { font-style: normal; opacity: 0.6; }
+  @media (max-width: 1000px) { .courses { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .courses { grid-template-columns: 1fr; } }
+</style>

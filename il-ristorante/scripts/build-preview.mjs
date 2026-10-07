@@ -1,6 +1,7 @@
 // Assemble le site construit (dist/) en un seul fichier HTML autonome, pour un aperçu local.
 // Usage : npm run build && node scripts/build-preview.mjs  →  preview/il-ristorante-apercu.html
 import { build } from 'esbuild';
+import sharp from 'sharp';
 import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, extname } from 'node:path';
 
@@ -19,7 +20,11 @@ const assets = {};
 for (const file of walk(dist)) {
   const rel = '/' + relative(dist, file);
   if (/^\/(img|brand|fonts)\//.test(rel) || rel === '/favicon.svg') {
-    assets[rel] = `data:${mime[extname(file)]};base64,${readFileSync(file).toString('base64')}`;
+    // Images allégées pour l'aperçu (le site réel garde les originaux)
+    const data = extname(file) === '.webp'
+      ? await sharp(file).resize({ width: 760, withoutEnlargement: true }).webp({ quality: 55 }).toBuffer()
+      : readFileSync(file);
+    assets[rel] = `data:${mime[extname(file)]};base64,${data.toString('base64')}`;
   }
 }
 
@@ -27,6 +32,7 @@ const pages = {};
 const styles = new Set();
 for (const file of walk(dist).filter((f) => f.endsWith('.html'))) {
   const html = readFileSync(file, 'utf8');
+  if (!/<main[^>]*>/.test(html)) continue; // pages de redirection
   const rel = '/' + relative(dist, file).replace(/(index)?\.html$/, '').replace(/\/$/, '');
   const path = rel === '/' ? '/' : rel === '/404' ? '/404' : rel;
   pages[path] = {

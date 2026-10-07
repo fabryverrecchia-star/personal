@@ -1,0 +1,49 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Media from '../components/Media.astro';
+import Sticker from '../components/Sticker.astro';
+import DocLinks from '../components/DocLinks.astro';
+import { ext } from '../data/site';
+const perks = ['Cadeau de bienvenue et cadeau d’anniversaire', 'Chèque cadeau fidélité', 'Invitations aux dégustations et ateliers de cuisine', 'Offres découvertes', '… et beaucoup d’autres moments pour partager l’art de vivre à l’italienne'];
+---
+<Base title="La carte de fidélité UNICA" label="Fidélité UNICA" description="UNICA, le programme de fidélité et de privilèges Il Ristorante.">
+  <PageHero image="/img/site/unica.webp" alt="La carte de fidélité UNICA" crumbs={[{ label: 'News & Fidélité', href: '/nos-engagements' }, { label: 'Fidélité UNICA', href: '/la-carte-de-fidelite-unica' }]} short>
+    <Fragment slot="title">La carte UNICA, <span class="script">grazie !</span></Fragment>
+    <Fragment slot="lead">Bienvenue dans notre programme de fidélité et de privilèges. Notre façon de vous dire merci.</Fragment>
+    <Sticker shape="stickers-08" style="right:calc(var(--gutter) + 4vw);top:24vh" spin>Fidélité<br />& privilèges</Sticker>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="cols cols--2">
+      <div class="col" data-reveal>
+        <h3>Activer ma carte</h3>
+        <p>Vous avez récupéré votre carte en restaurant ? Bienvenue ! Il ne vous reste plus qu’à créer votre compte en ligne pour l’activer.</p>
+        <DocLinks links={[{ label: 'Activer ma carte', href: ext.unicaActiver }]} />
+      </div>
+      <div class="col" data-reveal>
+        <h3>Ma fidélité</h3>
+        <p>Vous êtes déjà un client fidèle ? Merci ! Retrouvez votre compte et vos avantages dans votre espace.</p>
+        <DocLinks links={[{ label: 'Accéder à mon espace', href: ext.unicaEspace }]} />
+      </div>
+    </div>
+  </section>
+  <section class="section wrap t-chianti">
+    <div class="split">
+      <Media src="/img/site/show-cooking.webp" alt="Un atelier show cooking en restaurant" class="media--r" />
+      <div class="txt">
+        <p class="eyebrow">Vos privilèges</p>
+        <h2 class="display h-xl" data-split>Merci… <span class="script">grazie</span></h2>
+        <ul class="perks" data-reveal>{perks.map((p) => <li>{p}</li>)}</ul>
+        <p class="body-text" data-reveal>Vous n’avez pas encore votre carte ? Demandez-la à l’équipe lors de votre prochaine visite.</p>
+        <DocLinks light links={[{ label: 'Conditions du programme', href: ext.unicaCgu }]} />
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .cols--2 { grid-template-columns: 1fr 1fr; }
+  .perks { display: grid; gap: 0.8rem; font-size: var(--fs-l); line-height: 1.3; }
+  .perks li { padding-left: 1.6rem; position: relative; }
+  .perks li::before { content: ''; position: absolute; left: 0; top: 0.5em; width: 8px; height: 8px; border-radius: 50%; background: var(--peonia); }
+  @media (max-width: 900px) { .cols--2 { grid-template-columns: 1fr; } }
+</style>

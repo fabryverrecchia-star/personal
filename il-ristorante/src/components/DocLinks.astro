@@ -1,0 +1,15 @@
+---
+import Arrow from './Arrow.astro';
+// Liste de liens (PDF, services externes), ouverts dans un nouvel onglet s'ils sont externes.
+interface Props { links: { label: string; href: string }[]; light?: boolean }
+const { links, light = false } = Astro.props;
+const isExt = (h: string) => /^https?:/.test(h);
+---
+<div class="doclinks" data-reveal>
+  {links.map((l) => (
+    <a class:list={['btn', { 'btn--ghost': !light }]} style={light ? '--b-bg:var(--dolce);--b-fg:var(--ink)' : undefined} href={l.href} target={isExt(l.href) ? '_blank' : undefined} rel={isExt(l.href) ? 'noopener' : undefined}>{l.label} <Arrow /></a>
+  ))}
+</div>
+<style>
+  .doclinks { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+</style>

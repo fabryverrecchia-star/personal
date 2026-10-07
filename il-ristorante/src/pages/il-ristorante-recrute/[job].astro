@@ -1,0 +1,40 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Rows from '../../components/Rows.astro';
+import jobs from '../../data/jobs.json';
+import { ext } from '../../data/site';
+type Job = (typeof jobs)[number];
+export function getStaticPaths() {
+  return jobs.map((job) => ({ params: { job: job.slug }, props: { job } }));
+}
+const { job } = Astro.props as { job: Job };
+const img = job.family === 'cuisine' ? (job.slug === 'chef-de-cuisine' ? '/img/site/chef-bar.webp' : '/img/site/franchise-cuisine.webp') : job.slug === 'directeur-de-restaurant' ? '/img/site/team-lille.webp' : '/img/site/serveur.webp';
+const others = jobs.filter((j) => j.family === job.family && j.slug !== job.slug);
+---
+<Base title={`${job.title} (F/H)`} label={job.title} description={`${job.title} chez Il Ristorante : missions, qualités, évolution. ${job.lead[0] ?? ''}`}>
+  <PageHero image={img} alt="" crumbs={[{ label: 'Nos métiers', href: '/il-ristorante-recrute/nos-metiers' }, { label: job.title, href: `/il-ristorante-recrute/${job.slug}` }]} short eyebrow={job.family === 'cuisine' ? 'En cuisine' : 'En salle'}>
+    <Fragment slot="title">{job.title} <span class="script">(F/H)</span></Fragment>
+    <Fragment slot="lead">{job.lead[0]}</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <ul class="hashtags" data-reveal>{job.tags.map((t) => <li>#{t}</li>)}</ul>
+    {job.lead[1] && <p class="manifesto" style="font-size:clamp(1.8rem,1rem + 2.6vw,3.6rem);margin:clamp(32px,4vw,60px) 0" data-split>{job.lead[1]}</p>}
+    <div class="cols">
+      {job.sections.map((s) => (
+        <div class="col" data-reveal><h3>{s.title}</h3>{s.text.map((p) => <p>{p}</p>)}</div>
+      ))}
+    </div>
+  </section>
+  <section class="section wrap t-dolce" style="padding-top:0">
+    <div class="sec-head"><span class="eyebrow">Autres métiers {job.family === 'cuisine' ? 'en cuisine' : 'en salle'}</span><span class="idx">{others.length}</span></div>
+    <Rows rows={others.map((j) => ({ title: j.title, text: j.lead[0], img, href: `/il-ristorante-recrute/${j.slug}` }))} />
+  </section>
+  <CtaBand href={job.offers} label="Voir les offres" secondary={{ href: ext.candidature, label: 'Candidature spontanée' }}>Enfilez <span class="script">votre tablier</span></CtaBand>
+</Base>
+<style>
+  .hashtags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .hashtags li { padding: 0.45em 1em; border-radius: 999px; background: var(--giardino); color: var(--dolce); font-size: var(--fs-s); }
+  .col p { font-size: var(--fs-s); }
+</style>

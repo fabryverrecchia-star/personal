@@ -1,0 +1,38 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Media from '../components/Media.astro';
+import Sticker from '../components/Sticker.astro';
+import CtaBand from '../components/CtaBand.astro';
+const blocks = [
+  { title: 'Des cadeaux authentiques', script: 'con amore', img: '/img/site/aperitivo.webp', text: 'Pour toutes vos idées cadeaux, nous avons sélectionné des produits authentiques, italiens et gourmands. Disponibles dans votre restaurant le plus proche.' },
+  { title: 'Nos livres de recettes', script: '8,50 €', img: '/img/site/plats-partage.webp', text: 'Deux livres écrits avec Edda Onorato, autrice du blog Un déjeuner de soleil : Quatre saisons en Italie et Voyage en Italie. Une année gourmande, variée et chaleureuse. En vente en restaurant.' },
+  { title: 'Nos vins italiens', script: 'à partager', img: '/img/site/vins-roses.webp', text: 'Offrez un moment de partage avec notre sélection de vins italiens, en restaurant ou sur notre cave en ligne.' },
+  { title: 'Demandez conseil', script: 'en restaurant', img: '/img/site/serveur.webp', text: 'Nos équipes sont à votre disposition en restaurant pour vous conseiller et vous présenter nos produits.' },
+];
+---
+<Base title="Idées cadeaux" description="Produits italiens, livres de recettes, vins : les idées cadeaux Il Ristorante.">
+  <PageHero image="/img/site/vins-roses.webp" alt="Bouteilles de vins italiens" crumbs={[{ label: 'Découvrir', href: '/notre-cuisine-italienne' }, { label: 'Idées cadeaux', href: '/idees-cadeaux' }]} short>
+    <Fragment slot="title">Idées <span class="script">cadeaux</span></Fragment>
+    <Fragment slot="lead">Offrez un petit goût d’Italie et régalez toute la famille.</Fragment>
+    <Sticker shape="stickers-09" style="right:calc(var(--gutter) + 4vw);top:24vh">Con<br />amore</Sticker>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="cards cards--2">
+      {blocks.map((b) => (
+        <article class="card" data-reveal>
+          <Media src={b.img} alt="" />
+          <div class="meta"><span>{b.script}</span></div>
+          <h3>{b.title}</h3>
+          <p>{b.text}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+  <CtaBand href="/restaurants" label="Trouver mon restaurant" theme="t-chianti">Disponibles <span class="script">en restaurant</span></CtaBand>
+</Base>
+<style>
+  .cards--2 { grid-template-columns: 1fr 1fr; row-gap: clamp(40px, 5vw, 80px); }
+  .cards--2 .card:nth-child(even) { margin-top: 10vh; }
+  @media (max-width: 700px) { .cards--2 { grid-template-columns: 1fr; } .cards--2 .card:nth-child(even) { margin-top: 0; } }
+</style>

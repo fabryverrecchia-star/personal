@@ -1,0 +1,49 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { restaurants, regions, restaurantHref } from '../data/site';
+const byRegion = regions.map((r) => ({ region: r, list: restaurants.filter((x) => x.region === r) }));
+const tel = (p: string | null) => (p ? 'tel:' + p.replace(/\D/g, '') : undefined);
+---
+<Base title="Réserver votre table" label="Réserver" description="Réservez votre table dans l’un des 23 restaurants Il Ristorante.">
+  <PageHero image="/img/site/salle-compiegne.webp" alt="Une salle Il Ristorante dressée pour le service" crumbs={[{ label: 'Réserver', href: '/reserver' }]} short>
+    <Fragment slot="title">Réserver <span class="script">votre table</span></Fragment>
+    <Fragment slot="lead">Une réservation est toujours conseillée. Vous décidez à la dernière minute ? Pas de souci : appelez-nous, ou passez directement nous voir.</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    {byRegion.map((g) => (
+      <div class="book-region">
+        <div class="sec-head"><span class="eyebrow">{g.region}</span><span class="idx">{g.list.length}</span></div>
+        <ul class="book-list">
+          {g.list.map((r) => (
+            <li class="book-row" data-reveal>
+              <a class="book-name" href={restaurantHref(r)} data-label={r.name}>{r.name}</a>
+              <span class="book-addr">{r.street}, {r.postalCode} {r.city}</span>
+              <a class="book-tel link-u" href={tel(r.phone)}>{r.phone}</a>
+              {r.booking && <a class="btn" href={r.booking} target="_blank" rel="noopener">Réserver</a>}
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </section>
+  <section class="section wrap t-giardino">
+    <div class="split">
+      <div class="media" style="aspect-ratio:4/3;border-radius:6px"><img src="/img/site/privatisable.webp" alt="Un espace privatisable dans un restaurant Il Ristorante" data-gl loading="lazy" /></div>
+      <div class="txt">
+        <p class="eyebrow">Groupes & événements</p>
+        <h2 class="display h-xl" data-split>Espaces <span class="script">privatisables</span></h2>
+        <p class="body-text" data-reveal>Nous sommes heureux d’accueillir les groupes, et nos restaurants ont des espaces privatisables pour vos événements. Pour une réservation de groupe ou avec un coffret cadeau, appelez directement votre restaurant.</p>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .book-region + .book-region { margin-top: clamp(48px, 6vw, 90px); }
+  .book-list { border-top: 1px solid var(--line); }
+  .book-row { display: grid; grid-template-columns: 1.2fr 2fr 1fr auto; gap: var(--col-gap); align-items: center; padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
+  .book-name { font: 400 clamp(1.5rem, 1rem + 1.2vw, 2.2rem) / 1 var(--f-display); text-transform: uppercase; }
+  .book-name:hover { color: var(--pomodoro); }
+  .book-addr { font-size: var(--fs-s); opacity: 0.75; }
+  @media (max-width: 860px) { .book-row { grid-template-columns: 1fr auto; } .book-addr, .book-tel { grid-column: 1; } }
+</style>

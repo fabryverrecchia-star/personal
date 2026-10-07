@@ -1,0 +1,35 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Media from '../../components/Media.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { ext } from '../../data/site';
+const facts = [
+  { v: '4', l: 'personnes minimum par plat' },
+  { v: '24 h', l: 'pour commander à l’avance' },
+  { v: 'Four', l: 'des plats faciles à réchauffer' },
+];
+---
+<Base title="Traiteur italien" description="Les formules traiteur Il Ristorante : plats italiens faits maison à partager, à commander 24 h à l’avance.">
+  <PageHero image="/img/site/plats-partage.webp" alt="Plats italiens à partager" crumbs={[{ label: 'Chez vous', href: '/il-ristorante-chez-vous' }, { label: 'Traiteur italien', href: '/notre-cuisine-italienne/notre-offre-traiteur-italien' }]} short>
+    <Fragment slot="title">Traiteur italien, <span class="script">a casa</span></Fragment>
+    <Fragment slot="lead">Pour vos petits et grands événements, ou simplement pour le plaisir de partager : notre chef et sa brigade préparent pour vous des plats italiens à savourer chez vous.</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+      {facts.map((f) => <div class="stat" data-reveal><span class="num">{f.v}</span><p>{f.l}</p></div>)}
+    </div>
+    <p class="body-text" style="margin-top:2.4rem" data-reveal>Nos équipes construisent avec vous une formule sur mesure : appelez directement votre restaurant.</p>
+  </section>
+  <section class="section wrap t-giardino">
+    <div class="split split--rev">
+      <Media src="/img/site/plat-cocotte.webp" alt="Un plat chaud en cocotte" />
+      <div class="txt">
+        <p class="eyebrow">Service traiteur : nos engagements</p>
+        <h2 class="display h-xl" data-split>Cuisiné <span class="script">maison</span></h2>
+        <p class="body-text" data-reveal>Tous les plats de l’offre traiteur sont cuisinés maison, avec des matières premières italiennes de qualité (AOP et labels). Les plats froids sont livrés dans un emballage en bois écoresponsable, les plats chauds dans un plat en aluminium qui passe au four.</p>
+      </div>
+    </div>
+  </section>
+  <CtaBand href={ext.commander} label="Commander" eyebrow="Commande 24 h à l’avance">Pour vos <span class="script">grandes tablées</span></CtaBand>
+</Base>

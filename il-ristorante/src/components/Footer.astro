@@ -1,39 +1,41 @@
 ---
-import { nav, socials, contact, brochure } from '../data/site';
+import { nav, socials, contact, brochure, footerLinks, ext, restaurants } from '../data/site';
 const year = new Date().getFullYear();
 ---
 <footer class="footer t-giardino">
   <div class="footer-top">
     <div>
       <h2 data-split>On vous garde une table ?</h2>
-      <p class="muted" style="margin-top:1.4rem;max-width:34ch">Depuis 2006, on partage l’Italie telle qu’on l’aime : vraie, généreuse, gourmande.</p>
-      <a class="btn" style="margin-top:2rem;--b-bg:var(--dolce);--b-fg:var(--giardino)" href="/restaurants" data-magnetic>Trouver un restaurant</a>
+      <p class="muted" style="margin-top:1.4rem;max-width:34ch">Depuis 2006, on partage l’Italie telle qu’on l’aime : vraie, généreuse, gourmande. {restaurants.length} restaurants en France.</p>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:2rem">
+        <a class="btn" style="--b-bg:var(--dolce);--b-fg:var(--giardino)" href={ext.reserver} data-magnetic>Réserver</a>
+        <a class="btn btn--ghost" href={ext.commander} target="_blank" rel="noopener">Commander</a>
+      </div>
     </div>
     <div>
       <h3>Il Ristorante</h3>
-      <ul>{nav.slice(0, 3).map((n) => <li><a class="link-u" href={n.href}>{n.label}</a></li>)}</ul>
+      <ul>{nav.slice(0, 3).map((n) => <li><a class="link-u" href={n.href}>{n.label}</a></li>)}<li><a class="link-u" href="/actualite">Blog</a></li><li><a class="link-u" href="/la-carte-de-fidelite-unica">Fidélité UNICA</a></li></ul>
     </div>
     <div>
       <h3>Nous rejoindre</h3>
       <ul>
-        <li><a class="link-u" href="/devenir-franchise">Devenir franchisé</a></li>
+        <li><a class="link-u" href="/devenir-franchise-il-ristorante">Devenir franchisé</a></li>
         <li><a class="link-u" href={brochure} download>La brochure franchise</a></li>
-        <li><a class="link-u" href="/recrute">Il Ristorante recrute</a></li>
+        <li><a class="link-u" href="/il-ristorante-recrute">Il Ristorante recrute</a></li>
         <li><a class="link-u" href={`mailto:${contact.email}`}>Contact développement</a></li>
       </ul>
     </div>
     <div>
       <h3>Suivez-nous</h3>
-      <ul>{socials.map((s) => <li><a class="link-u" href={s.href} target="_blank" rel="noopener">{s.label}</a></li>)}</ul>
-      <ul style="margin-top:1.4rem">
-        <li><a class="link-u" href="/news-fidelite/fidelite-unica">Fidélité UNICA</a></li>
-        <li><a class="link-u" href="/news-fidelite/blog">Le blog</a></li>
+      <ul>
+        {socials.map((s) => <li><a class="link-u" href={s.href} target="_blank" rel="noopener">{s.label}</a></li>)}
+        <li><a class="link-u" href={ext.avis} target="_blank" rel="noopener">Votre avis nous intéresse</a></li>
       </ul>
     </div>
   </div>
   <p class="footer-word" aria-hidden="true">Ristorante<span class="script">la Cucina Italiana</span></p>
   <div class="footer-bottom">
     <span>© {year} Il Ristorante — La Cucina Italiana</span>
-    <span><a class="link-u" href="/mentions-legales">Mentions légales</a><a class="link-u" href="/mentions-legales#confidentialite">Confidentialité</a><a class="link-u" href="/mentions-legales#cookies">Cookies</a></span>
+    <span>{footerLinks.map((l) => <a class="link-u" href={l.href.startsWith('/oenoteca/cgv') ? 'https://www.ilristorante.fr/oenoteca/cgv/' : l.href}>{l.label}</a>)}</span>
   </div>
 </footer>

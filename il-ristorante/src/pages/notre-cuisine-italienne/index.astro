@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Rows from '../../components/Rows.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Sticker from '../../components/Sticker.astro';
+const rows = [
+  { title: 'Notre signature', text: 'Des produits de qualité, une cuisine de chef authentique, un lieu contemporain et convivial. Simplement, mais passionnément.', img: '/img/site/serveur.webp', href: '/notre-cuisine-italienne/notre-signature' },
+  { title: 'Notre carte', text: 'Une cuisine de chef, irréprochable sur la qualité et l’authenticité des matières premières.', img: '/img/site/plats-selection.webp', href: '/notre-cuisine-italienne/notre-carte' },
+  { title: 'Nos produits', text: 'Notre chef est allé chercher les meilleures matières premières : mozzarella di bufala, Parmigiano Reggiano, jambon de Parme…', img: '/img/site/board.webp', href: '/notre-cuisine-italienne/nos-produits-italiens' },
+  { title: 'Notre cave', text: 'Des villages reculés du Piémont ou de Sicile aux grands domaines historiques de Florence et de Venise : des producteurs de vins d’exception.', img: '/img/site/cave.webp', href: '/notre-cuisine-italienne/notre-cave' },
+  { title: 'Notre boutique', text: 'Pour prolonger le plaisir, nos restaurants ont aussi une épicerie fine. Emmenez un peu d’Italie chez vous.', img: '/img/site/aperitivo.webp', href: '/notre-cuisine-italienne/notre-boutique' },
+  { title: 'Idées cadeaux', text: 'Offrez un petit goût d’Italie : produits authentiques, livres de recettes, vins italiens.', img: '/img/site/vins-roses.webp', href: '/idees-cadeaux' },
+];
+---
+<Base title="Notre cuisine italienne" label="Découvrir" description="Il Ristorante, ambassadeur de la cuisine et des vins italiens : signature, carte, produits, cave et boutique.">
+  <PageHero image="/img/site/home-bar.webp" alt="Un chef et une serveuse préparent un plat au bar" crumbs={[{ label: 'Découvrir', href: '/notre-cuisine-italienne' }]}>
+    <Fragment slot="title">Notre cuisine <span class="script">italienne</span></Fragment>
+    <Fragment slot="lead">Ambassadeur de la cuisine et des vins italiens, Il Ristorante vise toujours l’excellence et le plaisir. Nous avons sélectionné pour vous les joyaux de la gastronomie italienne.</Fragment>
+    <Sticker shape="stickers-02" style="right:calc(var(--gutter) + 4vw);top:24vh">Fatto<br />in casa</Sticker>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="sec-head"><span class="eyebrow">La cucina italiana</span><span class="idx">{rows.length}</span></div>
+    <Rows rows={rows} />
+  </section>
+  <CtaBand href="/reserver" label="Réserver votre table" eyebrow="Ce midi, ce soir, jeudi ?">On vous garde <span class="script">une table ?</span></CtaBand>
+</Base>

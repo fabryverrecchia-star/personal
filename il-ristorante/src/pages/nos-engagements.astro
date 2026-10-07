@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Media from '../components/Media.astro';
+import DocLinks from '../components/DocLinks.astro';
+import Sticker from '../components/Sticker.astro';
+import { ext } from '../data/site';
+const items = [
+  { title: 'Une stratégie climat', script: 'horizon 2030', text: 'Notre stratégie climat est désormais définie à horizon 2030, avec l’ambition de réduire de 33 % nos émissions de CO₂ par repas servi.' },
+  { title: 'Écoconception', script: 'des cartes', text: 'Nous poursuivons l’écoconception de nos cartes, pour conjuguer authenticité de la cuisine italienne, plaisir gustatif et réduction de notre impact.' },
+  { title: 'Engagements sociaux', script: 'au quotidien', text: 'De nouveaux dispositifs pour améliorer le quotidien de nos équipes et mieux les accompagner dans la durée.' },
+  { title: 'Gouvernance ESG', script: 'renforcée', text: 'Une gouvernance renforcée pour piloter nos engagements avec davantage de rigueur, de transparence et de responsabilité.' },
+];
+---
+<Base title="Nos engagements" description="Rapport volontaire de durabilité 2025 d’Il Ristorante : climat, écoconception, engagements sociaux, gouvernance.">
+  <PageHero image="/img/site/plats-ete.webp" alt="Assiettes de la carte d’été vues du dessus" crumbs={[{ label: 'News & Fidélité', href: '/nos-engagements' }, { label: 'Nos engagements', href: '/nos-engagements' }]} short>
+    <Fragment slot="title">Nos <span class="script">engagements</span></Fragment>
+    <Fragment slot="lead">Nous publions notre Rapport volontaire de durabilité 2025. La performance d’une enseigne se mesure autant à l’expérience qu’elle offre qu’à sa capacité à réduire son impact et à accompagner ses équipes.</Fragment>
+    <Sticker shape="stickers-02" style="right:calc(var(--gutter) + 4vw);top:24vh">−33 %<small>CO₂ par repas d’ici 2030</small></Sticker>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="sec-head"><span class="eyebrow">Les avancées majeures</span><span class="idx">2025</span></div>
+    <div class="cols cols--4">
+      {items.map((i) => (
+        <div class="col" data-reveal><h3>{i.title}<span class="script">{i.script}</span></h3><p>{i.text}</p></div>
+      ))}
+    </div>
+  </section>
+  <section class="section wrap t-giardino">
+    <div class="split split--rev">
+      <Media src="/img/site/board.webp" alt="Planche de charcuteries et de fromages italiens" />
+      <div class="txt">
+        <p class="eyebrow">Le chemin continue</p>
+        <h2 class="display h-xl" data-split>Durable, <span class="script">au quotidien</span></h2>
+        <p class="body-text" data-reveal>La durabilité ne se résume pas à des objectifs chiffrés. Elle s’exprime dans nos choix quotidiens : la qualité des produits que nous sélectionnons, les relations durables avec nos partenaires, l’attention portée à nos collaborateurs et l’expérience que nous proposons à plus de 2,2 millions de convives chaque année.</p>
+        <DocLinks light links={[{ label: 'Rapport volontaire de durabilité 2025', href: ext.rapport }]} />
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .cols--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (max-width: 1100px) { .cols--4 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .cols--4 { grid-template-columns: 1fr; } }
+</style>

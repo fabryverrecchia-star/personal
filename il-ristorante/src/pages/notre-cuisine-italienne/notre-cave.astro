@@ -1,0 +1,47 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Media from '../../components/Media.astro';
+import DocLinks from '../../components/DocLinks.astro';
+import { ext } from '../../data/site';
+const producers = [
+  { title: 'Berlucchi, notre producteur de Franciacorta', text: 'Fondée par Guido Berlucchi et Franco Ziliani en 1955, la maison est surtout connue pour sa célèbre cuvée 61.', href: 'https://www.ilristorante.fr/2023/11/04/berlucchi-notre-nouveau-producteur-de-franciacorta/' },
+  { title: 'Bruna Grimaldi, dans le Piémont', text: 'Déboucher un Barolo Bruna Grimaldi, c’est entrer sur le territoire fertile et fruité de Barolo, dans la province de Coni.', href: 'https://www.ilristorante.fr/2021/10/07/les-vignobles-bruna-grimaldi-situation-idyllique-ethique-et-tradition/' },
+  { title: 'Le domaine Garofoli', text: 'Créée en 1901, la cave Gioacchino Garofoli porte une histoire familiale ancrée dans la tradition, la transmission et le partage.', href: 'https://www.ilristorante.fr/2021/09/17/le-domaine-garofoli-le-vin-italien-par-excellence/' },
+];
+---
+<Base title="Notre cave" description="Plus de 35 étiquettes italiennes, du Piémont à la Sicile : la cave Il Ristorante.">
+  <PageHero image="/img/site/cave.webp" alt="Un mur de bouteilles de vins italiens" crumbs={[{ label: 'Découvrir', href: '/notre-cuisine-italienne' }, { label: 'Notre cave', href: '/notre-cuisine-italienne/notre-cave' }]} short>
+    <Fragment slot="title">Notre <span class="script">cave</span></Fragment>
+    <Fragment slot="lead">Des villages reculés du Piémont ou de Sicile aux grands domaines historiques de Florence et de Venise : nous sommes allés chercher des producteurs de vins d’exception.</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="split">
+      <Media src="/img/site/vins-roses.webp" alt="Sélection de vins rosés italiens" class="media--r" />
+      <div class="txt">
+        <p class="eyebrow">Une carte variée</p>
+        <h2 class="display h-xl" data-split>Plus de 35 <span class="script">étiquettes</span></h2>
+        <p class="body-text" data-reveal>Une carte des vins qui représente toutes les saveurs italiennes. Et régulièrement, nous recevons de grands producteurs italiens qui viennent partager leur savoir-faire.</p>
+        <DocLinks links={[{ label: 'Voir la carte des vins', href: ext.carteVins }, { label: 'Vins en ligne : Oenoteca', href: '/oenoteca' }]} />
+      </div>
+    </div>
+  </section>
+  <section class="section wrap t-chianti">
+    <div class="sec-head"><span class="eyebrow">Nos producteurs italiens</span><span class="idx">{producers.length}</span></div>
+    <div class="cols">
+      {producers.map((p) => (
+        <a class="col" href={p.href} target="_blank" rel="noopener" data-reveal><h3>{p.title}</h3><p>{p.text}</p><span>Lire l’article →</span></a>
+      ))}
+    </div>
+  </section>
+  <section class="section wrap t-dolce">
+    <div class="split split--rev">
+      <Media src="/img/site/vins-dessert.webp" alt="Vins de dessert italiens servis en verre" />
+      <div class="txt">
+        <p class="eyebrow">À consommer avec modération</p>
+        <h2 class="display h-xl" data-split>Un repas sans vin <span class="script">est comme un jour sans soleil</span></h2>
+        <p class="body-text" data-reveal>Demandez conseil en salle : nos équipes vous aident à choisir le vin qui accompagnera votre plat.</p>
+      </div>
+    </div>
+  </section>
+</Base>

@@ -1,51 +1,26 @@
 ---
 import Base from '../layouts/Base.astro';
 import PageHero from '../components/PageHero.astro';
-import Media from '../components/Media.astro';
+import Rows from '../components/Rows.astro';
 import Sticker from '../components/Sticker.astro';
 import CtaBand from '../components/CtaBand.astro';
-import Arrow from '../components/Arrow.astro';
-
-const modes = [
-  { title: 'À emporter', script: 'en passant', text: 'Commandez au comptoir de votre restaurant. Vos plats sont emballés chauds, prêts à partir.' },
-  { title: 'Click & collect', script: 'sans attendre', text: 'Commandez en ligne, choisissez votre créneau, récupérez votre commande à l’heure dite.' },
-  { title: 'Livraison', script: 'jusqu’à vous', text: 'Les mêmes recettes qu’en salle, livrées chez vous ou au bureau.' },
+import { ext } from '../data/site';
+const rows = [
+  { title: 'Les plats traiteur à partager', text: 'Pour vos petits et grands événements, notre chef vous propose des plats cuisinés maison, à partir de 4 personnes, à commander 24 h à l’avance.', img: '/img/site/plats-partage.webp', href: '/notre-cuisine-italienne/notre-offre-traiteur-italien' },
+  { title: 'Le Click & Collect', text: 'Une pizza à la maison ? Un repas italien au bureau ? Pizzas, spécialités, plateaux repas et produits de la boutique vous attendent.', img: '/img/site/pizza.webp', href: '/notre-cuisine-italienne/vente-a-emporter' },
+  { title: 'L’épicerie fine', text: 'Les vins de la cave, une sélection d’épicerie fine, nos fromages et charcuteries italiennes.', img: '/img/site/board.webp', href: '/notre-cuisine-italienne/notre-boutique' },
+  { title: 'Oenoteca, nos vins en ligne', text: 'Notre cave à vin italienne en ligne : rouges, blancs, bières et packs à offrir.', img: '/img/site/cave.webp', href: '/oenoteca' },
 ];
 ---
-<Base title="Il Ristorante chez vous" label="Chez vous" description="À emporter, click & collect, livraison et idées cadeaux : Il Ristorante chez vous.">
-  <PageHero image="/img/takeaway.webp" alt="Pots de pâtes à emporter empilés" crumbs={[{ label: 'Il Ristorante chez vous', href: '/il-ristorante-chez-vous' }]}>
-    <Fragment slot="title">Il Ristorante<br /><span class="script">chez vous</span></Fragment>
-    <Fragment slot="lead">Ce soir, on ne sort pas ? La brigade prépare vos plats comme au restaurant. Il ne vous reste qu’à mettre la table.</Fragment>
-    <Sticker shape="stickers-03" style="right:calc(var(--gutter) + 4vw);top:24vh;color:var(--giardino)">À la<br />maison</Sticker>
+<Base title="Il Ristorante chez vous" label="Chez vous" description="Traiteur, Click & Collect, épicerie fine et vins en ligne : la cucina italiana chez vous.">
+  <PageHero image="/img/site/plats-selection.webp" alt="Plats italiens prêts à partager" crumbs={[{ label: 'Il Ristorante chez vous', href: '/il-ristorante-chez-vous' }]}>
+    <Fragment slot="title">La cucina italiana <span class="script">chez vous !</span></Fragment>
+    <Fragment slot="lead">À la maison, au bureau et pour tous vos moments de convivialité.</Fragment>
+    <Sticker shape="stickers-03" style="right:calc(var(--gutter) + 4vw);top:24vh;color:var(--giardino)">A casa</Sticker>
   </PageHero>
-
   <section class="section wrap t-dolce">
-    <div class="sec-head"><span class="eyebrow">Trois façons de commander</span><span class="idx">I.</span></div>
-    <div class="cols">
-      {modes.map((m) => (
-        <div class="col" data-reveal>
-          <h3>{m.title}<span class="script">{m.script}</span></h3>
-          <p>{m.text}</p>
-        </div>
-      ))}
-    </div>
-    <div style="margin-top:3rem;display:flex;gap:.8rem;flex-wrap:wrap" data-reveal>
-      <a class="btn" href="/restaurants#liste" data-magnetic>Commander dans mon restaurant <Arrow /></a>
-      <a class="btn btn--ghost" href="/decouvrir">Voir la carte</a>
-    </div>
+    <div class="sec-head"><span class="eyebrow">Quatre façons d’en profiter</span><span class="idx">4</span></div>
+    <Rows rows={rows} />
   </section>
-
-  <section class="section wrap t-chianti">
-    <div class="split">
-      <Media src="/img/pizza-top.webp" alt="Pizza, salade et spritz vus du dessus" class="media--r" />
-      <div class="txt">
-        <p class="eyebrow">Idées cadeaux</p>
-        <h2 class="display h-xl" data-split>Offrir un repas <span class="script">à partager</span></h2>
-        <p class="body-text" data-reveal>Une carte cadeau à utiliser dans tous nos restaurants, ou un coffret de produits italiens choisis par nos équipes : de quoi faire plaisir à ceux qui aiment passer à table.</p>
-        <div data-reveal><a class="btn" style="--b-bg:var(--dolce);--b-fg:var(--chianti)" href="/restaurants#liste" data-magnetic>À demander en restaurant <Arrow /></a></div>
-      </div>
-    </div>
-  </section>
-
-  <CtaBand href="/restaurants" label="Trouver un restaurant" theme="t-giardino">Plutôt envie <span class="script">de sortir ?</span></CtaBand>
+  <CtaBand href={ext.commander} label="Commander en Click & Collect" theme="t-giardino" eyebrow="Ce soir, on reste à la maison ?">On vous <span class="script">prépare tout</span></CtaBand>
 </Base>

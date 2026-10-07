@@ -6,8 +6,8 @@ import { feature } from 'topojson-client';
 import world from 'world-atlas/countries-10m.json';
 
 export interface MapPoint { name: string; lat: number; lng: number; kind?: 'restaurant' | 'franchise' | 'zone'; href?: string; label?: string }
-interface Props { points: MapPoint[]; theme?: string; count?: number; countLabel?: string; legend?: { kind: string; label: string }[] }
-const { points, theme = 't-giardino', count, countLabel = '', legend } = Astro.props;
+interface Props { points: MapPoint[]; theme?: string; count?: number; countLabel?: string; legend?: { kind: string; label: string }[]; mini?: boolean; active?: string }
+const { points, theme = 't-giardino', count, countLabel = '', legend, mini = false, active } = Astro.props;
 
 const W = 1000;
 const H = 960;
@@ -38,6 +38,17 @@ const placed = points
   .sort((a, b) => b.lat - a.lat); // apparition du nord au sud
 const total = count ?? placed.filter((p) => p.kind !== 'zone').length;
 ---
+{mini ? (
+  <div class="map-mini" aria-hidden="true">
+    <svg viewBox={`0 0 ${W} ${H}`}>
+      <path class="mm-land" d={outline} />
+      {placed.map((p) => (
+        <circle class:list={['mm-pt', { 'is-active': p.name === active }]} cx={p.x} cy={p.y} r={p.name === active ? 16 : 7} />
+      ))}
+      {placed.filter((p) => p.name === active).map((p) => <circle class="mm-ring" cx={p.x} cy={p.y} r="16" />)}
+    </svg>
+  </div>
+) : (
 <section class:list={['map', theme]} data-map>
   <div class="map-inner wrap">
     <div class="map-copy">
@@ -71,13 +82,14 @@ const total = count ?? placed.filter((p) => p.kind !== 'zone').length;
     </div>
   </div>
 </section>
+)}
 
 <style>
   .map { position: relative; overflow: hidden; --pt-franchise: var(--cielo); }
   .map.t-cielo { --pt-franchise: var(--chianti); }
   .map-inner { min-height: 100svh; display: grid; grid-template-columns: 5fr 7fr; gap: var(--col-gap); align-items: center; padding-block: clamp(80px, 9vw, 140px); }
   .map-copy { display: grid; gap: 1.2rem; align-content: center; }
-  .map-count { font-size: clamp(5rem, 3rem + 9vw, 13rem); line-height: 0.8; letter-spacing: -0.07em; }
+  .map-count { font-size: clamp(5rem, 3rem + 9vw, 13rem); line-height: 0.8; }
   .map-count-label { font-size: var(--fs-l); max-width: 22ch; line-height: 1.2; }
   .map-legend { display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; font-size: var(--fs-s); }
   .map-legend li { display: flex; align-items: center; gap: 0.5rem; }
@@ -93,12 +105,17 @@ const total = count ?? placed.filter((p) => p.kind !== 'zone').length;
   .map-pt--franchise .core { fill: var(--pt-franchise); }
   .map-pt--zone .core { fill: var(--bg); stroke: var(--fg); stroke-width: 2; }
   .map-pt--zone { cursor: help; }
-  .map-pt .pulse { fill: none; stroke: var(--pomodoro); stroke-width: 1.5; transform-origin: center; animation: pulse 2.4s var(--ease-out) infinite; }
+  .map-pt .pulse { fill: none; stroke: var(--pomodoro); stroke-width: 1.5; transform-box: fill-box; transform-origin: center; animation: pulse 2.4s var(--ease-out) infinite; }
   .map-pt--franchise .pulse { stroke: var(--pt-franchise); }
   .map-pt text { font: 500 15px var(--f-sans); fill: var(--fg); opacity: 0; transition: opacity 0.3s; paint-order: stroke; stroke: var(--bg); stroke-width: 5px; }
   .map-pt:hover text, .map-pt.is-labelled text { opacity: 1; }
   .map-pt--zone text { font-size: 13px; font-weight: 400; }
   .map-pt:hover .core { stroke-width: 5; }
+  .map-mini svg { width: 100%; height: auto; }
+  .mm-land { fill: color-mix(in srgb, var(--fg) 8%, transparent); stroke: var(--fg); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  .mm-pt { fill: var(--fg); opacity: 0.35; }
+  .mm-pt.is-active { fill: var(--pomodoro); opacity: 1; stroke: var(--bg); stroke-width: 5; }
+  .mm-ring { fill: none; stroke: var(--pomodoro); stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: pulse 2.4s var(--ease-out) infinite; }
   @keyframes pulse { from { transform: scale(1); opacity: 0.9; } to { transform: scale(3.2); opacity: 0; } }
   html:not(.js) .map-pt, html:not(.js) .map-land { opacity: 1; }
   html:not(.js) .map-outline { stroke-dashoffset: 0; }

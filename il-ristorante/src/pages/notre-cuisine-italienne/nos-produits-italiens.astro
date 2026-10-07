@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import products from '../../data/products.json';
+const title = (s: string) => s.charAt(0) + s.slice(1).toLowerCase().replace(/parmigiano-reggiano/, 'Parmigiano-Reggiano').replace(/parme/, 'Parme').replace(/di bufala/, 'di bufala');
+---
+<Base title="Nos produits italiens" description="Mozzarella di bufala, Parmigiano Reggiano, jambon de Parme, gorgonzola, pesto : les produits italiens d’Il Ristorante.">
+  <PageHero image="/img/site/board.webp" alt="Planche de charcuteries et de fromages italiens" crumbs={[{ label: 'Découvrir', href: '/notre-cuisine-italienne' }, { label: 'Nos produits italiens', href: '/notre-cuisine-italienne/nos-produits-italiens' }]} short>
+    <Fragment slot="title">Nos produits <span class="script">italiens</span></Fragment>
+    <Fragment slot="lead">Notre chef est allé chercher les meilleures matières premières pour vous proposer une cuisine italienne de qualité et authentique.</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <ol class="products">
+      {products.map((p, i) => (
+        <li class="product" data-reveal>
+          <span class="n num">{String(i + 1).padStart(2, '0')}</span>
+          <h2>{title(p.name)}</h2>
+          <div class="product-text">{p.text.map((t) => <p>{t}</p>)}</div>
+        </li>
+      ))}
+    </ol>
+  </section>
+  <CtaBand href="/notre-cuisine-italienne/notre-carte" label="Voir la carte" theme="t-giardino" eyebrow="Veramente delizioso">Laissez-vous <span class="script">inspirer</span></CtaBand>
+</Base>
+<style>
+  .products { border-top: 1px solid var(--line); }
+  .product { display: grid; grid-template-columns: 5rem 1fr 1.4fr; gap: var(--col-gap); padding: clamp(24px, 3vw, 44px) 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .product .n { font-size: clamp(1.6rem, 1rem + 1.4vw, 2.4rem); color: var(--pomodoro); }
+  .product h2 { font: 400 clamp(1.8rem, 1rem + 2.4vw, 3.4rem) / 0.95 var(--f-display); text-transform: uppercase; color: var(--chianti); }
+  .product-text { display: grid; gap: 0.8rem; max-width: 60ch; }
+  @media (max-width: 860px) { .product { grid-template-columns: 3rem 1fr; } .product-text { grid-column: 2; } }
+</style>

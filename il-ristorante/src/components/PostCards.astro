@@ -1,0 +1,16 @@
+---
+import Media from './Media.astro';
+import { posts } from '../data/blog';
+interface Props { limit?: number }
+const { limit = posts.length } = Astro.props;
+---
+<div class="cards">
+  {posts.slice(0, limit).map((p, i) => (
+    <a class="card" href={p.href} target="_blank" rel="noopener" data-cursor="Lire" style={i % 3 === 1 ? 'margin-top:8vh' : undefined} data-reveal>
+      <Media src={p.img} alt="" />
+      <div class="meta"><span>{p.date}</span><span>Lire →</span></div>
+      <h3>{p.title}</h3>
+      <p class="muted" style="font-size:var(--fs-s)">{p.excerpt}</p>
+    </a>
+  ))}
+</div>

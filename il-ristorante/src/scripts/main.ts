@@ -100,6 +100,14 @@ const setMenu = (open: boolean) => {
 };
 burger.addEventListener('click', () => setMenu(!root.classList.contains('menu-open')));
 
+// Déverrouille dès que le pointeur bouge hors de l'en-tête, une fois la transition terminée
+window.addEventListener('pointermove', (e) => {
+  if (!header.classList.contains('nav-lock') || navigating) return;
+  if (getComputedStyle(curtain).visibility === 'visible') return;
+  if (!header.contains(e.target as Node)) header.classList.remove('nav-lock');
+}, { passive: true });
+window.addEventListener('keydown', (e) => e.key === 'Tab' && header.classList.remove('nav-lock'));
+
 let lastY = 0;
 lenis.on('scroll', ({ scroll }: { scroll: number }) => {
   const hasHero = !!$('[data-hero]');
@@ -150,6 +158,9 @@ document.addEventListener('astro:before-preparation', (e) => {
   const original = ev.loader;
   navigating = true;
   setMenu(false);
+  // Referme les sous-menus : le lien cliqué garderait sinon le focus (et le menu ouvert)
+  (document.activeElement as HTMLElement | null)?.blur();
+  header.classList.add('nav-lock');
   lenis.stop();
   ev.loader = async () => {
     await Promise.all([reduced ? Promise.resolve() : curtainIn(label).then(), original()]);
@@ -191,6 +202,7 @@ document.addEventListener('astro:page-load', async () => {
   parallax(main);
   magnetic(page.signal);
   forms(main, page.signal);
+  contactForm(main, page.signal);
   filters(main, page.signal);
   rotators(main);
   maps(main);
@@ -364,6 +376,25 @@ function forms(main: HTMLElement, signal: AbortSignal) {
   });
 }
 
+/* ---------- Formulaire de contact : e-mail au restaurant choisi ---------- */
+function contactForm(main: HTMLElement, signal: AbortSignal) {
+  $$<HTMLFormElement>('[data-contact-form]', main).forEach((form) => {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      const d = new FormData(form);
+      const select = form.querySelector<HTMLSelectElement>('[name="restaurant"]')!;
+      const resto = select.selectedOptions[0]?.dataset.name ?? '';
+      const to = String(d.get('restaurant') || 'contact@ilristorante.fr');
+      const subject = `${d.get('objet')} — Il Ristorante ${resto}`;
+      const body = [`${d.get('prenom')} ${d.get('nom')} (${d.get('email')})`, `Restaurant : ${resto}`, '', String(d.get('message') ?? '')].join('\n');
+      location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const msg = $('[data-form-msg]', form);
+      if (msg) msg.textContent = 'Votre messagerie s’ouvre avec votre message prêt à envoyer. Grazie !';
+    }, { signal });
+  });
+}
+
 /* ---------- Recherche de restaurant ---------- */
 function filters(main: HTMLElement, signal: AbortSignal) {
   const input = $<HTMLInputElement>('[data-filter]', main);
@@ -378,6 +409,7 @@ function filters(main: HTMLElement, signal: AbortSignal) {
       it.hidden = !ok;
       if (ok) n++;
     });
+    $$('[data-filter-group]', main).forEach((g) => (g.hidden = !$$('[data-filter-item]', g).some((it) => !it.hidden)));
     if (empty) empty.hidden = n > 0;
     ScrollTrigger.refresh();
   }, { signal });
@@ -407,7 +439,10 @@ function maps(main: HTMLElement) {
       .to(land, { opacity: 1, duration: 0.4 }, '-=0.3');
     const step = 1.8 / Math.max(1, pts.length);
     pts.forEach((p, i) => {
-      tl.fromTo(p, { opacity: 0, scale: 0, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: 0.25, ease: 'back.out(3)' }, 1.3 + i * step);
+      const at = 1.3 + i * step;
+      tl.fromTo(p, { opacity: 0 }, { opacity: 1, duration: 0.12 }, at);
+      // Mise à l'échelle depuis le centre du point (et non du groupe point + étiquette)
+      tl.fromTo($$('.core', p), { scale: 0, transformOrigin: '50% 50%' }, { scale: 1, duration: 0.25, ease: 'back.out(3)' }, at);
     });
     // Le compteur suit l'apparition des restaurants
     const c = { v: 0 };

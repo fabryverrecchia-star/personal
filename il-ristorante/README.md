@@ -14,15 +14,19 @@ npm run check    # vérification des types
 
 ## Arborescence
 
-| Page | URL |
+Mêmes pages et mêmes URL que www.ilristorante.fr (les liens et le référencement restent valables) :
+
+| Menu | URL |
 | --- | --- |
-| Accueil | `/` |
-| Découvrir | `/decouvrir` |
-| Il Ristorante chez vous | `/il-ristorante-chez-vous` |
-| Restaurants | `/restaurants` |
-| News & Fidélité | `/news-fidelite` · `/nos-engagements` · `/blog` · `/fidelite-unica` |
-| Il Ristorante recrute | `/recrute` · `/nos-metiers` · `/grandir-ensemble` · `/s-epanouir` |
-| **Devenir franchisé** | `/devenir-franchise` (page phare : chiffres 2025, conditions, accompagnement, candidature) |
+| Découvrir | `/notre-cuisine-italienne` · `/idees-cadeaux` · `/notre-cuisine-italienne/notre-signature` · `/notre-carte` · `/notre-cave` · `/nos-produits-italiens` |
+| Il Ristorante chez vous | `/il-ristorante-chez-vous` · `/notre-cuisine-italienne/vente-a-emporter` · `/oenoteca` · `/notre-cuisine-italienne/notre-boutique` · `/notre-offre-traiteur-italien` |
+| Restaurants (méga-menu par région) | `/restaurants` (carte) + 23 pages, ex. `/il-ristorante-le-restaurant-italien-de-lille` |
+| News & Fidélité | `/nos-engagements` · `/actualite` · `/la-carte-de-fidelite-unica` |
+| Il Ristorante recrute | `/il-ristorante-recrute` · `/nos-metiers` + 8 fiches métier · `/grandir-ensemble` · `/sepanouir` |
+| **Devenir franchisé** | `/devenir-franchise-il-ristorante` |
+| Pied de page | `/contact` · `/reserver` · `/mentions-legales` |
+
+Les données (restaurants, horaires, réservation Zenchef, chefs, métiers, produits, mentions légales) viennent du site actuel : `src/data/*.json`, `src/content-md/`.
 
 ## Structure
 
@@ -76,8 +80,7 @@ Les textes suivent la charte rédactionnelle 2026 : on vouvoie, on reste concret
 
 ## À compléter avant mise en ligne
 
-- **Police des titres** : la police de titres de la marque (« DEVENIR FRANCHISÉ ») n’est pas dans le kit reçu. Déposer le fichier dans `brand/fonts/`, lancer `python3 scripts/build-fonts.py` et l’affecter à `--f-display` dans `global.css` ;
-- `src/data/restaurants.ts` : la liste réelle des 23 restaurants, avec coordonnées et liens de réservation (alimente la carte et la liste) ;
-- `src/pages/mentions-legales.astro` : raison sociale, RCS, directeur de la publication, hébergeur ;
-- le fonctionnement exact du programme UNICA ;
-- le formulaire de candidature prépare un e-mail (`mailto:`) au directeur du développement : à brancher sur un CRM si besoin.
+- les articles du blog pointent vers leurs URL d’origine (`/AAAA/MM/JJ/slug/`) : à migrer avec le contenu ;
+- les formulaires (candidature franchise, contact) préparent un e-mail (`mailto:`) : à brancher sur un CRM si besoin ;
+- statut franchise / succursale de chaque restaurant (non publié sur le site actuel) ;
+- la licence d’usage web de la police Salo Paolo est à confirmer avec son auteur.

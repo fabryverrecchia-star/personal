@@ -1,0 +1,25 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Media from '../../components/Media.astro';
+import DocLinks from '../../components/DocLinks.astro';
+import { ext } from '../../data/site';
+---
+<Base title="Notre boutique, épicerie fine" label="Épicerie fine" description="L’épicerie fine Il Ristorante : vins, produits italiens, fromages et charcuteries à emporter.">
+  <PageHero image="/img/site/board.webp" alt="Charcuteries et fromages italiens" crumbs={[{ label: 'Chez vous', href: '/il-ristorante-chez-vous' }, { label: 'Épicerie fine', href: '/notre-cuisine-italienne/notre-boutique' }]} short>
+    <Fragment slot="title">Notre <span class="script">boutique</span></Fragment>
+    <Fragment slot="lead">Pour prolonger le plaisir, nos restaurants ont aussi une boutique d’épicerie fine. Emmenez un peu d’Italie chez vous !</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="split">
+      <Media src="/img/site/aperitivo.webp" alt="Produits italiens de la boutique" class="media--r" />
+      <div class="txt">
+        <p class="eyebrow">Les produits italiens en boutique</p>
+        <h2 class="display h-xl" data-split>Emmenez un peu <span class="script">d’Italie</span></h2>
+        <p class="body-text" data-reveal>Les vins de la cave, une sélection d’épicerie fine de grande qualité, notre assortiment de fromages et de charcuteries italiennes. Disponibles en restaurant, et à réserver dans la rubrique « boutique » du Click & Collect.</p>
+        <p class="muted" style="font-size:var(--fs-s)" data-reveal>Prix nets au 07/04/2026 pour le réseau, sauf Strasbourg, Troyes, Reims, Metz, Nancy, Bruay, Toulon et Rouen.</p>
+        <DocLinks links={[{ label: 'Produits traiteur & épicerie', href: ext.epicerie }, { label: 'Click & Collect', href: ext.commander }]} />
+      </div>
+    </div>
+  </section>
+</Base>

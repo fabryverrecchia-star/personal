@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Rows from '../../components/Rows.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import jobs from '../../data/jobs.json';
+import { ext } from '../../data/site';
+const imgs: Record<string, string> = { cuisine: '/img/site/franchise-cuisine.webp', salle: '/img/site/serveur.webp' };
+const kitchen = jobs.filter((j) => j.family === 'cuisine');
+const room = jobs.filter((j) => j.family === 'salle');
+const row = (j: (typeof jobs)[number], i: number) => ({ n: String(i + 1).padStart(2, '0'), title: j.title, text: j.lead[0], img: j.slug.startsWith('chef') ? '/img/site/chef-bar.webp' : imgs[j.family], href: `/il-ristorante-recrute/${j.slug}` });
+---
+<Base title="Nos métiers" description="Cuisine et salle : les métiers d’Il Ristorante. Postulez en ligne.">
+  <PageHero image="/img/site/franchise-cuisine.webp" alt="La brigade en cuisine" crumbs={[{ label: 'Il Ristorante recrute', href: '/il-ristorante-recrute' }, { label: 'Nos métiers', href: '/il-ristorante-recrute/nos-metiers' }]} short>
+    <Fragment slot="title">Nos <span class="script">métiers</span></Fragment>
+    <Fragment slot="lead">Une enseigne de restauration italienne fondée en 2006, dans une vraie dynamique de développement, avec 4 à 5 ouvertures de restaurants chaque année.</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="sec-head"><span class="eyebrow">Noi cuciniamo : en cuisine</span><span class="idx">{kitchen.length}</span></div>
+    <p class="lead" style="margin-bottom:2.4rem;max-width:52ch" data-reveal>Organisés comme en restauration traditionnelle, avec des chefs, des seconds, des cuisiniers et des commis, tous passionnés par les produits italiens.</p>
+    <Rows rows={kitchen.map(row)} />
+  </section>
+  <section class="section wrap t-dolce" style="padding-top:0">
+    <div class="sec-head"><span class="eyebrow">Noi ti serviamo : en salle</span><span class="idx">{room.length}</span></div>
+    <p class="lead" style="margin-bottom:2.4rem;max-width:52ch" data-reveal>L’envie de faire plaisir à nos convives et de leur offrir un service premium.</p>
+    <Rows rows={room.map(row)} />
+  </section>
+  <CtaBand href={ext.offres} label="Voir les offres" secondary={{ href: ext.candidature, label: 'Candidature spontanée' }}>Rejoignez-<span class="script">nous</span></CtaBand>
+</Base>

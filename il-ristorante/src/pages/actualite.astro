@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import PostCards from '../components/PostCards.astro';
+import { categories } from '../data/blog';
+---
+<Base title="Blog" description="L’Italie, son style de vie, ses recettes, ses traditions : le blog Il Ristorante.">
+  <PageHero image="/img/site/blog-lacs.webp" alt="Forêt d’automne au bord d’un lac des Dolomites" crumbs={[{ label: 'News & Fidélité', href: '/nos-engagements' }, { label: 'Blog', href: '/actualite' }]} short>
+    <Fragment slot="title">Actualités, <span class="script">buona lettura</span></Fragment>
+    <Fragment slot="lead">L’Italie, son style de vie, ses recettes, ses traditions, mais aussi son patrimoine, sa culture et sa richesse gastronomique.</Fragment>
+  </PageHero>
+  <section class="section wrap t-dolce">
+    <div class="sec-head"><span class="eyebrow">Les derniers articles</span><span class="idx">2026</span></div>
+    <ul class="tags" data-reveal>{categories.map((c) => <li>{c}</li>)}</ul>
+    <PostCards />
+  </section>
+</Base>
+<style>
+  .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: clamp(32px, 5vw, 64px); }
+  .tags li { padding: 0.5em 1em; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); font-size: var(--fs-s); }
+</style>

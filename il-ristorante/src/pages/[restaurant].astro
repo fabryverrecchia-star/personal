@@ -1,0 +1,107 @@
+---
+import Base from '../layouts/Base.astro';
+import Media from '../components/Media.astro';
+import Arrow from '../components/Arrow.astro';
+import FranceMap from '../components/FranceMap.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { restaurants, restaurantHref, ext, type Restaurant } from '../data/site';
+
+export function getStaticPaths() {
+  return restaurants.map((r) => ({ params: { restaurant: r.slug }, props: { r } }));
+}
+const { r } = Astro.props as { r: Restaurant };
+const near = restaurants.filter((x) => x.region === r.region && x.slug !== r.slug).slice(0, 3);
+const others = near.length ? near : restaurants.filter((x) => x.slug !== r.slug).slice(0, 3);
+const tel = r.phone ? 'tel:+33' + r.phone.replace(/\D/g, '').slice(1) : undefined;
+const maps = `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
+const points = restaurants.map((x) => ({ name: x.name, lat: x.lat, lng: x.lng }));
+---
+<Base title={`Restaurant italien ${r.name}`} label={r.name} description={`Il Ristorante ${r.name} : ${r.street}, ${r.postalCode} ${r.city}. ${r.hours[0] ?? ''} Réservez votre table.`} image={r.img}>
+  <section class="hero hero--short" data-hero>
+    <div class="hero-media"><img src={r.img} alt={`La salle d’Il Ristorante ${r.name}`} data-gl="hero" loading="eager" /></div>
+    <nav class="crumbs" aria-label="Fil d’Ariane" data-reveal><a href="/">Accueil</a><span aria-hidden="true">/</span><a href="/restaurants">Restaurants</a><span aria-hidden="true">/</span><span>{r.region}</span></nav>
+    <h1 class="hero-title display h-xxl" data-split data-hero-title>Le restaurant italien <span class="script">de</span> {r.name}</h1>
+    <div class="hero-foot">
+      <p class="lead" data-reveal>{r.street}<br />{r.postalCode} {r.city}</p>
+      <div class="r-actions" data-reveal>
+        {r.booking && <a class="btn" style="--b-bg:var(--pomodoro);--b-fg:var(--dolce)" href={r.booking} target="_blank" rel="noopener" data-magnetic>Réserver <Arrow /></a>}
+        <a class="btn btn--ghost" href={ext.commander} target="_blank" rel="noopener">Click & Collect</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section wrap t-dolce">
+    <div class="r-info">
+      <div class="r-block" data-reveal>
+        <p class="eyebrow">Horaires</p>
+        <ul class="r-hours">{r.hours.map((h) => <li>{h}</li>)}</ul>
+      </div>
+      <div class="r-block" data-reveal>
+        <p class="eyebrow">Nous joindre</p>
+        <p class="r-big">{r.phone && <a class="link-u" href={tel}>{r.phone}</a>}</p>
+        {r.email && <p><a class="link-u" href={`mailto:${r.email}`}>{r.email}</a></p>}
+        <p style="margin-top:1rem"><a class="link-u" href={maps} target="_blank" rel="noopener">Itinéraire →</a></p>
+      </div>
+      <div class="r-block r-map" data-reveal>
+        <FranceMap mini points={points} active={r.name} />
+      </div>
+    </div>
+  </section>
+
+  {r.chef && (
+    <section class="section wrap t-giardino">
+      <div class="split">
+        {r.chef.img ? <Media src={r.chef.img} alt={`${r.chef.name}, ${r.chef.role.toLowerCase()} à ${r.name}`} class="media--r" /> : <Media src="/img/site/franchise-cuisine.webp" alt="La brigade en cuisine" class="media--r" />}
+        <div class="txt">
+          <p class="eyebrow">{r.chef.role} à {r.name}</p>
+          <h2 class="display h-xxl" data-split>{r.chef.name}</h2>
+          <p class="lead" data-reveal>{r.chef.traits}</p>
+          <p class="body-text" data-reveal>{r.chef.role === 'Cheffe' ? 'Notre cheffe' : 'Notre chef'} et sa brigade vous proposent, chaque jour, une véritable cucina italiana, faite maison.</p>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {r.sections.length > 0 && (
+    <section class="section wrap t-dolce">
+      <div class="sec-head"><span class="eyebrow">Votre Il Ristorante {r.name}</span><span class="idx">{r.region}</span></div>
+      {r.intro && <p class="manifesto" style="font-size:clamp(1.8rem,1rem + 2.6vw,3.6rem);margin-bottom:clamp(40px,6vw,80px)" data-split>{r.intro}</p>}
+      <div class="cols">
+        {r.sections.map((s) => (
+          <div class="col" data-reveal>
+            <h3>{s.title}</h3>
+            {s.text.map((p) => <p>{p}</p>)}
+          </div>
+        ))}
+      </div>
+      {r.privatisable && <p class="body-text" style="margin-top:2.4rem" data-reveal>Réunions, séminaires, fêtes de famille : le restaurant dispose d’espaces privatisables. Renseignements par téléphone.</p>}
+    </section>
+  )}
+
+  <section class="section wrap t-dolce" style="padding-top:0">
+    <div class="sec-head"><span class="eyebrow">{near.length ? `Aussi dans la région ${r.region}` : 'Nos autres restaurants'}</span><span class="idx">→</span></div>
+    <div class="cards">
+      {others.map((x) => (
+        <a class="card" href={restaurantHref(x)} data-label={x.name} data-cursor="Voir" data-reveal>
+          <Media src={x.img} alt={`Il Ristorante ${x.name}`} />
+          <div class="meta"><span>{x.postalCode} {x.city}</span><span>{x.phone}</span></div>
+          <h3>{x.name}</h3>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <CtaBand href="/la-carte-de-fidelite-unica" label="La carte UNICA" eyebrow="Fidélité">Des privilèges <span class="script">à chaque visite</span></CtaBand>
+</Base>
+<style>
+  .r-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; position: relative; z-index: 3; }
+  .r-actions .btn--ghost { --b-fg: var(--dolce); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dolce) 50%, transparent); }
+  .r-info { display: grid; grid-template-columns: 1.2fr 1fr 0.9fr; gap: clamp(24px, 4vw, 64px); align-items: start; }
+  .r-block { display: grid; gap: 0.8rem; }
+  .r-hours { display: grid; gap: 0.4rem; font-size: var(--fs-l); line-height: 1.3; }
+  .r-hours li:first-child { font: 400 clamp(1.6rem, 1rem + 1.4vw, 2.4rem) / 1 var(--f-display); text-transform: uppercase; color: var(--chianti); }
+  .r-big { font: 400 clamp(1.8rem, 1rem + 2vw, 3rem) / 1 var(--f-display); }
+  .r-map { max-width: 320px; justify-self: end; width: 100%; }
+  .col p { font-size: var(--fs-s); }
+  @media (max-width: 900px) { .r-info { grid-template-columns: 1fr; } .r-map { justify-self: start; max-width: 260px; } }
+</style>
