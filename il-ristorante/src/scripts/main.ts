@@ -99,6 +99,7 @@ const setMenu = (open: boolean) => {
   open ? lenis.stop() : lenis.start();
 };
 burger.addEventListener('click', () => setMenu(!root.classList.contains('menu-open')));
+window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && root.classList.contains('menu-open')) setMenu(false); });
 
 // Déverrouille dès que le pointeur bouge hors de l'en-tête, une fois la transition terminée
 window.addEventListener('pointermove', (e) => {

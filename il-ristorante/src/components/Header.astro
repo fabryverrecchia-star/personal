@@ -38,18 +38,45 @@ const caret = '<svg class="caret" viewBox="0 0 8 5" fill="none" stroke="currentC
   </nav>
   <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" data-burger><span></span><span></span></button>
 </header>
-<div class="menu" id="menu" data-menu>
-  <ul class="menu-list">
-    {nav.map((item) => (
-      <li>
-        <a href={item.href} data-nav-link>{item.label}</a>
-        {item.children && <div class="menu-sub">{item.children.map((c) => <a href={c.href} data-nav-link>{c.label}</a>)}</div>}
-        {item.mega && <div class="menu-sub">{restaurants.map((r) => <a href={restaurantHref(r)} data-nav-link>{r.name}</a>)}</div>}
-      </li>
-    ))}
-  </ul>
-  <div class="menu-foot">
-    <span>Depuis 2006</span>
-    <span>{socials.map((s, i) => <>{i > 0 && ' · '}<a href={s.href} target="_blank" rel="noopener">{s.label}</a></>)}</span>
-  </div>
+<div class="menu" id="menu" data-menu data-lenis-prevent role="dialog" aria-modal="true" aria-label="Menu">
+  <nav class="menu-inner" aria-label="Navigation mobile">
+    <ul class="menu-list">
+      {nav.map((item, i) => (
+        <li class="menu-item" style={`--i:${i}`}>
+          {item.children || item.mega ? (
+            <details name="menu-acc">
+              <summary>
+                <span>{item.label}</span>
+                <i class="menu-plus" aria-hidden="true"></i>
+              </summary>
+              <div class="menu-panel">
+                <a class="menu-overview" href={item.href} data-nav-link>{item.mega ? `La carte des ${restaurants.length} restaurants` : `Voir la page ${item.label}`} →</a>
+                {item.children && <ul class="menu-sub">{item.children.map((c) => <li><a href={c.href} data-nav-link>{c.label}</a></li>)}</ul>}
+                {item.mega && (
+                  <div class="menu-regions">
+                    {byRegion.map((g) => (
+                      <div>
+                        <p class="menu-region">{g.region}</p>
+                        <ul class="menu-sub">{g.list.map((r) => <li><a href={restaurantHref(r)} data-nav-link data-label={r.name}>{r.name}</a></li>)}</ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </details>
+          ) : (
+            <a class:list={['menu-top', { 'is-cta': item.highlight }]} href={item.href} data-nav-link>{item.label}<span aria-hidden="true">→</span></a>
+          )}
+        </li>
+      ))}
+    </ul>
+    <div class="menu-actions">
+      <a class="btn" style="--b-bg:var(--dolce);--b-fg:var(--giardino)" href="/reserver" data-nav-link>Réserver une table</a>
+      <a class="btn btn--ghost" href="https://commandes.ilristorante.fr/home/places" target="_blank" rel="noopener">Click & Collect</a>
+    </div>
+    <div class="menu-foot">
+      <a href="/contact" data-nav-link>Contact</a>
+      <span>{socials.map((s, i) => <>{i > 0 && ' · '}<a href={s.href} target="_blank" rel="noopener">{s.label}</a></>)}</span>
+    </div>
+  </nav>
 </div>
