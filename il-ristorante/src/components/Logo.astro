@@ -1,4 +1,7 @@
-<a href="/" class="logo" aria-label="Il Ristorante, accueil" data-cursor-link>
-  <span class="logo-word"><i>il</i>Ristorante</span>
-  <span class="logo-sub">La Cucina Italiana</span>
+---
+// Logo signature 2026 (vectorisé depuis le logo officiel, couleur = currentColor)
+import svg from './logo-signature.svg?raw';
+---
+<a href="/" class="logo" aria-label="Il Ristorante, la cucina italiana, accueil" data-cursor-link data-label="Il Ristorante">
+  <Fragment set:html={svg} />
 </a>

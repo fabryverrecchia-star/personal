@@ -84,7 +84,6 @@ void main() {
   c -= flow * 0.025;
 
   vec3 col = texture2D(uTex, cover(c, uPlane, uImg)).rgb;
-  col *= 1.0 - uScroll * 0.4;
   gl_FragColor = vec4(col, oval(vUv, uPlane, uReveal) * uLoaded);
 }
 `;

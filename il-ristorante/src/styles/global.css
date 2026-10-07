@@ -208,10 +208,9 @@ main :where(h1, h2, h3, p, a, button, dl, ul, ol, form, .ui) { position: relativ
 }
 .header.is-solid { color: var(--ink); background: color-mix(in srgb, var(--dolce) 95%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); height: 68px; }
 .header.is-hidden { transform: translateY(-100%); }
-.logo { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; z-index: 2; }
-.logo-word { font-family: var(--f-sans); font-weight: 400; font-size: 1.45rem; letter-spacing: -0.04em; }
-.logo-word i { font-family: var(--f-script); font-style: normal; font-size: 1.35em; margin-right: 0.14em; }
-.logo-sub { font: 500 0.55rem / 1 var(--f-sans); letter-spacing: 0.32em; text-transform: uppercase; margin-top: 0.1rem; }
+.logo { display: block; z-index: 2; width: clamp(128px, 11vw, 168px); transition: width 0.4s var(--ease-out); }
+.logo svg { display: block; width: 100%; height: auto; }
+.header.is-solid .logo { width: clamp(118px, 9.5vw, 146px); color: var(--chianti); }
 .nav { display: flex; align-items: center; gap: clamp(14px, 1.8vw, 30px); font-size: var(--fs-s); font-weight: 400; }
 .nav > li { position: relative; }
 .nav > li > a { display: inline-flex; align-items: center; gap: 0.35em; padding-block: 1.6rem; }
@@ -385,7 +384,7 @@ html:not(.js) .loader { display: none; }
 }
 .hero-media { position: absolute; inset: 0; background: var(--giardino-deep); }
 .hero-media img { width: 100%; height: 100%; object-fit: cover; }
-.hero-media::after { content: ''; position: absolute; inset: 0; z-index: 3; background: linear-gradient(180deg, rgb(11 30 20 / 0.45) 0%, rgb(11 30 20 / 0) 30%, rgb(11 30 20 / 0.15) 55%, rgb(11 30 20 / 0.7) 100%); pointer-events: none; }
+.hero :is(.hero-title, .hero-foot, .crumbs) { text-shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 4px 24px rgb(0 0 0 / 0.35); }
 .hero-title { position: relative; z-index: 3; }
 .hero-title .script { color: var(--dolce); }
 .hero-foot { position: relative; z-index: 3; display: flex; justify-content: space-between; align-items: end; gap: 2rem; margin-top: clamp(24px, 3vw, 48px); padding-top: 1.2rem; border-top: 1px solid color-mix(in srgb, var(--dolce) 35%, transparent); }
@@ -606,3 +605,7 @@ html:not(.js) .step { opacity: 1; }
 .player-title { font: 400 var(--fs-l) / 1 var(--f-display); text-transform: uppercase; }
 .player-close { position: fixed; top: var(--gutter); right: var(--gutter); width: 52px; height: 52px; border-radius: 50%; background: var(--dolce); color: var(--ink); font-size: 1.8rem; line-height: 1; }
 @keyframes player-in { from { opacity: 0; } to { opacity: 1; } }
+/* Lisibilité de l’en-tête sur les photos, sans voile sombre */
+.header:not(.is-solid) { text-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 14px rgb(0 0 0 / 0.3); }
+.header:not(.is-solid) .logo svg { filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.3)) drop-shadow(0 2px 12px rgb(0 0 0 / 0.3)); }
+.header :is(.is-cta, .dropdown, .mega) { text-shadow: none; }
