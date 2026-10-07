@@ -3,8 +3,11 @@ import Base from '../layouts/Base.astro';
 import PageHero from '../components/PageHero.astro';
 import Media from '../components/Media.astro';
 import CtaBand from '../components/CtaBand.astro';
+import FranceMap from '../components/FranceMap.astro';
 import { restaurants } from '../data/restaurants';
 import { brochure } from '../data/site';
+const located = restaurants.filter((r) => r.lat != null && r.lng != null);
+const mapPoints = located.map((r) => ({ name: r.city, lat: r.lat!, lng: r.lng!, kind: (r.franchise ? 'franchise' : 'restaurant') as 'franchise' | 'restaurant', href: `#r-${restaurants.indexOf(r)}` }));
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
 ---
 <Base title="Restaurants" description="23 restaurants Il Ristorante en France : trouvez le vôtre et réservez votre table.">
@@ -13,7 +16,12 @@ const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacrit
     <Fragment slot="lead">Trouvez le restaurant le plus proche de chez vous et réservez en quelques secondes.</Fragment>
   </PageHero>
 
-  <section class="section wrap t-dolce">
+  <FranceMap points={mapPoints} theme="t-giardino" count={23} countLabel="restaurants, de la Manche à la Méditerranée." legend={[{ kind: 'restaurant', label: 'Succursale' }, { kind: 'franchise', label: 'En franchise' }]}>
+    <p slot="before" class="eyebrow">Nos restaurants en France</p>
+    <a class="btn" style="--b-bg:var(--dolce);--b-fg:var(--giardino);justify-self:start" href="#liste">Voir la liste</a>
+  </FranceMap>
+
+  <section class="section wrap t-dolce" id="liste">
     <div class="sec-head" style="align-items:end">
       <label class="field" style="flex:1;max-width:560px">
         <span class="eyebrow">Rechercher une ville</span>
@@ -23,7 +31,7 @@ const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacrit
     </div>
     <div class="cards">
       {restaurants.map((r) => (
-        <article class="card" data-filter-item={norm(`${r.city} ${r.address}`)} data-reveal>
+        <article class="card" id={`r-${restaurants.indexOf(r)}`} data-filter-item={norm(`${r.city} ${r.address}`)} data-reveal>
           <Media src={r.img} alt={`Restaurant Il Ristorante ${r.city}`} />
           <div class="meta"><span>{r.franchise ? 'Franchise' : 'Succursale'}</span><span>Réservation en ligne</span></div>
           <h3>{r.city}</h3>

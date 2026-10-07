@@ -63,10 +63,21 @@ Sans WebGL, ou avec `prefers-reduced-motion`, les images DOM restent affichées 
 
 Les textes suivent la charte rédactionnelle 2026 : on vouvoie, on reste concret (produits, gestes, lieux), on mobilise les sens, on use des italianismes avec parcimonie et on évite les clichés.
 
+## Carte de France animée
+
+`src/components/FranceMap.astro` : contour de la France métropolitaine (world-atlas, projection de Lambert) généré au build. Au défilement, la section s’épingle, le contour se dessine, puis les points apparaissent du nord au sud avec un compteur synchronisé.
+
+- page Restaurants : les restaurants de `src/data/restaurants.ts` qui ont des coordonnées (`lat`, `lng`) ;
+- page Devenir franchisé : restaurants + agglomérations de 70 000 habitants et plus (`src/data/agglomerations.ts`, liste indicative).
+
+## Aperçu autonome
+
+`npm run apercu` génère `preview/il-ristorante-apercu.html` : tout le site dans un seul fichier, navigable hors ligne.
+
 ## À compléter avant mise en ligne
 
-- `src/data/restaurants.ts` : la liste réelle des 23 restaurants (adresses, liens de réservation) ;
-- les liens de commande en ligne, cartes cadeaux, offres d’emploi et carte UNICA (`href="#"`) ;
-- les articles du blog (titres d’exemple) ;
+- **Police des titres** : la police de titres de la marque (« DEVENIR FRANCHISÉ ») n’est pas dans le kit reçu. Déposer le fichier dans `brand/fonts/`, lancer `python3 scripts/build-fonts.py` et l’affecter à `--f-display` dans `global.css` ;
+- `src/data/restaurants.ts` : la liste réelle des 23 restaurants, avec coordonnées et liens de réservation (alimente la carte et la liste) ;
+- `src/pages/mentions-legales.astro` : raison sociale, RCS, directeur de la publication, hébergeur ;
 - le fonctionnement exact du programme UNICA ;
 - le formulaire de candidature prépare un e-mail (`mailto:`) au directeur du développement : à brancher sur un CRM si besoin.

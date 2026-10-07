@@ -533,14 +533,33 @@ a.row:hover { padding-inline: 1rem; }
 @media (max-width: 700px) { .form { grid-template-columns: 1fr; } }
 
 /* ---------- Footer ---------- */
-.footer { position: relative; padding: clamp(64px, 9vw, 140px) var(--gutter) var(--gutter); overflow: hidden; }
+.footer { position: relative; padding: clamp(64px, 9vw, 140px) var(--gutter) calc(var(--gutter) + 72px); overflow: hidden; }
 .footer-top { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 2.5rem var(--col-gap); padding-bottom: clamp(48px, 7vw, 100px); }
 .footer-top h2 { font: 300 var(--fs-xl) / 0.95 var(--f-display); max-width: 12ch; letter-spacing: -0.045em; }
 .footer-top h3 { font-size: var(--fs-xs); letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.7; margin-bottom: 1rem; font-weight: 500; }
 .footer-top li + li { margin-top: 0.45rem; }
 .footer-word { position: relative; font: 300 var(--fs-mega) / 0.8 var(--f-display); letter-spacing: -0.07em; white-space: nowrap; text-align: center; margin-inline: -1vw; }
-.footer-word .script { font-size: 0.34em; position: absolute; right: 4%; bottom: -4%; transform: rotate(-7deg); color: var(--pomodoro); white-space: nowrap; }
+.footer-word .script { position: absolute; left: 4%; top: -0.08em; font-size: 0.3em; transform: rotate(-6deg); color: var(--pomodoro); white-space: nowrap; letter-spacing: 0; }
 .footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; padding-top: 1.2rem; margin-top: clamp(24px, 3vw, 40px); border-top: 1px solid var(--line); font-size: var(--fs-xs); letter-spacing: 0.08em; }
 .footer-bottom a { margin-left: 1.2rem; }
 @media (max-width: 900px) { .footer-top { grid-template-columns: 1fr 1fr; } .footer-top > :first-child { grid-column: 1 / -1; } }
 .script .w, .w:has(.script) { padding: 0.18em 0.12em; margin: -0.18em -0.12em; }
+
+/* Étapes (parcours franchise) */
+.steps { position: relative; display: grid; gap: clamp(28px, 4vw, 56px); padding-left: clamp(56px, 8vw, 120px); max-width: 980px; }
+.steps-line { position: absolute; left: clamp(18px, 2.6vw, 38px); top: 0.6em; bottom: 0.6em; width: 2px; background: var(--line); }
+.steps-line i { position: absolute; inset: 0; background: var(--pomodoro); transform-origin: top; transform: scaleY(0); }
+.step { position: relative; display: grid; grid-template-columns: clamp(80px, 10vw, 150px) 1fr; gap: var(--col-gap); align-items: baseline; opacity: 0.32; transition: opacity 0.6s var(--ease-out); }
+.step::before { content: ''; position: absolute; left: calc(-1 * clamp(56px, 8vw, 120px) + clamp(18px, 2.6vw, 38px) - 6px); top: 0.55em; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); box-shadow: inset 0 0 0 2px var(--line); transition: background-color 0.4s, box-shadow 0.4s; }
+.step.is-on { opacity: 1; }
+.step.is-on::before { background: var(--pomodoro); box-shadow: 0 0 0 6px color-mix(in srgb, var(--pomodoro) 20%, transparent); }
+.step-n { font-size: clamp(2.4rem, 1.5rem + 3vw, 4.8rem); line-height: 0.9; color: var(--accent); }
+.step h3 { font: 300 clamp(1.6rem, 1rem + 1.8vw, 2.6rem) / 1.05 var(--f-display); letter-spacing: -0.045em; margin-bottom: 0.6rem; }
+.step p { max-width: 52ch; }
+html:not(.js) .step { opacity: 1; }
+@media (max-width: 640px) { .step { grid-template-columns: 1fr; gap: 0.4rem; } }
+
+/* Article */
+.article { display: grid; gap: 1.4em; font-size: var(--fs-l); line-height: 1.55; }
+.article-first::first-letter { float: left; font: 300 4.2em / 0.8 var(--f-display); letter-spacing: -0.06em; margin: 0.06em 0.12em 0 0; color: var(--accent); }
+@media (max-width: 900px) { .article { grid-column: 1 / -1 !important; } }

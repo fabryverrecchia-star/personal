@@ -6,6 +6,9 @@ import Sticker from '../components/Sticker.astro';
 import Stats from '../components/Stats.astro';
 import Rows from '../components/Rows.astro';
 import Arrow from '../components/Arrow.astro';
+import FranceMap from '../components/FranceMap.astro';
+import { agglomerations } from '../data/agglomerations';
+import { restaurants } from '../data/restaurants';
 import { pillars, conditions, contact, brochure } from '../data/site';
 
 const support = [
@@ -40,6 +43,20 @@ const support = [
       'Participation aux commissions avec le franchiseur et réunions franchisés',
     ],
   },
+];
+
+const steps = [
+  { title: 'Premier contact', text: `Vous nous présentez votre projet. ${contact.name}, notre ${contact.role.toLowerCase()}, vous rappelle pour un premier échange.` },
+  { title: 'L’emplacement', text: 'On recherche ensemble votre local, dans une agglomération de 70\u202f000 habitants et plus.' },
+  { title: 'Le contrat et le chantier', text: 'Un contrat de 9 ans. Vous recevez le manuel architectural et opérationnel, et on vous accompagne pendant le chantier.' },
+  { title: 'La formation', text: '8 semaines minimum pour vous, votre directeur et votre chef : 6 en succursale, 2 chez nos partenaires franchisés.' },
+  { title: 'L’ouverture', text: 'Une équipe d’experts reste à vos côtés pendant 10 jours pour animer et piloter votre restaurant.' },
+  { title: 'Au quotidien', text: 'Un animateur de franchise dédié, des outils de gestion et les services support : marketing local, réseaux sociaux, technique culinaire, approvisionnements.' },
+];
+
+const mapPoints = [
+  ...agglomerations.map((a) => ({ ...a, kind: 'zone' as const })),
+  ...restaurants.filter((r) => r.lat != null && r.lng != null).map((r) => ({ name: r.city, lat: r.lat!, lng: r.lng!, kind: (r.franchise ? 'franchise' : 'restaurant') as 'franchise' | 'restaurant' })),
 ];
 
 const cities = ['Lyon', 'Bordeaux', 'Nantes', 'Lille', 'Montpellier', 'Rennes', 'Toulouse', 'Strasbourg', 'chez vous'];
@@ -118,19 +135,36 @@ const cities = ['Lyon', 'Bordeaux', 'Nantes', 'Lille', 'Montpellier', 'Rennes', 
     </div>
   </section>
 
-  <section class="section wrap t-cielo" style="text-align:center;overflow:hidden">
-    <p class="eyebrow" data-reveal style="margin-bottom:2.5rem">Prévisions d’ouvertures 2026</p>
-    <h2 class="display h-xxl" style="margin-top:1.5rem">
-      <span data-split>Le prochain Ristorante</span><br />
-      <span style="display:inline-grid;overflow:hidden;vertical-align:top;color:var(--chianti)" data-rotator>
-        {cities.map((c) => <span style="grid-area:1/1" class:list={{ script: c === 'chez vous' }}>{c === 'chez vous' ? c : `à ${c}`}</span>)}
-      </span>
-    </h2>
-    <p class="lead" style="margin:2rem auto 0" data-reveal>Des opportunités dans la France entière.</p>
+  <section class="section wrap t-dolce">
+    <div class="sec-head"><span class="eyebrow">Le parcours</span><span class="idx">VI.</span></div>
+    <h2 class="display h-xxl" style="max-width:14ch;margin-bottom:clamp(40px,6vw,90px)" data-split>Les étapes vers <span class="script">votre succès</span></h2>
+    <ol class="steps" data-steps>
+      <li class="steps-line" aria-hidden="true"><i data-steps-fill></i></li>
+      {steps.map((st, i) => (
+        <li class="step" data-step>
+          <span class="step-n num">{String(i + 1).padStart(2, '0')}</span>
+          <div>
+            <h3>{st.title}</h3>
+            <p>{st.text}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
   </section>
 
+  <FranceMap points={mapPoints} theme="t-cielo" count={23} countLabel="restaurants aujourd’hui, et des opportunités dans la France entière." legend={[{ kind: 'restaurant', label: 'Restaurant' }, { kind: 'franchise', label: 'En franchise' }, { kind: 'zone', label: 'Agglomération de 70\u202f000 habitants et plus' }]}>
+    <Fragment slot="before">
+      <p class="eyebrow">Prévisions d’ouvertures 2026</p>
+      <h2 class="display h-xl">Le prochain Ristorante<br />
+        <span style="display:inline-grid;overflow:hidden;vertical-align:top;color:var(--chianti)" data-rotator>
+          {cities.map((c) => <span style="grid-area:1/1" class:list={{ script: c === 'chez vous' }}>{c === 'chez vous' ? c : `à ${c}`}</span>)}
+        </span>
+      </h2>
+    </Fragment>
+  </FranceMap>
+
   <section class="section wrap t-giardino" id="candidature">
-    <div class="sec-head"><span class="eyebrow">Candidature</span><span class="idx">VI.</span></div>
+    <div class="sec-head"><span class="eyebrow">Candidature</span><span class="idx">VII.</span></div>
     <div class="grid" style="row-gap:4rem">
       <div style="grid-column:1/span 5;display:grid;gap:2rem;align-content:start">
         <h2 class="display h-xl" data-split>Parlons de votre <span class="script">projet</span></h2>

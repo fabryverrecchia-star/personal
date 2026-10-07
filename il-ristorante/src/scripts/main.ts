@@ -78,6 +78,17 @@ if (cursor && matchMedia('(hover: hover)').matches) {
   });
 }
 
+/* ---------- Ancres internes : défilement doux ---------- */
+document.addEventListener('click', (e) => {
+  const a = (e.target as Element).closest<HTMLAnchorElement>('a[href^="#"]');
+  const id = a?.getAttribute('href')?.slice(1);
+  if (!a || !id) return;
+  const target = document.getElementById(id);
+  if (!target) return;
+  e.preventDefault();
+  lenis.scrollTo(target, { offset: -70, duration: 1.4 });
+});
+
 /* ---------- En-tête & menu (persistants) ---------- */
 const header = $('[data-header]')!;
 const burger = $('[data-burger]')!;
@@ -182,6 +193,8 @@ document.addEventListener('astro:page-load', async () => {
   forms(main, page.signal);
   filters(main, page.signal);
   rotators(main);
+  maps(main);
+  stepsLine(main);
 
   requestAnimationFrame(() => ScrollTrigger.refresh());
 });
@@ -368,4 +381,61 @@ function filters(main: HTMLElement, signal: AbortSignal) {
     if (empty) empty.hidden = n > 0;
     ScrollTrigger.refresh();
   }, { signal });
+}
+
+/* ---------- Carte de France animée au défilement ---------- */
+function maps(main: HTMLElement) {
+  $$('[data-map]', main).forEach((section) => {
+    const outline = $<SVGPathElement>('.map-outline', section)!;
+    const land = $<SVGPathElement>('.map-land', section)!;
+    const pts = $$<SVGElement>('[data-map-pt]', section);
+    const counter = $('[data-map-count]', section);
+    const total = parseInt(counter?.dataset.total ?? '0', 10);
+    const real = pts.filter((p) => !p.classList.contains('map-pt--zone'));
+    if (reduced) {
+      if (counter) counter.textContent = String(total);
+      return;
+    }
+    const pinned = matchMedia('(min-width: 861px)').matches;
+    const tl = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: pinned
+        ? { trigger: section, start: 'top top', end: '+=180%', pin: true, scrub: 0.8, anticipatePin: 1 }
+        : { trigger: section, start: 'top 75%', end: 'bottom 60%', scrub: 0.8 },
+    });
+    tl.to(outline, { strokeDashoffset: 0, duration: 1.2, ease: 'power1.inOut' })
+      .to(land, { opacity: 1, duration: 0.4 }, '-=0.3');
+    const step = 1.8 / Math.max(1, pts.length);
+    pts.forEach((p, i) => {
+      tl.fromTo(p, { opacity: 0, scale: 0, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: 0.25, ease: 'back.out(3)' }, 1.3 + i * step);
+    });
+    // Le compteur suit l'apparition des restaurants
+    const c = { v: 0 };
+    tl.to(c, {
+      v: total,
+      duration: 1.8,
+      ease: 'none',
+      onUpdate: () => { if (counter) counter.textContent = String(Math.round(c.v)); },
+    }, 1.3);
+    // Les noms des restaurants restent affichés une fois la carte complète
+    tl.call(() => real.forEach((p) => p.classList.add('is-labelled')), [], 3.2)
+      .to({}, { duration: 0.3 });
+    tl.eventCallback('onUpdate', () => {
+      if (tl.progress() < 0.97) real.forEach((p) => p.classList.remove('is-labelled'));
+    });
+  });
+}
+
+/* ---------- Parcours en étapes : la ligne se remplit, chaque étape s'allume ---------- */
+function stepsLine(main: HTMLElement) {
+  $$('[data-steps]', main).forEach((list) => {
+    const fill = $('[data-steps-fill]', list);
+    const items = $$('[data-step]', list);
+    if (reduced) {
+      items.forEach((it) => it.classList.add('is-on'));
+      return;
+    }
+    if (fill) gsap.to(fill, { scaleY: 1, ease: 'none', scrollTrigger: { trigger: list, start: 'top 65%', end: 'bottom 65%', scrub: 0.5 } });
+    items.forEach((it) => ScrollTrigger.create({ trigger: it, start: 'top 66%', onToggle: (st) => it.classList.toggle('is-on', st.isActive || st.progress === 1), end: 'max' }));
+  });
 }

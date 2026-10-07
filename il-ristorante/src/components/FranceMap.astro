@@ -1,0 +1,115 @@
+---
+// Carte de France animée au défilement : le contour se dessine, puis les points apparaissent
+// du nord au sud. Géométrie : world-atlas (Natural Earth), projection conique conforme de Lambert.
+import { geoConicConformal, geoPath } from 'd3-geo';
+import { feature } from 'topojson-client';
+import world from 'world-atlas/countries-10m.json';
+
+export interface MapPoint { name: string; lat: number; lng: number; kind?: 'restaurant' | 'franchise' | 'zone'; href?: string; label?: string }
+interface Props { points: MapPoint[]; theme?: string; count?: number; countLabel?: string; legend?: { kind: string; label: string }[] }
+const { points, theme = 't-giardino', count, countLabel = '', legend } = Astro.props;
+
+const W = 1000;
+const H = 960;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const countries = feature(world as any, (world as any).objects.countries) as any;
+const france = countries.features.find((f: { id: string }) => f.id === '250');
+// France métropolitaine et Corse uniquement
+const metro = {
+  type: 'Feature',
+  properties: {},
+  geometry: {
+    type: 'MultiPolygon',
+    coordinates: france.geometry.coordinates.filter((poly: number[][][]) => {
+      const [lng, lat] = poly[0][0];
+      return lng > -6 && lng < 10 && lat > 41 && lat < 52;
+    }),
+  },
+};
+const projection = geoConicConformal().parallels([44, 49]).rotate([-3, 0]).fitExtent([[24, 24], [W - 24, H - 24]], metro as never);
+const outline = geoPath(projection).digits(1)(metro as never) ?? '';
+
+const placed = points
+  .map((p) => {
+    const xy = projection([p.lng, p.lat]);
+    return xy ? { ...p, x: Math.round(xy[0] * 10) / 10, y: Math.round(xy[1] * 10) / 10 } : null;
+  })
+  .filter((p): p is NonNullable<typeof p> => !!p)
+  .sort((a, b) => b.lat - a.lat); // apparition du nord au sud
+const total = count ?? placed.filter((p) => p.kind !== 'zone').length;
+---
+<section class:list={['map', theme]} data-map>
+  <div class="map-inner wrap">
+    <div class="map-copy">
+      <slot name="before" />
+      <p class="map-count num"><span data-map-count data-total={total}>0</span></p>
+      <p class="map-count-label">{countLabel}</p>
+      {legend && (
+        <ul class="map-legend">
+          {legend.map((l) => <li><i class={`dot dot--${l.kind}`}></i>{l.label}</li>)}
+        </ul>
+      )}
+      <slot />
+    </div>
+    <div class="map-stage">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Carte de France : ${placed.length} points`}>
+        <path class="map-land" d={outline} />
+        <path class="map-outline" d={outline} pathLength="1" />
+        <g class="map-points">
+          {placed.map((p) => {
+            const Tag = p.href ? 'a' : 'g';
+            return (
+              <Tag class:list={['map-pt', `map-pt--${p.kind ?? 'restaurant'}`]} href={p.href} data-map-pt transform={`translate(${p.x} ${p.y})`}>
+                {p.kind !== 'zone' && <circle class="pulse" r="9" />}
+                <circle class="core" r={p.kind === 'zone' ? 5.5 : 8} />
+                <text x="14" y="5">{p.label ?? p.name}</text>
+              </Tag>
+            );
+          })}
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<style>
+  .map { position: relative; overflow: hidden; --pt-franchise: var(--cielo); }
+  .map.t-cielo { --pt-franchise: var(--chianti); }
+  .map-inner { min-height: 100svh; display: grid; grid-template-columns: 5fr 7fr; gap: var(--col-gap); align-items: center; padding-block: clamp(80px, 9vw, 140px); }
+  .map-copy { display: grid; gap: 1.2rem; align-content: center; }
+  .map-count { font-size: clamp(5rem, 3rem + 9vw, 13rem); line-height: 0.8; letter-spacing: -0.07em; }
+  .map-count-label { font-size: var(--fs-l); max-width: 22ch; line-height: 1.2; }
+  .map-legend { display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; font-size: var(--fs-s); }
+  .map-legend li { display: flex; align-items: center; gap: 0.5rem; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--pomodoro); }
+  .dot--franchise { background: var(--pt-franchise); }
+  .dot--zone { width: 7px; height: 7px; background: transparent; box-shadow: inset 0 0 0 1.5px currentColor; }
+  .map-stage svg { width: 100%; height: auto; max-height: 86svh; overflow: visible; }
+  .map-land { fill: color-mix(in srgb, var(--fg) 7%, transparent); stroke: none; opacity: 0; }
+  .map-outline { fill: none; stroke: var(--fg); stroke-width: 1.4; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; vector-effect: non-scaling-stroke; }
+  .map-pt { opacity: 0; cursor: default; }
+  a.map-pt { cursor: pointer; }
+  .map-pt .core { fill: var(--pomodoro); stroke: var(--bg); stroke-width: 3; }
+  .map-pt--franchise .core { fill: var(--pt-franchise); }
+  .map-pt--zone .core { fill: var(--bg); stroke: var(--fg); stroke-width: 2; }
+  .map-pt--zone { cursor: help; }
+  .map-pt .pulse { fill: none; stroke: var(--pomodoro); stroke-width: 1.5; transform-origin: center; animation: pulse 2.4s var(--ease-out) infinite; }
+  .map-pt--franchise .pulse { stroke: var(--pt-franchise); }
+  .map-pt text { font: 500 15px var(--f-sans); fill: var(--fg); opacity: 0; transition: opacity 0.3s; paint-order: stroke; stroke: var(--bg); stroke-width: 5px; }
+  .map-pt:hover text, .map-pt.is-labelled text { opacity: 1; }
+  .map-pt--zone text { font-size: 13px; font-weight: 400; }
+  .map-pt:hover .core { stroke-width: 5; }
+  @keyframes pulse { from { transform: scale(1); opacity: 0.9; } to { transform: scale(3.2); opacity: 0; } }
+  html:not(.js) .map-pt, html:not(.js) .map-land { opacity: 1; }
+  html:not(.js) .map-outline { stroke-dashoffset: 0; }
+  @media (max-width: 860px) {
+    .map-inner { grid-template-columns: 1fr; min-height: auto; align-content: start; padding-top: calc(var(--header-h) + 16px); }
+    .map-count { font-size: clamp(4rem, 20vw, 7rem); }
+    .map-stage svg { max-height: 54svh; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .map-pt, .map-land { opacity: 1; }
+    .map-outline { stroke-dashoffset: 0; }
+    .map-pt .pulse { animation: none; }
+  }
+</style>
