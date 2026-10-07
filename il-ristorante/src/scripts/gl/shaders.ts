@@ -54,7 +54,6 @@ void main() {
   vec2 c = (vUv - 0.5) * zoom + 0.5;
   c.y += uParallax * 0.05;
   vec3 col = texture2D(uTex, cover(c, uPlane, uImg)).rgb;
-  col *= 1.0 + 0.04 * uHover;
 
   vec2 p = (vUv - 0.5) * uPlane;
   float a = 1.0 - smoothstep(-1.0, 0.5, sdRound(p, uPlane * 0.5, uRadius));

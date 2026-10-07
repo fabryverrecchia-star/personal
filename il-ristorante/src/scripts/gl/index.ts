@@ -51,7 +51,8 @@ export class GL {
     let t = this.textures.get(src);
     if (!t) {
       t = this.loader.loadAsync(src).then((tex) => {
-        tex.colorSpace = THREE.SRGBColorSpace;
+        // Couleurs restituées telles quelles (pas de conversion linéaire : les shaders écrivent directement en sRGB)
+        tex.colorSpace = THREE.NoColorSpace;
         tex.minFilter = THREE.LinearFilter;
         tex.generateMipmaps = false;
         return tex;
