@@ -267,11 +267,21 @@
       '<span class="label post__index">' + JOURS_LONGS[d.getDay()] + '</span></div>' +
       '<div class="slot" data-slot="media">' + mediaHtml(post) + '</div>' +
       '<div class="caption" data-reveal data-slot="caption">' + captionHtml(post) + '</div>' +
-      '<button type="button" class="label edit-btn" data-edit-post="' + esc(post._key) + '">' + EDIT_ICON + 'Modifier la publication</button>' +
+      '<div class="post__tools"><button type="button" class="label edit-btn" data-edit-post="' + esc(post._key) + '">' + EDIT_ICON + 'Modifier la publication</button>' +
+      '<span class="slot" data-slot="dl">' + dlHtml(post) + '</span></div>' +
       feedbackHtml(post) + '</div></article>'
     );
   }
 
+  // Équipe : la vidéo d'un reel se télécharge telle qu'elle a été envoyée
+  var DL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19h14"/></svg>';
+  function dlHtml(post) {
+    var v = post.type === 'reel' && post.video;
+    if (!v || /^blob:/.test(v)) return '';
+    var ext = (String(v).match(/\.(mp4|mov|m4v)(?:$|[?#])/i) || [0, 'mp4'])[1].toLowerCase();
+    var name = String(post.title || 'reel').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'reel';
+    return '<a class="label edit-btn dl-btn" href="' + esc(src(v)) + '" download="' + esc(name + '.' + ext) + '">' + DL_ICON + 'Télécharger la vidéo</a>';
+  }
   var EDIT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 20l1-4.5L16 4.5l3.5 3.5-11 11z"/><path d="M13.5 7l3.5 3.5"/></svg>';
   function tagHtml(post) {
     var type = post.type || 'post';
@@ -719,6 +729,8 @@
       slot.querySelectorAll('.carousel').forEach(initCarousel);
       slot.querySelectorAll('video[data-autoplay]').forEach(function (vid) { attachVideo(vid, vid.getAttribute('data-video')).then(playVideo); });
       art.querySelector('[data-slot="caption"]').innerHTML = captionHtml(p);
+      var dl = art.querySelector('[data-slot="dl"]');
+      if (dl) dl.innerHTML = dlHtml(p);
       var cell = document.querySelector('[data-grid][href="#' + p._id + '"]');
       if (cell) { cell.innerHTML = gridInner(p); if (!list(p.options).length) cell.removeAttribute('data-grid-options'); }
     });

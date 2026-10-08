@@ -35,6 +35,7 @@ Menu : Publications, Sponsorisé, Tâches, Inspiration.
   - Posts : date et heure de publication.
   - Remplacer, ajouter (le post devient un carrousel) ou retirer des photos. La photo est réduite sur le téléphone avant l'envoi.
   - Format : n'importe quel post peut passer en « Vidéo (reel) », et revenir en photo (la vidéo reste gardée).
+  - « Télécharger la vidéo » (mode équipe) sous chaque reel qui a une vidéo : le fichier envoyé, tel quel.
   - Reels : vidéo (MP4 ou MOV) et couverture. Après l'envoi, une image du début de la vidéo sert de couverture ;
     le curseur permet d'en choisir une autre (« Utiliser cette image »), ou « Importer une photo ».
     La couverture est l'image affichée dans le feed et sur le post avant lecture.

@@ -1590,6 +1590,9 @@ a { color: inherit; }
 .edit-btn svg { width: 14px; height: 14px; flex: none; }
 .is-admin .edit-btn { display: inline-flex; animation: fadeIn 0.6s var(--ease); }
 .edit-btn:active { background: var(--tint); }
+.dl-btn { text-decoration: none; }
+.post__tools { display: flex; flex-wrap: wrap; gap: 0 10px; }
+.post__tools .slot { display: contents; }
 
 /* --------------------------------------------------------------------------
    Campagnes sponsorisées : barre de budget et aperçu des publicités
