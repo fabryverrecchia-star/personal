@@ -3,6 +3,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import Lenis from 'lenis';
 import { Ambience } from './audio';
+import { stages as atlasStages } from '../data/atlas';
+import type { Atlas, View } from './gl/atlas';
 import type { World } from './gl/world';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
@@ -391,6 +393,144 @@ function initInlineVideos() {
 }
 
 // ------------------------------------------------------------------
+// Sounds like … : la carte en points dézoome du Triangle d'or au monde
+// ------------------------------------------------------------------
+function initAtlas() {
+  const section = $('[data-atlas]');
+  if (!section) return;
+  const pin = $('[data-atlas-pin]', section)!;
+  const canvas = $<HTMLCanvasElement>('[data-atlas-gl]', section)!;
+  const words = $$('.atlas__word', section);
+  const regionEl = $('[data-atlas-region]', section)!;
+  const coordsEl = $('[data-atlas-coords]', section)!;
+  const regions: string[] = JSON.parse($('[data-atlas-regions]', section)!.textContent ?? '[]');
+  const dots = $$('.atlas__progress li', section);
+  const markerEls = $$('[data-marker]', section).map((el) => ({
+    el,
+    id: el.dataset.marker!,
+    lon: Number(el.dataset.lon),
+    lat: Number(el.dataset.lat),
+  }));
+  // Étape à laquelle chaque repère apparaît pour la première fois
+  const firstStage = new Map<string, number>();
+  atlasStages.forEach((st, i) => st.markers.forEach((m) => firstStage.has(m) || firstStage.set(m, i)));
+
+  const N = atlasStages.length;
+  let target = 0;
+  let shown = 0;
+  let visible = false;
+  let current = 0;
+
+  ScrollTrigger.create({
+    trigger: section,
+    pin,
+    start: 'top top',
+    end: () => `+=${(N - 1) * window.innerHeight * 0.85}`,
+    onUpdate: (self) => (target = self.progress),
+    invalidateOnRefresh: true,
+  });
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'top bottom',
+    end: 'bottom top',
+    onToggle: (self) => (visible = self.isActive),
+  });
+
+  const setWord = (n: number) => {
+    if (n === current) return;
+    const forward = n > current;
+    const prev = words[current];
+    const next = words[n];
+    prev.classList.remove('is-active');
+    prev.classList.toggle('is-out', forward);
+    next.style.transition = 'none';
+    next.classList.toggle('is-out', !forward);
+    void next.offsetWidth;
+    next.style.transition = '';
+    next.classList.remove('is-out');
+    next.classList.add('is-active');
+    words.forEach((w, i) => i !== n && i !== current && w.classList.remove('is-out', 'is-active'));
+    gsap.to(regionEl, {
+      opacity: 0,
+      duration: 0.25,
+      onComplete: () => {
+        regionEl.textContent = regions[n] ?? '';
+        gsap.to(regionEl, { opacity: 1, duration: 0.5 });
+      },
+    });
+    dots.forEach((d, i) => d.classList.toggle('is-active', i === n));
+    current = n;
+  };
+
+  const dms = (v: number, pos: string, neg: string) => {
+    const a = Math.abs(v);
+    const d = Math.floor(a);
+    const m = Math.floor((a - d) * 60);
+    return `${d}°${String(m).padStart(2, '0')}′${v >= 0 ? pos : neg}`;
+  };
+
+  const smooth = (t: number) => t * t * (3 - 2 * t);
+
+  let atlas: Atlas | null = null;
+  let mod: typeof import('./gl/atlas') | null = null;
+
+  const view: View = { lon: atlasStages[0].lon, lat: atlasStages[0].lat, span: atlasStages[0].span };
+
+  const frame = (time: number) => {
+    if (!visible || !mod) return;
+    shown += (target - shown) * (reduced ? 1 : 0.12);
+    const s = shown * (N - 1);
+    const i = Math.min(Math.floor(s), N - 2);
+    // Pause sur chaque étape, puis voyage vers la suivante
+    const e = smooth(Math.min(1, Math.max(0, (s - i - 0.18) / 0.64)));
+    const A = atlasStages[i];
+    const B = atlasStages[i + 1];
+    view.lon = A.lon + (B.lon - A.lon) * e;
+    view.lat = mod.invMercY(mod.mercY(A.lat) + (mod.mercY(B.lat) - mod.mercY(A.lat)) * e);
+    view.span = Math.exp(Math.log(A.span) + (Math.log(B.span) - Math.log(A.span)) * e);
+    const active = s >= N - 1 ? N - 1 : e > 0.5 ? i + 1 : i;
+    setWord(active);
+    coordsEl.textContent = `${dms(view.lat, 'N', 'S')} · ${dms(view.lon, 'E', 'W')}`;
+
+    // Repères
+    const w = pin.clientWidth;
+    const h = pin.clientHeight;
+    const scale = Math.min(w, h) / ((view.span * Math.PI) / 180);
+    const named = new Set(atlasStages[active].markers);
+    for (const m of markerEls) {
+      const x = w / 2 + (mod.mercX(m.lon) - mod.mercX(view.lon)) * scale;
+      const y = h / 2 - (mod.mercY(m.lat) - mod.mercY(view.lat)) * scale;
+      const seen = (firstStage.get(m.id) ?? 0) <= active;
+      const inside = x > -40 && x < w + 40 && y > -40 && y < h + 40;
+      m.el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+      m.el.style.opacity = seen && inside ? '1' : '0';
+      m.el.classList.toggle('is-named', named.has(m.id));
+      m.el.classList.toggle('is-left', x > w * 0.62);
+    }
+    atlas?.render(view, reduced ? time * 0.3 : time);
+  };
+
+  // Chargement : carte en points (WebGL) + données
+  (async () => {
+    try {
+      mod = await import('./gl/atlas');
+      const data = await fetch(section.dataset.map!).then((r) => r.arrayBuffer());
+      try {
+        atlas = new mod.Atlas(canvas, data);
+      } catch (err) {
+        console.warn('Carte WebGL indisponible', err);
+        canvas.remove();
+      }
+    } catch (err) {
+      console.warn('Carte indisponible', err);
+    }
+    gsap.ticker.add(frame);
+    window.addEventListener('resize', () => atlas?.resize());
+    ScrollTrigger.addEventListener('refresh', () => atlas?.resize());
+  })();
+}
+
+// ------------------------------------------------------------------
 // Casting : vignette qui suit le curseur
 // ------------------------------------------------------------------
 function initCasting() {
@@ -494,6 +634,7 @@ function initForm() {
 // ------------------------------------------------------------------
 // L'épinglage d'abord : les déclencheurs suivants tiennent compte de son espace
 initHorizontal();
+initAtlas();
 initReveals();
 initTones();
 initInlineVideos();

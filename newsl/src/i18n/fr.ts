@@ -72,6 +72,12 @@ const fr: Dict = {
       },
     ],
   },
+  atlas: {
+    label: "Nos scènes",
+    words: ["le Triangle d’or", "Paris", "Saint-Tropez", "Milan", "la Sicile", "Mykonos", "Dubaï", "New York", "you."],
+    regions: ["Paris VIIIe — Montaigne · George V · Champs-Élysées", "Paris", "Côte d’Azur & Alpes", "Lombardie", "Sicile", "Cyclades", "Émirats arabes unis", "États-Unis", "Partout où vous recevez"],
+    hint: "Défiler pour voyager",
+  },
   casting: {
     label: 'Casting',
     title: 'Des artistes choisis un à un',

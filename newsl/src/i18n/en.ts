@@ -72,6 +72,12 @@ const en: Dict = {
       },
     ],
   },
+  atlas: {
+    label: "Our stages",
+    words: ["the Golden Triangle", "Paris", "Saint-Tropez", "Milan", "Sicily", "Mykonos", "Dubai", "New York", "you."],
+    regions: ["Paris 8th — Montaigne · George V · Champs-Élysées", "Paris", "French Riviera & Alps", "Lombardy", "Sicily", "Cyclades", "United Arab Emirates", "United States", "Wherever you entertain"],
+    hint: "Scroll to travel",
+  },
   casting: {
     label: 'Casting',
     title: 'Artists chosen one by one',

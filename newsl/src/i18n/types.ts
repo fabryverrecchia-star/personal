@@ -32,6 +32,7 @@ export interface Dict {
   hero: { eyebrow: string; tagline: string; sub: string; scroll: string };
   manifesto: { label: string; text: string; words: string[] };
   experiences: { label: string; title: string; intro: string; items: Experience[]; drag: string };
+  atlas: { label: string; words: string[]; regions: string[]; hint: string };
   casting: { label: string; title: string; intro: string; acts: Act[] };
   venues: { label: string; title: string; intro: string; items: Venue[]; brands: string };
   method: { label: string; title: string; steps: { title: string; text: string }[] };

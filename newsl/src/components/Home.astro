@@ -2,6 +2,7 @@
 import { asset, dicts, langPath, LANGS, type Lang } from '../i18n';
 import { site } from '../site';
 import Logo from './Logo.astro';
+import { markers as atlasMarkers, stages as atlasStages } from '../data/atlas';
 
 interface Props {
   lang: Lang;
@@ -198,6 +199,45 @@ const year = new Date().getFullYear();
           ))
         }
       </div>
+    </div>
+  </section>
+
+  <!-- Sounds like … : du Triangle d'or au monde, en points -->
+  <section class="atlas" id="scenes" data-tone="night" data-atlas data-map={asset('media/map-dots.bin')}>
+    <div class="atlas__pin" data-atlas-pin>
+      <canvas class="atlas__gl" data-atlas-gl aria-hidden="true"></canvas>
+      <div class="atlas__markers" aria-hidden="true">
+        {
+          atlasMarkers.map((m) => (
+            <div class="atlas__marker" data-marker={m.id} data-lon={m.lon} data-lat={m.lat}>
+              <i></i>
+              <span class="label" dir="ltr">{m.name}</span>
+            </div>
+          ))
+        }
+      </div>
+      <div class="atlas__text">
+        <p class="label label--gold">{t.atlas.label}</p>
+        <h2 class="atlas__title" dir="ltr">
+          <span class="atlas__lead">Sounds like</span>
+          <span class="atlas__words" aria-live="polite">
+            {t.atlas.words.map((w, i) => (
+              <span class:list={['atlas__word', { 'is-active': i === 0 }]} data-word={i} lang={i === t.atlas.words.length - 1 ? 'en' : undefined} dir="auto">
+                {w}
+              </span>
+            ))}
+          </span>
+        </h2>
+        <div class="atlas__meta">
+          <p class="atlas__region" data-atlas-region>{t.atlas.regions[0]}</p>
+          <p class="atlas__coords label" dir="ltr" data-atlas-coords>48°52′N · 2°18′E</p>
+        </div>
+      </div>
+      <ol class="atlas__progress" aria-hidden="true">
+        {atlasStages.map((_, i) => <li class:list={{ 'is-active': i === 0 }}></li>)}
+      </ol>
+      <p class="atlas__hint label" aria-hidden="true">{t.atlas.hint}</p>
+      <script type="application/json" data-atlas-regions set:html={JSON.stringify(t.atlas.regions)} />
     </div>
   </section>
 
