@@ -607,8 +607,11 @@
     height:100vh;
     height:100svh;
     overflow:hidden;
+    background:var(--ivoire-light); /* the backdrop the canvas multiplies onto */
   }
-  .seq-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  /* multiplied onto the page: the white of the drawings becomes the paper */
+  .seq-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;mix-blend-mode:multiply;}
+  .seq-art{display:none;}
   .seq-ui{
     position:relative;
     height:100%;
@@ -702,7 +705,17 @@
   .no-webgl .seq-sticky{position:relative;height:auto;}
   .no-webgl .seq-canvas{display:none;}
   .no-webgl .seq-ui{display:block;padding-block:var(--section-y);}
-  .no-webgl .seq-items{min-height:0;margin-top:3rem;display:grid;gap:2.5rem;}
+  .no-webgl .seq-items{min-height:0;margin-top:3rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:2.5rem;}
+  .no-webgl .seq-items::before{display:none;}
+  .no-webgl .seq-art{
+    display:block;
+    width:min(100%,12rem);
+    aspect-ratio:472 / 1456;
+    margin-bottom:1.5rem;
+    background:url(assets/sequences-atlas.jpg) calc(var(--i) * 25%) 0 / 500% 100% no-repeat;
+    mix-blend-mode:multiply;
+  }
+  .no-webgl .seq-name{font-size:clamp(2.2rem,3vw,3rem);}
   .no-webgl .seq-item{position:static;}
   .no-webgl .seq-item .m > *,.no-webgl .seq-item .seq-words li{transform:none;opacity:1;}
   .no-webgl .seq-progress{display:none;}
@@ -874,35 +887,40 @@
   <!-- SÉQUENCES -->
   <section class="sequences" id="sequences" aria-label="Les cinq séquences du menu">
     <div class="seq-sticky">
-      <canvas class="seq-canvas" id="seq-canvas" aria-hidden="true"></canvas>
+      <canvas class="seq-canvas" id="seq-canvas" data-atlas="assets/sequences-atlas.jpg" aria-hidden="true"></canvas>
       <div class="seq-ui wrap">
         <div class="seq-head">
           <span class="eyebrow">Le fil du repas</span>
           <h2 class="display seq-title">Un seul trait, <span class="serif-it">cinq</span> séquences</h2>
-          <p class="seq-intro">Comme le menu, le trait de Jacqueline change de caractère à chaque séquence. Il commence marin et se termine gourmand.</p>
+          <p class="seq-intro">Comme le menu, chaque illustration a son caractère. Le repas commence marin et se termine gourmand.</p>
         </div>
         <div class="seq-items">
           <article class="seq-item is-active">
+            <div class="seq-art" style="--i:0" aria-hidden="true"></div>
             <span class="m"><span class="seq-num">Séquence 1</span></span>
             <span class="m"><h3 class="seq-name">L’iode</h3></span>
             <ul class="seq-words"><li>Marin</li><li>Minéral</li><li>Brise</li><li>Salinité</li><li>Épure</li></ul>
           </article>
           <article class="seq-item">
+            <div class="seq-art" style="--i:1" aria-hidden="true"></div>
             <span class="m"><span class="seq-num">Séquence 2</span></span>
             <span class="m"><h3 class="seq-name">Le végétal</h3></span>
             <ul class="seq-words"><li>Croissance</li><li>Végétalité</li><li>Fraîcheur</li><li>Équilibre</li><li>Vivant</li></ul>
           </article>
           <article class="seq-item">
+            <div class="seq-art" style="--i:2" aria-hidden="true"></div>
             <span class="m"><span class="seq-num">Séquence 3</span></span>
             <span class="m"><h3 class="seq-name">Le corsé</h3></span>
             <ul class="seq-words"><li>Profondeur</li><li>Intensité</li><li>Torréfaction</li><li>Structure</li><li>Caractère</li></ul>
           </article>
           <article class="seq-item">
+            <div class="seq-art" style="--i:3" aria-hidden="true"></div>
             <span class="m"><span class="seq-num">Séquence 4</span></span>
             <span class="m"><h3 class="seq-name">Le fruité</h3></span>
             <ul class="seq-words"><li>Maturité</li><li>Éclat</li><li>Aromatique</li><li>Générosité</li><li>Légèreté</li></ul>
           </article>
           <article class="seq-item">
+            <div class="seq-art" style="--i:4" aria-hidden="true"></div>
             <span class="m"><span class="seq-num">Séquence 5</span></span>
             <span class="m"><h3 class="seq-name">Le gourmand</h3></span>
             <ul class="seq-words"><li>Onctuosité</li><li>Réconfort</li><li>Générosité</li><li>Persistance</li><li>Plaisir</li></ul>
@@ -1192,12 +1210,14 @@
 })();
 </script>
 <script>
-/* ---------- Séquences: one ink line drawn in WebGL ----------
-   The same line runs through the five sequences of the menu. Scrolling
-   through the section turns it from one character into the next: wavy and
-   sprayed for the iode, sprouting leaves for the végétal, broken and dark
-   for the corsé, hung with berries for the fruité, wide and slow for the
-   gourmand. The pointer pushes it aside, the way a hand moves through water. */
+/* ---------- Séquences: the five illustrations, alive in WebGL ----------
+   The drawings are the real artwork, but they are never shown as a still
+   image: a shader paints them in like wet ink running down the paper, lets
+   each one breathe with its own character (the iode flows like water, the
+   végétal sways from its stem, the corsé barely moves, the fruité trembles,
+   the gourmand drifts slowly), dissolves one into the next as the visitor
+   scrolls through the meal, and ripples under the pointer. The canvas is
+   multiplied onto the page, so the white of the drawings is the paper. */
 (function(){
   "use strict";
   const section = document.getElementById("sequences");
@@ -1205,35 +1225,26 @@
   if(!section || !canvas) return;
   const root = document.documentElement;
 
-  const gl = canvas.getContext("webgl", { premultipliedAlpha:true, antialias:true, alpha:true });
+  const gl = canvas.getContext("webgl", { antialias:false, alpha:false });
   if(!gl){ root.classList.add("no-webgl"); return; }
   try{
 
   const items = section.querySelectorAll(".seq-item");
   const ticks = section.querySelectorAll(".seq-progress li");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const COUNT = 5;
+  const CELL_RATIO = 1456 / 472; // height / width of one drawing in the atlas
 
-  /* ---------- the five characters ----------
-     amp: how far the line swings · freq: swings per height · jag: 0 smooth
-     to 1 broken · speed: how fast it flows · width: stroke thickness ·
-     spread: how far the secondary strands drift from the main one */
-  function rgb(hex){ const n = parseInt(hex.slice(1), 16); return [(n >> 16 & 255) / 255, (n >> 8 & 255) / 255, (n & 255) / 255]; }
+  /* how each drawing moves:
+     flow: liquid drift · sway: bend from the base · freq: grain of the drift · speed */
   const SEQ = [
-    { amp:.20, freq:1.9, jag:.05, speed:.55, width:.0055, spread:.10, a:rgb("#4f6274"), b:rgb("#93a9ba"), style:0 }, // l'iode
-    { amp:.12, freq:1.2, jag:0,   speed:.22, width:.0045, spread:.05, a:rgb("#3f4a2c"), b:rgb("#7d8c5c"), style:1 }, // le végétal
-    { amp:.15, freq:2.6, jag:.85, speed:.16, width:.0105, spread:.07, a:rgb("#1d1513"), b:rgb("#6a1f1b"), style:2 }, // le corsé
-    { amp:.17, freq:1.6, jag:.12, speed:.32, width:.0060, spread:.09, a:rgb("#5e1a22"), b:rgb("#b0303a"), style:3 }, // le fruité
-    { amp:.26, freq:.95, jag:0,   speed:.11, width:.0150, spread:.16, a:rgb("#5a3d28"), b:rgb("#b6905d"), style:4 }  // le gourmand
+    { flow:.016, sway:.004, freq:1.6, speed:.9  }, // l'iode — runs like water
+    { flow:.005, sway:.016, freq:1.2, speed:.6  }, // le végétal — sways on its stem
+    { flow:.004, sway:0,    freq:2.6, speed:.25 }, // le corsé — dense, almost still
+    { flow:.008, sway:.006, freq:2.0, speed:.75 }, // le fruité — a light tremble
+    { flow:.013, sway:.003, freq:.9,  speed:.3  }  // le gourmand — slow and generous
   ];
-  const KEYS = ["amp","freq","jag","speed","width","spread"];
 
-  /* ---------- noise ---------- */
-  function hash(n){ const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
-  function noise(x){ const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f); return hash(i) * (1 - u) + hash(i + 1) * u; }
-  function smooth(a, b, x){ const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
-  function lerp(a, b, t){ return a + (b - a) * t; }
-
-  /* ---------- shaders ---------- */
   function shader(type, src){
     const s = gl.createShader(type);
     gl.shaderSource(s, src);
@@ -1241,102 +1252,97 @@
     if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
     return s;
   }
-  function program(vs, fs){
-    const p = gl.createProgram();
-    gl.attachShader(p, shader(gl.VERTEX_SHADER, vs));
-    gl.attachShader(p, shader(gl.FRAGMENT_SHADER, fs));
-    gl.linkProgram(p);
-    if(!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
-    return p;
-  }
-
-  const lineProg = program(
-    "attribute vec2 aPos; attribute float aAcross; attribute vec4 aCol;" +
-    "uniform vec2 uRes; varying float vAcross; varying vec4 vCol;" +
-    "void main(){ vec2 c = aPos / uRes * 2.0 - 1.0; gl_Position = vec4(c.x, -c.y, 0.0, 1.0); vAcross = aAcross; vCol = aCol; }",
-    "precision mediump float; varying float vAcross; varying vec4 vCol;" +
-    "float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }" +
-    "void main(){" +
-    "  float edge = 1.0 - smoothstep(0.45, 1.0, abs(vAcross));" +
-    "  float grain = 0.88 + 0.12 * h(gl_FragCoord.xy);" +   // dry-brush grain
-    "  float core = mix(0.82, 1.0, 1.0 - abs(vAcross));" +                // ink pools at the centre
-    "  float a = vCol.a * edge * grain;" +
-    "  gl_FragColor = vec4(vCol.rgb * core * a, a);" +
+  const prog = gl.createProgram();
+  gl.attachShader(prog, shader(gl.VERTEX_SHADER,
+    "attribute vec2 aPos; uniform vec4 uRect; uniform vec2 uRes; varying vec2 vUv;" +
+    "void main(){ vUv = aPos; vec2 p = (uRect.xy + aPos * uRect.zw) / uRes * 2.0 - 1.0; gl_Position = vec4(p.x, -p.y, 0.0, 1.0); }"
+  ));
+  gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, [
+    "precision highp float;",
+    "varying vec2 vUv;",
+    "uniform sampler2D uTex;",
+    "uniform float uA, uB, uMix, uTime, uDraw, uVel, uAspect, uMouseOn;",
+    "uniform vec2 uMouse;",
+    "uniform vec4 uP;",
+    "float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
+    "float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);",
+    "  return mix(mix(h(i), h(i + vec2(1.0, 0.0)), f.x), mix(h(i + vec2(0.0, 1.0)), h(i + vec2(1.0, 1.0)), f.x), f.y); }",
+    "float fbm(vec2 p){ float v = 0.0, a = 0.5; for(int i = 0; i < 4; i++){ v += a * n2(p); p *= 2.03; a *= 0.5; } return v; }",
+    // one drawing of the atlas; outside its cell the paper is white
+    "vec3 art(float idx, vec2 uv){",
+    "  float inside = step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);",
+    "  vec2 c = vec2((idx + clamp(uv.x, 0.002, 0.998)) / 5.0, clamp(uv.y, 0.0, 1.0));",
+    "  return mix(vec3(1.0), texture2D(uTex, c).rgb, inside);",
+    "}",
+    "void main(){",
+    "  vec2 uv = vUv;",
+    "  float t = uTime * uP.w;",
+    // living drift: a slow noise field moves the pigment
+    "  vec2 sp = uv * vec2(2.0, 2.0 * uAspect) * uP.z;",
+    "  vec2 q = vec2(fbm(sp + vec2(0.0, t * 0.6)), fbm(sp + vec2(5.2, -t * 0.5)));",
+    "  vec2 disp = (q - 0.5) * uP.x * 2.0;",
+    // sway, anchored at the base of the drawing
+    "  disp.x += sin(t * 1.4 + uv.y * 3.0) * uP.y * pow(1.0 - uv.y, 1.5);",
+    // a fast scroll stirs the water
+    "  disp += (vec2(fbm(uv * 5.0 + t), fbm(uv * 5.0 - t)) - 0.5) * uVel * 0.05;",
+    // pointer: a ring of ripples spreading from the finger or the cursor
+    "  vec2 d = (uv - uMouse) * vec2(1.0, uAspect);",
+    "  float r = length(d);",
+    "  float ripple = uMouseOn * exp(-r * r * 22.0) * sin(r * 46.0 - uTime * 5.0) * 0.016;",
+    "  disp += (d / max(r, 1e-4)) * ripple * vec2(1.0, 1.0 / uAspect);",
+    "  vec3 a = art(uA, uv + disp);",
+    "  vec3 b = art(uB, uv + disp * 1.4);",
+    // the next drawing bleeds in from the top, like ink running down wet paper
+    "  float n = fbm(uv * vec2(3.0, 3.0 * uAspect) + 3.1) * 0.55 + uv.y * 0.45;",
+    "  float edge = uMix * 1.25 - 0.1;",
+    "  float kB = 1.0 - smoothstep(edge - 0.04, edge + 0.04, n);",
+    "  vec3 col = mix(a, b, kB);",
+    "  float front = (1.0 - smoothstep(0.0, 0.05, abs(n - edge))) * step(0.001, uMix) * step(uMix, 0.999);",
+    "  col = mix(col, col * col * 0.92, front * 0.7);",
+    // first appearance: painted in from the top with a ragged, wet edge
+    "  float rv = uDraw * 1.3 - uv.y - (fbm(uv * vec2(5.0, 2.5 * uAspect) + 7.0) - 0.5) * 0.3;",
+    "  float reveal = smoothstep(0.0, 0.06, rv);",
+    "  col = mix(vec3(1.0), col, reveal);",
+    "  col = mix(col, col * col, (1.0 - smoothstep(0.0, 0.03, abs(rv - 0.03))) * reveal * 0.5);",
+    "  gl_FragColor = vec4(col, 1.0);",
     "}"
-  );
-  const dotProg = program(
-    "attribute vec2 aPos; attribute float aSize; attribute float aShape; attribute float aRot; attribute vec4 aCol;" +
-    "uniform vec2 uRes; uniform float uDpr; varying float vShape; varying float vRot; varying vec4 vCol;" +
-    "void main(){ vec2 c = aPos / uRes * 2.0 - 1.0; gl_Position = vec4(c.x, -c.y, 0.0, 1.0);" +
-    "  gl_PointSize = aSize * uDpr; vShape = aShape; vRot = aRot; vCol = aCol; }",
-    "precision mediump float; varying float vShape; varying float vRot; varying vec4 vCol;" +
-    "void main(){" +
-    "  vec2 p = gl_PointCoord * 2.0 - 1.0; p.y = -p.y;" +
-    "  float c = cos(vRot), s = sin(vRot); p = vec2(c * p.x - s * p.y, s * p.x + c * p.y);" +
-    "  float a = 0.0;" +
-    "  if(vShape < 0.5){" +                                    // droplet / speck
-    "    a = 1.0 - smoothstep(0.55, 1.0, length(p));" +
-    "  } else if(vShape < 1.5){" +                             // leaf, outline only, with its midrib
-    "    float hw = 0.36 * (1.0 - p.y * p.y);" +
-    "    float d = abs(abs(p.x) - hw);" +
-    "    float inside = step(abs(p.y), 0.96);" +
-    "    a = (1.0 - smoothstep(0.035, 0.085, d)) * inside;" +
-    "    a = max(a, (1.0 - smoothstep(0.012, 0.04, abs(p.x))) * step(abs(p.y), 0.8) * 0.8);" +
-    "  } else if(vShape < 2.5){" +                             // shard, outline and a faint fill
-    "    float d = max(abs(p.x) * 0.92 + p.y * 0.42, -p.y - 0.55) - 0.42;" +
-    "    a = (1.0 - smoothstep(0.03, 0.08, abs(d))) + step(d, 0.0) * 0.22;" +
-    "  } else if(vShape < 3.5){" +                             // berry, with a small highlight
-    "    float r = length(p);" +
-    "    a = 1.0 - smoothstep(0.78, 0.9, r);" +
-    "    float hl = 1.0 - smoothstep(0.0, 0.28, length(p - vec2(-0.3, 0.32)));" +
-    "    gl_FragColor = vec4(mix(vCol.rgb, vec3(1.0), hl * 0.45) * a * vCol.a, a * vCol.a); return;" +
-    "  } else {" +                                             // soft ring
-    "    a = 1.0 - smoothstep(0.03, 0.09, abs(length(p) - 0.72));" +
-    "  }" +
-    "  a *= vCol.a;" +
-    "  gl_FragColor = vec4(vCol.rgb * a, a);" +
-    "}"
-  );
+  ].join("\n")));
+  gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
 
-  const L = {
-    pos:gl.getAttribLocation(lineProg, "aPos"),
-    across:gl.getAttribLocation(lineProg, "aAcross"),
-    col:gl.getAttribLocation(lineProg, "aCol"),
-    res:gl.getUniformLocation(lineProg, "uRes")
-  };
-  const D = {
-    pos:gl.getAttribLocation(dotProg, "aPos"),
-    size:gl.getAttribLocation(dotProg, "aSize"),
-    shape:gl.getAttribLocation(dotProg, "aShape"),
-    rot:gl.getAttribLocation(dotProg, "aRot"),
-    col:gl.getAttribLocation(dotProg, "aCol"),
-    res:gl.getUniformLocation(dotProg, "uRes"),
-    dpr:gl.getUniformLocation(dotProg, "uDpr")
-  };
-
-  /* ---------- buffers ---------- */
-  const STRANDS = 3;
-  const SEG = 260;
-  const LINE_STRIDE = 7; // x, y, across, r, g, b, a
-  const lineData = new Float32Array(STRANDS * (SEG + 1) * 2 * LINE_STRIDE);
-  const lineBuf = gl.createBuffer();
-
-  const PER_STYLE = 120;
-  const DOT_STRIDE = 9; // x, y, size, shape, rot, r, g, b, a
-  const dotData = new Float32Array(SEQ.length * PER_STYLE * DOT_STRIDE);
-  const dotBuf = gl.createBuffer();
-
-  // a fixed random set of particles for each character
-  const seeds = SEQ.map(function(_, s){
-    const arr = [];
-    for(let j = 0; j < PER_STYLE; j++){
-      const k = s * 1000 + j;
-      arr.push({ t:hash(k + .1), a:hash(k + .2), r:hash(k + .3), z:hash(k + .4), side:hash(k + .5) < .5 ? -1 : 1, ph:hash(k + .6) });
-    }
-    return arr;
+  const U = {};
+  ["uRect","uRes","uTex","uA","uB","uMix","uTime","uDraw","uVel","uAspect","uMouseOn","uMouse","uP"].forEach(function(n){
+    U[n] = gl.getUniformLocation(prog, n);
   });
-  // the fruité hangs its berries in a few clusters along the line
-  const BERRY_CLUSTERS = [.24, .38, .55, .68, .8];
+  const quad = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0,0, 1,0, 0,1, 1,1]), gl.STATIC_DRAW);
+  const aPos = gl.getAttribLocation(prog, "aPos");
+  gl.enableVertexAttribArray(aPos);
+  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+  /* ---------- the drawings ---------- */
+  let ready = false;
+  const tex = gl.createTexture();
+  const img = new Image();
+  img.onload = function(){
+    try{
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.uniform1i(U.uTex, 0);
+      ready = true;
+    }catch(err){
+      // e.g. the page opened straight from disk: the browser refuses the texture
+      root.classList.add("no-webgl");
+    }
+  };
+  img.onerror = function(){ root.classList.add("no-webgl"); };
+  img.src = canvas.dataset.atlas;
 
   /* ---------- sizing ---------- */
   let W = 0, H = 0, dpr = 1;
@@ -1352,47 +1358,31 @@
   window.addEventListener("resize", resize);
 
   /* ---------- input ---------- */
-  const pointer = { x:-9999, y:-9999, tx:-9999, ty:-9999, force:0 };
+  const pointer = { x:.5, y:.5, tx:.5, ty:.5, on:0, target:0 };
+  let rect = [0, 0, 1, 1];
   section.addEventListener("pointermove", function(e){
     const r = canvas.getBoundingClientRect();
-    pointer.tx = e.clientX - r.left;
-    pointer.ty = e.clientY - r.top;
-    if(pointer.x < -9000){ pointer.x = pointer.tx; pointer.y = pointer.ty; }
+    pointer.tx = (e.clientX - r.left - rect[0]) / rect[2];
+    pointer.ty = (e.clientY - r.top - rect[1]) / rect[3];
+    pointer.target = 1;
   }, { passive:true });
-  section.addEventListener("pointerleave", function(){ pointer.tx = pointer.ty = -9999; });
+  section.addEventListener("pointerleave", function(){ pointer.target = 0; });
 
   let progress = 0, target = 0, draw = 0, drawTarget = 0, velocity = 0;
   function readScroll(){
     const r = section.getBoundingClientRect();
     const span = r.height - window.innerHeight;
     target = span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 0;
-    // the line draws itself in as the section slides up into view
     drawTarget = Math.min(1, Math.max(0, (window.innerHeight - r.top) / window.innerHeight));
   }
   window.addEventListener("scroll", readScroll, { passive:true });
   readScroll();
 
-  /* ---------- the curve ---------- */
-  function curve(y, k, P, time){
-    const seed = k * 1.917;
-    const ph = y * P.freq * 6.2832;
-    const tm = time * P.speed;
-    // two slow sines give the sway, a low noise keeps it from looking drawn by a machine
-    const smoothWave = Math.sin(ph + tm + seed) * .55 + Math.sin(ph * 1.73 - tm * .8 + seed * 2.1) * .3
-      + (noise(y * P.freq * 2.2 + seed * 7 + tm * .25) - .5) * .9;
-    const fr = y * P.freq * 2.6 + seed * .37 + tm * .08;
-    const tri = Math.abs(fr - Math.floor(fr) - .5) * 4 - 1;
-    const rough = (noise(y * P.freq * 5 + seed * 5 + tm * .3) - .5) * 2;
-    const v = smoothWave * (1 - P.jag) + (tri * .35 + rough * 1.05 + smoothWave * .25) * P.jag;
-    const env = Math.pow(Math.sin(Math.PI * y), .6);
-    const braid = Math.sin(ph * .5 + seed * 3 + tm * .5) * P.spread * k;
-    return (v * (1 - k * .18) + braid) * env;
-  }
+  function smooth(a, b, x){ const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
+  function lerp(a, b, t){ return a + (b - a) * t; }
 
   /* ---------- frame ---------- */
-  let visible = false, last = performance.now(), time = 0;
-  const pts = new Float32Array((SEG + 1) * 2);
-
+  let visible = false, raf = 0, last = performance.now(), time = 0;
   function frame(now){
     if(!visible){ raf = 0; return; }
     raf = requestAnimationFrame(frame);
@@ -1401,186 +1391,50 @@
     time += dt * (reduceMotion ? .25 : 1);
 
     const before = progress;
-    progress = lerp(progress, target, 1 - Math.pow(.001, dt));
-    draw = lerp(draw, drawTarget, 1 - Math.pow(.004, dt));
-    velocity = lerp(velocity, Math.abs(progress - before) / Math.max(dt, .001), .1);
-    pointer.x = lerp(pointer.x, pointer.tx, .12);
-    pointer.y = lerp(pointer.y, pointer.ty, .12);
+    progress = lerp(progress, target, 1 - Math.pow(.002, dt));
+    draw = lerp(draw, drawTarget, 1 - Math.pow(.02, dt));
+    velocity = lerp(velocity, Math.min(1, Math.abs(progress - before) / Math.max(dt, .001) * 2), .12);
+    pointer.x = lerp(pointer.x, pointer.tx, .1);
+    pointer.y = lerp(pointer.y, pointer.ty, .1);
+    pointer.on = lerp(pointer.on, pointer.target, .06);
 
-    // which character, and how far into the next one: each holds for a
-    // while, then morphs during the last third of its scroll span
-    const s = Math.min(progress * SEQ.length, SEQ.length - .0001);
+    // each drawing holds, then dissolves into the next over the last
+    // part of its scroll span
+    const s = Math.min(progress * COUNT, COUNT - .0001);
     const i = Math.floor(s);
-    const m = smooth(.62, 1, s - i);
-    const j = Math.min(i + 1, SEQ.length - 1);
-    const weights = SEQ.map(function(_, n){ return n === i ? 1 - m : (n === j && j !== i ? m : 0); });
-    const P = {};
-    KEYS.forEach(function(key){ P[key] = lerp(SEQ[i][key], SEQ[j][key], m); });
-    const colA = [0, 1, 2].map(function(c){ return lerp(SEQ[i].a[c], SEQ[j].a[c], m); });
-    const colB = [0, 1, 2].map(function(c){ return lerp(SEQ[i].b[c], SEQ[j].b[c], m); });
-    P.amp *= 1 + Math.min(velocity * 1.6, .45); // a fast scroll stirs the line
-
+    const j = Math.min(i + 1, COUNT - 1);
+    const m = j === i ? 0 : smooth(.55, 1, s - i);
     updateUi(i, m, s);
 
+    // placement: right of the text on wide screens, centred behind it on phones
     const wide = W > 960;
-    const cx = wide ? W * .66 : W * .5;
-    const S = wide ? Math.min(W * .55, H * .95) : Math.min(W * 1.05, H * .7);
-    const y0 = -H * .06, y1 = H * 1.06;
-    const R = S * .12;
+    const h = wide ? H * .98 : H * .78;
+    const w = h / CELL_RATIO;
+    rect = [ (wide ? W * .66 : W * .5) - w / 2, (wide ? H * .52 : H * .47) - h / 2, w, h ];
 
-    let o = 0;
-    for(let k = 0; k < STRANDS; k++){
-      const widthScale = [1, .42, .22][k];
-      const alpha = [.95, .7, .55][k];
-      for(let n = 0; n <= SEG; n++){
-        const y = n / SEG;
-        let x = cx + curve(y, k, P, time) * P.amp * S;
-        let py = lerp(y0, y1, y);
-        // the pointer pushes the line aside
-        const dx = x - pointer.x, dy = py - pointer.y;
-        const d2 = dx * dx + dy * dy;
-        if(d2 < R * R * 9){
-          const f = Math.exp(-d2 / (R * R)) * R * .5;
-          const d = Math.sqrt(d2) || 1;
-          x += dx / d * f;
-          py += dy / d * f * .4;
-        }
-        pts[n * 2] = x; pts[n * 2 + 1] = py;
-      }
-      for(let n = 0; n <= SEG; n++){
-        const y = n / SEG;
-        const a = Math.max(0, n - 1), b = Math.min(SEG, n + 1);
-        let tx = pts[b * 2] - pts[a * 2], ty = pts[b * 2 + 1] - pts[a * 2 + 1];
-        const tl = Math.hypot(tx, ty) || 1;
-        const nx = -ty / tl, ny = tx / tl;
-        const taper = Math.pow(Math.sin(Math.PI * y), .9);
-        const pressure = .45 + .9 * noise(y * 7 + k * 3.1 + time * P.speed * .4);
-        const w = Math.max(.6, P.width * S * taper * pressure * widthScale);
-        const reveal = Math.min(1, Math.max(0, (draw * 1.08 - y) / .04));
-        const shade = k === 0 ? .25 * noise(y * 3 + time * .1) : .55 + .35 * k / STRANDS;
-        const r = lerp(colA[0], colB[0], shade), g = lerp(colA[1], colB[1], shade), bl = lerp(colA[2], colB[2], shade);
-        for(let side = -1; side <= 1; side += 2){
-          lineData[o++] = pts[n * 2] + nx * (w + 1) * side;
-          lineData[o++] = pts[n * 2 + 1] + ny * (w + 1) * side;
-          lineData[o++] = side;
-          lineData[o++] = r; lineData[o++] = g; lineData[o++] = bl;
-          lineData[o++] = alpha * reveal;
-        }
-      }
-      if(k === 0) mainLine.set(pts);
-    }
-
-    // particles of each character, grown in and out with its weight
-    let q = 0;
-    SEQ.forEach(function(seq, sIdx){
-      const wgt = weights[sIdx];
-      if(wgt < .01) return;
-      const grow = 1 - Math.pow(1 - wgt, 3);
-      seeds[sIdx].forEach(function(p, pIdx){
-        const out = particle(seq.style, p, pIdx, grow, P, S);
-        if(!out) return;
-        const yi = Math.min(SEG, Math.max(0, Math.round(out.t * SEG)));
-        const ax = mainLine[yi * 2], ay = mainLine[yi * 2 + 1];
-        const a2 = Math.min(SEG, yi + 1), a1 = Math.max(0, yi - 1);
-        const tx = mainLine[a2 * 2] - mainLine[a1 * 2], ty = mainLine[a2 * 2 + 1] - mainLine[a1 * 2 + 1];
-        const tl = Math.hypot(tx, ty) || 1;
-        const nx = -ty / tl, ny = tx / tl;
-        const reveal = Math.min(1, Math.max(0, (draw * 1.08 - out.t) / .04));
-        const col = out.accent ? seq.b : seq.a;
-        dotData[q++] = ax + nx * out.n + out.dx;
-        dotData[q++] = ay + ny * out.n + out.dy;
-        dotData[q++] = out.size;
-        dotData[q++] = out.shape;
-        dotData[q++] = out.rot === undefined ? Math.atan2(ny, nx) * out.side + Math.PI / 2 : out.rot;
-        dotData[q++] = col[0]; dotData[q++] = col[1]; dotData[q++] = col[2];
-        dotData[q++] = out.alpha * reveal;
-      });
-    });
-
-    render(o / LINE_STRIDE, q / DOT_STRIDE);
-  }
-  const mainLine = new Float32Array((SEG + 1) * 2);
-
-  function particle(style, p, idx, grow, P, S){
-    const sway = Math.sin(time * .8 + p.ph * 6.28);
-    if(style === 0){ // l'iode — spray rising off the upper half, like a breaking wave
-      const t = .1 + p.t * .5;
-      const life = (time * .12 + p.ph) % 1;
-      const r = p.r * S * .1 * (.3 + life);
-      return { t:t, n:Math.cos(p.a * 6.28) * r, dx:0, dy:Math.sin(p.a * 6.28) * r * .6 - life * S * .08,
-               size:(1.5 + p.z * 5) * grow, shape:0, rot:0, alpha:(1 - life) * .85, accent:p.z > .4, side:1 };
-    }
-    if(style === 1){ // le végétal — leaves and buds opening along the stem
-      const t = .14 + p.t * .72;
-      if(idx % 3 === 0){
-        return { t:t, n:p.side * S * (.012 + p.r * .02), dx:0, dy:0, size:(3 + p.z * 4) * grow, shape:0, rot:0, alpha:.8, accent:false, side:1 };
-      }
-      if(idx > 70) return null;
-      return { t:t, n:p.side * S * (.025 + p.r * .03) * grow, dx:0, dy:0, size:(16 + p.z * 26) * grow, shape:1,
-               rot:p.side * (.9 + p.r * .6) + sway * .18, alpha:.9, accent:p.z > .5, side:p.side };
-    }
-    if(style === 2){ // le corsé — dark broken shards and splatter
-      const t = .18 + p.t * .64;
-      const shard = idx % 4 !== 0;
-      return { t:t, n:p.side * S * (.006 + p.r * .05), dx:0, dy:0,
-               size:(shard ? 7 + p.z * 16 : 2 + p.z * 4) * grow, shape:shard ? 2 : 0,
-               rot:p.a * 6.28 + time * .04 * (p.z - .5), alpha:shard ? .85 : .9, accent:p.r > .55, side:1 };
-    }
-    if(style === 3){ // le fruité — berries hanging in clusters
-      if(idx > 60) return null;
-      const c = BERRY_CLUSTERS[idx % BERRY_CLUSTERS.length];
-      const t = c + (p.t - .5) * .05;
-      return { t:t, n:p.side * S * (.015 + p.r * .035), dx:0, dy:Math.sin(time * 1.2 + p.ph * 6.28) * 2.5,
-               size:(5 + p.z * 9) * grow, shape:3, rot:0, alpha:.95, accent:p.z > .35, side:1 };
-    }
-    // le gourmand — wide soft rings rising slowly, generous and lingering
-    if(idx > 45) return null;
-    const life = (time * .035 + p.ph) % 1;
-    return { t:.2 + p.t * .6, n:p.side * S * p.r * .09, dx:0, dy:-life * S * .12,
-             size:(10 + p.z * 34) * grow, shape:4, rot:0, alpha:Math.sin(life * Math.PI) * .5, accent:p.z > .5, side:1 };
-  }
-
-  function bindAttr(loc, size, stride, offset){
-    gl.enableVertexAttribArray(loc);
-    gl.vertexAttribPointer(loc, size, gl.FLOAT, false, stride * 4, offset * 4);
-  }
-  function render(lineVerts, dots){
-    gl.clearColor(0, 0, 0, 0);
+    gl.clearColor(1, 1, 1, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-
-    gl.useProgram(lineProg);
-    gl.uniform2f(L.res, W, H);
-    gl.bindBuffer(gl.ARRAY_BUFFER, lineBuf);
-    gl.bufferData(gl.ARRAY_BUFFER, lineData.subarray(0, lineVerts * LINE_STRIDE), gl.DYNAMIC_DRAW);
-    bindAttr(L.pos, 2, LINE_STRIDE, 0);
-    bindAttr(L.across, 1, LINE_STRIDE, 2);
-    bindAttr(L.col, 4, LINE_STRIDE, 3);
-    const per = (SEG + 1) * 2;
-    for(let k = STRANDS - 1; k >= 0; k--) gl.drawArrays(gl.TRIANGLE_STRIP, k * per, per);
-    [L.pos, L.across, L.col].forEach(function(l){ gl.disableVertexAttribArray(l); });
-
-    if(dots > 0){
-      gl.useProgram(dotProg);
-      gl.uniform2f(D.res, W, H);
-      gl.uniform1f(D.dpr, dpr);
-      gl.bindBuffer(gl.ARRAY_BUFFER, dotBuf);
-      gl.bufferData(gl.ARRAY_BUFFER, dotData.subarray(0, dots * DOT_STRIDE), gl.DYNAMIC_DRAW);
-      bindAttr(D.pos, 2, DOT_STRIDE, 0);
-      bindAttr(D.size, 1, DOT_STRIDE, 2);
-      bindAttr(D.shape, 1, DOT_STRIDE, 3);
-      bindAttr(D.rot, 1, DOT_STRIDE, 4);
-      bindAttr(D.col, 4, DOT_STRIDE, 5);
-      gl.drawArrays(gl.POINTS, 0, dots);
-      [D.pos, D.size, D.shape, D.rot, D.col].forEach(function(l){ gl.disableVertexAttribArray(l); });
-    }
+    if(!ready) return;
+    gl.uniform2f(U.uRes, W, H);
+    gl.uniform4f(U.uRect, rect[0], rect[1], rect[2], rect[3]);
+    gl.uniform1f(U.uA, i);
+    gl.uniform1f(U.uB, j);
+    gl.uniform1f(U.uMix, m);
+    gl.uniform1f(U.uTime, time);
+    gl.uniform1f(U.uDraw, draw);
+    gl.uniform1f(U.uVel, velocity);
+    gl.uniform1f(U.uAspect, h / w);
+    gl.uniform1f(U.uMouseOn, pointer.on);
+    gl.uniform2f(U.uMouse, pointer.x, pointer.y);
+    const A = SEQ[i], B = SEQ[j];
+    gl.uniform4f(U.uP, lerp(A.flow, B.flow, m), lerp(A.sway, B.sway, m), lerp(A.freq, B.freq, m), lerp(A.speed, B.speed, m));
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
   /* ---------- text and progress ---------- */
   let current = -1;
   function updateUi(i, m, s){
-    const active = m > .5 ? Math.min(i + 1, SEQ.length - 1) : i;
+    const active = m > .5 ? Math.min(i + 1, COUNT - 1) : i;
     if(active !== current){
       current = active;
       items.forEach(function(el, n){
@@ -1593,11 +1447,11 @@
   }
 
   /* ---------- only animate while on screen ---------- */
-  let raf = 0;
   new IntersectionObserver(function(entries){
     visible = entries[0].isIntersecting;
     if(visible && !raf){ last = performance.now(); readScroll(); resize(); raf = requestAnimationFrame(frame); }
   }, { rootMargin:"200px 0px" }).observe(section);
+
   }catch(err){
     root.classList.add("no-webgl");
   }
