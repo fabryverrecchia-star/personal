@@ -1,7 +1,8 @@
 /*
- * Media planning — La Petite Maison, Paris. Planning du mois : octobre 2026 (avant l'ouverture).
- * Base de contenu reprise du planning Jacqueline ; reel d'annonce envoyé le 28 septembre.
- * Passages et missions : data/suivi.json, modifiables depuis la page en mode équipe (&admin).
+ * Media planning — La Petite Maison, Paris 8 (7 rue du Boccador). Planning du mois : octobre 2026, avant l'ouverture.
+ * Situation au 9 octobre : 7 posts en ligne sur @lapetitemaison_paris (feedExisting), la suite du mois ci-dessous.
+ * Chaque post a un id : photo, vidéo, couverture, légende et date se modifient depuis l'espace équipe.
+ * Passages, missions, inspirations et modifications : data/suivi.json, via suivi.php.
  */
 window.PLAN = {
   client: {
@@ -9,7 +10,8 @@ window.PLAN = {
     logo: 'logo.svg',
     badge: 'logo.svg',
     services: ['Ouverture', 'Photo', 'Vidéo', 'CM'],
-    location: 'Paris',
+    location: 'Paris 8',
+    instagram: 'lapetitemaison_paris',
   },
 
   title: 'Media planning',
@@ -37,32 +39,38 @@ window.PLAN = {
   months: [
     {
       title: 'Octobre, l’<em>ouverture</em>',
-      theme: 'Deux rendez-vous par semaine, tout le mois, jusqu’à l’ouverture.',
+      theme: 'Deux publications déjà en ligne ce mois-ci (les Champs-Élysées, l’assiette). La suite : deux rendez-vous par semaine jusqu’à fin octobre.',
       posts: [
         {
-          date: '2026-10-02',
-          type: 'post',
-          media: 'media/lundi-courges.jpg',
-          title: 'Réservations ouvertes',
-          caption: ['La Petite Maison arrive à Paris.', 'Réservations ouvertes.'],
-        },
-        {
-          date: '2026-10-06',
+          id: 'oct-01',
+          date: '2026-10-13',
           time: '18h45',
           type: 'post',
           media: 'media/mardi-verre.jpg',
           title: 'Une maison, une table',
-          caption: ['Une table pensée comme à la maison, dans le détail.', 'Ouverture cet automne.'],
+          caption: ['Une table pensée comme à la maison, dans le détail.', 'Ouverture cet automne, 7 rue du Boccador.'],
         },
         {
-          date: '2026-10-09',
+          id: 'oct-02',
+          date: '2026-10-16',
+          time: '12h00',
+          type: 'reel',
+          poster: 'media/reel-ouverture.jpg',
+          video: 'media/reel-ouverture.mp4',
+          title: 'Ouverture automne 2026',
+          caption: ['De Nice à Paris.', 'La Petite Maison, ouverture automne 2026.'],
+        },
+        {
+          id: 'oct-03',
+          date: '2026-10-20',
           type: 'post',
           media: 'media/mercredi-accords.jpg',
           title: 'Les accords',
           caption: ['Des vins du Sud, choisis pour chaque assiette.'],
         },
         {
-          date: '2026-10-13',
+          id: 'oct-04',
+          date: '2026-10-23',
           type: 'post',
           media: 'media/jeudi-paris.jpg',
           title: 'Nice, point de départ',
@@ -73,16 +81,8 @@ window.PLAN = {
           ],
         },
         {
-          date: '2026-10-16',
-          time: '12h00',
-          type: 'reel',
-          poster: 'media/reel-ouverture.jpg',
-          video: 'media/reel-ouverture.mp4',
-          title: 'Ouverture automne 2026',
-          caption: ['De Nice à Paris.', 'La Petite Maison, ouverture automne 2026.'],
-        },
-        {
-          date: '2026-10-20',
+          id: 'oct-05',
+          date: '2026-10-27',
           type: 'post',
           // Deux propositions de visuel, un seul sera publié
           options: ['media/vendredi-1.jpg', 'media/vendredi-2.jpg'],
@@ -90,26 +90,29 @@ window.PLAN = {
           caption: ['La mer, franche et maîtrisée.'],
         },
         {
-          date: '2026-10-23',
+          id: 'oct-06',
+          date: '2026-10-30',
           type: 'post',
           // Trois propositions de visuel, un seul sera publié
           options: ['media/samedi-1.jpg', 'media/samedi-2.jpg', 'media/samedi-3.jpg'],
           title: 'L’ouverture approche',
-          caption: ['La Petite Maison ouvre ses portes à Paris.', 'Réservations ouvertes.'],
+          caption: ['La Petite Maison ouvre ses portes à Paris.', 'Réservations bientôt ouvertes.'],
         },
       ],
     },
   ],
 
-  // Feed actuel du compte (du plus récent au plus ancien), affiché après le planning
-  feedExisting: ['media/live-1.jpg', 'media/live-2.jpg', 'media/live-3.jpg', 'media/live-4.jpg', 'media/live-5.jpg'],
+  // Feed actuel de @lapetitemaison_paris au 9 octobre (7 posts, le premier épinglé), affiché après le planning
+  feedExisting: ['media/live-1.jpg', 'media/live-2.jpg', 'media/live-3.jpg', 'media/live-4.jpg', 'media/live-5.jpg', 'media/live-6.jpg', 'media/live-7.jpg'],
 
-  // Passages (shootings, tournages, rendez-vous) et missions en cours : partagés entre
+  // Passages (shootings, tournages, rendez-vous), missions en cours et modifications des posts : partagés entre
   // tous les visiteurs via suivi.php. Sans PHP (aperçu), data/suivi.json est lu tel quel.
   suivi: {
     api: 'suivi.php',
     data: 'data/suivi.json',
     team: ['Fabrizio', 'Jade'],
+    // Fabrizio en couleur 18H22, Jade en couleur La Petite Maison
+    colors: { Fabrizio: '#22365f', Jade: '#9c4e42' },
   },
 
   // Retours du client : Validé / À revoir + commentaire, envoyés en un récapitulatif.

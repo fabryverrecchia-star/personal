@@ -1,6 +1,7 @@
 <?php
 /*
- * Suivi La Petite Maison : passages et missions en cours, partagés entre tous les visiteurs.
+ * Suivi La Petite Maison : passages, missions en cours, inspirations et modifications de l'équipe
+ * (photos et légendes des posts et des campagnes sponsorisées), partagés entre tous les visiteurs.
  *   GET  suivi.php                  → { passages: [...], missions: [...] }
  *   GET  suivi.php?diag             → version PHP et droits d'écriture (installation)
  *   POST suivi.php (formulaire : payload = JSON, code = code équipe)
@@ -10,6 +11,13 @@
  *        { action: "edit",   kind: "missions"|"passages", id, item: {...} }
  *        { action: "delete", kind: "missions"|"passages"|"inspirations", id }
  *        { action: "refresh", kind: "inspirations" }  → récupère le contenu Instagram manquant
+ *        { action: "edit",   kind: "edits", id, item: { title, caption, media, poster, video, format, date, time, budget, spent, status, start, end,
+ *                                                  objective, audience, cta, added: "post"|"ad", deleted: true } }
+ *                            (format : "reel" pour passer un post photo en vidéo, "photo" pour l'inverse)
+ *                            (une valeur null rétablit celle du planning)
+ *        { action: "reset",  kind: "edits", id }      → revient au post ou à la campagne d'origine
+ *        { action: "upload", kind: "edits", id, slot: "media"|"poster"|"video", index, base } + fichier "file"
+ *                            → photo (JPG, PNG, WebP) ou vidéo de reel (MP4, MOV) copiée dans uploads/
  * Inspirations : à l'ajout, l'image, le compte et la légende du post sont récupérés
  * sur Instagram (insta.php) ; l'image est copiée dans inspi/.
  * Les données sont dans data/suivi.json (dossier protégé par .htaccess).
@@ -20,6 +28,7 @@ header('X-Content-Type-Options: nosniff');
 
 $FILE = __DIR__ . '/data/suivi.json';
 $INSPI_DIR = __DIR__ . '/inspi';
+$UP_DIR = __DIR__ . '/uploads';
 $config = require __DIR__ . '/config.php';
 require __DIR__ . '/insta.php';
 
@@ -33,7 +42,16 @@ function clean($s, $max) {
   $s = strip_tags($s);
   return function_exists('mb_substr') ? mb_substr($s, 0, $max, 'UTF-8') : substr($s, 0, $max * 2);
 }
-function empty_data() { return ['passages' => [], 'missions' => [], 'inspirations' => []]; }
+function empty_data() { return ['passages' => [], 'missions' => [], 'inspirations' => [], 'edits' => new stdClass()]; }
+// Taille maximale d'envoi acceptée par l'hébergement (php.ini), lisible
+function ini_bytes($v) {
+  $v = trim((string) $v); $n = (float) $v; $u = strtolower(substr($v, -1));
+  return $u === 'g' ? $n * 1073741824 : ($u === 'm' ? $n * 1048576 : ($u === 'k' ? $n * 1024 : $n));
+}
+function upload_max() {
+  $b = min(ini_bytes(ini_get('upload_max_filesize')) ?: INF, ini_bytes(ini_get('post_max_size')) ?: INF);
+  return is_finite($b) ? round($b / 1048576) . ' Mo' : '';
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -47,6 +65,9 @@ if ($method === 'GET' && isset($_GET['diag'])) {
     'password_verify' => function_exists('password_verify'),
     'inspi_writable' => is_dir($INSPI_DIR) ? is_writable($INSPI_DIR) : is_writable(__DIR__),
     'curl' => function_exists('curl_init'),
+    'uploads_writable' => is_dir($UP_DIR) ? is_writable($UP_DIR) : is_writable(__DIR__),
+    'upload_max' => upload_max(),
+    'getimagesize' => function_exists('getimagesize'),
     'url_fopen' => (bool) ini_get('allow_url_fopen'),
   ]);
 }
@@ -54,10 +75,17 @@ if ($method === 'GET' && isset($_GET['diag'])) {
 if ($method === 'GET') {
   $raw = is_file($FILE) ? file_get_contents($FILE) : '';
   $data = $raw ? json_decode($raw, true) : null;
+  if (is_array($data) && (!isset($data['edits']) || !$data['edits'])) $data['edits'] = new stdClass();
   out(is_array($data) ? $data : empty_data());
 }
 
 if ($method !== 'POST') out(['error' => 'method'], 405);
+
+// Fichier plus lourd que ce qu'accepte l'hébergement : PHP vide alors le formulaire
+if (empty($_POST) && isset($_SERVER['CONTENT_LENGTH']) && (int) $_SERVER['CONTENT_LENGTH'] > 0
+    && stripos(isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '', 'multipart/') === 0) {
+  out(['error' => 'too_big', 'max' => upload_max()], 413);
+}
 
 // Requête : formulaire classique (payload + code), ou JSON brut en repli.
 // Le code passe dans le corps : certains hébergeurs suppriment les en-têtes personnalisés.
@@ -67,7 +95,8 @@ if (!is_array($in)) out(['error' => 'json'], 400);
 // Mode équipe : le code est vérifié à chaque écriture
 $code = isset($_POST['code']) ? (string) $_POST['code'] : (isset($in['code']) ? (string) $in['code'] : '');
 if ($code === '' && isset($_SERVER['HTTP_X_ADMIN_CODE'])) $code = (string) $_SERVER['HTTP_X_ADMIN_CODE'];
-if ($code === '' || !password_verify($code, $config['admin_hash'])) {
+// Majuscules ou minuscules : indifférent (le code d'origine a été haché tel quel, en minuscules)
+if ($code === '' || !(password_verify(strtoupper(trim($code)), $config['admin_hash']) || password_verify(strtolower(trim($code)), $config['admin_hash']))) {
   usleep(700000); // freine les essais au hasard
   out(['error' => 'code'], 403);
 }
@@ -80,10 +109,32 @@ if ($action === 'check') {
 }
 
 $kind = isset($in['kind']) ? $in['kind'] : '';
-if (!in_array($kind, ['missions', 'passages', 'inspirations'], true)) out(['error' => 'kind'], 400);
+if (!in_array($kind, ['missions', 'passages', 'inspirations', 'edits'], true)) out(['error' => 'kind'], 400);
 
 $TEAM = ['Fabrizio', 'Jade'];
-$CATS = ['photo', 'video', 'montage', 'planning', 'redaction', 'autre'];
+$CATS = ['photo', 'video', 'montage', 'planning', 'redaction', 'ads', 'autre'];
+$AD_STATUS = ['prevue', 'live', 'done'];
+// Chemin d'une photo ou vidéo du site (planning ou envoi de l'équipe), jamais en dehors du dossier client
+function media_path($p) {
+  $p = is_string($p) ? trim($p) : '';
+  return preg_match('~^(media|uploads)/[A-Za-z0-9._-]+\.(jpe?g|png|webp|mp4|mov|m4v)$~i', $p) && strpos($p, '..') === false ? $p : '';
+}
+function edit_key($id) { $id = (string) $id; return preg_match('/^[A-Za-z0-9-]{1,48}$/', $id) ? $id : ''; }
+// Fichiers envoyés par l'équipe que plus rien n'utilise : supprimés
+function uploads_of($e) {
+  $out = [];
+  if (!is_array($e)) return $out;
+  foreach (['poster', 'video'] as $k) if (!empty($e[$k]) && strpos($e[$k], 'uploads/') === 0) $out[] = $e[$k];
+  if (!empty($e['media']) && is_array($e['media'])) foreach ($e['media'] as $m) if (is_string($m) && strpos($m, 'uploads/') === 0) $out[] = $m;
+  return $out;
+}
+function cleanup_uploads($before, $data) {
+  $used = [];
+  foreach ((array) $data['edits'] as $e) $used = array_merge($used, uploads_of($e));
+  foreach (array_diff($before, $used) as $f) {
+    if (preg_match('~^uploads/[a-z0-9-]+\.(jpg|png|webp|mp4|mov)$~', $f)) @unlink(__DIR__ . '/' . $f);
+  }
+}
 $STATUS = ['todo', 'doing', 'done'];
 $KINDS = ['photo', 'video', 'both', 'meeting'];
 $FORMATS = ['reel', 'carousel', 'post'];
@@ -121,6 +172,35 @@ function with_fetched($x, $f) {
   return $x;
 }
 
+// Envoi d'une photo ou d'une vidéo : le fichier est contrôlé et rangé dans uploads/ avant le verrou
+$stored = '';
+if ($kind === 'edits' && $action === 'upload') {
+  $slot = isset($in['slot']) ? $in['slot'] : '';
+  if (edit_key(isset($in['id']) ? $in['id'] : '') === '' || !in_array($slot, ['media', 'poster', 'video'], true)) out(['error' => 'item'], 400);
+  $f = isset($_FILES['file']) ? $_FILES['file'] : null;
+  if (!$f || $f['error'] === UPLOAD_ERR_INI_SIZE || $f['error'] === UPLOAD_ERR_FORM_SIZE) out(['error' => 'too_big', 'max' => upload_max()], 413);
+  if ($f['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'])) out(['error' => 'upload'], 400);
+  $ext = '';
+  if ($slot === 'video') {
+    // MP4 / MOV : la boîte « ftyp » est au début du fichier
+    $head = (string) @file_get_contents($f['tmp_name'], false, null, 0, 16);
+    if (substr($head, 4, 4) === 'ftyp') $ext = substr($head, 8, 2) === 'qt' ? 'mov' : 'mp4';
+    if ($f['size'] > 300 * 1048576) out(['error' => 'too_big', 'max' => '300 Mo'], 413);
+  } else {
+    $info = @getimagesize($f['tmp_name']);
+    $types = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png'];
+    if (defined('IMAGETYPE_WEBP')) $types[IMAGETYPE_WEBP] = 'webp';
+    if ($info && isset($types[$info[2]])) $ext = $types[$info[2]];
+    if ($f['size'] > 25 * 1048576) out(['error' => 'too_big', 'max' => '25 Mo'], 413);
+  }
+  if ($ext === '') out(['error' => 'type'], 415);
+  if (!is_dir($UP_DIR)) @mkdir($UP_DIR, 0755, true);
+  if (!is_dir($UP_DIR) || !is_writable($UP_DIR)) out(['error' => 'uploads'], 500);
+  $stored = 'uploads/' . strtolower(preg_replace('/[^a-z0-9-]/i', '', $in['id'])) . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
+  if (!move_uploaded_file($f['tmp_name'], __DIR__ . '/' . $stored)) out(['error' => 'uploads'], 500);
+  @chmod(__DIR__ . '/' . $stored, 0644);
+}
+
 // Lecture + écriture sous verrou : deux personnes qui modifient en même temps ne s'écrasent pas
 $fp = @fopen($FILE, 'c+');
 if (!$fp) out(['error' => 'storage'], 500);
@@ -130,7 +210,60 @@ $data = $raw ? json_decode($raw, true) : null;
 if (!is_array($data)) $data = empty_data();
 if (!isset($data[$kind]) || !is_array($data[$kind])) $data[$kind] = [];
 
-if ($action === 'add') {
+if ($kind === 'edits') {
+  // Modifications de l'équipe, par post ou campagne (id du planning)
+  $id = edit_key(isset($in['id']) ? $in['id'] : '');
+  if ($id === '' || (!isset($data['edits'][$id]) && count($data['edits']) >= 400)) {
+    if ($stored) @unlink(__DIR__ . '/' . $stored);
+    flock($fp, LOCK_UN); out(['error' => 'item'], 400);
+  }
+  $before = uploads_of(isset($data['edits'][$id]) ? $data['edits'][$id] : []);
+  $e = isset($data['edits'][$id]) && is_array($data['edits'][$id]) ? $data['edits'][$id] : [];
+  if ($action === 'reset') {
+    $e = [];
+  } elseif ($action === 'upload') {
+    $slot = $in['slot'];
+    if ($slot === 'media') {
+      // Liste de départ : photos déjà modifiées, sinon celles du planning envoyées par la page
+      $list = isset($e['media']) && is_array($e['media']) ? $e['media'] : array_values(array_filter(array_map('media_path', isset($in['base']) && is_array($in['base']) ? $in['base'] : [])));
+      $k = isset($in['index']) ? (int) $in['index'] : -1;
+      if ($k >= 0 && $k < count($list)) $list[$k] = $stored; else $list[] = $stored;
+      $e['media'] = array_slice($list, 0, 10);
+    } else {
+      $e[$slot] = $stored;
+    }
+  } elseif ($action === 'edit') {
+    $it = isset($in['item']) && is_array($in['item']) ? $in['item'] : [];
+    foreach ($it as $k => $v) {
+      if ($v === null) { unset($e[$k]); continue; }
+      if ($k === 'title') $e[$k] = clean($v, 140);
+      elseif ($k === 'caption') {
+        // Légende : on garde les retours à la ligne (un paragraphe par ligne)
+        $lines = array_filter(array_map(function ($l) { return clean($l, 2200); }, preg_split('/\r\n|\r|\n/', (string) $v)), 'strlen');
+        $c = implode("\n", $lines);
+        $e[$k] = function_exists('mb_substr') ? mb_substr($c, 0, 2200, 'UTF-8') : substr($c, 0, 4400);
+      } elseif ($k === 'media' && is_array($v)) {
+        $list = array_values(array_filter(array_map('media_path', $v)));
+        if ($list) $e[$k] = array_slice($list, 0, 10);
+      } elseif (($k === 'poster' || $k === 'video') && media_path($v) !== '') $e[$k] = media_path($v);
+      elseif (($k === 'budget' || $k === 'spent') && is_numeric($v) && $v >= 0 && $v < 1000000) $e[$k] = round((float) $v, 2);
+      elseif ($k === 'status' && in_array($v, $AD_STATUS, true)) $e[$k] = $v;
+      elseif ($k === 'format' && in_array($v, ['reel', 'photo'], true)) $e[$k] = $v;
+      // Publication ou campagne ajoutée depuis l'espace équipe, ou retirée du planning
+      elseif ($k === 'added' && in_array($v, ['post', 'ad'], true)) $e[$k] = $v;
+      elseif ($k === 'deleted' && $v === true) $e[$k] = true;
+      elseif ($k === 'date' && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $v)) $e[$k] = $v;
+      elseif ($k === 'time') { $t = clean($v, 12); if ($t !== '') $e[$k] = $t; else unset($e[$k]); }
+      elseif (in_array($k, ['objective', 'audience', 'cta'], true)) { $t = clean($v, 160); if ($t !== '') $e[$k] = $t; else unset($e[$k]); }
+      elseif (($k === 'start' || $k === 'end') && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $v)) $e[$k] = $v;
+    }
+  } else {
+    flock($fp, LOCK_UN); out(['error' => 'action'], 400);
+  }
+  if ($e) $data['edits'][$id] = $e; else unset($data['edits'][$id]);
+  cleanup_uploads($before, $data);
+  if (!$data['edits']) $data['edits'] = new stdClass();
+} elseif ($action === 'add') {
   $it = isset($in['item']) && is_array($in['item']) ? $in['item'] : [];
   $id = substr($kind, 0, 1) . bin2hex(random_bytes(5));
   if ($kind === 'missions') {

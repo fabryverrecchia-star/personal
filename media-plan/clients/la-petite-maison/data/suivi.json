@@ -1,102 +1,103 @@
 {
-  "passages": [
-    {
-      "id": "p1",
-      "date": "2026-10-07",
-      "time": "10h – 14h",
-      "kind": "both",
-      "title": "Carte d’automne et salle, photo et vidéo"
-    },
-    {
-      "id": "p2",
-      "date": "2026-10-21",
-      "time": "17h – 21h",
-      "kind": "both",
-      "title": "En cuisine avec le chef et service du soir"
-    }
-  ],
-  "missions": [
-    {
-      "id": "m1",
-      "title": "Retouches du shooting de la carte d’automne",
-      "cat": "photo",
-      "status": "doing",
-      "by": "Fabrizio",
-      "at": "2026-09-26"
-    },
-    {
-      "id": "m2",
-      "title": "Reel d’ouverture, version 15 s",
-      "cat": "montage",
-      "status": "doing",
-      "by": "Jade",
-      "at": "2026-09-26"
-    },
-    {
-      "id": "m3",
-      "title": "Tournage « En cuisine » avec le chef",
-      "cat": "video",
-      "status": "todo",
-      "by": "Jade",
-      "at": "2026-09-27"
-    },
-    {
-      "id": "m4",
-      "title": "Media planning de novembre",
-      "cat": "planning",
-      "status": "todo",
-      "by": "Fabrizio",
-      "at": "2026-09-27"
-    },
-    {
-      "id": "m5",
-      "title": "Captions du mois d’octobre",
-      "cat": "redaction",
-      "status": "done",
-      "by": "Jade",
-      "at": "2026-09-25"
-    }
-  ],
-  "inspirations": [
-    {
-      "id": "i1",
-      "url": "https://www.instagram.com/reel/Dd2ozFivouZ/",
-      "format": "reel",
-      "note": "",
-      "by": "Fabrizio",
-      "at": "2026-09-30"
-    },
-    {
-      "id": "i2",
-      "url": "https://www.instagram.com/reel/Dbi4WDONwhq/",
-      "format": "reel",
-      "note": "",
-      "by": "Fabrizio",
-      "at": "2026-09-30"
-    },
-    {
-      "id": "i3",
-      "url": "https://www.instagram.com/reel/Ddb1T99tS7D/",
-      "format": "reel",
-      "note": "",
-      "by": "Fabrizio",
-      "at": "2026-09-30"
-    },
-    {
-      "id": "i4",
-      "url": "https://www.instagram.com/reel/DdWrQuwKMwy/",
-      "format": "reel",
-      "note": "",
-      "by": "Fabrizio",
-      "at": "2026-09-30"
-    },
-    {
-      "id": "i5",
-      "url": "https://www.instagram.com/reel/Dd37Qk3I4rr/",
-      "format": "reel",
-      "note": "",
-      "by": "Fabrizio",
-      "at": "2026-09-30"
-    }
-  ]
+    "passages": [
+        {
+            "id": "p1",
+            "date": "2026-10-07",
+            "time": "10h – 14h",
+            "kind": "both",
+            "title": "Carte d’automne et salle, photo et vidéo"
+        },
+        {
+            "id": "p2",
+            "date": "2026-10-21",
+            "time": "17h – 21h",
+            "kind": "both",
+            "title": "En cuisine avec le chef et service du soir"
+        }
+    ],
+    "missions": [
+        {
+            "id": "m1",
+            "title": "Retouches du shooting de la carte d’automne",
+            "cat": "photo",
+            "status": "doing",
+            "by": "Fabrizio",
+            "at": "2026-09-26"
+        },
+        {
+            "id": "m2",
+            "title": "Reel d’ouverture, version 15 s",
+            "cat": "montage",
+            "status": "doing",
+            "by": "Jade",
+            "at": "2026-09-26"
+        },
+        {
+            "id": "m3",
+            "title": "Tournage « En cuisine » avec le chef",
+            "cat": "video",
+            "status": "todo",
+            "by": "Jade",
+            "at": "2026-09-27"
+        },
+        {
+            "id": "m4",
+            "title": "Media planning de novembre",
+            "cat": "planning",
+            "status": "todo",
+            "by": "Fabrizio",
+            "at": "2026-09-27"
+        },
+        {
+            "id": "m5",
+            "title": "Captions du mois d’octobre",
+            "cat": "redaction",
+            "status": "done",
+            "by": "Jade",
+            "at": "2026-09-25"
+        }
+    ],
+    "inspirations": [
+        {
+            "id": "i1",
+            "url": "https://www.instagram.com/reel/Dd2ozFivouZ/",
+            "format": "reel",
+            "note": "",
+            "by": "Fabrizio",
+            "at": "2026-09-30"
+        },
+        {
+            "id": "i2",
+            "url": "https://www.instagram.com/reel/Dbi4WDONwhq/",
+            "format": "reel",
+            "note": "",
+            "by": "Fabrizio",
+            "at": "2026-09-30"
+        },
+        {
+            "id": "i3",
+            "url": "https://www.instagram.com/reel/Ddb1T99tS7D/",
+            "format": "reel",
+            "note": "",
+            "by": "Fabrizio",
+            "at": "2026-09-30"
+        },
+        {
+            "id": "i4",
+            "url": "https://www.instagram.com/reel/DdWrQuwKMwy/",
+            "format": "reel",
+            "note": "",
+            "by": "Fabrizio",
+            "at": "2026-09-30"
+        },
+        {
+            "id": "i5",
+            "url": "https://www.instagram.com/reel/Dd37Qk3I4rr/",
+            "format": "reel",
+            "note": "",
+            "by": "Fabrizio",
+            "at": "2026-09-30"
+        }
+    ],
+    "edits": {}
 }
