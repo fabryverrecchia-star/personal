@@ -180,7 +180,8 @@
     if (BASE_MONTHS) {
       var months = BASE_MONTHS.map(function (m) {
         var c = JSON.parse(JSON.stringify(m));
-        c._key = String((list(m.posts)[0] || {}).date || '').slice(0, 7);
+        // Un mois sans post garde sa place grâce à month: 'AAAA-MM'
+        c._key = String((list(m.posts)[0] || {}).date || m.month || '').slice(0, 7);
         c.posts = [];
         return c;
       });
@@ -382,7 +383,7 @@
     // Planning au mois (PLAN.months) ou à la semaine (PLAN.weeks)
     var monthly = !!PLAN.months;
     var weeks = PLAN.months || PLAN.weeks || [];
-    function firstDate(w) { var p = list(w.posts)[0]; return p ? parseDate(p.date) : new Date(); }
+    function firstDate(w) { var p = list(w.posts)[0]; var k = w._key || w.month; return p ? parseDate(p.date) : k ? parseDate(String(k).slice(0, 7) + '-01') : new Date(); }
     var html = '';
 
     document.title = '18H22 × ' + (c.name || '') + ' · ' + (PLAN.title || 'Media planning');
@@ -449,9 +450,9 @@
 
     weeks.forEach(function (w, k) {
       var posts = list(w.posts);
-      var first = posts[0] && parseDate(posts[0].date);
-      var last = posts.length && parseDate(posts[posts.length - 1].date);
-      var range = first
+      var first = firstDate(w);
+      var last = posts.length ? parseDate(posts[posts.length - 1].date) : first;
+      var range = posts.length
         ? pad(first.getDate()) + (first.getMonth() !== last.getMonth() ? ' ' + MOIS[first.getMonth()] : '') +
           ' — ' + pad(last.getDate()) + ' ' + MOIS[last.getMonth()]
         : '';
@@ -460,7 +461,7 @@
         '<header class="week__head">' +
         '<span class="week__num" aria-hidden="true">' + pad(monthly ? first.getMonth() + 1 : k + 1) + '</span>' +
         '<p class="label week__kicker" data-reveal>' + (monthly
-          ? MOIS_LONGS[first.getMonth()] + ' ' + first.getFullYear() + ' · ' + posts.length + ' publications'
+          ? MOIS_LONGS[first.getMonth()] + ' ' + first.getFullYear() + ' · ' + (posts.length ? posts.length + ' publication' + (posts.length > 1 ? 's' : '') : 'publications à venir')
           : 'Semaine ' + pad(k + 1) + ' · ' + range) + '</p>' +
         '<h2 class="week__title" data-reveal>' + (w.title || (monthly ? MOIS_LONGS[first.getMonth()] : 'Semaine ' + (k + 1))) + '</h2>' +
         (w.theme ? '<p class="week__theme" data-reveal>' + esc(w.theme) + '</p>' : '') +

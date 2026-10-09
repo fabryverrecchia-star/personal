@@ -1,6 +1,7 @@
 /*
  * Media planning — La Petite Maison, Paris 8 (7 rue du Boccador). Planning du mois : octobre 2026, avant l'ouverture.
- * Situation au 9 octobre : 7 posts en ligne sur @lapetitemaison_paris (feedExisting), la suite du mois ci-dessous.
+ * Situation au 9 octobre : 7 posts en ligne sur @lapetitemaison_paris (feedExisting). Aucun post prévu dans le fichier :
+ * l'équipe les ajoute depuis la page (Espace équipe → Publications).
  * Chaque post a un id : photo, vidéo, couverture, légende et date se modifient depuis l'espace équipe.
  * Passages, missions, inspirations et modifications : data/suivi.json, via suivi.php.
  */
@@ -39,66 +40,10 @@ window.PLAN = {
   months: [
     {
       title: 'Octobre, l’<em>ouverture</em>',
-      theme: 'Deux publications déjà en ligne ce mois-ci (les Champs-Élysées, l’assiette). La suite : deux rendez-vous par semaine jusqu’à fin octobre.',
-      posts: [
-        {
-          id: 'oct-01',
-          date: '2026-10-13',
-          time: '18h45',
-          type: 'post',
-          media: 'media/mardi-verre.jpg',
-          title: 'Une maison, une table',
-          caption: ['Une table pensée comme à la maison, dans le détail.', 'Ouverture cet automne, 7 rue du Boccador.'],
-        },
-        {
-          id: 'oct-02',
-          date: '2026-10-16',
-          time: '12h00',
-          type: 'reel',
-          poster: 'media/reel-ouverture.jpg',
-          video: 'media/reel-ouverture.mp4',
-          title: 'Ouverture automne 2026',
-          caption: ['De Nice à Paris.', 'La Petite Maison, ouverture automne 2026.'],
-        },
-        {
-          id: 'oct-03',
-          date: '2026-10-20',
-          type: 'post',
-          media: 'media/mercredi-accords.jpg',
-          title: 'Les accords',
-          caption: ['Des vins du Sud, choisis pour chaque assiette.'],
-        },
-        {
-          id: 'oct-04',
-          date: '2026-10-23',
-          type: 'post',
-          media: 'media/jeudi-paris.jpg',
-          title: 'Nice, point de départ',
-          caption: [
-            'Nice comme point de départ.',
-            'Dans les couleurs, les matières, dans la carte.',
-            'Désormais à Paris.',
-          ],
-        },
-        {
-          id: 'oct-05',
-          date: '2026-10-27',
-          type: 'post',
-          // Deux propositions de visuel, un seul sera publié
-          options: ['media/vendredi-1.jpg', 'media/vendredi-2.jpg'],
-          title: 'Iodé',
-          caption: ['La mer, franche et maîtrisée.'],
-        },
-        {
-          id: 'oct-06',
-          date: '2026-10-30',
-          type: 'post',
-          // Trois propositions de visuel, un seul sera publié
-          options: ['media/samedi-1.jpg', 'media/samedi-2.jpg', 'media/samedi-3.jpg'],
-          title: 'L’ouverture approche',
-          caption: ['La Petite Maison ouvre ses portes à Paris.', 'Réservations bientôt ouvertes.'],
-        },
-      ],
+      theme: 'Le feed en ligne aujourd’hui, et les prochaines publications à venir.',
+      month: '2026-10',
+      // Vide : l'équipe ajoute les publications depuis l'espace équipe (Publications → Ajouter une publication)
+      posts: [],
     },
   ],
 
