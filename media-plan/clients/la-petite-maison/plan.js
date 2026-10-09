@@ -50,6 +50,22 @@ window.PLAN = {
   // Feed actuel de @lapetitemaison_paris au 9 octobre (7 posts, le premier épinglé), affiché après le planning
   feedExisting: ['media/live-1.jpg', 'media/live-2.jpg', 'media/live-3.jpg', 'media/live-4.jpg', 'media/live-5.jpg', 'media/live-6.jpg', 'media/live-7.jpg'],
 
+  // Bouton « Branding » : playlists de marque, typographie, visuels de démo et banques d'images
+  branding: {
+    playlists: [
+      'https://open.spotify.com/playlist/2nHqblFHFdvP2RHsYuT6WN',
+      'https://open.spotify.com/playlist/6YFQndIQh7WioQbiMU5pEX',
+    ],
+    fonts: [],
+    visuals: [],
+    links: [
+      { label: 'Stock branding LPM Paris', url: 'https://www.dropbox.com/scl/fo/7oacwrgz57wc2h598cp1a/AIu0-tW2Z-edrYnr6zTv1Gc?rlkey=0azg6wrbd0y31chkqxhusnz5x&dl=0' },
+      { label: 'LPM Cannes', url: 'https://www.dropbox.com/scl/fo/pecdmih9tv0f7w4xpo520/AMlPbcEQRvYof_zXlkph_NY?rlkey=1cnj6xxjbdirmyqf4zsg6au7m&dl=0' },
+      { label: 'La Petite Maison', url: 'https://www.dropbox.com/scl/fo/33krmnps80x5jasfdxtff/ANOxaKlgG8T63lWxBzWo2Nk?rlkey=z36zuw54oeyxgjl9m6racqrt6&dl=0' },
+      { label: 'LPM Nice', url: 'https://www.dropbox.com/scl/fo/rnx7olir1ij02fpqpygou/AFzmsbCIJ1C0HozddAsCgAc?rlkey=1dip99fxp3xwwyf1tzd0l0knp&dl=0' },
+    ],
+  },
+
   // Passages (shootings, tournages, rendez-vous), missions en cours et modifications des posts : partagés entre
   // tous les visiteurs via suivi.php. Sans PHP (aperçu), data/suivi.json est lu tel quel.
   suivi: {

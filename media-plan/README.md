@@ -11,6 +11,8 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur (en ligne : 
 - Commentaires sous chaque post : gardés sur le téléphone du client, envoyés en un récapitulatif (WhatsApp).
   Un post « À revoir » passe en noir et blanc transparent avec une croix, sur le post et dans le feed.
 - Bouton « Inspiration du mois » : reels et carrousels Instagram ajoutés par l'équipe.
+- Bouton « Branding » (au-dessus) : playlists Spotify de la marque, typographie, visuels de démo et liens Dropbox des banques d'images.
+  Tout se règle dans `plan.js`, rubrique `branding` (`playlists`, `fonts`, `visuals`, `links`).
 
 ## Espace équipe (code riviera-9655)
 

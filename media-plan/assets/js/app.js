@@ -2230,6 +2230,57 @@
     });
   }
 
+  // Branding : bouton flottant et panneau (playlists Spotify, typographie, visuels de démo, banques d'images)
+  function initBrandkit() {
+    var b = PLAN.branding;
+    if (!b) return;
+    var lists = list(b.playlists).map(function (u) {
+      var m = /playlist\/([A-Za-z0-9]+)/.exec(u);
+      return m ? '<iframe class="brandkit__spotify" src="https://open.spotify.com/embed/playlist/' + m[1] + '?utm_source=generator&theme=0" loading="lazy" ' +
+        'allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" title="Playlist de marque"></iframe>' : '';
+    }).join('');
+    var fonts = list(b.fonts).map(function (f) {
+      return '<div class="brandkit__font"><p class="brandkit__sample" style="font-family:' + esc(f.family || f.name) + '">' + esc(f.sample || 'Aa Bb Cc — La Petite Maison') + '</p>' +
+        '<p class="label brandkit__fontname">' + esc(f.name) + '</p>' +
+        (f.file ? '<a class="label brandkit__dl" href="' + esc(src(f.file)) + '" download>Télécharger</a>' : '') + '</div>';
+    }).join('');
+    var visuals = list(b.visuals).map(function (v) {
+      var u = typeof v === 'string' ? v : v.src;
+      return '<a class="brandkit__visual" href="' + esc(src(u)) + '" target="_blank" rel="noopener"><img src="' + esc(src(u)) + '" alt="" loading="lazy"></a>';
+    }).join('');
+    var links = list(b.links).map(function (l) {
+      return '<a class="brandkit__link" href="' + esc(l.url) + '" target="_blank" rel="noopener"><span>' + esc(l.label) + '</span><span class="label">Dropbox ↗</span></a>';
+    }).join('');
+    function part(title, body) { return body ? '<section class="brandkit__part"><p class="label brandkit__kicker">' + title + '</p>' + body + '</section>' : ''; }
+    var html =
+      '<button type="button" class="label brandkit-fab" data-brand-open>' + SICONS.spark + '<span>Branding</span></button>' +
+      '<div class="inspi brandkit" data-brand aria-hidden="true" role="dialog" aria-modal="true" aria-label="Branding">' +
+      '<div class="inspi__backdrop" data-brand-close></div>' +
+      '<div class="inspi__panel"><header class="inspi__head"><div><p class="label inspi__kicker">' + esc((PLAN.client || {}).name || '') + '</p>' +
+      '<h3 class="inspi__title">Branding</h3></div>' +
+      '<button type="button" class="inspi__close" data-brand-close aria-label="Fermer">' + SICONS.close + '</button></header>' +
+      '<div class="brandkit__body">' +
+      part('Playlists de marque', lists) +
+      part('Typographie', fonts) +
+      part('Visuels de démo', visuals ? '<div class="brandkit__visuals">' + visuals + '</div>' : '') +
+      part('Banques d’images', links ? '<div class="brandkit__links">' + links + '</div>' : '') +
+      '</div></div></div>';
+    var wrap = document.createElement('div');
+    wrap.innerHTML = html;
+    while (wrap.firstChild) document.body.appendChild(wrap.firstChild);
+    var panel = document.querySelector('[data-brand]');
+    function show(open) {
+      panel.classList.toggle('is-open', open);
+      panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+      document.body.classList.toggle('is-locked', open);
+    }
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('[data-brand-open]')) show(true);
+      else if (e.target.closest('[data-brand-close]')) show(false);
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && panel.classList.contains('is-open')) show(false); });
+  }
+
   // Feed : toucher une vignette ouvre la publication sur place (visuel, légende, retours, modification),
   // sans descendre dans la page. Le post est déplacé dans le panneau puis remis à sa place.
   function initPostSheet() {
@@ -2792,6 +2843,7 @@
   initCarousels();
   initOptions();
   initPostSheet();
+  initBrandkit();
   initFeedback();
   initAds();
   initSuivi();
