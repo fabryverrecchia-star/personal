@@ -89,7 +89,9 @@ if (empty($_POST) && isset($_SERVER['CONTENT_LENGTH']) && (int) $_SERVER['CONTEN
 
 // Requête : formulaire classique (payload + code), ou JSON brut en repli.
 // Le code passe dans le corps : certains hébergeurs suppriment les en-têtes personnalisés.
-$in = isset($_POST['payload']) ? json_decode((string) $_POST['payload'], true) : json_decode(file_get_contents('php://input'), true);
+// p64 : contenu encodé en base64 par la page (évite les blocages 403 des pare-feu d'hébergeur)
+if (isset($_POST['p64'])) $in = json_decode((string) base64_decode((string) $_POST['p64'], true), true);
+else $in = isset($_POST['payload']) ? json_decode((string) $_POST['payload'], true) : json_decode(file_get_contents('php://input'), true);
 if (!is_array($in)) out(['error' => 'json'], 400);
 
 // Mode équipe : le code est vérifié à chaque écriture

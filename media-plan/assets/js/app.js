@@ -1161,10 +1161,15 @@
       try { localStorage.setItem(LOCAL, JSON.stringify(d)); } catch (e) {}
       return Promise.resolve(d);
     }
+    // Contenu encodé (base64) : les pare-feu des hébergeurs bloquent sinon certains textes (balises, mots SQL) avec un 403
+    function pack(op) {
+      if (op && op.item && Array.isArray(op.item.media)) op.item.media = op.item.media.filter(function (m) { return !/^data:/.test(m); });
+      return btoa(unescape(encodeURIComponent(JSON.stringify(op))));
+    }
     // Envoi en formulaire classique : accepté par tous les hébergeurs, sans en-tête personnalisé
     function post(op, c) {
       var body = new URLSearchParams();
-      body.set('payload', JSON.stringify(op));
+      body.set('p64', pack(op));
       body.set('code', c);
       return fetch(API + '?t=' + Date.now(), { method: 'POST', body: body, cache: 'no-store', credentials: 'same-origin' });
     }
@@ -1824,7 +1829,8 @@
       return ready.then(function (blob) {
         return new Promise(function (res, rej) {
           var fd = new FormData();
-          fd.append('payload', JSON.stringify({ action: 'upload', kind: 'edits', id: e.key, slot: slot, index: k, base: base }));
+          // Le visuel provisoire d'une nouvelle publication (image générée) n'est pas envoyé
+          fd.append('p64', pack({ action: 'upload', kind: 'edits', id: e.key, slot: slot, index: k, base: base.map(function (m) { return /^data:/.test(m) ? '' : m; }) }));
           fd.append('code', code);
           fd.append('file', blob, isVideo ? (file.name || 'video.mp4') : 'photo.jpg');
           var x = new XMLHttpRequest();
