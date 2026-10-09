@@ -2034,3 +2034,21 @@ a { color: inherit; }
 }
 .post.is-refused .media::after { background-size: 30%; }
 .postsheet__body .post__meta { padding-right: 46px; }
+
+/* Inspirations : vidéo lue dans le panneau, retours du client */
+.inspi__frame--video { background: #000; }
+.inspi__frame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
+.inspi__card .fb { margin-top: 2px; }
+.inspi__send { display: grid; justify-items: start; gap: 12px; margin: 22px var(--gutter) 0; padding-top: 18px; border-top: 1px solid var(--ink-faint); }
+.inspi__send .inspi__help { margin: 0; }
+.inspi__card.is-refused .inspi__frame img, .inspi__card.is-refused .inspi__frame video, .inspi__card.is-refused .inspi__frame iframe {
+  filter: grayscale(1); opacity: 0.55; transition: filter 0.6s var(--ease), opacity 0.6s var(--ease);
+}
+.inspi__card.is-refused .inspi__frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: rgba(20, 20, 20, 0.12) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E") center / 30% no-repeat;
+}

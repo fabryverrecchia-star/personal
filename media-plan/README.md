@@ -34,7 +34,10 @@ Menu : Rendez-vous (calendrier des passages), Publications, Tâches, Inspiration
 - Rendez-vous : jours de passage (calendrier et liste), à ajouter, modifier ou supprimer.
 - Tâche : missions en cours, publiées par Fabrizio ou Jade (crayon pour modifier, croix pour supprimer, toucher l'état pour avancer).
 - Inspiration : ouvrir directement `…/?inspi`, coller un lien Instagram (reel, carrousel ou post). Le site récupère l'image, le compte
-  et la légende (`insta.php`) et copie l'image dans `inspi/`. Si Instagram ne répond pas, le lecteur Instagram s'affiche à la place.
+  (`insta.php`) et copie l'image dans `inspi/`, et pour un reel la vidéo, lue directement dans le panneau.
+  Si Instagram ne donne pas la vidéo, le lecteur Instagram s'affiche à la place. Le texte du post n'est pas affiché, seulement le lien.
+  Le client valide ou met « À revoir » et commente chaque inspiration ; ses retours partent dans le même récapitulatif WhatsApp
+  (bouton « Envoyer mes retours » en bas du panneau).
 
 ## Hébergement
 

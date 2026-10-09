@@ -349,6 +349,9 @@
   }
 
   // Retours du client : statut + commentaire par post, envoyés en un message récapitulatif
+  // (les inspirations du mois ont les mêmes retours : fbRefresh les repeint quand le panneau change)
+  var fbRefresh = function () {};
+  var INSPI_ITEMS = [];
   function feedbackHtml(post) {
     if (!PLAN.feedback) return '';
     return (
@@ -765,13 +768,16 @@
       if (el) el.textContent = n + ' / ' + allPosts.length + ' publications commentées';
     }
     function grow(t) { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }
-    document.querySelectorAll('[data-fb]').forEach(function (box) {
-      var d = data[box.getAttribute('data-fb')] || {};
-      var t = box.querySelector('textarea');
-      if (d.note) { t.value = d.note; grow(t); }
-      paint(box);
-    });
-    count();
+    fbRefresh = function (root) {
+      (root || document).querySelectorAll('[data-fb]').forEach(function (box) {
+        var d = data[box.getAttribute('data-fb')] || {};
+        var t = box.querySelector('textarea');
+        if (d.note && t && !t.value) { t.value = d.note; grow(t); }
+        paint(box);
+      });
+      count();
+    };
+    fbRefresh();
     document.addEventListener('click', function (e) {
       var b = e.target.closest('[data-fb-status]');
       if (!b) return;
@@ -804,6 +810,18 @@
         if (d.note && d.note.trim()) lines.push('« ' + d.note.trim() + ' »');
         lines.push('');
       });
+      // Inspirations du mois : seulement celles qui ont un avis ou un commentaire
+      var ins = INSPI_ITEMS.filter(function (it) { var d = data['inspi-' + it.id]; return d && (d.status || (d.note && d.note.trim())); });
+      if (ins.length) {
+        lines.push('Inspiration du mois', '');
+        ins.forEach(function (it) {
+          var d = data['inspi-' + it.id];
+          lines.push((it.author ? '@' + it.author + ' · ' : '') + it.url);
+          lines.push('→ ' + (d.status === 'ok' ? 'Validé' : d.status === 'revoir' ? 'À revoir' : 'Sans avis'));
+          if (d.note && d.note.trim()) lines.push('« ' + d.note.trim() + ' »');
+          lines.push('');
+        });
+      }
       return lines.join('\n').trim();
     }
     document.addEventListener('click', function (e) {
@@ -1030,6 +1048,10 @@
       '</form>' +
       '<div class="inspi__track" data-inspi-track></div>' +
       '<div class="inspi__dots" data-inspi-dots aria-hidden="true"></div>' +
+      (PLAN.feedback && (PLAN.feedback.whatsapp !== undefined || PLAN.feedback.email !== undefined)
+        ? '<div class="inspi__send"><p class="inspi__help">Validez ou commentez chaque inspiration, puis envoyez-nous vos retours.</p>' +
+          '<button type="button" class="label fb-send__btn" data-fb-send="' + (PLAN.feedback.whatsapp !== undefined ? 'whatsapp' : 'email') + '">Envoyer mes retours</button></div>'
+        : '') +
       '</div></div>'
     );
   }
@@ -1502,7 +1524,9 @@
       if (mode !== 'api' || !admin) return Promise.resolve();
       var op = { action: 'refresh', kind: 'inspirations' };
       if (id) op.id = id;
-      else if (refreshed || !(state.inspirations || []).some(function (x) { return !x.thumb && !x.tried; })) return Promise.resolve();
+      else if (refreshed || !(state.inspirations || []).some(function (x) {
+        return (!x.thumb && !x.tried) || (/\/reel\//.test(x.url) && !x.video && !x.vtried);
+      })) return Promise.resolve();
       refreshed = true;
       return post(op, code).then(json).then(function (d) { if (valid(d)) { state = d; paint(); } }).catch(function () {});
     }
@@ -1518,35 +1542,43 @@
       var sig = JSON.stringify(items) + admin;
       if (sig === inspiSig) return;
       inspiSig = sig;
+      INSPI_ITEMS = items;
       inspiTrack.innerHTML = items.length ? items.map(function (it) {
         var ig = instaParts(it.url);
         if (!ig) return '';
         var f = it.format || (ig.seg === 'reel' ? 'reel' : 'carousel');
-        return '<article class="inspi__card inspi__card--' + esc(f) + '">' +
+        return '<article class="inspi__card inspi__card--' + esc(f) + '" id="inspi-' + esc(it.id) + '">' +
           '<div class="inspi__meta"><span class="label inspi__tag">' + (SICONS[f === 'reel' ? 'video' : 'photo']) + esc(FORMAT[f] || '') + '</span>' +
           '<button type="button" class="del" data-del="inspirations" data-id="' + esc(it.id) + '" aria-label="Supprimer cette inspiration">' + SICONS.close + '</button></div>' +
-          (it.thumb
+          (it.video
+            // Reel copié sur le site : lu directement dans le panneau
+            ? '<div class="inspi__frame inspi__frame--video"><video src="' + esc(src(it.video)) + '"' + (it.thumb ? ' poster="' + esc(src(it.thumb)) + '"' : '') +
+              ' playsinline controls preload="metadata"></video></div>'
+            : it.thumb
             // Contenu récupéré : l'image du post, le lecteur Instagram se charge au toucher
             ? '<button type="button" class="inspi__frame inspi__poster" data-inspi-play="' + ig.seg + '/' + esc(ig.code) + '" aria-label="Lire sur la page">' +
               '<img src="' + esc(src(it.thumb)) + '" alt="" loading="lazy"><span class="inspi__play">' + ICONS.play + '</span></button>'
             : '<div class="inspi__frame">' + embed(ig.seg + '/' + ig.code) + '</div>') +
           (it.author ? '<p class="label inspi__author">@' + esc(it.author) + '</p>' : '') +
-          (it.caption ? '<p class="inspi__caption">' + esc(it.caption) + '</p>' : '') +
           (!it.thumb && admin && mode === 'api' ? '<button type="button" class="label inspi__retry" data-inspi-retry="' + esc(it.id) + '">Récupérer le contenu Instagram</button>' : '') +
           (it.note ? '<p class="inspi__note">' + esc(it.note) + '</p>' : '') +
           '<a class="label inspi__link" href="' + esc(it.url) + '" target="_blank" rel="noopener">Ouvrir sur Instagram</a>' +
+          feedbackHtml({ _id: 'inspi-' + it.id }).replace(' data-reveal', '') +
           '</article>';
       }).join('') : '<p class="inspi__empty">Les inspirations du mois arrivent bientôt.</p>';
+      fbRefresh(inspiTrack);
       inspiEl.querySelector('[data-inspi-dots]').innerHTML = items.length > 1 ? items.map(function (_, k) { return '<i class="' + (k ? '' : 'is-on') + '"></i>'; }).join('') : '';
     }
     inspiTrack.addEventListener('scroll', function () {
       var cards = inspiTrack.querySelectorAll('.inspi__card');
       if (!cards.length) return;
       var k = Math.round(inspiTrack.scrollLeft / (cards[0].offsetWidth + 14));
+      cards.forEach(function (c, j) { var v = c.querySelector('video'); if (v && j !== k && !v.paused) v.pause(); });
       inspiEl.querySelectorAll('[data-inspi-dots] i').forEach(function (d, j) { d.classList.toggle('is-on', j === k); });
     }, { passive: true });
     function inspi(open) {
       if (open) refreshInspi();
+      else inspiEl.querySelectorAll('video').forEach(function (v) { v.pause(); });
       inspiEl.classList.toggle('is-open', open);
       inspiEl.setAttribute('aria-hidden', open ? 'false' : 'true');
       document.body.classList.toggle('is-locked', open);

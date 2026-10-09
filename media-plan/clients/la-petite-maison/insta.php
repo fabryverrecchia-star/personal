@@ -7,7 +7,7 @@
  * (les liens d'image Instagram expirent au bout de quelques jours).
  */
 
-function ig_http($url, $max = 6000000) {
+function ig_http($url, $max = 6000000, $timeout = 10) {
   $ua = 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)';
   if (function_exists('curl_init')) {
     $c = curl_init($url);
@@ -16,7 +16,7 @@ function ig_http($url, $max = 6000000) {
       CURLOPT_FOLLOWLOCATION => true,
       CURLOPT_MAXREDIRS => 4,
       CURLOPT_CONNECTTIMEOUT => 5,
-      CURLOPT_TIMEOUT => 10,
+      CURLOPT_TIMEOUT => $timeout,
       CURLOPT_USERAGENT => $ua,
       CURLOPT_HTTPHEADER => ['Accept-Language: fr-FR,fr;q=0.9,en;q=0.6'],
       CURLOPT_ENCODING => '',
@@ -28,7 +28,7 @@ function ig_http($url, $max = 6000000) {
   }
   if (!ini_get('allow_url_fopen')) return '';
   $ctx = stream_context_create(['http' => [
-    'timeout' => 10, 'follow_location' => 1, 'max_redirects' => 4,
+    'timeout' => $timeout, 'follow_location' => 1, 'max_redirects' => 4,
     'header' => "User-Agent: $ua\r\nAccept-Language: fr-FR,fr;q=0.9\r\n",
   ]]);
   $body = @file_get_contents($url, false, $ctx, 0, $max);
@@ -64,7 +64,15 @@ function ig_parse($html) {
   }
   if ($author === '' && preg_match('~\(@([A-Za-z0-9._]+)\)~', $title, $m)) $author = $m[1];
   if ($author === '' && preg_match('~instagram\.com/([A-Za-z0-9._]+)/(?:p|reel)/~', ig_meta($html, 'og:url'), $m)) $author = $m[1];
-  return ['image' => $img, 'author' => $author, 'caption' => trim($caption)];
+  return ['image' => $img, 'author' => $author, 'caption' => trim($caption), 'video' => ig_video_url($html)];
+}
+
+// Adresse du fichier vidéo d'un reel, dans les balises de partage ou les données de la page
+function ig_video_url($html) {
+  $v = ig_meta($html, 'og:video:secure_url');
+  if ($v === '') $v = ig_meta($html, 'og:video');
+  if ($v === '' && preg_match('~"video_url"\s*:\s*"([^"]+)"~', $html, $m)) $v = json_decode('"' . $m[1] . '"');
+  return is_string($v) && preg_match('~^https://~', $v) ? $v : '';
 }
 
 /*
@@ -72,7 +80,7 @@ function ig_parse($html) {
  * Renvoie ['thumb' => chemin relatif ou '', 'author' => ..., 'caption' => ...].
  */
 function ig_fetch($url, $id, $dir) {
-  $out = ['thumb' => '', 'author' => '', 'caption' => ''];
+  $out = ['thumb' => '', 'author' => '', 'caption' => '', 'video' => ''];
   $info = ig_parse(ig_http($url));
   $out['author'] = $info['author'];
   $out['caption'] = $info['caption'];
@@ -87,6 +95,17 @@ function ig_fetch($url, $id, $dir) {
     $name = preg_replace('~[^a-z0-9]~', '', $id) . '.' . $ext;
     if (is_dir($dir) && @file_put_contents($dir . '/' . $name, $bytes) !== false) {
       $out['thumb'] = basename($dir) . '/' . $name;
+    }
+  }
+  // Reel : on garde aussi la vidéo, pour la lire directement dans la page
+  if (strpos($url, '/reel/') !== false) {
+    $v = $info['video'];
+    if ($v === '') $v = ig_video_url(ig_http(rtrim($url, '/') . '/embed/captioned/'));
+    $bytes = $v !== '' ? ig_http($v, 90000000, 45) : '';
+    if (strlen($bytes) > 1000 && substr($bytes, 4, 4) === 'ftyp') {
+      if (!is_dir($dir)) @mkdir($dir, 0755, true);
+      $name = preg_replace('~[^a-z0-9]~', '', $id) . '.mp4';
+      if (is_dir($dir) && @file_put_contents($dir . '/' . $name, $bytes) !== false) $out['video'] = basename($dir) . '/' . $name;
     }
   }
   return $out;

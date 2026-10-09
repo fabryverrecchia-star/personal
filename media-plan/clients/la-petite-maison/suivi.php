@@ -146,6 +146,8 @@ function insta_url($u) {
 
 // Contenu Instagram récupéré avant de verrouiller le fichier (la requête peut prendre quelques secondes)
 $fetched = [];
+// La vidéo d'un reel peut être lourde à copier
+if ($kind === 'inspirations' && ($action === 'add' || $action === 'refresh')) @set_time_limit(180);
 if ($kind === 'inspirations' && $action === 'add') {
   $it = isset($in['item']) && is_array($in['item']) ? $in['item'] : [];
   $url = insta_url(isset($it['url']) ? $it['url'] : '');
@@ -159,7 +161,9 @@ if ($kind === 'inspirations' && $action === 'add') {
   $n = 0;
   foreach ((is_array($cur) && isset($cur['inspirations']) ? $cur['inspirations'] : []) as $x) {
     // Sans id : les inspirations jamais récupérées ; avec id : on réessaie celle-ci
-    if ($only !== '' ? $x['id'] !== $only : (!empty($x['thumb']) || !empty($x['tried']) || $n >= 6)) continue;
+    // (un reel déjà récupéré sans sa vidéo est retenté une fois pour la vidéo)
+    $todo = (empty($x['thumb']) && empty($x['tried'])) || (strpos($x['url'], '/reel/') !== false && empty($x['video']) && empty($x['vtried']));
+    if ($only !== '' ? $x['id'] !== $only : (!$todo || $n >= 4)) continue;
     $fetched[$x['id']] = ig_fetch($x['url'], $x['id'], $INSPI_DIR);
     $n++;
   }
@@ -169,6 +173,8 @@ function with_fetched($x, $f) {
   if ($f['thumb'] !== '') $x['thumb'] = $f['thumb'];
   if ($f['author'] !== '') $x['author'] = clean($f['author'], 60);
   if ($f['caption'] !== '') $x['caption'] = clean($f['caption'], 400);
+  if (strpos($x['url'], '/reel/') !== false) $x['vtried'] = date('Y-m-d');
+  if (!empty($f['video'])) $x['video'] = $f['video'];
   return $x;
 }
 
@@ -338,7 +344,10 @@ if ($kind === 'edits') {
   $id = isset($in['id']) ? $in['id'] : '';
   // L'image copiée d'une inspiration part avec elle
   foreach ($data[$kind] as $x) {
-    if ($x['id'] === $id && !empty($x['thumb']) && preg_match('~^inspi/[a-z0-9]+\.(jpg|png|webp)$~', $x['thumb'])) @unlink(__DIR__ . '/' . $x['thumb']);
+    if ($x['id'] !== $id) continue;
+    foreach (['thumb', 'video'] as $f) {
+      if (!empty($x[$f]) && preg_match('~^inspi/[a-z0-9]+\.(jpg|png|webp|mp4)$~', $x[$f])) @unlink(__DIR__ . '/' . $x[$f]);
+    }
   }
   $data[$kind] = array_values(array_filter($data[$kind], function ($x) use ($id) { return $x['id'] !== $id; }));
 } else {
