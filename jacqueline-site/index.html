@@ -797,19 +797,16 @@
 
   @media (max-width: 960px){
     .seq-ui{grid-template-columns:1fr;}
-    /* on a single column the line runs behind the text: one veil per
-       text block (never per item — stacked items would hide each other) */
-    .seq-items,.seq-head{isolation:isolate;}
-    .seq-items{min-height:12rem;}
-    .seq-items::before,.seq-head::before{
-      content:"";
-      position:absolute;
-      left:calc(var(--gutter) * -1);right:calc(var(--gutter) * -1);
-      z-index:-1;
-    }
-    .seq-items::before{top:-2.5rem;bottom:-1rem;background:linear-gradient(to top, var(--page) 62%, transparent);}
-    .seq-head{position:relative;}
-    .seq-head::before{top:-7rem;bottom:-2rem;background:linear-gradient(to bottom, var(--page) 70%, transparent);}
+    /* on a phone the drawing sits whole in the free space between the
+       title and the text (measured by the script), so the text is compacted
+       to give it as much height as possible */
+    .seq-ui{padding-top:4.75rem;padding-bottom:1.25rem;}
+    .seq-head .eyebrow{margin-bottom:.7rem;}
+    .seq-title{font-size:clamp(1.55rem,6.8vw,2.1rem);}
+    .seq-items{min-height:0;}
+    .seq-name{font-size:clamp(2.2rem,9.5vw,3rem);margin-top:.25rem;}
+    .seq-words{margin-top:.6rem;gap:.2rem .85rem;font-size:.68rem;}
+    .seq-progress{margin-top:1.1rem;}
     .seq-intro{display:none;}
     .seq-progress li{font-size:0;}
     .seq-progress span{font-size:.7rem;margin:0;}
@@ -1592,8 +1589,36 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
     W = r.width; H = r.height; dpr = d;
     if(canvas.width !== w || canvas.height !== h){ canvas.width = w; canvas.height = h; }
   }
+  /* ---------- where the drawing goes: always whole, never under the text.
+     Desktop: right of the text, between the header and the progress bar.
+     Phone: centred, between the title and the tallest sequence text. ---------- */
+  const head = section.querySelector(".seq-head");
+  const progressBar = section.querySelector(".seq-progress");
+  let layoutRect = [0, 0, 1, 1];
+  function layout(){
+    const cr = canvas.getBoundingClientRect();
+    const wide = W > 960;
+    let top, bottom, cx;
+    if(wide){
+      top = 80;
+      bottom = progressBar.getBoundingClientRect().top - cr.top - 20;
+      cx = W * .66;
+    } else {
+      top = head.getBoundingClientRect().bottom - cr.top + 16;
+      let textTop = Infinity;
+      items.forEach(function(el){ textTop = Math.min(textTop, el.getBoundingClientRect().top); });
+      bottom = textTop - cr.top - 12;
+      cx = W * .5;
+    }
+    let h = Math.max(160, bottom - top), w = h / CELL_RATIO;
+    const maxW = wide ? W * .3 : W * .9;
+    if(w > maxW){ w = maxW; h = w * CELL_RATIO; }
+    layoutRect = [cx - w / 2, top + (bottom - top - h) / 2, w, h];
+  }
   resize();
-  window.addEventListener("resize", resize);
+  layout();
+  window.addEventListener("resize", function(){ resize(); layout(); });
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
 
   /* ---------- input: mouse, pen and finger ---------- */
   const pointer = { x:.5, y:.5, px:.5, py:.5, on:0, target:0, vx:0, vy:0 };
@@ -1663,10 +1688,7 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
     const m = j === i ? 0 : smooth(.68, 1, s - i);
     updateUi(i, m, s);
 
-    const wide = W > 960;
-    const h = wide ? H * .98 : H * .78;
-    const w = h / CELL_RATIO;
-    rect = [ (wide ? W * .66 : W * .5) - w / 2, (wide ? H * .52 : H * .47) - h / 2, w, h ];
+    rect = layoutRect;
 
     // trail step
     gl.useProgram(flow.p);
@@ -1730,7 +1752,7 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
   /* ---------- only animate while on screen ---------- */
   new IntersectionObserver(function(entries){
     visible = entries[0].isIntersecting;
-    if(visible && !raf){ last = performance.now(); readScroll(); resize(); raf = requestAnimationFrame(frame); }
+    if(visible && !raf){ last = performance.now(); readScroll(); resize(); layout(); raf = requestAnimationFrame(frame); }
   }, { rootMargin:"200px 0px" }).observe(section);
 
   }catch(err){
