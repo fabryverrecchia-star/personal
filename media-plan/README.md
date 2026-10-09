@@ -7,7 +7,9 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur (en ligne : 
 - Contenu : `clients/la-petite-maison/plan.js` (planning du mois dans `months`, feed actuel de @lapetitemaison_paris dans `feedExisting`, couleurs, polices).
   Chaque post a un `id` : les modifications faites depuis l'espace équipe y sont rattachées.
 - Jours de passage (calendrier + liste) et missions en cours, partagés entre tous les visiteurs.
+- Feed : toucher une vignette ouvre la publication sur place (visuel, légende, Validé / À revoir, Modifier en mode équipe).
 - Commentaires sous chaque post : gardés sur le téléphone du client, envoyés en un récapitulatif (WhatsApp).
+  Un post « À revoir » passe en noir et blanc transparent avec une croix, sur le post et dans le feed.
 - Bouton « Inspiration du mois » : reels et carrousels Instagram ajoutés par l'équipe.
 
 ## Espace équipe (code riviera-9655)

@@ -752,6 +752,11 @@
       });
       box.classList.toggle('is-ok', d.status === 'ok');
       box.classList.toggle('is-revoir', d.status === 'revoir');
+      // Publication non validée : noir et blanc + croix, sur le post et sa vignette du feed
+      var id = box.getAttribute('data-fb');
+      var art = document.getElementById(id);
+      var cell = document.querySelector('[data-grid][href="#' + id + '"]');
+      [art, cell].forEach(function (n) { if (n) n.classList.toggle('is-refused', d.status === 'revoir'); });
     }
     function count() {
       var n = allPosts.filter(function (p) { var d = data[p._id]; return d && (d.status || d.note); }).length;
@@ -2192,6 +2197,67 @@
     });
   }
 
+  // Feed : toucher une vignette ouvre la publication sur place (visuel, légende, retours, modification),
+  // sans descendre dans la page. Le post est déplacé dans le panneau puis remis à sa place.
+  function initPostSheet() {
+    var box = el('<div class="postsheet" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Publication">' +
+      '<div class="postsheet__backdrop" data-postsheet-close></div>' +
+      '<div class="postsheet__panel"><button type="button" class="postsheet__close" data-postsheet-close aria-label="Fermer">' + SICONS.close + '</button>' +
+      '<div class="postsheet__body" data-postsheet-body></div></div></div>');
+    document.body.appendChild(box);
+    var body = box.querySelector('[data-postsheet-body]');
+    var cur = null, mark = null, timer = 0;
+    function settle(art) {
+      // Les apparitions au défilement de ce post sont jouées tout de suite
+      if (window.ScrollTrigger) window.ScrollTrigger.getAll().forEach(function (st) {
+        if (st.trigger && art.contains(st.trigger) && st.animation) { st.animation.progress(1); st.kill(); }
+      });
+    }
+    function putBack() {
+      clearTimeout(timer);
+      if (!cur) return;
+      cur.querySelectorAll('video').forEach(function (v) { try { v.pause(); } catch (e) {} });
+      mark.parentNode.replaceChild(cur, mark);
+      cur = mark = null;
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+    }
+    function open(art) {
+      putBack();
+      settle(art);
+      mark = document.createComment('post');
+      art.parentNode.insertBefore(mark, art);
+      body.appendChild(art);
+      cur = art;
+      body.scrollTop = 0;
+      box.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('is-locked');
+      requestAnimationFrame(function () { box.classList.add('is-open'); });
+    }
+    function close() {
+      if (!box.classList.contains('is-open')) return;
+      box.classList.remove('is-open');
+      box.setAttribute('aria-hidden', 'true');
+      if (!document.querySelector('.inspi.is-open, .editor.is-open')) document.body.classList.remove('is-locked');
+      timer = setTimeout(putBack, 650);
+    }
+    // En capture : passe avant le défilement doux des liens internes
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest('a[data-grid][href^="#"]');
+      if (!a) return;
+      var art = document.getElementById(a.getAttribute('href').slice(1));
+      if (!art || !art.classList.contains('post')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      open(art);
+    }, true);
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('[data-postsheet-close]')) close();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && box.classList.contains('is-open') && !document.querySelector('.editor.is-open')) close();
+    });
+  }
+
   // Propositions : le choix met à jour le visuel, le badge et la vignette du feed
   function initOptions() {
     document.addEventListener('click', function (e) {
@@ -2692,6 +2758,7 @@
   initAnchors();
   initCarousels();
   initOptions();
+  initPostSheet();
   initFeedback();
   initAds();
   initSuivi();
