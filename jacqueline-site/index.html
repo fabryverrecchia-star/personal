@@ -51,11 +51,15 @@
     --wordmark-compose-dur:0.6s;
     --wordmark-pause-dur:0.45s;
     --curtain-dur:1s;
-    --line-dur:1.1s;
-    --line-stagger-step:0.1s;
+    --line-dur:.95s;
+    --line-stagger-step:0.08s;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;scroll-padding-top:5rem;}
+  /* Lenis drives the smooth scroll when it runs */
+  html.lenis,html.lenis body{height:auto;}
+  html.lenis{scroll-behavior:auto;}
+  .lenis.lenis-stopped{overflow:clip;}
   html.is-loading{overflow:hidden;}
   body{
     font-family:'Belleza', serif;
@@ -136,6 +140,14 @@
   }
   .js .site-header{opacity:0;transform:translateY(-100%);}
   .is-ready .site-header{opacity:1;transform:none;}
+  /* over the hero, once the page moves, a veil of its own colour keeps the
+     logo clear of the content sliding under it */
+  .site-header.is-scrolled{
+    background:rgba(106,31,27,.88);
+    -webkit-backdrop-filter:blur(10px);
+    backdrop-filter:blur(10px);
+    padding-block:.75rem;
+  }
   .site-header.is-solid{
     background:rgba(241,236,225,.92);
     -webkit-backdrop-filter:blur(10px);
@@ -225,7 +237,7 @@
   .line-mask{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em;}
   .line-inner{
     display:block;
-    transform:translateY(110%);
+    transform:translateY(150%);
     transition:transform var(--line-dur) var(--ease-io);
     will-change:transform;
   }
@@ -234,8 +246,8 @@
 
   .js [data-reveal]{
     opacity:0;
-    transform:translateY(24px);
-    transition:opacity 1.1s ease, transform 1.1s var(--ease-out);
+    transform:translateY(18px);
+    transition:opacity .85s ease, transform .95s var(--ease-out);
   }
   .js [data-reveal].is-in{opacity:1;transform:none;}
   .no-anim, .no-anim *{transition:none !important;}
@@ -665,7 +677,7 @@
   }
   /* each line slides through its own mask, in and out */
   .seq-item .m{display:block;overflow:hidden;padding-bottom:.06em;}
-  .seq-item .m > *{display:block;transform:translateY(135%);transition:transform .9s var(--ease-io);}
+  .seq-item .m > *{display:block;transform:translateY(165%);transition:transform .9s var(--ease-io);}
   .seq-item .seq-words li{opacity:0;transform:translateY(8px);transition:opacity .6s ease, transform .6s var(--ease-out);}
   .seq-item.is-active .m > *{transform:none;transition-delay:.18s;}
   .seq-item.is-active .m + .m > *{transition-delay:.26s;}
@@ -675,7 +687,7 @@
   .seq-item.is-active .seq-words li:nth-child(3){transition-delay:.52s;}
   .seq-item.is-active .seq-words li:nth-child(4){transition-delay:.58s;}
   .seq-item.is-active .seq-words li:nth-child(5){transition-delay:.64s;}
-  .seq-item.is-past .m > *{transform:translateY(-135%);}
+  .seq-item.is-past .m > *{transform:translateY(-165%);}
 
   .seq-progress{
     grid-column:1 / -1;
@@ -1032,6 +1044,10 @@
 </div>
 
 <script>
+/* Lenis 1.1.22, smooth scroll — MIT License, (c) darkroom.engineering */
+function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;value=0;from=0;to=0;currentTime=0;lerp;duration;easing;onUpdate;advance(i){if(!this.isRunning)return;let e=!1;if(this.duration&&this.easing){this.currentTime+=i;const s=t(0,this.currentTime/this.duration,1);e=s>=1;const o=e?1:this.easing(s);this.value=this.from+(this.to-this.from)*o}else this.lerp?(this.value=function(t,i,e,s){return function(t,i,e){return(1-e)*t+e*i}(t,i,1-Math.exp(-e*s))}(this.value,this.to,60*this.lerp,i),Math.round(this.value)===this.to&&(this.value=this.to,e=!0)):(this.value=this.to,e=!0);e&&this.stop(),this.onUpdate?.(this.value,e)}stop(){this.isRunning=!1}fromTo(t,i,{lerp:e,duration:s,easing:o,onStart:n,onUpdate:r}){this.from=this.value=t,this.to=i,this.lerp=e,this.duration=s,this.easing=o,this.currentTime=0,this.isRunning=!0,n?.(),this.onUpdate=r}};var e=class{constructor(t,i,{autoResize:e=!0,debounce:s=250}={}){this.wrapper=t,this.content=i,e&&(this.debouncedResize=function(t,i){let e;return function(...s){let o=this;clearTimeout(e),e=setTimeout((()=>{e=void 0,t.apply(o,s)}),i)}}(this.resize,s),this.wrapper instanceof Window?window.addEventListener("resize",this.debouncedResize,!1):(this.wrapperResizeObserver=new ResizeObserver(this.debouncedResize),this.wrapperResizeObserver.observe(this.wrapper)),this.contentResizeObserver=new ResizeObserver(this.debouncedResize),this.contentResizeObserver.observe(this.content)),this.resize()}width=0;height=0;scrollHeight=0;scrollWidth=0;debouncedResize;wrapperResizeObserver;contentResizeObserver;destroy(){this.wrapperResizeObserver?.disconnect(),this.contentResizeObserver?.disconnect(),this.wrapper===window&&this.debouncedResize&&window.removeEventListener("resize",this.debouncedResize,!1)}resize=()=>{this.onWrapperResize(),this.onContentResize()};onWrapperResize=()=>{this.wrapper instanceof Window?(this.width=window.innerWidth,this.height=window.innerHeight):(this.width=this.wrapper.clientWidth,this.height=this.wrapper.clientHeight)};onContentResize=()=>{this.wrapper instanceof Window?(this.scrollHeight=this.content.scrollHeight,this.scrollWidth=this.content.scrollWidth):(this.scrollHeight=this.wrapper.scrollHeight,this.scrollWidth=this.wrapper.scrollWidth)};get limit(){return{x:this.scrollWidth-this.width,y:this.scrollHeight-this.height}}},s=class{events={};emit(t,...i){let e=this.events[t]||[];for(let t=0,s=e.length;t<s;t++)e[t]?.(...i)}on(t,i){return this.events[t]?.push(i)||(this.events[t]=[i]),()=>{this.events[t]=this.events[t]?.filter((t=>i!==t))}}off(t,i){this.events[t]=this.events[t]?.filter((t=>i!==t))}destroy(){this.events={}}},o=100/6,n={passive:!1},r=class{constructor(t,i={wheelMultiplier:1,touchMultiplier:1}){this.element=t,this.options=i,window.addEventListener("resize",this.onWindowResize,!1),this.onWindowResize(),this.element.addEventListener("wheel",this.onWheel,n),this.element.addEventListener("touchstart",this.onTouchStart,n),this.element.addEventListener("touchmove",this.onTouchMove,n),this.element.addEventListener("touchend",this.onTouchEnd,n)}touchStart={x:0,y:0};lastDelta={x:0,y:0};window={width:0,height:0};emitter=new s;on(t,i){return this.emitter.on(t,i)}destroy(){this.emitter.destroy(),window.removeEventListener("resize",this.onWindowResize,!1),this.element.removeEventListener("wheel",this.onWheel,n),this.element.removeEventListener("touchstart",this.onTouchStart,n),this.element.removeEventListener("touchmove",this.onTouchMove,n),this.element.removeEventListener("touchend",this.onTouchEnd,n)}onTouchStart=t=>{const{clientX:i,clientY:e}=t.targetTouches?t.targetTouches[0]:t;this.touchStart.x=i,this.touchStart.y=e,this.lastDelta={x:0,y:0},this.emitter.emit("scroll",{deltaX:0,deltaY:0,event:t})};onTouchMove=t=>{const{clientX:i,clientY:e}=t.targetTouches?t.targetTouches[0]:t,s=-(i-this.touchStart.x)*this.options.touchMultiplier,o=-(e-this.touchStart.y)*this.options.touchMultiplier;this.touchStart.x=i,this.touchStart.y=e,this.lastDelta={x:s,y:o},this.emitter.emit("scroll",{deltaX:s,deltaY:o,event:t})};onTouchEnd=t=>{this.emitter.emit("scroll",{deltaX:this.lastDelta.x,deltaY:this.lastDelta.y,event:t})};onWheel=t=>{let{deltaX:i,deltaY:e,deltaMode:s}=t;i*=1===s?o:2===s?this.window.width:1,e*=1===s?o:2===s?this.window.height:1,i*=this.options.wheelMultiplier,e*=this.options.wheelMultiplier,this.emitter.emit("scroll",{deltaX:i,deltaY:e,event:t})};onWindowResize=()=>{this.window={width:window.innerWidth,height:window.innerHeight}}},Lenis=class{_isScrolling=!1;_isStopped=!1;_isLocked=!1;_preventNextNativeScrollEvent=!1;_resetVelocityTimeout=null;__rafID=null;isTouching;time=0;userData={};lastVelocity=0;velocity=0;direction=0;options;targetScroll;animatedScroll;animate=new i;emitter=new s;dimensions;virtualScroll;constructor({wrapper:t=window,content:i=document.documentElement,eventsTarget:s=t,smoothWheel:o=!0,syncTouch:n=!1,syncTouchLerp:l=.075,touchInertiaMultiplier:h=35,duration:a,easing:c=t=>Math.min(1,1.001-Math.pow(2,-10*t)),lerp:p=.1,infinite:d=!1,orientation:u="vertical",gestureOrientation:m="vertical",touchMultiplier:v=1,wheelMultiplier:S=1,autoResize:w=!0,prevent:g,virtualScroll:f,overscroll:y=!0,autoRaf:E=!1,anchors:T=!1,__experimental__naiveDimensions:z=!1}={}){window.lenisVersion="1.1.22",t&&t!==document.documentElement||(t=window),this.options={wrapper:t,content:i,eventsTarget:s,smoothWheel:o,syncTouch:n,syncTouchLerp:l,touchInertiaMultiplier:h,duration:a,easing:c,lerp:p,infinite:d,gestureOrientation:m,orientation:u,touchMultiplier:v,wheelMultiplier:S,autoResize:w,prevent:g,virtualScroll:f,overscroll:y,autoRaf:E,anchors:T,__experimental__naiveDimensions:z},this.dimensions=new e(t,i,{autoResize:w}),this.updateClassName(),this.targetScroll=this.animatedScroll=this.actualScroll,this.options.wrapper.addEventListener("scroll",this.onNativeScroll,!1),this.options.wrapper.addEventListener("scrollend",this.onScrollEnd,{capture:!0}),this.options.anchors&&this.options.wrapper===window&&this.options.wrapper.addEventListener("click",this.onClick,!1),this.options.wrapper.addEventListener("pointerdown",this.onPointerDown,!1),this.virtualScroll=new r(s,{touchMultiplier:v,wheelMultiplier:S}),this.virtualScroll.on("scroll",this.onVirtualScroll),this.options.autoRaf&&(this.__rafID=requestAnimationFrame(this.raf))}destroy(){this.emitter.destroy(),this.options.wrapper.removeEventListener("scroll",this.onNativeScroll,!1),this.options.wrapper.removeEventListener("scrollend",this.onScrollEnd,{capture:!0}),this.options.wrapper.removeEventListener("pointerdown",this.onPointerDown,!1),this.options.anchors&&this.options.wrapper===window&&this.options.wrapper.removeEventListener("click",this.onClick,!1),this.virtualScroll.destroy(),this.dimensions.destroy(),this.cleanUpClassName(),this.__rafID&&cancelAnimationFrame(this.__rafID)}on(t,i){return this.emitter.on(t,i)}off(t,i){return this.emitter.off(t,i)}onScrollEnd=t=>{t instanceof CustomEvent||"smooth"!==this.isScrolling&&!1!==this.isScrolling||t.stopPropagation()};dispatchScrollendEvent=()=>{this.options.wrapper.dispatchEvent(new CustomEvent("scrollend",{bubbles:this.options.wrapper===window,detail:{lenisScrollEnd:!0}}))};setScroll(t){this.isHorizontal?this.options.wrapper.scrollTo({left:t,behavior:"instant"}):this.options.wrapper.scrollTo({top:t,behavior:"instant"})}onClick=t=>{const i=t.composedPath().find((t=>t instanceof HTMLAnchorElement&&t.getAttribute("href")?.startsWith("#")));if(i){const t=i.getAttribute("href");if(t){const i="object"==typeof this.options.anchors&&this.options.anchors?this.options.anchors:void 0;this.scrollTo(t,i)}}};onPointerDown=t=>{1===t.button&&this.reset()};onVirtualScroll=t=>{if("function"==typeof this.options.virtualScroll&&!1===this.options.virtualScroll(t))return;const{deltaX:i,deltaY:e,event:s}=t;if(this.emitter.emit("virtual-scroll",{deltaX:i,deltaY:e,event:s}),s.ctrlKey)return;if(s.lenisStopPropagation)return;const o=s.type.includes("touch"),n=s.type.includes("wheel");this.isTouching="touchstart"===s.type||"touchmove"===s.type;const r=0===i&&0===e;if(this.options.syncTouch&&o&&"touchstart"===s.type&&r&&!this.isStopped&&!this.isLocked)return void this.reset();const l="vertical"===this.options.gestureOrientation&&0===e||"horizontal"===this.options.gestureOrientation&&0===i;if(r||l)return;let h=s.composedPath();h=h.slice(0,h.indexOf(this.rootElement));const a=this.options.prevent;if(h.find((t=>t instanceof HTMLElement&&("function"==typeof a&&a?.(t)||t.hasAttribute?.("data-lenis-prevent")||o&&t.hasAttribute?.("data-lenis-prevent-touch")||n&&t.hasAttribute?.("data-lenis-prevent-wheel")))))return;if(this.isStopped||this.isLocked)return void s.preventDefault();if(!(this.options.syncTouch&&o||this.options.smoothWheel&&n))return this.isScrolling="native",this.animate.stop(),void(s.lenisStopPropagation=!0);let c=e;"both"===this.options.gestureOrientation?c=Math.abs(e)>Math.abs(i)?e:i:"horizontal"===this.options.gestureOrientation&&(c=i),(!this.options.overscroll||this.options.infinite||this.options.wrapper!==window&&(this.animatedScroll>0&&this.animatedScroll<this.limit||0===this.animatedScroll&&e>0||this.animatedScroll===this.limit&&e<0))&&(s.lenisStopPropagation=!0),s.preventDefault();const p=o&&this.options.syncTouch,d=o&&"touchend"===s.type&&Math.abs(c)>5;d&&(c=this.velocity*this.options.touchInertiaMultiplier),this.scrollTo(this.targetScroll+c,{programmatic:!1,...p?{lerp:d?this.options.syncTouchLerp:1}:{lerp:this.options.lerp,duration:this.options.duration,easing:this.options.easing}})};resize(){this.dimensions.resize(),this.animatedScroll=this.targetScroll=this.actualScroll,this.emit()}emit(){this.emitter.emit("scroll",this)}onNativeScroll=()=>{if(null!==this._resetVelocityTimeout&&(clearTimeout(this._resetVelocityTimeout),this._resetVelocityTimeout=null),this._preventNextNativeScrollEvent)this._preventNextNativeScrollEvent=!1;else if(!1===this.isScrolling||"native"===this.isScrolling){const t=this.animatedScroll;this.animatedScroll=this.targetScroll=this.actualScroll,this.lastVelocity=this.velocity,this.velocity=this.animatedScroll-t,this.direction=Math.sign(this.animatedScroll-t),this.isStopped||(this.isScrolling="native"),this.emit(),0!==this.velocity&&(this._resetVelocityTimeout=setTimeout((()=>{this.lastVelocity=this.velocity,this.velocity=0,this.isScrolling=!1,this.emit()}),400))}};reset(){this.isLocked=!1,this.isScrolling=!1,this.animatedScroll=this.targetScroll=this.actualScroll,this.lastVelocity=this.velocity=0,this.animate.stop()}start(){this.isStopped&&(this.reset(),this.isStopped=!1)}stop(){this.isStopped||(this.reset(),this.isStopped=!0)}raf=t=>{const i=t-(this.time||t);this.time=t,this.animate.advance(.001*i),this.options.autoRaf&&(this.__rafID=requestAnimationFrame(this.raf))};scrollTo(i,{offset:e=0,immediate:s=!1,lock:o=!1,duration:n=this.options.duration,easing:r=this.options.easing,lerp:l=this.options.lerp,onStart:h,onComplete:a,force:c=!1,programmatic:p=!0,userData:d}={}){if(!this.isStopped&&!this.isLocked||c){if("string"==typeof i&&["top","left","start"].includes(i))i=0;else if("string"==typeof i&&["bottom","right","end"].includes(i))i=this.limit;else{let t;if("string"==typeof i?t=document.querySelector(i):i instanceof HTMLElement&&i?.nodeType&&(t=i),t){if(this.options.wrapper!==window){const t=this.rootElement.getBoundingClientRect();e-=this.isHorizontal?t.left:t.top}const s=t.getBoundingClientRect();i=(this.isHorizontal?s.left:s.top)+this.animatedScroll}}if("number"==typeof i){if(i+=e,i=Math.round(i),this.options.infinite?p&&(this.targetScroll=this.animatedScroll=this.scroll):i=t(0,i,this.limit),i===this.targetScroll)return h?.(this),void a?.(this);if(this.userData=d??{},s)return this.animatedScroll=this.targetScroll=i,this.setScroll(this.scroll),this.reset(),this.preventNextNativeScrollEvent(),this.emit(),a?.(this),this.userData={},void requestAnimationFrame((()=>{this.dispatchScrollendEvent()}));p||(this.targetScroll=i),this.animate.fromTo(this.animatedScroll,i,{duration:n,easing:r,lerp:l,onStart:()=>{o&&(this.isLocked=!0),this.isScrolling="smooth",h?.(this)},onUpdate:(t,i)=>{this.isScrolling="smooth",this.lastVelocity=this.velocity,this.velocity=t-this.animatedScroll,this.direction=Math.sign(this.velocity),this.animatedScroll=t,this.setScroll(this.scroll),p&&(this.targetScroll=t),i||this.emit(),i&&(this.reset(),this.emit(),a?.(this),this.userData={},requestAnimationFrame((()=>{this.dispatchScrollendEvent()})),this.preventNextNativeScrollEvent())}})}}}preventNextNativeScrollEvent(){this._preventNextNativeScrollEvent=!0,requestAnimationFrame((()=>{this._preventNextNativeScrollEvent=!1}))}get rootElement(){return this.options.wrapper===window?document.documentElement:this.options.wrapper}get limit(){return this.options.__experimental__naiveDimensions?this.isHorizontal?this.rootElement.scrollWidth-this.rootElement.clientWidth:this.rootElement.scrollHeight-this.rootElement.clientHeight:this.dimensions.limit[this.isHorizontal?"x":"y"]}get isHorizontal(){return"horizontal"===this.options.orientation}get actualScroll(){const t=this.options.wrapper;return this.isHorizontal?t.scrollX??t.scrollLeft:t.scrollY??t.scrollTop}get scroll(){return this.options.infinite?(t=this.animatedScroll,i=this.limit,(t%i+i)%i):this.animatedScroll;var t,i}get progress(){return 0===this.limit?1:this.scroll/this.limit}get isScrolling(){return this._isScrolling}set isScrolling(t){this._isScrolling!==t&&(this._isScrolling=t,this.updateClassName())}get isStopped(){return this._isStopped}set isStopped(t){this._isStopped!==t&&(this._isStopped=t,this.updateClassName())}get isLocked(){return this._isLocked}set isLocked(t){this._isLocked!==t&&(this._isLocked=t,this.updateClassName())}get isSmooth(){return"smooth"===this.isScrolling}get className(){let t="lenis";return this.isStopped&&(t+=" lenis-stopped"),this.isLocked&&(t+=" lenis-locked"),this.isScrolling&&(t+=" lenis-scrolling"),"smooth"===this.isScrolling&&(t+=" lenis-smooth"),t}updateClassName(){this.cleanUpClassName(),this.rootElement.className=`${this.rootElement.className} ${this.className}`.trim()}cleanUpClassName(){this.rootElement.className=this.rootElement.className.replace(/lenis(-\w+)?/g,"").trim()}};globalThis.Lenis=Lenis,globalThis.Lenis.prototype=Lenis.prototype;
+</script>
+<script>
 (function(){
   "use strict";
   const root = document.documentElement;
@@ -1141,7 +1157,7 @@
       entries.forEach(function(e){
         if(e.isIntersecting){ e.target.classList.add("is-in"); io.unobserve(e.target); }
       });
-    }, { rootMargin:"0px 0px -10% 0px", threshold:0.12 });
+    }, { rootMargin:"0px 0px -4% 0px", threshold:0 });
     revealEls.forEach(function(el){ io.observe(el); });
 
   } else {
@@ -1163,6 +1179,7 @@
   function onScroll(){
     const past = window.scrollY > hero.offsetHeight - 90;
     header.classList.toggle("is-solid", past);
+    header.classList.toggle("is-scrolled", !past && window.scrollY > 24);
     sticky.classList.toggle("is-visible", window.scrollY > hero.offsetHeight * 0.6 && !stickyBlocked());
   }
   window.addEventListener("scroll", onScroll, { passive:true });
@@ -1172,12 +1189,22 @@
      picto draws in bourgogne on white, locks solid, is masked away; the
      wordmark composes in its place, then the white curtain lifts on the
      hero. A hard time limit always fires so nobody stays stuck. */
+  /* ---------- smooth scroll, moderately slow ----------
+     wheel and trackpad only: on touch screens the native scroll stays, it
+     is what fingers expect */
+  let lenis = null;
+  if(window.Lenis && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    lenis = new Lenis({ lerp:.075, wheelMultiplier:.9, smoothWheel:true, anchors:{ offset:-72 }, autoRaf:true });
+    lenis.stop();
+  }
+
   let revealed = false;
   function revealSite(){
     if(revealed) return;
     revealed = true;
     preloader.classList.add("is-leaving");
     root.classList.remove("is-loading");
+    if(lenis) lenis.start();
     setTimeout(function(){
       document.body.classList.add("is-ready");
       document.querySelectorAll("[data-hero]").forEach(function(el){ el.classList.add("is-in"); });
@@ -1211,13 +1238,20 @@
 </script>
 <script>
 /* ---------- Séquences: the five illustrations, alive in WebGL ----------
-   The drawings are the real artwork, but they are never shown as a still
-   image: a shader paints them in like wet ink running down the paper, lets
-   each one breathe with its own character (the iode flows like water, the
-   végétal sways from its stem, the corsé barely moves, the fruité trembles,
-   the gourmand drifts slowly), dissolves one into the next as the visitor
-   scrolls through the meal, and ripples under the pointer. The canvas is
-   multiplied onto the page, so the white of the drawings is the paper. */
+   The drawings are the real artwork, never shown as a still image:
+   - they appear like ink on wet paper: the dark line lands first, then the
+     watercolour washes spread out around it;
+   - one sequence hands over to the next as the visitor scrolls: the washes of
+     the old drawing evaporate first, its line last, while the new line lands
+     and its colours bloom, the two layered like inks;
+   - each drawing breathes with its own character (the iode flows like water,
+     the végétal sways on its stem, the corsé barely moves, the fruité
+     trembles, the gourmand drifts slowly);
+   - the pointer, or a finger on a phone, drags the pigment like a brush in
+     wet ink: a fluid trail smears it, splits it into its colours and leaves
+     it darker where it pooled, then the paper slowly settles.
+   The canvas is multiplied onto the page, so the white of the drawings is
+   the paper. */
 (function(){
   "use strict";
   const section = document.getElementById("sequences");
@@ -1245,6 +1279,13 @@
     { flow:.013, sway:.003, freq:.9,  speed:.3  }  // le gourmand — slow and generous
   ];
 
+  const NOISE = [
+    "float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
+    "float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);",
+    "  return mix(mix(h(i), h(i + vec2(1.0, 0.0)), f.x), mix(h(i + vec2(0.0, 1.0)), h(i + vec2(1.0, 1.0)), f.x), f.y); }",
+    "float fbm(vec2 p){ float v = 0.0, a = 0.5; for(int i = 0; i < 4; i++){ v += a * n2(p); p *= 2.03; a *= 0.5; } return v; }"
+  ].join("\n");
+
   function shader(type, src){
     const s = gl.createShader(type);
     gl.shaderSource(s, src);
@@ -1252,128 +1293,210 @@
     if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
     return s;
   }
-  const prog = gl.createProgram();
-  gl.attachShader(prog, shader(gl.VERTEX_SHADER,
-    "attribute vec2 aPos; uniform vec4 uRect; uniform vec2 uRes; varying vec2 vUv;" +
-    "void main(){ vUv = aPos; vec2 p = (uRect.xy + aPos * uRect.zw) / uRes * 2.0 - 1.0; gl_Position = vec4(p.x, -p.y, 0.0, 1.0); }"
-  ));
-  gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, [
-    "precision highp float;",
-    "varying vec2 vUv;",
-    "uniform sampler2D uTex;",
-    "uniform float uA, uB, uMix, uTime, uDraw, uVel, uAspect, uMouseOn;",
-    "uniform vec2 uMouse;",
-    "uniform vec4 uP;",
-    "float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
-    "float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);",
-    "  return mix(mix(h(i), h(i + vec2(1.0, 0.0)), f.x), mix(h(i + vec2(0.0, 1.0)), h(i + vec2(1.0, 1.0)), f.x), f.y); }",
-    "float fbm(vec2 p){ float v = 0.0, a = 0.5; for(int i = 0; i < 4; i++){ v += a * n2(p); p *= 2.03; a *= 0.5; } return v; }",
-    // one drawing of the atlas; outside its cell the paper is white
-    "vec3 art(float idx, vec2 uv){",
-    "  float inside = step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);",
-    "  vec2 c = vec2((idx + clamp(uv.x, 0.002, 0.998)) / 5.0, clamp(uv.y, 0.0, 1.0));",
-    "  return mix(vec3(1.0), texture2D(uTex, c).rgb, inside);",
-    "}",
-    "void main(){",
-    "  vec2 uv = vUv;",
-    "  float t = uTime * uP.w;",
-    // living drift: a slow noise field moves the pigment
-    "  vec2 sp = uv * vec2(2.0, 2.0 * uAspect) * uP.z;",
-    "  vec2 q = vec2(fbm(sp + vec2(0.0, t * 0.6)), fbm(sp + vec2(5.2, -t * 0.5)));",
-    "  vec2 disp = (q - 0.5) * uP.x * 2.0;",
-    // sway, anchored at the base of the drawing
-    "  disp.x += sin(t * 1.4 + uv.y * 3.0) * uP.y * pow(1.0 - uv.y, 1.5);",
-    // a fast scroll stirs the water
-    "  disp += (vec2(fbm(uv * 5.0 + t), fbm(uv * 5.0 - t)) - 0.5) * uVel * 0.05;",
-    // pointer: a ring of ripples spreading from the finger or the cursor
-    "  vec2 d = (uv - uMouse) * vec2(1.0, uAspect);",
-    "  float r = length(d);",
-    "  float ripple = uMouseOn * exp(-r * r * 22.0) * sin(r * 46.0 - uTime * 5.0) * 0.016;",
-    "  disp += (d / max(r, 1e-4)) * ripple * vec2(1.0, 1.0 / uAspect);",
-    "  vec3 a = art(uA, uv + disp);",
-    "  vec3 b = art(uB, uv + disp * 1.4);",
-    // the next drawing bleeds in from the top, like ink running down wet paper
-    "  float n = fbm(uv * vec2(3.0, 3.0 * uAspect) + 3.1) * 0.55 + uv.y * 0.45;",
-    "  float edge = uMix * 1.25 - 0.1;",
-    "  float kB = 1.0 - smoothstep(edge - 0.04, edge + 0.04, n);",
-    "  vec3 col = mix(a, b, kB);",
-    "  float front = (1.0 - smoothstep(0.0, 0.05, abs(n - edge))) * step(0.001, uMix) * step(uMix, 0.999);",
-    "  col = mix(col, col * col * 0.92, front * 0.7);",
-    // first appearance: painted in from the top with a ragged, wet edge
-    "  float rv = uDraw * 1.3 - uv.y - (fbm(uv * vec2(5.0, 2.5 * uAspect) + 7.0) - 0.5) * 0.3;",
-    "  float reveal = smoothstep(0.0, 0.06, rv);",
-    "  col = mix(vec3(1.0), col, reveal);",
-    "  col = mix(col, col * col, (1.0 - smoothstep(0.0, 0.03, abs(rv - 0.03))) * reveal * 0.5);",
-    "  gl_FragColor = vec4(col, 1.0);",
-    "}"
-  ].join("\n")));
-  gl.linkProgram(prog);
-  if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
-  gl.useProgram(prog);
+  function program(vs, fs, names){
+    const p = gl.createProgram();
+    gl.attachShader(p, shader(gl.VERTEX_SHADER, vs));
+    gl.attachShader(p, shader(gl.FRAGMENT_SHADER, fs));
+    gl.bindAttribLocation(p, 0, "aPos");
+    gl.linkProgram(p);
+    if(!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    const u = {};
+    names.forEach(function(n){ u[n] = gl.getUniformLocation(p, n); });
+    return { p:p, u:u };
+  }
 
-  const U = {};
-  ["uRect","uRes","uTex","uA","uB","uMix","uTime","uDraw","uVel","uAspect","uMouseOn","uMouse","uP"].forEach(function(n){
-    U[n] = gl.getUniformLocation(prog, n);
-  });
+  /* ---------- 1. the wet-ink trail (a small fluid simulation) ----------
+     xy: velocity of the pigment, z: how wet the paper is */
+  const flow = program(
+    "attribute vec2 aPos; varying vec2 vUv; void main(){ vUv = aPos; gl_Position = vec4(aPos * 2.0 - 1.0, 0.0, 1.0); }",
+    [
+      "precision highp float;",
+      "varying vec2 vUv;",
+      "uniform sampler2D uPrev;",
+      "uniform vec2 uMouse, uVel, uTexel;",
+      "uniform float uAspect, uOn;",
+      "void main(){",
+      "  vec2 v0 = texture2D(uPrev, vUv).xy * 2.0 - 1.0;",
+      // advection: the trail carries itself along its own motion
+      "  vec4 s = texture2D(uPrev, vUv - v0 * vec2(1.0, 1.0 / uAspect) * 0.018);",
+      // a touch of diffusion so it spreads like water, not like paint
+      "  vec4 nb = texture2D(uPrev, vUv + vec2(uTexel.x, 0.0)) + texture2D(uPrev, vUv - vec2(uTexel.x, 0.0))",
+      "          + texture2D(uPrev, vUv + vec2(0.0, uTexel.y)) + texture2D(uPrev, vUv - vec2(0.0, uTexel.y));",
+      "  s = mix(s, nb * 0.25, 0.22);",
+      "  vec2 v = s.xy * 2.0 - 1.0;",
+      "  float w = s.z;",
+      // settle: multiplicative plus a constant, so 8-bit values never stall
+      "  v = sign(v) * max(abs(v) * 0.95 - 0.006, 0.0);",
+      "  w = max(w * 0.972 - 0.004, 0.0);",
+      "  vec2 d = (vUv - uMouse) * vec2(1.0, uAspect);",
+      "  float f = exp(-dot(d, d) * 70.0) * uOn;",
+      "  v += uVel * f;",
+      "  w += f * clamp(length(uVel) * 1.6, 0.0, 0.6);",
+      "  gl_FragColor = vec4(clamp(v, -1.0, 1.0) * 0.5 + 0.5, clamp(w, 0.0, 1.0), 1.0);",
+      "}"
+    ].join("\n"),
+    ["uPrev","uMouse","uVel","uTexel","uAspect","uOn"]
+  );
+
+  /* ---------- 2. the drawings ---------- */
+  const art = program(
+    "attribute vec2 aPos; uniform vec4 uRect; uniform vec2 uRes; varying vec2 vUv;" +
+    "void main(){ vUv = aPos; vec2 p = (uRect.xy + aPos * uRect.zw) / uRes * 2.0 - 1.0; gl_Position = vec4(p.x, -p.y, 0.0, 1.0); }",
+    [
+      "precision highp float;",
+      "varying vec2 vUv;",
+      "uniform sampler2D uTex, uFlow;",
+      "uniform float uA, uB, uMix, uTime, uReveal, uStir, uAspect, uOn;",
+      "uniform vec2 uMouse;",
+      "uniform vec4 uP;",
+      NOISE,
+      "vec3 tex(float idx, vec2 uv){",
+      "  float inside = step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);",
+      "  vec2 c = vec2((idx + clamp(uv.x, 0.002, 0.998)) / 5.0, clamp(uv.y, 0.0, 1.0));",
+      "  return mix(vec3(1.0), texture2D(uTex, c).rgb, inside);",
+      "}",
+      // the pigment splits a little along the stroke of the brush
+      "vec3 pigment(float idx, vec2 uv, vec2 split){",
+      "  return vec3(tex(idx, uv - split).r, tex(idx, uv).g, tex(idx, uv + split).b);",
+      "}",
+      "float lum(vec3 c){ return dot(c, vec3(0.333)); }",
+      // ink lands where the field is below the threshold: dark first, light last
+      "float landing(float t, float field){ return smoothstep(field, field + 0.09, t); }",
+      "void main(){",
+      "  vec2 uv = vUv;",
+      "  float t = uTime * uP.w;",
+      "  vec3 fl = texture2D(uFlow, uv).rgb;",
+      "  vec2 vel = fl.xy * 2.0 - 1.0;",
+      "  float wet = fl.z;",
+      // a soft lens under the pointer, as if the paper swelled with water
+      "  vec2 dm = (uv - uMouse) * vec2(1.0, uAspect);",
+      "  float lens = exp(-dot(dm, dm) * 30.0) * uOn;",
+      "  uv = uMouse + (uv - uMouse) * (1.0 - 0.07 * lens);",
+      // its own breathing
+      "  vec2 sp = uv * vec2(2.0, 2.0 * uAspect) * uP.z;",
+      "  vec2 q = vec2(fbm(sp + vec2(0.0, t * 0.6)), fbm(sp + vec2(5.2, -t * 0.5)));",
+      "  vec2 disp = (q - 0.5) * uP.x * 2.0;",
+      "  disp.x += sin(t * 1.4 + uv.y * 3.0) * uP.y * pow(1.0 - uv.y, 1.5);",
+      // a fast scroll and a changing sequence stir the water
+      "  float swirl = uStir + sin(uMix * 3.14159) * 0.6;",
+      "  disp += (vec2(fbm(uv * 4.0 + t + 9.0), fbm(uv * 4.0 - t + 3.0)) - 0.5) * swirl * 0.05;",
+      // the brush trail drags the pigment
+      "  disp -= vel * vec2(1.0, 1.0 / uAspect) * 0.07;",
+      "  vec2 split = vel * vec2(1.0, 1.0 / uAspect) * 0.006 + vec2(wet * 0.0015, 0.0);",
+      "  vec3 a = pigment(uA, uv + disp, split);",
+      "  vec3 b = pigment(uB, uv + disp * 1.3, split);",
+      "  float grain = fbm(vUv * vec2(3.0, 3.0 * uAspect) + 3.1);",
+      // hand-over: the old drawing evaporates washes first, the new one lands line first
+      "  float tOut = uMix * 1.35 - 0.1;",
+      "  float tIn = uMix * 1.35 - 0.25;",
+      "  float visA = 1.0 - landing(tOut, grain * 0.5 + (1.0 - lum(a)) * 0.6);",
+      "  float fieldB = grain * 0.5 + lum(b) * 0.6 + vUv.y * 0.12;",
+      "  float visB = landing(tIn, fieldB);",
+      "  if(uMix <= 0.0){ visA = 1.0; visB = 0.0; }",
+      "  vec3 col = mix(vec3(1.0), a, visA) * mix(vec3(1.0), b, visB);",
+      // first appearance, ink first then colour, with a pooled, darker wet edge
+      "  float fieldR = grain * 0.45 + lum(col) * 0.55 + vUv.y * 0.15;",
+      "  float tR = uReveal * 1.45 - 0.2;",
+      "  float vis = landing(tR, fieldR);",
+      "  float edge = exp(-pow((tR - fieldR - 0.03) / 0.035, 2.0)) * (1.0 - lum(col)) * step(uReveal, 0.999);",
+      "  col = mix(vec3(1.0), col, vis);",
+      "  col *= 1.0 - edge * 0.35;",
+      // where the brush went, the paper stays wet and the pigment pools
+      "  col = mix(col, col * col * 0.9, wet * 0.45 * (1.0 - lum(col)));",
+      "  col = mix(col, col * vec3(0.94, 0.9, 0.86), wet * 0.25);",
+      "  gl_FragColor = vec4(col, 1.0);",
+      "}"
+    ].join("\n"),
+    ["uRect","uRes","uTex","uFlow","uA","uB","uMix","uTime","uReveal","uStir","uAspect","uOn","uMouse","uP"]
+  );
+
   const quad = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, quad);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0,0, 1,0, 0,1, 1,1]), gl.STATIC_DRAW);
-  const aPos = gl.getAttribLocation(prog, "aPos");
-  gl.enableVertexAttribArray(aPos);
-  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
-  /* ---------- the drawings ---------- */
+  /* ---------- ping-pong targets for the trail ---------- */
+  const FW = 96, FH = 288;
+  function makeTarget(){
+    const t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    const init = new Uint8Array(FW * FH * 4);
+    for(let k = 0; k < init.length; k += 4){ init[k] = 128; init[k + 1] = 128; init[k + 2] = 0; init[k + 3] = 255; }
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, FW, FH, 0, gl.RGBA, gl.UNSIGNED_BYTE, init);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const f = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, f);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+    if(gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw new Error("framebuffer");
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    return { t:t, f:f };
+  }
+  let read = makeTarget(), write = makeTarget();
+
+  /* ---------- the atlas ---------- */
   let ready = false;
-  const tex = gl.createTexture();
+  const atlas = gl.createTexture();
   const img = new Image();
   img.onload = function(){
     try{
-      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, atlas);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.uniform1i(U.uTex, 0);
       ready = true;
     }catch(err){
-      // e.g. the page opened straight from disk: the browser refuses the texture
       root.classList.add("no-webgl");
     }
   };
   img.onerror = function(){ root.classList.add("no-webgl"); };
   img.src = canvas.dataset.atlas;
 
-  /* ---------- sizing ---------- */
+  /* ---------- sizing — only when the canvas really changes size, so the
+     mobile toolbar sliding in and out never clears it mid-scroll ---------- */
   let W = 0, H = 0, dpr = 1;
   function resize(){
     const r = canvas.getBoundingClientRect();
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = r.width; H = r.height;
-    canvas.width = Math.round(W * dpr);
-    canvas.height = Math.round(H * dpr);
-    gl.viewport(0, 0, canvas.width, canvas.height);
+    const d = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.round(r.width * d), h = Math.round(r.height * d);
+    W = r.width; H = r.height; dpr = d;
+    if(canvas.width !== w || canvas.height !== h){ canvas.width = w; canvas.height = h; }
   }
   resize();
   window.addEventListener("resize", resize);
 
-  /* ---------- input ---------- */
-  const pointer = { x:.5, y:.5, tx:.5, ty:.5, on:0, target:0 };
+  /* ---------- input: mouse, pen and finger ---------- */
+  const pointer = { x:.5, y:.5, px:.5, py:.5, on:0, target:0, vx:0, vy:0 };
   let rect = [0, 0, 1, 1];
-  section.addEventListener("pointermove", function(e){
+  function moveTo(clientX, clientY){
     const r = canvas.getBoundingClientRect();
-    pointer.tx = (e.clientX - r.left - rect[0]) / rect[2];
-    pointer.ty = (e.clientY - r.top - rect[1]) / rect[3];
+    pointer.x = (clientX - r.left - rect[0]) / rect[2];
+    pointer.y = (clientY - r.top - rect[1]) / rect[3];
     pointer.target = 1;
+  }
+  section.addEventListener("pointermove", function(e){ if(e.pointerType !== "touch") moveTo(e.clientX, e.clientY); }, { passive:true });
+  section.addEventListener("pointerleave", function(e){ if(e.pointerType !== "touch") pointer.target = 0; });
+  // touch: follow the finger even while the page scrolls under it
+  section.addEventListener("touchstart", function(e){
+    const t = e.touches[0]; moveTo(t.clientX, t.clientY);
+    pointer.px = pointer.x; pointer.py = pointer.y;
   }, { passive:true });
-  section.addEventListener("pointerleave", function(){ pointer.target = 0; });
+  section.addEventListener("touchmove", function(e){ const t = e.touches[0]; moveTo(t.clientX, t.clientY); }, { passive:true });
+  section.addEventListener("touchend", function(){ pointer.target = 0; }, { passive:true });
 
-  let progress = 0, target = 0, draw = 0, drawTarget = 0, velocity = 0;
+  let progress = 0, target = 0, velocity = 0, reveal = 0, revealing = false;
   function readScroll(){
     const r = section.getBoundingClientRect();
     const span = r.height - window.innerHeight;
     target = span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 0;
-    drawTarget = Math.min(1, Math.max(0, (window.innerHeight - r.top) / window.innerHeight));
+    // the drawing paints itself in once the section is well on screen
+    if(!revealing && r.top < window.innerHeight * .45) revealing = true;
   }
   window.addEventListener("scroll", readScroll, { passive:true });
   readScroll();
@@ -1389,45 +1512,74 @@
     const dt = Math.min(.05, (now - last) / 1000);
     last = now;
     time += dt * (reduceMotion ? .25 : 1);
+    if(revealing && reveal < 1) reveal = Math.min(1, reveal + dt / (reduceMotion ? .6 : 2.6));
 
     const before = progress;
     progress = lerp(progress, target, 1 - Math.pow(.002, dt));
-    draw = lerp(draw, drawTarget, 1 - Math.pow(.02, dt));
     velocity = lerp(velocity, Math.min(1, Math.abs(progress - before) / Math.max(dt, .001) * 2), .12);
-    pointer.x = lerp(pointer.x, pointer.tx, .1);
-    pointer.y = lerp(pointer.y, pointer.ty, .1);
-    pointer.on = lerp(pointer.on, pointer.target, .06);
+    pointer.on = lerp(pointer.on, pointer.target, .08);
+    // pointer speed in drawing space, gently smoothed
+    const vx = (pointer.x - pointer.px) / Math.max(dt, .001), vy = (pointer.y - pointer.py) / Math.max(dt, .001);
+    pointer.px = pointer.x; pointer.py = pointer.y;
+    pointer.vx = lerp(pointer.vx, vx, .35); pointer.vy = lerp(pointer.vy, vy, .35);
+    let fvx = pointer.vx * .35, fvy = pointer.vy * .35 / CELL_RATIO;
+    const fl = Math.hypot(fvx, fvy);
+    if(fl > 1){ fvx /= fl; fvy /= fl; }
 
-    // each drawing holds, then dissolves into the next over the last
-    // part of its scroll span
+    // each drawing holds, then hands over to the next over the last part of
+    // its scroll span
     const s = Math.min(progress * COUNT, COUNT - .0001);
     const i = Math.floor(s);
     const j = Math.min(i + 1, COUNT - 1);
-    const m = j === i ? 0 : smooth(.55, 1, s - i);
+    const m = j === i ? 0 : smooth(.5, 1, s - i);
     updateUi(i, m, s);
 
-    // placement: right of the text on wide screens, centred behind it on phones
     const wide = W > 960;
     const h = wide ? H * .98 : H * .78;
     const w = h / CELL_RATIO;
     rect = [ (wide ? W * .66 : W * .5) - w / 2, (wide ? H * .52 : H * .47) - h / 2, w, h ];
 
+    // trail step
+    gl.useProgram(flow.p);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, write.f);
+    gl.viewport(0, 0, FW, FH);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, read.t);
+    gl.uniform1i(flow.u.uPrev, 1);
+    gl.uniform2f(flow.u.uMouse, pointer.x, pointer.y);
+    gl.uniform2f(flow.u.uVel, fvx, fvy);
+    gl.uniform2f(flow.u.uTexel, 1 / FW, 1 / FH);
+    gl.uniform1f(flow.u.uAspect, CELL_RATIO);
+    gl.uniform1f(flow.u.uOn, pointer.on);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    const tmp = read; read = write; write = tmp;
+
+    // drawing
+    gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(1, 1, 1, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
     if(!ready) return;
-    gl.uniform2f(U.uRes, W, H);
-    gl.uniform4f(U.uRect, rect[0], rect[1], rect[2], rect[3]);
-    gl.uniform1f(U.uA, i);
-    gl.uniform1f(U.uB, j);
-    gl.uniform1f(U.uMix, m);
-    gl.uniform1f(U.uTime, time);
-    gl.uniform1f(U.uDraw, draw);
-    gl.uniform1f(U.uVel, velocity);
-    gl.uniform1f(U.uAspect, h / w);
-    gl.uniform1f(U.uMouseOn, pointer.on);
-    gl.uniform2f(U.uMouse, pointer.x, pointer.y);
+    gl.useProgram(art.p);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, atlas);
+    gl.uniform1i(art.u.uTex, 0);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, read.t);
+    gl.uniform1i(art.u.uFlow, 1);
+    gl.uniform2f(art.u.uRes, W, H);
+    gl.uniform4f(art.u.uRect, rect[0], rect[1], rect[2], rect[3]);
+    gl.uniform1f(art.u.uA, i);
+    gl.uniform1f(art.u.uB, j);
+    gl.uniform1f(art.u.uMix, m);
+    gl.uniform1f(art.u.uTime, time);
+    gl.uniform1f(art.u.uReveal, 1 - Math.pow(1 - reveal, 2.2));
+    gl.uniform1f(art.u.uStir, velocity);
+    gl.uniform1f(art.u.uAspect, CELL_RATIO);
+    gl.uniform1f(art.u.uOn, pointer.on);
+    gl.uniform2f(art.u.uMouse, pointer.x, pointer.y);
     const A = SEQ[i], B = SEQ[j];
-    gl.uniform4f(U.uP, lerp(A.flow, B.flow, m), lerp(A.sway, B.sway, m), lerp(A.freq, B.freq, m), lerp(A.speed, B.speed, m));
+    gl.uniform4f(art.u.uP, lerp(A.flow, B.flow, m), lerp(A.sway, B.sway, m), lerp(A.freq, B.freq, m), lerp(A.speed, B.speed, m));
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
