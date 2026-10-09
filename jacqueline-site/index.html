@@ -695,7 +695,7 @@
   }
   .seq-head{grid-column:1;}
   .seq-head .eyebrow{margin-bottom:1.25rem;}
-  .seq-title{font-size:clamp(2rem,4.2vw,4.2rem);color:var(--bourgogne);max-width:12ch;}
+  .seq-title{font-size:clamp(1.8rem,3.2vw,3.2rem);color:var(--bourgogne);max-width:12ch;}
   .seq-title .serif-it{color:var(--or);}
   .seq-intro{
     margin-top:1.25rem;
@@ -717,7 +717,7 @@
     font-family:'Fraunces', serif;
     font-style:italic;
     font-weight:300;
-    font-size:clamp(3rem,7vw,7rem);
+    font-size:clamp(2.6rem,4.8vw,5rem);
     line-height:1.05;
     letter-spacing:-.02em;
     color:var(--noir);
@@ -749,7 +749,7 @@
   .seq-item.is-past .m > *{transform:translateY(-165%);}
 
   .seq-progress{
-    grid-column:1 / -1;
+    grid-column:1;
     grid-row:3;
     display:grid;
     grid-template-columns:repeat(5,1fr);
@@ -760,7 +760,7 @@
   .seq-progress li{
     position:relative;
     padding-top:.8rem;
-    font-size:.7rem;
+    font-size:0;
     letter-spacing:.2em;
     text-transform:uppercase;
     color:rgba(36,26,23,.4);
@@ -770,7 +770,7 @@
   .seq-progress li::before{right:0;background:rgba(74,22,19,.15);}
   .seq-progress li::after{width:calc(var(--fill,0) * 100%);background:var(--bourgogne);}
   .seq-progress li.is-active{color:var(--bourgogne);}
-  .seq-progress span{display:inline-block;margin-right:.4rem;color:var(--or);}
+  .seq-progress span{display:inline-block;font-size:.7rem;letter-spacing:.2em;color:var(--or);}
 
   .no-webgl .sequences{height:auto;}
   .no-webgl .seq-sticky{position:relative;height:auto;}
@@ -797,19 +797,18 @@
 
   @media (max-width: 960px){
     .seq-ui{grid-template-columns:1fr;}
-    /* on a phone the drawing sits whole in the free space between the
-       title and the text (measured by the script), so the text is compacted
-       to give it as much height as possible */
-    .seq-ui{padding-top:4.75rem;padding-bottom:1.25rem;}
-    .seq-head .eyebrow{margin-bottom:.7rem;}
-    .seq-title{font-size:clamp(1.55rem,6.8vw,2.1rem);}
+    /* on a phone the drawing is the subject: only the eyebrow above it,
+       one line of text below it ("Séquence 1  L'iode"), and the drawing
+       fills the whole height in between (measured by the script) */
+    .seq-ui{padding-top:4.6rem;padding-bottom:1.1rem;}
+    .seq-head .eyebrow{margin-bottom:0;}
+    .seq-title{display:none;}
     .seq-items{min-height:0;}
-    .seq-name{font-size:clamp(2.2rem,9.5vw,3rem);margin-top:.25rem;}
-    .seq-words{margin-top:.6rem;gap:.2rem .85rem;font-size:.68rem;}
-    .seq-progress{margin-top:1.1rem;}
+    .seq-item{display:flex;align-items:baseline;gap:.85rem;}
+    .seq-name{font-size:clamp(1.75rem,7.6vw,2.3rem);margin-top:0;white-space:nowrap;}
+    .seq-words{display:none;}
+    .seq-progress{margin-top:.9rem;}
     .seq-intro{display:none;}
-    .seq-progress li{font-size:0;}
-    .seq-progress span{font-size:.7rem;margin:0;}
   }
 
   /* ============ RESPONSIVE ============ */
@@ -1360,11 +1359,10 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
 <script>
 /* ---------- Séquences: the five illustrations, alive in WebGL ----------
    The drawings are the real artwork, never shown as a still image:
-   - they appear like ink on wet paper: the dark line lands first, then the
-     watercolour washes spread out around it;
-   - one sequence hands over to the next as the visitor scrolls: the washes of
-     the old drawing evaporate first, its line last, while the new line lands
-     and its colours bloom, the two layered like inks;
+   - they appear by rising into place, bending like a liquid as they come;
+   - one sequence hands over to the next as the visitor scrolls: the old
+     drawing sinks as it fades, the next one rises from below, both bending
+     and stretching while they move;
    - each drawing breathes with its own character (the iode flows like water,
      the végétal sways on its stem, the corsé barely moves, the fruité
      trembles, the gourmand drifts slowly);
@@ -1481,8 +1479,8 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
       "  return vec3(tex(idx, uv - split).r, tex(idx, uv).g, tex(idx, uv + split).b);",
       "}",
       "float lum(vec3 c){ return dot(c, vec3(0.333)); }",
-      // ink lands where the field is below the threshold: dark first, light last
-      "float landing(float t, float field){ return smoothstep(field, field + 0.09, t); }",
+      // a sideways wave plus a little noise: how the drawing bends while it moves
+      "vec2 bend(vec2 uv, float k){ return vec2(sin(uv.y * 9.0 - uTime * 2.0) * 0.035 + (fbm(uv * vec2(2.0, 6.0) + uTime * 0.3) - 0.5) * 0.06, 0.0) * k; }",
       "void main(){",
       "  vec2 uv = vUv;",
       "  float t = uTime * uP.w;",
@@ -1504,24 +1502,23 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
       // the brush trail drags the pigment
       "  disp -= vel * vec2(1.0, 1.0 / uAspect) * 0.07;",
       "  vec2 split = vel * vec2(1.0, 1.0 / uAspect) * 0.006 + vec2(wet * 0.0015, 0.0);",
-      "  vec3 a = pigment(uA, uv + disp, split);",
-      "  vec3 b = pigment(uB, uv + disp * 1.3, split);",
       "  float grain = fbm(vUv * vec2(3.0, 3.0 * uAspect) + 3.1);",
-      // hand-over: the old drawing evaporates washes first, the new one lands line first
-      "  float tOut = uMix * 1.35 - 0.1;",
-      "  float tIn = uMix * 1.35 - 0.25;",
-      "  float visA = 1.0 - landing(tOut, grain * 0.5 + (1.0 - lum(a)) * 0.6);",
-      "  float fieldB = grain * 0.5 + lum(b) * 0.6 + vUv.y * 0.12;",
-      "  float visB = landing(tIn, fieldB);",
+      // hand-over: the old drawing sinks as it fades, the next one rises from
+      // below; while they move they bend and stretch like a liquid, the
+      // leading end ahead of the trailing one
+      "  float mo = sin(uMix * 3.14159);",
+      "  float sink = uMix * uMix * 0.22;",
+      "  float rise = pow(1.0 - uMix, 2.0) * 0.32;",
+      // first appearance: the line rises into place, bending as it comes
+      "  float rr = pow(1.0 - uReveal, 2.0) * 0.42;",
+      "  vec2 rb = bend(uv, sin(uReveal * 3.14159) * 1.2) - vec2(0.0, rr * (0.6 + 0.8 * uv.y));",
+      "  vec3 a = pigment(uA, uv + disp + rb + bend(uv, mo) - vec2(0.0, sink * (0.8 + 0.4 * uv.y)), split);",
+      "  vec3 b = pigment(uB, uv + disp + rb - bend(uv, mo) - vec2(0.0, rise * (0.7 + 0.6 * uv.y)), split);",
+      "  float visA = 1.0 - smoothstep(0.05 + grain * 0.25, 0.55 + grain * 0.25, uMix);",
+      "  float visB = smoothstep(0.3 + grain * 0.25, 0.8 + grain * 0.2, uMix);",
       "  if(uMix <= 0.0){ visA = 1.0; visB = 0.0; }",
       "  vec3 col = mix(vec3(1.0), a, visA) * mix(vec3(1.0), b, visB);",
-      // first appearance, ink first then colour, with a pooled, darker wet edge
-      "  float fieldR = grain * 0.45 + lum(col) * 0.55 + vUv.y * 0.15;",
-      "  float tR = uReveal * 1.45 - 0.2;",
-      "  float vis = landing(tR, fieldR);",
-      "  float edge = exp(-pow((tR - fieldR - 0.03) / 0.035, 2.0)) * (1.0 - lum(col)) * step(uReveal, 0.999);",
-      "  col = mix(vec3(1.0), col, vis);",
-      "  col *= 1.0 - edge * 0.35;",
+      "  col = mix(vec3(1.0), col, smoothstep(grain * 0.3, 0.45 + grain * 0.3, uReveal));",
       // where the brush went, the paper stays wet and the pigment pools
       "  col = mix(col, col * col * 0.9, wet * 0.45 * (1.0 - lum(col)));",
       "  col = mix(col, col * vec3(0.94, 0.9, 0.86), wet * 0.25);",
@@ -1590,7 +1587,7 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
     if(canvas.width !== w || canvas.height !== h){ canvas.width = w; canvas.height = h; }
   }
   /* ---------- where the drawing goes: always whole, never under the text.
-     Desktop: right of the text, between the header and the progress bar.
+     Desktop: right of the text, from under the header to the bottom edge.
      Phone: centred, between the title and the tallest sequence text. ---------- */
   const head = section.querySelector(".seq-head");
   const progressBar = section.querySelector(".seq-progress");
@@ -1601,7 +1598,7 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
     let top, bottom, cx;
     if(wide){
       top = 80;
-      bottom = progressBar.getBoundingClientRect().top - cr.top - 20;
+      bottom = H - 28;
       cx = W * .66;
     } else {
       top = head.getBoundingClientRect().bottom - cr.top + 16;
