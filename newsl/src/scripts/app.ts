@@ -514,7 +514,8 @@ function initAtlas() {
   (async () => {
     try {
       mod = await import('./gl/atlas');
-      const data = await fetch(section.dataset.map!).then((r) => r.arrayBuffer());
+      const { dots } = (await fetch(section.dataset.map!).then((r) => r.json())) as { dots: string };
+      const data = Uint8Array.from(atob(dots), (c) => c.charCodeAt(0)).buffer;
       try {
         atlas = new mod.Atlas(canvas, data);
       } catch (err) {

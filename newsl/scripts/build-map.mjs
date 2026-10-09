@@ -1,10 +1,11 @@
-// Génère public/media/map-dots.bin : la carte du monde en points pour la
+// Génère public/media/map-dots.json : la carte du monde en points pour la
 // section « Sounds like … » (dézoom Paris → monde).
 //
 // Trois niveaux de détail, uniquement sur les terres (Natural Earth via
 // world-atlas). Les niveaux « ville » (Paris) sont générés côté client.
 //
-// Format : Uint32[3] (nombre de points par niveau), puis pour chaque point
+// Format : { "dots": base64 } d'un tampon binaire little-endian :
+// Uint32[3] (nombre de points par niveau), puis pour chaque point
 // Int16 lon×100, Int16 lat×100.
 //
 // Usage : node scripts/build-map.mjs
@@ -59,5 +60,5 @@ for (const l of levels) {
     o += 2;
   }
 }
-writeFileSync(new URL('../public/media/map-dots.bin', import.meta.url), buf);
+writeFileSync(new URL('../public/media/map-dots.json', import.meta.url), JSON.stringify({ dots: buf.toString('base64') }));
 console.log('points par niveau :', levels.map((l) => l.length / 2).join(' / '), `— ${(buf.length / 1024).toFixed(0)} Ko`);
