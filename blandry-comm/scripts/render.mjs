@@ -37,6 +37,16 @@ for (const el of await page.$$('[data-out]')) {
   console.log(`${dir}/${name}.png`);
 }
 
+// Mises en scène des cartes de visite (rendu 2000 × 1300)
+const mk = await browser.newPage({ viewport: { width: 2200, height: 3000 } });
+await mk.goto(base + '/templates/mockups.html');
+await mk.waitForTimeout(800);
+for (const el of await mk.$$('[data-out]')) {
+  const name = await el.getAttribute('data-out');
+  await el.screenshot({ path: out(`print/${name}.png`) });
+  console.log(`print/${name}.png`);
+}
+
 // Impression : un PDF par document, au format fini + fonds perdus
 const pr = await browser.newPage({ viewport: { width: 1600, height: 1200 } });
 await pr.goto(base + '/templates/print.html');

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mises en scène — cartes de visite</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #777; display: flex; flex-direction: column; gap: 40px; padding: 40px; }
+  .scene { position: relative; overflow: hidden; flex: none; }
+
+  /* Fond : comptoir clair, lumière rasante venant de la gauche */
+  .surface {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(120% 90% at 18% 10%, rgb(255 255 255 / .55), transparent 55%),
+      radial-gradient(80% 60% at 85% 100%, rgb(0 0 0 / .18), transparent 70%),
+      linear-gradient(180deg, #e6dfd3 0%, #dcd3c5 58%, #d2c8b8 58.2%, #cfc4b3 100%);
+  }
+  .grain { position: absolute; inset: 0; opacity: .22; mix-blend-mode: multiply; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .37 0 0 0 0 .33 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  /* ── Scène 1 : présentoir en plexiglas ── */
+  .s1 { width: 2000px; height: 1300px; }
+  .stage { position: absolute; left: 50%; top: 56%; width: 0; height: 0; perspective: 2600px; perspective-origin: 50% 20%; }
+  .holder { position: absolute; transform-style: preserve-3d; transform: rotateX(10deg) rotateY(-26deg); }
+  .floor-shadow { position: absolute; left: -560px; top: 120px; width: 1120px; height: 220px; border-radius: 50%; background: radial-gradient(closest-side, rgb(40 32 24 / .45), rgb(40 32 24 / .18) 55%, transparent); filter: blur(18px); }
+  .base { position: absolute; left: -430px; top: 0; width: 860px; height: 300px; transform: translateY(-150px) rotateX(90deg); transform-origin: 50% 100%; background: linear-gradient(90deg, rgb(255 255 255 / .35), rgb(255 255 255 / .12)); border: 2px solid rgb(255 255 255 / .55); }
+  .back { position: absolute; left: -430px; top: -600px; width: 860px; height: 600px; transform: translateZ(-150px) rotateX(-10deg); transform-origin: 50% 100%; background: linear-gradient(115deg, rgb(255 255 255 / .38), rgb(255 255 255 / .1) 40%, rgb(255 255 255 / .22)); border: 2px solid rgb(255 255 255 / .6); box-shadow: inset 0 0 40px rgb(255 255 255 / .25); }
+  .stack { position: absolute; left: -380px; top: -490px; width: 760px; height: 492px; transform-style: preserve-3d; }
+  .card { position: absolute; inset: 0; transform-origin: 50% 100%; box-shadow: 0 1px 0 rgb(0 0 0 / .25); }
+  .card img { width: 100%; height: 100%; display: block; }
+  .edge { position: absolute; inset: 0; background: #ece6dc; transform-origin: 50% 100%; }
+  .front { position: absolute; left: -430px; top: -250px; width: 860px; height: 250px; transform: translateZ(150px) rotateX(-6deg); transform-origin: 50% 100%; background: linear-gradient(100deg, rgb(255 255 255 / .42), rgb(255 255 255 / .08) 35%, rgb(255 255 255 / .05) 60%, rgb(255 255 255 / .3)); border: 2px solid rgb(255 255 255 / .7); backdrop-filter: blur(1.2px); }
+  .front::after { content: ''; position: absolute; left: 6%; top: 8%; width: 30%; height: 3px; background: rgb(255 255 255 / .8); filter: blur(1px); }
+  .front .logo { position: absolute; right: 48px; bottom: 34px; height: 64px; aspect-ratio: 659 / 806; background: rgb(26 25 23 / .55); -webkit-mask: url('../photos/logo-bl.png') center / contain no-repeat; mask: url('../photos/logo-bl.png') center / contain no-repeat; }
+  /* cartes libres posées devant */
+  .loose { position: absolute; width: 520px; aspect-ratio: 85 / 55; box-shadow: 0 30px 50px -18px rgb(40 32 24 / .55), 0 4px 8px rgb(40 32 24 / .2); }
+  .loose img { width: 100%; height: 100%; display: block; }
+
+  /* ── Scène 2 : à plat, recto et verso ── */
+  .s2 { width: 2000px; height: 1300px; }
+  .s2 .surface { background: radial-gradient(110% 90% at 20% 0%, #efe9df, #ddd4c6 70%); }
+  .flat { position: absolute; width: 760px; aspect-ratio: 85 / 55; box-shadow: 0 40px 60px -24px rgb(40 32 24 / .55), 0 6px 12px rgb(40 32 24 / .18); }
+  .flat img { width: 100%; height: 100%; display: block; }
+  .pen { position: absolute; width: 900px; height: 30px; border-radius: 15px; background: linear-gradient(180deg, #2a2724, #121110 60%, #2f2b27); box-shadow: 0 26px 30px -14px rgb(40 32 24 / .6); }
+  .pen::before { content: ''; position: absolute; right: -60px; top: 9px; width: 70px; height: 12px; background: linear-gradient(90deg, #a8773d, #d9b27c); clip-path: polygon(0 0, 100% 50%, 0 100%); }
+
+  /* Présentoir en plexiglas, vue de face légèrement plongeante */
+  .p-shadow { position: absolute; left: 330px; top: 868px; width: 1000px; height: 120px; border-radius: 50%; background: radial-gradient(closest-side, rgb(40 32 24 / .5), rgb(40 32 24 / .15) 60%, transparent); filter: blur(14px); }
+  .p-back { position: absolute; left: 450px; top: 360px; width: 760px; height: 520px; background: linear-gradient(115deg, rgb(255 255 255 / .45), rgb(255 255 255 / .12) 45%, rgb(255 255 255 / .28)); border: 2px solid rgb(255 255 255 / .75); box-shadow: inset 0 0 30px rgb(255 255 255 / .3), 0 0 0 1px rgb(120 110 95 / .15); }
+  .p-stack { position: absolute; left: 480px; top: 410px; width: 700px; height: 453px; transform: perspective(1800px) rotateX(16deg); transform-origin: 50% 100%; }
+  .p-stack i { position: absolute; inset: 0; background: #2b2825; transform: translateY(calc(var(--k) * -4px)); box-shadow: 0 -1px 0 rgb(255 255 255 / .12); }
+  .p-card { position: absolute; inset: 0; box-shadow: 0 -1px 0 rgb(255 255 255 / .15); }
+  .p-card img { width: 100%; height: 100%; display: block; }
+  .p-base { position: absolute; left: 400px; top: 860px; width: 860px; height: 46px; background: linear-gradient(180deg, rgb(255 255 255 / .55), rgb(255 255 255 / .25)); clip-path: polygon(4% 0, 96% 0, 100% 100%, 0 100%); }
+  .p-front { position: absolute; left: 410px; top: 680px; width: 840px; height: 226px; background: linear-gradient(100deg, rgb(255 255 255 / .5), rgb(255 255 255 / .1) 32%, rgb(255 255 255 / .06) 62%, rgb(255 255 255 / .34)); border: 2px solid rgb(255 255 255 / .8); backdrop-filter: blur(1px); }
+  .p-front::before { content: ''; position: absolute; left: 5%; top: 10%; width: 28%; height: 4px; background: rgb(255 255 255 / .9); filter: blur(1.5px); }
+  .p-front .logo { position: absolute; right: 44px; bottom: 30px; height: 70px; aspect-ratio: 659 / 806; background: rgb(255 255 255 / .55); -webkit-mask: url('../photos/logo-bl.png') center / contain no-repeat; mask: url('../photos/logo-bl.png') center / contain no-repeat; }
+  .p-lip { position: absolute; left: 400px; top: 904px; width: 860px; height: 22px; background: linear-gradient(180deg, rgb(255 255 255 / .7), rgb(200 190 175 / .5)); box-shadow: 0 8px 14px -6px rgb(40 32 24 / .5); }
+</style>
+</head>
+<body>
+
+<section class="scene s1" data-out="mockup-presentoir">
+  <div class="surface"></div><div class="grain"></div>
+  <div class="p-shadow"></div>
+  <div class="p-back"></div>
+  <div class="p-stack">
+    <i style="--k:6"></i><i style="--k:5"></i><i style="--k:4"></i><i style="--k:3"></i><i style="--k:2"></i><i style="--k:1"></i>
+    <div class="p-card"><img src="../photos/carte-visite-recto-hd.png" alt=""></div>
+  </div>
+  <div class="p-base"></div>
+  <div class="p-front"><span class="logo"></span></div>
+  <div class="p-lip"></div>
+  <div class="loose" style="left:1280px;top:960px;transform:rotate(-8deg)"><img src="../photos/carte-visite-verso-hd.png" alt=""></div>
+  <div class="loose" style="left:1420px;top:900px;transform:rotate(9deg)"><img src="../photos/carte-visite-recto-hd.png" alt=""></div>
+</section>
+
+<section class="scene s2" data-out="mockup-recto-verso">
+  <div class="surface"></div><div class="grain"></div>
+  <div class="flat" style="left:180px;top:210px;transform:rotate(-6deg)"><img src="../photos/carte-visite-recto-hd.png" alt=""></div>
+  <div class="flat" style="left:1020px;top:420px;transform:rotate(4deg)"><img src="../photos/carte-visite-verso-hd.png" alt=""></div>
+  <div class="pen" style="left:240px;top:1050px;transform:rotate(-3deg)"></div>
+</section>
+
+
+</body>
+</html>

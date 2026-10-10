@@ -34,10 +34,6 @@
   .nav .wrap { display: flex; align-items: center; gap: 24px; height: 56px; }
   .nav .brand { display: flex; align-items: center; gap: 10px; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; text-decoration: none; flex: none; }
   .nav .brand .mono { height: 26px; }
-  .nav ul { display: flex; gap: 20px; list-style: none; margin: 0; padding: 0; overflow-x: auto; scrollbar-width: none; font-size: 13px; }
-  .nav ul::-webkit-scrollbar { display: none; }
-  .nav li a { text-decoration: none; color: var(--muted); white-space: nowrap; }
-  .nav li a:hover { color: var(--fg); }
 
   /* Ouverture */
   .hero { padding-block: clamp(48px, 8vw, 104px) clamp(40px, 6vw, 72px); border-bottom: 1px solid var(--line); }
@@ -169,29 +165,127 @@
   .check li::before { content: ''; width: 16px; height: 16px; border: 1.5px solid var(--fg); transform: translateY(3px); }
   .check small { color: var(--muted); font-size: 13px; }
 
-  footer { padding-block: 48px 64px; color: var(--muted); font-size: 14px; }
+  footer { padding-block: 48px 120px; color: var(--muted); font-size: 14px; }
   footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; }
+
+  /* ── Orientation : barre, menu flottant, sommaire ── */
+  .nav .wrap { justify-content: space-between; }
+  .nav-where { display: none; font-size: 13px; color: var(--muted); }
+  .nav-where b { font-family: var(--serif); font-weight: 500; color: var(--accent); margin-right: 6px; font-variant-numeric: tabular-nums; }
+  @media (min-width: 760px) { .nav-where { display: block; } }
+  .nav-btn { font: 600 12px var(--sans); letter-spacing: .14em; text-transform: uppercase; background: transparent; color: var(--fg); border: 1px solid var(--line); padding: 8px 14px; cursor: pointer; }
+  .nav-btn:hover { border-color: var(--fg); }
+  .progress { height: 2px; background: transparent; }
+  .progress i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .15s linear; }
+  .fab { position: fixed; z-index: 30; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 140%); display: flex; align-items: stretch; gap: 0; background: var(--fg); color: var(--bg); border-radius: 999px; box-shadow: 0 16px 40px -14px rgb(0 0 0 / .55); transition: transform .5s cubic-bezier(.16, 1, .3, 1); max-width: calc(100vw - 32px); }
+  .fab.on { transform: translate(-50%, 0); }
+  .fab-step { display: grid; place-items: center; width: 44px; font-size: 22px; text-decoration: none; color: inherit; opacity: .75; }
+  .fab-step:hover { opacity: 1; }
+  .fab-step[aria-disabled="true"] { opacity: .25; pointer-events: none; }
+  .fab-main { display: flex; align-items: center; gap: 10px; padding: 12px 8px; background: none; border: 0; color: inherit; font: 500 14px var(--sans); cursor: pointer; min-width: 0; border-inline: 1px solid color-mix(in srgb, var(--bg) 22%, transparent); padding-inline: 16px; }
+  .fab-n { font-family: var(--serif); color: var(--accent); font-variant-numeric: tabular-nums; }
+  .fab-t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 46vw; }
+  .fab-ic { display: grid; gap: 3px; margin-left: 4px; }
+  .fab-ic i { display: block; width: 14px; height: 1.5px; background: currentColor; }
+  .toc { border: 0; padding: 0; margin: auto 0 0 auto; width: min(440px, 100vw); max-width: 100vw; height: 100dvh; max-height: 100dvh; background: var(--bg); color: var(--fg); }
+  .toc::backdrop { background: rgb(10 10 9 / .45); backdrop-filter: blur(3px); }
+  .toc-in { display: grid; grid-template-rows: auto 1fr; height: 100%; padding: calc(20px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)); }
+  .toc-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  .toc-x { font: 600 12px var(--sans); letter-spacing: .14em; text-transform: uppercase; background: none; border: 1px solid var(--line); color: var(--fg); padding: 8px 12px; cursor: pointer; }
+  .toc-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; }
+  .toc-list a { display: grid; grid-template-columns: 44px 1fr; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line); text-decoration: none; }
+  .toc-list span { font-family: var(--serif); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .toc-list b { font-family: var(--serif); font-weight: 500; font-size: 1.3rem; }
+  .toc-list a[aria-current="true"] span, .toc-list a[aria-current="true"] b { color: var(--accent); }
+  main { padding-bottom: 72px; }
+
+  /* Sommaire visuel */
+  .tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+  .tiles a { position: relative; display: grid; align-content: end; gap: 2px; min-height: 150px; padding: 16px; text-decoration: none; background: var(--card); border: 1px solid var(--line); overflow: hidden; transition: border-color .3s; }
+  .tiles a:hover { border-color: var(--fg); }
+  .tiles img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .9; }
+  .tiles a:has(img) { color: #f3efe8; }
+  .tiles a:has(img)::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgb(16 15 14 / .85), rgb(16 15 14 / .1) 70%); z-index: 1; }
+  .tiles span, .tiles b, .tiles small { position: relative; z-index: 2; }
+  .tiles span { font-family: var(--serif); color: var(--accent); }
+  .tiles a:has(img) span { color: #e3b47b; }
+  .tiles b { font-family: var(--serif); font-weight: 500; font-size: 1.35rem; line-height: 1.1; }
+  .tiles small { font-size: 13px; opacity: .8; }
+  @media (max-width: 560px) { .tiles { grid-template-columns: 1fr 1fr; gap: 8px; } .tiles a { min-height: 128px; padding: 12px; } .tiles b { font-size: 1.1rem; } .tiles small { display: none; } }
+
+  /* Cartes de visite */
+  .hero-mock { margin: 0; background: var(--bg-2); }
+  .hero-mock img { display: block; width: 100%; height: auto; }
+  .cards-grid { display: grid; gap: 28px; margin-top: 28px; }
+  @media (min-width: 900px) { .cards-grid { grid-template-columns: 1.1fr 1fr; align-items: center; } }
+  .flipbox { display: grid; gap: 10px; justify-items: center; background: var(--bg-2); padding: clamp(20px, 5vw, 56px) 16px; }
+  .flip { width: min(460px, 100%); aspect-ratio: 85 / 55; padding: 0; border: 0; background: none; cursor: pointer; perspective: 1400px; }
+  .flip-in { position: relative; display: block; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .9s cubic-bezier(.16, 1, .3, 1); }
+  .flip[aria-pressed="true"] .flip-in { transform: rotateY(180deg); }
+  .flip img { position: absolute; inset: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 24px 50px -24px rgb(0 0 0 / .6); }
+  .flip .f-back { transform: rotateY(180deg); }
+  .flip-hint { font-size: 13px; }
+  @media (prefers-reduced-motion: reduce) { .flip-in { transition: none; } }
+
+  /* Mobile : galeries à faire glisser, tableaux en fiches */
+  @media (max-width: 700px) {
+    .swipe { flex-wrap: nowrap !important; justify-content: flex-start !important; overflow-x: auto; scroll-snap-type: x mandatory; padding: 16px !important; }
+    .swipe img { flex: 0 0 82% !important; width: 82% !important; scroll-snap-align: center; }
+    .stories .story { flex-basis: 58vw; }
+    .phone { max-width: 100%; }
+    .carousel figure { flex-basis: 84%; }
+    .tbl { border: 0; overflow: visible; }
+    .tbl table { min-width: 0; }
+    .tbl thead { display: none; }
+    .tbl tr { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; padding: 12px 14px; border: 1px solid var(--line); margin-bottom: 8px; background: var(--card); }
+    .tbl td { border: 0; padding: 4px 0; text-align: left !important; white-space: normal !important; }
+    .tbl td:nth-child(2):last-child { grid-column: 1 / -1; }
+    .tbl td:first-child { grid-column: 1 / -1; font-weight: 600; font-family: var(--serif); font-size: 1.05rem; }
+    .tbl td[data-label]::before { content: attr(data-label); display: block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; font-family: var(--sans); }
+    .tbl td:first-child::before { display: none; }
+    .tbl tfoot tr { background: var(--bg-2); }
+    .spec { grid-template-columns: 1fr 1fr; }
+    .spec div { padding: 12px; }
+  }
+  @media (max-width: 420px) { .spec { grid-template-columns: 1fr; } }
+
+  /* Agrandissement des aperçus */
+  .zoomable img, .frame img, .ph-img img, .story img, .carousel img { cursor: zoom-in; }
+  .lb { border: 0; padding: 0; background: transparent; max-width: 100vw; max-height: 100dvh; width: 100vw; height: 100dvh; }
+  .lb::backdrop { background: rgb(10 10 9 / .88); }
+  .lb[open] { display: grid; place-items: center; }
+  .lb img { max-width: calc(100vw - 32px); max-height: calc(100dvh - 120px); object-fit: contain; box-shadow: 0 30px 80px -30px #000; }
+  .lb-x { position: fixed; top: calc(16px + env(safe-area-inset-top, 0px)); right: 16px; font: 600 12px var(--sans); letter-spacing: .14em; text-transform: uppercase; background: #f3efe8; color: #1a1917; border: 0; padding: 10px 14px; cursor: pointer; }
 </style>
 
-<nav class="nav" aria-label="Sommaire">
+<nav class="nav" aria-label="En-tête">
   <div class="wrap">
     <a class="brand" href="#top"><span class="mono" aria-hidden="true"></span>Benjamin Landry</a>
-    <ul>
-      <li><a href="#constat">Constat</a></li>
-      <li><a href="#strategie">Stratégie</a></li>
-      <li><a href="#c1">Campagne 1</a></li>
-      <li><a href="#c2">Campagne 2</a></li>
-      <li><a href="#c3">Campagne 3</a></li>
-      <li><a href="#formulaire">Formulaire</a></li>
-      <li><a href="#budget">Budget</a></li>
-      <li><a href="#print">Print</a></li>
-      <li><a href="#web">Web</a></li>
-      <li><a href="#lancement">Lancement</a></li>
-    </ul>
+    <span class="nav-where" aria-hidden="true"><b data-where-n>00</b> <span data-where-t>Introduction</span></span>
+    <button type="button" class="nav-btn" id="toc-open-top" data-toc-open aria-haspopup="dialog">Sommaire</button>
   </div>
+  <div class="progress" aria-hidden="true"><i data-progress></i></div>
 </nav>
 
-<header class="hero" id="top">
+<!-- Menu flottant : section en cours + accès au sommaire -->
+<div class="fab" data-fab>
+  <a href="#" class="fab-step" data-prev aria-label="Section précédente">‹</a>
+  <button type="button" class="fab-main" id="toc-open-fab" data-toc-open aria-haspopup="dialog">
+    <span class="fab-n" data-where-n>00</span>
+    <span class="fab-t" data-where-t>Introduction</span>
+    <span class="fab-ic" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
+  <a href="#" class="fab-step" data-next aria-label="Section suivante">›</a>
+</div>
+
+<dialog class="toc" id="toc" aria-label="Sommaire">
+  <div class="toc-in">
+    <div class="toc-head"><p class="k">Sommaire</p><button type="button" class="toc-x" id="toc-close" aria-label="Fermer le sommaire">Fermer</button></div>
+    <ol class="toc-list" data-toc-list></ol>
+  </div>
+</dialog>
+
+<header class="hero" id="top" data-title="Introduction">
   <div class="wrap">
     <div style="display:grid;gap:22px">
       <p class="k">Plan de communication · Meta Ads, print et web</p>
@@ -209,8 +303,27 @@
 
 <main>
 
+<section class="ch ch-toc" id="sommaire" data-title="Sommaire">
+  <div class="wrap">
+    <div class="ch-head"><p class="k">Sommaire</p><h2>Ce que contient ce dossier</h2></div>
+    <ol class="tiles">
+      <li><a href="#constat"><span>01</span><b>Constat</b><small>Ce que fait la concurrence</small></a></li>
+      <li><a href="#strategie"><span>02</span><b>Stratégie</b><small>Trois campagnes qui s’enchaînent</small></a></li>
+      <li><a href="#c1"><img src="creas/c1-story-platrerie.jpg" alt="" loading="lazy"><span>03</span><b>Campagne 1</b><small>Notoriété</small></a></li>
+      <li><a href="#c2"><img src="creas/c2-carrousel-1-platrerie.jpg" alt="" loading="lazy"><span>04</span><b>Campagne 2</b><small>Demandes de devis</small></a></li>
+      <li><a href="#c3"><img src="creas/c3-fil-avant-apres.jpg" alt="" loading="lazy"><span>05</span><b>Campagne 3</b><small>Reciblage</small></a></li>
+      <li><a href="#formulaire"><span>06</span><b>Formulaire</b><small>Les questions posées</small></a></li>
+      <li><a href="#budget"><span>07</span><b>Budget</b><small>Montants et calendrier</small></a></li>
+      <li><a href="#cartes"><img src="print/mockup-presentoir.jpg" alt="" loading="lazy"><span>08</span><b>Cartes de visite</b><small>Recto, verso, présentoir</small></a></li>
+      <li><a href="#print"><img src="print/flyer-a5-recto.jpg" alt="" loading="lazy"><span>09</span><b>Flyer et bâche</b><small>Fichiers d’impression</small></a></li>
+      <li><a href="#web"><img src="creas/web-couverture-facebook.jpg" alt="" loading="lazy"><span>10</span><b>Web et réseaux</b><small>Profils et Google</small></a></li>
+      <li><a href="#lancement"><span>11</span><b>Lancement</b><small>La liste avant de démarrer</small></a></li>
+    </ol>
+  </div>
+</section>
+
 <!-- ═════════ Constat ═════════ -->
-<section class="ch" id="constat">
+<section class="ch" id="constat" data-title="Constat">
   <div class="wrap">
     <div class="ch-head">
       <p class="k">Constat</p>
@@ -243,7 +356,7 @@
 </section>
 
 <!-- ═════════ Stratégie ═════════ -->
-<section class="ch" id="strategie">
+<section class="ch" id="strategie" data-title="Stratégie">
   <div class="wrap">
     <div class="ch-head">
       <p class="k">Stratégie</p>
@@ -259,7 +372,7 @@
 </section>
 
 <!-- ═════════ Campagne 1 ═════════ -->
-<section class="ch" id="c1">
+<section class="ch" id="c1" data-title="Campagne 1 · Notoriété">
   <div class="wrap">
     <div class="ch-head">
       <span class="num" aria-hidden="true">01</span>
@@ -304,7 +417,7 @@
 </section>
 
 <!-- ═════════ Campagne 2 ═════════ -->
-<section class="ch" id="c2">
+<section class="ch" id="c2" data-title="Campagne 2 · Devis">
   <div class="wrap">
     <div class="ch-head">
       <span class="num" aria-hidden="true">02</span>
@@ -371,7 +484,7 @@
 </section>
 
 <!-- ═════════ Campagne 3 ═════════ -->
-<section class="ch" id="c3">
+<section class="ch" id="c3" data-title="Campagne 3 · Reciblage">
   <div class="wrap">
     <div class="ch-head">
       <span class="num" aria-hidden="true">03</span>
@@ -423,7 +536,7 @@
 </section>
 
 <!-- ═════════ Formulaire ═════════ -->
-<section class="ch" id="formulaire">
+<section class="ch" id="formulaire" data-title="Formulaire">
   <div class="wrap">
     <div class="ch-head">
       <p class="k">Formulaire instantané</p>
@@ -449,7 +562,7 @@
 </section>
 
 <!-- ═════════ Budget ═════════ -->
-<section class="ch" id="budget">
+<section class="ch" id="budget" data-title="Budget">
   <div class="wrap">
     <div class="ch-head">
       <p class="k">Budget et calendrier</p>
@@ -494,23 +607,53 @@
   </div>
 </section>
 
+<!-- ═════════ Cartes de visite ═════════ -->
+<section class="ch" id="cartes" data-title="Cartes de visite">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="k">Cartes de visite</p>
+      <h2>La carte qui reste sur le frigo</h2>
+      <p>Recto noir avec le monogramme, verso clair avec le téléphone en grand. À laisser à chaque visite de devis et sur le comptoir des commerces partenaires, dans un présentoir en plexiglas.</p>
+    </div>
+    <figure class="hero-mock zoomable"><img src="print/mockup-presentoir.jpg" alt="Cartes de visite Benjamin Landry dans un présentoir en plexiglas, deux cartes posées devant" loading="lazy"></figure>
+    <div class="cards-grid">
+      <div class="flipbox">
+        <button type="button" class="flip" id="flip-card" aria-pressed="false" aria-label="Retourner la carte">
+          <span class="flip-in">
+            <img class="f-front" src="print/carte-recto-hd.jpg" alt="Recto : monogramme BL sur fond noir">
+            <img class="f-back" src="print/carte-verso-hd.jpg" alt="Verso : nom, métiers, téléphone, adresse et SIRET">
+          </span>
+        </button>
+        <p class="muted flip-hint">Touchez la carte pour la retourner</p>
+      </div>
+      <div class="item" style="align-content:start">
+        <h3>Fiche technique</h3>
+        <dl>
+          <dt>Format</dt><dd>85 × 55 mm, recto verso</dd>
+          <dt>Fichiers</dt><dd>carte-visite-recto.pdf et carte-visite-verso.pdf, 3 mm de fonds perdus</dd>
+          <dt>Papier</dt><dd>350 g mat, pelliculage toucher doux</dd>
+          <dt>Option</dt><dd>Monogramme en dorure à chaud ou vernis sélectif au recto</dd>
+          <dt>Quantité</dt><dd>250 à 500 exemplaires</dd>
+          <dt>Présentoir</dt><dd>Plexiglas de comptoir pour cartes horizontales, environ 10 €</dd>
+        </dl>
+      </div>
+    </div>
+    <figure class="hero-mock zoomable" style="margin-top:24px"><img src="print/mockup-recto-verso.jpg" alt="Recto et verso de la carte posés à plat" loading="lazy"></figure>
+  </div>
+</section>
+
 <!-- ═════════ Print ═════════ -->
-<section class="ch" id="print">
+<section class="ch" id="print" data-title="Flyer et bâche">
   <div class="wrap">
     <div class="ch-head">
       <p class="k">Supports print</p>
-      <h2>Le même univers, de la carte de visite à la bâche</h2>
+      <h2>Flyer et bâche de chantier</h2>
       <p>Fichiers PDF au format fini avec 3 mm de fonds perdus (10 mm pour la bâche), prêts à envoyer à l’imprimeur. Les visuels ci-dessous sont des aperçus.</p>
     </div>
     <div class="gallery">
-      <div class="item">
-        <div class="frame card-pair"><img src="print/carte-visite-recto.jpg" alt="Carte de visite, recto : monogramme BL sur fond noir"><img src="print/carte-visite-verso.jpg" alt="Carte de visite, verso : nom, métiers, téléphone, adresse, SIRET"></div>
-        <h3>Carte de visite</h3>
-        <dl><dt>Format</dt><dd>85 × 55 mm, recto verso</dd><dt>Papier</dt><dd>350 g mat, pelliculage toucher doux</dd><dt>Quantité</dt><dd>250 à 500 exemplaires</dd></dl>
-      </div>
       <div class="gallery g2">
         <div class="item">
-          <div class="frame a5-pair"><img src="print/flyer-a5-recto.jpg" alt="Flyer A5 recto : photo plâtrerie, titre et téléphone"><img src="print/flyer-a5-verso.jpg" alt="Flyer A5 verso : trois métiers, garanties, coordonnées"></div>
+          <div class="frame a5-pair swipe"><img src="print/flyer-a5-recto.jpg" alt="Flyer A5 recto : photo plâtrerie, titre et téléphone"><img src="print/flyer-a5-verso.jpg" alt="Flyer A5 verso : trois métiers, garanties, coordonnées"></div>
           <h3>Flyer A5</h3>
           <dl><dt>Format</dt><dd>148 × 210 mm, recto verso</dd><dt>Papier</dt><dd>170 g couché mat</dd><dt>Diffusion</dt><dd>Boîtes aux lettres autour des chantiers, commerces, mairies</dd></dl>
         </div>
@@ -525,7 +668,7 @@
 </section>
 
 <!-- ═════════ Web ═════════ -->
-<section class="ch" id="web">
+<section class="ch" id="web" data-title="Web et réseaux">
   <div class="wrap">
     <div class="ch-head">
       <p class="k">Web et réseaux</p>
@@ -561,7 +704,7 @@ Combrailles, Riom, Clermont · Devis gratuit</dd></div>
 </section>
 
 <!-- ═════════ Lancement ═════════ -->
-<section class="ch" id="lancement">
+<section class="ch" id="lancement" data-title="Lancement">
   <div class="wrap">
     <div class="ch-head">
       <p class="k">Mise en ligne</p>
@@ -588,6 +731,8 @@ Combrailles, Riom, Clermont · Devis gratuit</dd></div>
     <span>06 58 38 78 37 · @benjamin_landry_finitions</span>
   </div>
 </footer>
+
+<dialog class="lb" id="lb" aria-label="Aperçu agrandi"><button type="button" class="lb-x" id="lb-close" aria-label="Fermer">Fermer</button><img id="lb-img" alt=""></dialog>
 
 <script>
   // Bouton « Copier » et compteur de caractères sur chaque texte d'annonce
@@ -617,4 +762,63 @@ Combrailles, Riom, Clermont · Devis gratuit</dd></div>
     vids.forEach((v) => io.observe(v));
   }
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) vids.forEach((v) => { v.removeAttribute('autoplay'); v.pause(); });
+
+  // ── Orientation : section en cours, progression, menu flottant, sommaire ──
+  const secs = [...document.querySelectorAll('[data-title]')];
+  const pad = (n) => String(n).padStart(2, '0');
+  const list = document.querySelector('[data-toc-list]');
+  secs.forEach((sec, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<a href="#${sec.id}"><span>${pad(i)}</span><b>${sec.dataset.title}</b></a>`;
+    list.appendChild(li);
+  });
+  const tocLinks = [...list.querySelectorAll('a')];
+  const toc = document.getElementById('toc');
+  const fab = document.querySelector('[data-fab]');
+  const prev = fab.querySelector('[data-prev]');
+  const next = fab.querySelector('[data-next]');
+  const bar = document.querySelector('[data-progress]');
+  let cur = -1;
+  const update = () => {
+    const y = innerHeight * 0.35;
+    let i = 0;
+    secs.forEach((sec, k) => { if (sec.getBoundingClientRect().top <= y) i = k; });
+    const max = document.documentElement.scrollHeight - innerHeight;
+    bar.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + '%';
+    fab.classList.toggle('on', scrollY > innerHeight * 0.5);
+    if (i === cur) return;
+    cur = i;
+    document.querySelectorAll('[data-where-n]').forEach((n) => (n.textContent = pad(i)));
+    document.querySelectorAll('[data-where-t]').forEach((n) => (n.textContent = secs[i].dataset.title));
+    tocLinks.forEach((a, k) => a.setAttribute('aria-current', k === i ? 'true' : 'false'));
+    prev.href = '#' + (secs[i - 1] || secs[0]).id;
+    next.href = '#' + (secs[i + 1] || secs[secs.length - 1]).id;
+    prev.setAttribute('aria-disabled', i === 0 ? 'true' : 'false');
+    next.setAttribute('aria-disabled', i === secs.length - 1 ? 'true' : 'false');
+  };
+  addEventListener('scroll', update, { passive: true });
+  addEventListener('resize', update);
+  update();
+  document.querySelectorAll('[data-toc-open]').forEach((b) => b.addEventListener('click', () => toc.showModal()));
+  document.getElementById('toc-close').addEventListener('click', () => toc.close());
+  toc.addEventListener('click', (e) => { if (e.target === toc || e.target.closest('a')) toc.close(); });
+
+  // Carte de visite : retourner au toucher
+  const flip = document.getElementById('flip-card');
+  flip.addEventListener('click', () => flip.setAttribute('aria-pressed', flip.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'));
+
+  // Agrandir un aperçu
+  const lb = document.getElementById('lb');
+  const lbImg = document.getElementById('lb-img');
+  document.querySelectorAll('.zoomable img, .frame img, .ph-img img, .story img, .carousel img').forEach((img) =>
+    img.addEventListener('click', () => { lbImg.src = img.currentSrc || img.src; lbImg.alt = img.alt; lb.showModal(); }),
+  );
+  document.getElementById('lb-close').addEventListener('click', () => lb.close());
+  lb.addEventListener('click', (e) => { if (e.target === lb || e.target === lbImg) lb.close(); });
+
+  // Tableaux : libellés de colonnes pour l'affichage en fiches sur mobile
+  document.querySelectorAll('.tbl table').forEach((t) => {
+    const heads = [...t.querySelectorAll('thead th')].map((th) => th.textContent.trim());
+    t.querySelectorAll('tbody tr, tfoot tr').forEach((tr) => [...tr.children].forEach((td, k) => heads[k] && td.setAttribute('data-label', heads[k])));
+  });
 </script>
