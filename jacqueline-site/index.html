@@ -671,7 +671,7 @@
   .sticky-cta{display:none;}
 
   /* ============ SÉQUENCES — one WebGL line, five characters ============ */
-  .sequences{height:640vh;background:var(--page);}
+  .sequences{height:720vh;background:var(--page);}
   .seq-sticky{
     position:sticky;
     top:0;
@@ -1643,12 +1643,13 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
 
   let progress = 0, target = 0, velocity = 0, reveal = 0, revealTarget = 0;
   const stage = section.querySelector(".seq-sticky");
+  let unstuck = 0;
   function readScroll(){
     const r = section.getBoundingClientRect();
     if(r.top < -60 && r.bottom > window.innerHeight + 60 && Math.abs(stage.getBoundingClientRect().top) > 60){
-      root.classList.add("no-webgl");
-      return;
-    }
+      // only after several reads in a row, so a phone toolbar jump never trips it
+      if(++unstuck > 6){ root.classList.add("no-webgl"); return; }
+    } else unstuck = 0;
     const span = r.height - window.innerHeight;
     target = span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 0;
     // the drawing rises in once the section is well on screen, and sinks
@@ -1662,9 +1663,10 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
   function lerp(a, b, t){ return a + (b - a) * t; }
 
   /* ---------- frame ---------- */
-  const MORPH_SECONDS = 2.4;  // one drawing into the next
+  const MORPH_SECONDS = 2.4;  // a full hand-over can never be quicker than this
+  const HOLD = .35;           // share of each sequence's scroll where the drawing stays still
   const REVEAL_SECONDS = 3.2; // rising in when the section arrives
-  const morph = { a:0, b:0, m:0 };
+  let shown = 0;               // 0 = l'iode … 4 = le gourmand, fractions in between
   let visible = false, raf = 0, last = performance.now(), time = 0;
   function frame(now){
     if(!visible){ raf = 0; return; }
@@ -1687,19 +1689,21 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
     const fl = Math.hypot(fvx, fvy);
     if(fl > 1){ fvx /= fl; fvy /= fl; }
 
-    // the scroll only chooses which drawing is wanted; the hand-over itself
-    // always takes the same slow time, however hard the visitor scrolls
-    const s = Math.min(progress * COUNT, COUNT - .0001);
-    // read from the raw scroll position, so a hard scroll goes straight to
-    // the wanted drawing in one slow hand-over instead of queueing them all
-    const want = Math.floor(Math.min(target * COUNT, COUNT - .0001));
-    if(morph.m === 0 && want !== morph.a) morph.b = want;
-    if(morph.b !== morph.a){
-      morph.m = Math.min(1, morph.m + dt / (reduceMotion ? .5 : MORPH_SECONDS));
-      if(morph.m >= 1){ morph.a = morph.b; morph.m = 0; }
-    }
-    const i = morph.a, j = morph.b;
-    const m = morph.m === 0 ? 0 : smooth(0, 1, morph.m);
+    // the scroll scrubs the hand-over little by little: within each
+    // sequence's stretch of scroll the drawing first holds, then moves
+    // towards the next one in step with the scroll. The shown position
+    // follows that point smoothly but with a speed limit, so a hard flick
+    // never rushes it: one full hand-over takes at least MORPH_SECONDS.
+    const s = Math.min(target * COUNT, COUNT - .0001);
+    const k = Math.floor(s);
+    const wanted = k >= COUNT - 1 ? COUNT - 1 : k + smooth(HOLD, 1, s - k);
+    const maxStep = dt / (reduceMotion ? .5 : MORPH_SECONDS);
+    const delta = wanted - shown;
+    shown += Math.max(-maxStep, Math.min(maxStep, delta * (1 - Math.pow(.02, dt))));
+    if(Math.abs(wanted - shown) < .0005) shown = wanted;
+    const i = Math.min(COUNT - 1, Math.floor(shown + 1e-6));
+    const j = Math.min(i + 1, COUNT - 1);
+    const m = j === i ? 0 : shown - i;
     updateUi(i, j, m, s);
 
     rect = layoutRect;
@@ -1776,8 +1780,8 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
     parts.forEach(function(p, n){
       const set = function(el, k, isWords){
         let shown;
-        if(n === i) shown = moving ? 1 - ease((m - k * .07) / .45) : 1;  // leaves first
-        else if(n === j && moving) shown = ease((m - .5 - k * .07) / .42); // arrives after
+        if(n === i) shown = moving ? 1 - ease((m - k * .06) / .4) : 1;   // leaves first
+        else if(n === j && moving) shown = ease((m - .42 - k * .06) / .4); // arrives right after
         else shown = 0;
         // below its place when hidden: leaving sinks down, arriving rises from below
         const off = 1 - shown;
