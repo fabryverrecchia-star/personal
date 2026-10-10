@@ -3,114 +3,111 @@
 <head>
 <meta charset="utf-8">
 <title>Supports print — Benjamin Landry</title>
+<link rel="stylesheet" href="da.css">
 <style>
-  /* Chaque document inclut 3 mm de fonds perdus (10 mm pour la bâche). Zone de sécurité : 3 mm à l’intérieur du format fini. */
-  @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-normal.woff2') format('woff2'); font-weight: 400 900; }
-  @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-italic.woff2') format('woff2'); font-weight: 400 900; font-style: italic; }
-  @font-face { font-family: 'Hanken'; src: url('../fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
-  :root { --lin: #f3efe8; --ink: #1a1917; --argile: #a8773d; --volvic: #7d766d; --serif: 'Bodoni', Didot, Georgia, serif; --sans: 'Hanken', Arial, sans-serif; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  .disp, .serif, [class*='tel'], .nom, .n, .t { font-variation-settings: 'opsz' 11; }
+  /* Fichiers pour l'imprimeur : aplats nets, sans texture simulée.
+     La matière vient du papier (coton 600 g), de l'impression typographique et du marquage à sec.
+     Chaque document inclut 3 mm de fonds perdus (10 mm pour la bâche). */
   @page { margin: 0; }
   html, body { background: #888; font-family: var(--sans); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body { display: flex; flex-wrap: wrap; gap: 20mm; padding: 20mm; }
   @media print { body { padding: 0; gap: 0; display: block; background: none; } .doc:not(.on) { display: none !important; } }
-  .doc { position: relative; overflow: hidden; flex: none; page-break-after: always; }
-  .mono { display: inline-block; aspect-ratio: 659 / 806; background: currentColor; -webkit-mask: url('../photos/logo-bl.png') center / contain no-repeat; mask: url('../photos/logo-bl.png') center / contain no-repeat; }
-  .lbl { letter-spacing: .22em; text-transform: uppercase; font-weight: 500; }
-  .disp { font-family: var(--serif); font-weight: 450; text-transform: uppercase; line-height: .92; }
-  .serif { font-family: var(--serif); }
+  .doc { position: relative; overflow: hidden; flex: none; page-break-after: always; color: var(--encre); }
+  .flat { display: inline-block; aspect-ratio: 659 / 806; background: currentColor; -webkit-mask: url('../photos/logo-bl.png') center / contain no-repeat; mask: url('../photos/logo-bl.png') center / contain no-repeat; }
+  .orn { display: grid; justify-items: center; gap: 1.1mm; }
+  .orn b { width: 1.2mm; height: 1.2mm; border-radius: 50%; background: currentColor; }
+  .orn span { width: 7mm; height: .5mm; background: currentColor; }
 
   /* ── Carte de visite 85×55 + 3 mm ── */
   .card { width: 91mm; height: 61mm; }
-  .card-r { background: var(--ink); color: var(--lin); display: grid; place-items: center; }
-  .card-r .in { display: grid; justify-items: center; gap: 4mm; }
-  .card-r .mono { height: 19mm; color: var(--lin); }
-  .card-r .lbl { font-size: 2.3mm; }
-  .card-v { background: var(--lin); color: var(--ink); padding: 8mm 8mm 7.5mm; display: grid; grid-template-rows: auto 1fr auto; }
-  .card-v .nom { font-family: var(--serif); font-size: 5.4mm; text-transform: uppercase; letter-spacing: .02em; }
-  .card-v .met { font-size: 2.2mm; letter-spacing: .18em; text-transform: uppercase; color: var(--argile); margin-top: 1.4mm; font-weight: 600; }
-  .card-v .tel { font-family: var(--serif); font-size: 6.2mm; align-self: center; }
-  .card-v .bas { display: flex; justify-content: space-between; align-items: end; font-size: 2.1mm; line-height: 1.45; color: #4a4640; }
-  .card-v .bas .mono { height: 9mm; color: var(--ink); }
+  .card-r { background: var(--pierre); color: #b4aa9b; display: grid; place-items: center; }
+  .card-r .in { display: grid; justify-items: center; gap: 5mm; }
+  .card-r .flat { height: 20mm; }
+  .card-r .orn { color: #b4aa9b; }
+  .card-v { background: var(--coton); padding: 8.5mm 9mm 8mm; display: grid; grid-template-rows: auto 1fr auto; }
+  .card-v .nom { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 4.6mm; text-transform: uppercase; letter-spacing: .06em; }
+  .card-v .met { font-size: 2.6mm; color: var(--argile); margin-top: 1.2mm; }
+  .card-v .tel { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 5.6mm; align-self: center; letter-spacing: .02em; }
+  .card-v .bas { display: flex; justify-content: space-between; align-items: end; font-size: 1.95mm; line-height: 1.55; color: var(--taupe); }
+  .card-v .bas .flat { height: 8mm; color: var(--encre); }
 
   /* ── Flyer A5 148×210 + 3 mm ── */
-  .a5 { width: 154mm; height: 216mm; }
-  .a5-r { background: var(--ink); color: var(--lin); display: grid; grid-template-rows: 62% 38%; }
+  .a5 { width: 154mm; height: 216mm; background: var(--coton); }
+  .a5-r { padding: 14mm 14mm 13mm; display: grid; grid-template-rows: auto 1fr auto; gap: 9mm; }
+  .a5-r .top { display: flex; justify-content: space-between; align-items: center; }
+  .a5-r .top .flat { height: 11mm; }
+  .a5-r .top .it { font-size: 3.6mm; color: var(--taupe); }
   .a5-r .ph { position: relative; overflow: hidden; }
-  .a5-r .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .a5-r .ph .top { position: absolute; top: 11mm; left: 11mm; display: flex; align-items: center; gap: 3mm; font-size: 2.8mm; }
-  .a5-r .ph .top .mono { height: 9mm; }
-  .a5-r .ph::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgb(16 15 14 / .45), transparent 30%); }
-  .a5-r .ph .top { z-index: 2; }
-  .a5-r .tx { padding: 9mm 11mm 12mm; display: grid; align-content: space-between; }
-  .a5-r .disp { font-size: 13.5mm; }
-  .a5-r .disp em { font-style: italic; }
-  .a5-r .row { display: flex; justify-content: space-between; align-items: end; gap: 6mm; }
-  .a5-r .offre { font-size: 3.1mm; letter-spacing: .2em; text-transform: uppercase; color: var(--argile); font-weight: 600; }
-  .a5-r .tel { font-family: var(--serif); font-size: 9.5mm; }
-  .a5-v { background: var(--lin); color: var(--ink); padding: 12mm 11mm 10mm; display: grid; grid-template-rows: auto auto 1fr auto; gap: 7mm; }
-  .a5-v .k { font-size: 2.6mm; color: var(--argile); }
-  .a5-v .t { font-family: var(--serif); font-size: 8.2mm; line-height: 1.05; }
+  .a5-r .ph img { width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(.16) saturate(.78) contrast(.96); }
+  .a5-r .tx { display: grid; gap: 5mm; }
+  .a5-r .disp { font-size: 11mm; }
+  .a5-r .disp em { font-style: italic; text-transform: none; }
+  .a5-r .row { display: flex; justify-content: space-between; align-items: end; border-top: .3mm solid rgb(42 39 36 / .25); padding-top: 4mm; }
+  .a5-r .offre { font-size: 3.6mm; color: var(--argile); }
+  .a5-r .tel { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 8mm; }
+  .a5-v { padding: 14mm 14mm 11mm; display: grid; grid-template-rows: auto auto 1fr auto; gap: 8mm; }
+  .a5-v .k { font-size: 3.6mm; color: var(--argile); }
+  .a5-v .t { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 8mm; line-height: 1.08; margin-top: 2mm; }
   .a5-v .t em { font-style: italic; }
-  .a5-v .met { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
-  .a5-v .met figure { display: grid; gap: 2.2mm; }
-  .a5-v .met img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: block; }
-  .a5-v .met b { font-family: var(--serif); font-weight: 450; font-size: 4.4mm; text-transform: uppercase; }
-  .a5-v .met span { font-size: 2.55mm; line-height: 1.4; color: #4a4640; }
-  .a5-v ul { list-style: none; border-top: .25mm solid rgb(26 25 23 / .2); align-self: start; }
-  .a5-v li { padding: 2.4mm 0; border-bottom: .25mm solid rgb(26 25 23 / .2); font-size: 3.1mm; display: grid; grid-template-columns: 8mm 1fr; }
-  .a5-v li i { font-style: normal; font-family: var(--serif); color: var(--argile); }
+  .a5-v .met { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+  .a5-v .met figure { display: grid; gap: 2.4mm; }
+  .a5-v .met img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: block; filter: sepia(.16) saturate(.78) contrast(.96); }
+  .a5-v .met .n { font-family: var(--serif); font-size: 3mm; color: var(--taupe); }
+  .a5-v .met b { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-weight: 450; font-size: 4.4mm; text-transform: uppercase; }
+  .a5-v .met span { font-size: 2.55mm; line-height: 1.45; color: var(--taupe); }
+  .a5-v ul { list-style: none; border-top: .25mm solid rgb(42 39 36 / .22); align-self: start; }
+  .a5-v li { padding: 2.4mm 0; border-bottom: .25mm solid rgb(42 39 36 / .22); font-size: 3.1mm; display: grid; grid-template-columns: 8mm 1fr; }
+  .a5-v li i { font-style: italic; font-family: var(--serif); color: var(--argile); }
   .a5-v .pied { display: grid; grid-template-columns: 1fr auto; gap: 2mm 6mm; align-items: end; }
-  .a5-v .pied .tel { font-family: var(--serif); font-size: 8mm; }
-  .a5-v .pied .mono { height: 15mm; grid-row: 1 / 3; grid-column: 2; }
-  .a5-v .pied .legal { font-size: 2.1mm; line-height: 1.5; color: #6a655d; }
+  .a5-v .pied .tel { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 7.6mm; }
+  .a5-v .pied .flat { height: 14mm; grid-row: 1 / 3; grid-column: 2; }
+  .a5-v .pied .legal { font-size: 2.1mm; line-height: 1.55; color: var(--taupe); }
 
   /* ── Bâche de chantier 120×80 cm + 10 mm ── */
-  .bache { width: 1220mm; height: 820mm; background: var(--ink); color: var(--lin); display: grid; grid-template-columns: 0.75fr 1.45fr; }
-  .bache .g { display: grid; place-items: center; border-right: 1.2mm solid rgb(243 239 232 / .18); }
-  .bache .g .mono { height: 380mm; color: var(--lin); }
+  .bache { width: 1220mm; height: 820mm; background: var(--pierre); display: grid; grid-template-columns: .75fr 1.45fr; }
+  .bache .g { display: grid; place-items: center; align-content: center; gap: 40mm; border-right: 1.2mm solid rgb(42 39 36 / .15); color: var(--encre); }
+  .bache .g .flat { height: 360mm; }
+  .bache .g .orn b { width: 14mm; height: 14mm; } .bache .g .orn span { width: 80mm; height: 5mm; } .bache .g .orn { gap: 12mm; }
   .bache .d { padding: 80mm 70mm; display: grid; align-content: space-between; }
-  .bache .nom { font-family: var(--serif); font-size: 84mm; text-transform: uppercase; line-height: .95; }
-  .bache .met { font-size: 24mm; letter-spacing: .12em; white-space: nowrap; text-transform: uppercase; color: var(--argile); font-weight: 600; margin-top: 22mm; }
-  .bache .tel { font-family: var(--serif); font-size: 108mm; white-space: nowrap; }
-  .bache .sub { font-size: 30mm; letter-spacing: .16em; text-transform: uppercase; }
+  .bache .nom { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 84mm; text-transform: uppercase; line-height: .95; }
+  .bache .met { font-size: 36mm; color: var(--argile); margin-top: 20mm; white-space: nowrap; }
+  .bache .tel { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 108mm; white-space: nowrap; }
+  .bache .sub { font-size: 34mm; color: var(--taupe); }
 </style>
 </head>
 <body>
 
 <!-- Carte de visite -->
 <section class="doc card card-r" data-doc="carte-visite-recto" data-w="91" data-h="61">
-  <div class="in"><span class="mono"></span><span class="lbl">Benjamin Landry</span></div>
+  <div class="in"><span class="flat"></span><span class="orn"><b></b><span></span></span></div>
 </section>
 <section class="doc card card-v" data-doc="carte-visite-verso" data-w="91" data-h="61">
-  <div><p class="nom">Benjamin Landry</p><p class="met">Plâtrerie · Peinture · Carrelage</p></div>
+  <div><p class="nom">Benjamin Landry</p><p class="met it">Plâtrerie &nbsp;/&nbsp; Peinture &nbsp;/&nbsp; Carrelage</p></div>
   <p class="tel">06 58 38 78 37</p>
   <div class="bas">
-    <p>59 rue du Boucheix, 63770 Les Ancizes-Comps<br>Instagram @benjamin_landry_finitions<br>SIRET 822 175 519 00021</p>
-    <span class="mono"></span>
+    <p>59 rue du Boucheix, 63770 Les Ancizes-Comps<br>@benjamin_landry_finitions<br>SIRET 822 175 519 00021</p>
+    <span class="flat"></span>
   </div>
 </section>
 
 <!-- Flyer A5 -->
 <section class="doc a5 a5-r" data-doc="flyer-a5-recto" data-w="154" data-h="216">
-  <div class="ph"><img src="../photos/placo-vissage.jpg" alt="" style="object-position:40% 45%"><div class="top"><span class="mono"></span><span class="lbl">Benjamin Landry</span></div></div>
+  <div class="top"><span class="flat"></span><span class="it">Les Ancizes-Comps</span></div>
+  <div class="ph"><img src="../photos/finition.jpg" alt="" style="object-position:60% 50%"></div>
   <div class="tx">
-    <h1 class="disp">Plâtrerie,<br>peinture<br><em>&amp; carrelage</em></h1>
-    <div class="row">
-      <div><p class="offre">Visite et devis gratuits</p><p class="tel">06 58 38 78 37</p></div>
-    </div>
+    <h1 class="disp">Plâtrerie, peinture<br><em>&amp; carrelage</em></h1>
+    <div class="row"><p class="offre it">Visite et devis gratuits</p><p class="tel">06 58 38 78 37</p></div>
   </div>
 </section>
 <section class="doc a5 a5-v" data-doc="flyer-a5-verso" data-w="154" data-h="216">
   <div>
-    <p class="k lbl">Un seul artisan, de l’ossature à la finition</p>
+    <p class="k it">Un seul artisan, de l’ossature à la finition</p>
     <h2 class="t">Trois métiers, <em>une même exigence</em></h2>
   </div>
   <div class="met">
-    <figure><img src="../photos/placo-vissage.jpg" alt=""><b>Plâtrerie</b><span>Cloisons, faux plafonds, isolation des murs et des combles</span></figure>
-    <figure><img src="../photos/finition.jpg" alt=""><b>Peinture</b><span>Murs, plafonds, boiseries, façades</span></figure>
-    <figure><img src="../photos/carrelage-sdb.jpg" alt=""><b>Carrelage</b><span>Sols, salles de bains, douches, faïence</span></figure>
+    <figure><img src="../photos/placo-vissage.jpg" alt=""><span class="n">01</span><b>Plâtrerie</b><span>Cloisons, faux plafonds, isolation des murs et des combles</span></figure>
+    <figure><img src="../photos/applique.jpg" alt=""><span class="n">02</span><b>Peinture</b><span>Murs, plafonds, boiseries, façades</span></figure>
+    <figure><img src="../photos/carrelage-sdb.jpg" alt=""><span class="n">03</span><b>Carrelage</b><span>Sols, salles de bains, douches, faïence</span></figure>
   </div>
   <ul>
     <li><i>I.</i>Garantie décennale, attestation jointe au devis</li>
@@ -120,17 +117,17 @@
   </ul>
   <div class="pied">
     <p class="tel">06 58 38 78 37</p>
-    <span class="mono"></span>
+    <span class="flat"></span>
     <p class="legal">Benjamin Landry, entrepreneur individuel · 59 rue du Boucheix, 63770 Les Ancizes-Comps<br>SIRET 822 175 519 00021 · Instagram @benjamin_landry_finitions<br>Ne pas jeter sur la voie publique.</p>
   </div>
 </section>
 
 <!-- Bâche de chantier -->
 <section class="doc bache" data-doc="bache-chantier-120x80" data-w="1220" data-h="820">
-  <div class="g"><span class="mono"></span></div>
+  <div class="g"><span class="flat"></span><span class="orn"><b></b><span></span></span></div>
   <div class="d">
-    <div><p class="nom">Benjamin<br>Landry</p><p class="met">Plâtrerie · Peinture · Carrelage</p></div>
-    <div><p class="sub">Devis gratuit</p><p class="tel">06 58 38 78 37</p></div>
+    <div><p class="nom">Benjamin<br>Landry</p><p class="met it">Plâtrerie / Peinture / Carrelage</p></div>
+    <div><p class="sub it">Devis gratuit</p><p class="tel">06 58 38 78 37</p></div>
   </div>
 </section>
 

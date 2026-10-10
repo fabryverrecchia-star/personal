@@ -12,7 +12,7 @@ mkdirSync(out('print'), { recursive: true });
 mkdirSync(out('web'), { recursive: true });
 
 // Serveur local : les masques CSS (monogramme) sont bloqués en file://
-const types = { '.html': 'text/html', '.png': 'image/png', '.jpg': 'image/jpeg', '.woff2': 'font/woff2' };
+const types = { '.html': 'text/html', '.png': 'image/png', '.jpg': 'image/jpeg', '.woff2': 'font/woff2', '.css': 'text/css', '.js': 'text/javascript' };
 const srv = http
   .createServer((q, r) => {
     const f = resolve(root, '.' + decodeURIComponent(q.url.split('?')[0]));
@@ -40,12 +40,21 @@ for (const el of await page.$$('[data-out]')) {
 // Mises en scène des cartes de visite (rendu 2000 × 1300)
 const mk = await browser.newPage({ viewport: { width: 2200, height: 3000 } });
 await mk.goto(base + '/templates/mockups.html');
-await mk.waitForTimeout(800);
+await mk.evaluate(() => document.fonts.ready);
+await mk.waitForTimeout(900);
 for (const el of await mk.$$('[data-out]')) {
   const name = await el.getAttribute('data-out');
   await el.screenshot({ path: out(`print/${name}.png`) });
   console.log(`print/${name}.png`);
 }
+
+// Planche de tendance
+const mb = await browser.newPage({ viewport: { width: 1300, height: 2100 } });
+mkdirSync(out('da'), { recursive: true });
+await mb.goto(base + '/templates/moodboard.html');
+await mb.evaluate(() => document.fonts.ready);
+await mb.waitForTimeout(900);
+for (const el of await mb.$$('[data-out]')) await el.screenshot({ path: out(`da/${await el.getAttribute('data-out')}.png`) });
 
 // Impression : un PDF par document, au format fini + fonds perdus
 const pr = await browser.newPage({ viewport: { width: 1600, height: 1200 } });

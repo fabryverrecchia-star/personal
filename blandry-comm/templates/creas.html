@@ -3,208 +3,171 @@
 <head>
 <meta charset="utf-8">
 <title>Visuels Meta Ads — Benjamin Landry</title>
+<link rel="stylesheet" href="da.css">
 <style>
-  @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-normal.woff2') format('woff2'); font-weight: 400 900; font-style: normal; }
-  @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-italic.woff2') format('woff2'); font-weight: 400 900; font-style: italic; }
-  @font-face { font-family: 'Hanken'; src: url('../fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
-  :root {
-    --lin: #f3efe8; --lin-2: #e9e3d9; --ink: #1a1917; --ink-2: #24221f; --argile: #a8773d; --volvic: #7d766d;
-    --serif: 'Bodoni', Didot, Georgia, serif; --sans: 'Hanken', 'Helvetica Neue', Arial, sans-serif;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  .disp, .serif, [class*='tel'], .nom, .n, .t { font-variation-settings: 'opsz' 11; }
-  body { background: #777; font-family: var(--sans); display: flex; flex-wrap: wrap; gap: 40px; padding: 40px; }
-  .c { position: relative; overflow: hidden; flex: none; background: var(--ink); color: var(--lin); }
-  .c img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .shade { position: absolute; inset: 0; background: linear-gradient(to top, rgb(16 15 14 / .88), rgb(16 15 14 / .2) 55%, rgb(16 15 14 / .25)); }
-  .mono { display: inline-block; aspect-ratio: 659 / 806; background: currentColor; -webkit-mask: url('../photos/logo-bl.png') center / contain no-repeat; mask: url('../photos/logo-bl.png') center / contain no-repeat; }
-  .lbl { font-size: 26px; letter-spacing: .24em; text-transform: uppercase; font-weight: 500; }
-  .disp { font-family: var(--serif); font-weight: 450; text-transform: uppercase; line-height: .9; letter-spacing: .01em; }
-  .serif { font-family: var(--serif); }
-  .n { font-family: var(--serif); color: transparent; -webkit-text-stroke: 2px var(--lin); line-height: 1; }
-  .pill { display: inline-flex; align-items: center; gap: 14px; padding: 18px 30px; border: 2px solid currentColor; font-size: 28px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; }
-  .pill--fill { background: var(--lin); color: var(--ink); border-color: var(--lin); }
+  body { background: #777; display: flex; flex-wrap: wrap; gap: 40px; padding: 40px; }
+  .c { position: relative; overflow: hidden; flex: none; background: var(--coton); color: var(--encre); }
+  .ph { position: relative; overflow: hidden; background: var(--pierre); box-shadow: 0 2px 0 rgb(60 50 40 / .08), 0 26px 40px -26px rgb(60 48 36 / .45); }
+  .ph img { width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(.15) saturate(.78) contrast(.96) brightness(1.02); }
+  .head { position: absolute; display: flex; align-items: center; justify-content: space-between; }
+  .head .mono { color: var(--encre); }
+  .num { font-size: 40px; }
+  .it.acc { color: var(--argile); }
+  .orn { display: grid; justify-items: center; gap: 10px; color: var(--encre); }
+  .orn b { width: 11px; height: 11px; border-radius: 50%; background: currentColor; }
+  .orn span { width: 64px; height: 4px; background: currentColor; border-radius: 2px; }
 
-  /* ── Stories / Reels 1080×1920 : zones sûres (haut 250 px, bas 340 px) ── */
+  /* ── Stories 1080×1920 : zones sûres (haut 250, bas 340) ── */
   .story { width: 1080px; height: 1920px; }
-  .story .top { position: absolute; top: 270px; left: 80px; right: 80px; display: flex; align-items: center; gap: 22px; }
-  .story .top .mono { height: 74px; color: var(--lin); }
-  .story .body { position: absolute; left: 80px; right: 80px; bottom: 380px; display: grid; gap: 34px; }
-  .story .n { font-size: 120px; }
-  .story .disp { font-size: 136px; }
-  .story p.txt { font-size: 52px; line-height: 1.25; max-width: 15em; }
-  .story .mots { font-size: 30px; letter-spacing: .2em; text-transform: uppercase; opacity: .85; }
+  .story .head { top: 260px; left: 90px; right: 90px; }
+  .story .head .mono { height: 70px; }
+  .story .head .it { font-size: 30px; color: var(--taupe); }
+  .story .ph { position: absolute; left: 90px; right: 90px; top: 380px; height: 820px; }
+  .story .tx { position: absolute; left: 90px; right: 90px; top: 1250px; display: grid; gap: 22px; }
+  .story .tx .row { display: flex; align-items: baseline; gap: 26px; }
+  .story .disp { font-size: 122px; }
+  .story p.txt { font-family: var(--sans); font-size: 40px; line-height: 1.3; color: #4c4740; }
+  .story .mots { font-size: 32px; }
 
   /* ── Carrousel 1080×1080 ── */
   .sq { width: 1080px; height: 1080px; }
-  .sq .body { position: absolute; left: 72px; right: 72px; bottom: 72px; display: grid; gap: 22px; }
-  .sq .n { font-size: 96px; }
-  .sq .disp { font-size: 128px; }
-  .sq p.txt { font-size: 42px; line-height: 1.25; }
-  .sq .corner { position: absolute; top: 64px; left: 72px; display: flex; align-items: center; gap: 18px; }
-  .sq .corner .mono { height: 60px; }
-  .end { background: var(--lin); color: var(--ink); display: grid; place-items: center; text-align: center; }
-  .end .in { display: grid; gap: 40px; justify-items: center; padding: 80px; }
-  .end .mono { height: 190px; color: var(--ink); }
-  .end .disp { font-size: 110px; }
-  .end .tel { font-family: var(--serif); font-size: 92px; letter-spacing: .02em; }
-  .end .sub { font-size: 30px; letter-spacing: .2em; text-transform: uppercase; color: var(--volvic); }
-  .end .pill { color: var(--ink); }
+  .sq .ph { position: absolute; left: 70px; right: 70px; top: 70px; height: 690px; }
+  .sq .tx { position: absolute; left: 70px; right: 70px; bottom: 64px; display: grid; gap: 14px; }
+  .sq .tx .row { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; }
+  .sq .disp { font-size: 104px; }
+  .sq .num { font-size: 44px; }
+  .sq p.txt { font-family: var(--sans); font-size: 34px; color: #4c4740; }
+  .end { background: var(--pierre); display: grid; place-items: center; text-align: center; }
+  .end .in { display: grid; gap: 44px; justify-items: center; }
+  .end .deboss { height: 230px; color: #b6ab9b; }
+  .end .disp { font-size: 92px; }
+  .end .tel { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 84px; }
+  .end .it { font-size: 34px; color: var(--argile); }
 
   /* ── Fil 1080×1350 ── */
   .feed { width: 1080px; height: 1350px; }
-  .split { display: grid; grid-template-rows: 60% 40%; background: var(--lin); color: var(--ink); }
-  .split .ph { position: relative; overflow: hidden; }
-  .split .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .split .tx { padding: 56px 72px; display: grid; align-content: center; gap: 26px; }
-  .split .disp { font-size: 88px; }
-  .split em { font-style: italic; text-transform: none; }
-  .split p { font-size: 38px; line-height: 1.3; color: #4a4640; }
-  .split .row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-  .split .row .mono { height: 70px; color: var(--ink); }
-  .badge { position: absolute; top: 56px; right: 56px; width: 230px; height: 230px; border-radius: 50%; background: var(--argile); color: var(--lin); display: grid; place-items: center; text-align: center; font-size: 30px; line-height: 1.15; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; transform: rotate(-8deg); }
+  .fil .ph { position: absolute; left: 80px; right: 80px; top: 80px; height: 800px; }
+  .fil .tx { position: absolute; left: 80px; right: 80px; bottom: 76px; display: grid; gap: 24px; }
+  .fil .disp { font-size: 86px; }
+  .fil .disp em { font-style: italic; text-transform: none; }
+  .fil p.txt { font-family: var(--sans); font-size: 34px; line-height: 1.35; color: #4c4740; }
+  .fil .row { display: flex; justify-content: space-between; align-items: center; }
+  .fil .row .mono { height: 70px; }
+  .stamp { position: absolute; right: 60px; top: 60px; width: 220px; height: 220px; border-radius: 50%; border: 3px solid var(--argile); color: var(--argile); display: grid; place-items: center; text-align: center; font-family: var(--serif); font-style: italic; font-size: 32px; line-height: 1.15; transform: rotate(-10deg); background: rgb(239 233 223 / .85); }
 
-  /* Avant / après */
-  .ba { display: grid; grid-template-rows: 1fr auto; background: var(--ink); }
-  .ba .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  .ba .pair figure { position: relative; overflow: hidden; }
-  .ba .pair img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .ba .pair .av img { filter: grayscale(.85) contrast(1.05) brightness(.9); }
-  .ba .tag { position: absolute; top: 34px; left: 34px; font-size: 30px; letter-spacing: .24em; text-transform: uppercase; font-weight: 600; text-shadow: 0 2px 16px rgb(0 0 0 / .6); }
-  .ba .foot { padding: 52px 64px 60px; display: grid; gap: 18px; }
-  .ba .disp { font-size: 84px; }
-  .ba p { font-size: 34px; line-height: 1.3; opacity: .85; }
+  .ba .pair { position: absolute; left: 70px; right: 70px; top: 80px; height: 860px; display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  .ba .pair .ph { position: relative; height: 100%; }
+  .ba .pair .av img { filter: grayscale(.7) sepia(.12) contrast(.95) brightness(.95); }
+  .ba .cap { position: absolute; top: 960px; left: 70px; right: 70px; display: grid; grid-template-columns: 1fr 1fr; gap: 26px; font-size: 38px; color: var(--taupe); }
+  .ba .tx { position: absolute; left: 70px; right: 70px; bottom: 70px; display: grid; gap: 16px; }
+  .ba .disp { font-size: 78px; }
+  .ba p { font-family: var(--sans); font-size: 32px; color: #4c4740; line-height: 1.35; }
 
-  /* Garanties */
-  .gar { background: var(--lin); color: var(--ink); padding: 90px 80px; display: grid; align-content: space-between; }
-  .gar .head { display: grid; gap: 30px; }
-  .gar .disp { font-size: 104px; }
-  .gar ul { list-style: none; display: grid; border-top: 2px solid rgb(26 25 23 / .15); }
-  .gar li { display: grid; grid-template-columns: 90px 1fr; align-items: baseline; padding: 30px 0; border-bottom: 2px solid rgb(26 25 23 / .15); font-size: 40px; }
-  .gar li span { font-family: var(--serif); color: var(--argile); font-size: 44px; }
+  .gar { padding: 96px 86px; display: grid; align-content: space-between; }
+  .gar .disp { font-size: 96px; margin-top: 26px; }
+  .gar ul { list-style: none; border-top: 2px solid rgb(42 39 36 / .18); }
+  .gar li { display: grid; grid-template-columns: 96px 1fr; align-items: baseline; padding: 30px 0; border-bottom: 2px solid rgb(42 39 36 / .18); font-family: var(--sans); font-size: 38px; }
+  .gar li span { font-family: var(--serif); font-style: italic; color: var(--argile); font-size: 42px; }
   .gar .foot { display: flex; align-items: center; justify-content: space-between; }
-  .gar .foot .mono { height: 92px; }
-  .gar .tel { font-family: var(--serif); font-size: 60px; }
+  .gar .foot .mono { height: 90px; }
+  .gar .tel { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 58px; }
+
+  .sba .ph { position: absolute; left: 90px; right: 90px; height: 600px; }
+  .sba .lab { position: absolute; left: 90px; font-size: 40px; color: var(--taupe); }
 
   /* Couverture Facebook 1640×624 et photo de profil */
-  .cover { width: 1640px; height: 624px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; }
-  .cover figure { position: relative; overflow: hidden; }
-  .cover figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .cover figure span { position: absolute; left: 40px; bottom: 34px; font-family: var(--serif); font-size: 64px; text-transform: uppercase; text-shadow: 0 4px 30px rgb(0 0 0 / .5); }
-  .cover figure::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgb(16 15 14 / .6), transparent 50%); }
-  .cover figure span { z-index: 2; }
-  .avatar { width: 1080px; height: 1080px; background: var(--lin); display: grid; place-items: center; }
-  .avatar .mono { height: 560px; color: var(--ink); }
+  .cover { width: 1640px; height: 624px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; padding: 60px 70px 92px; }
+  .cover .ph { height: 100%; }
+  .cover .lab { position: absolute; bottom: 26px; font-size: 34px; color: var(--taupe); }
+  .avatar { width: 1080px; height: 1080px; background: var(--pierre); display: grid; place-items: center; }
+  .avatar .deboss { height: 560px; color: #b4aa9a; }
 </style>
 </head>
 <body>
 
-<!-- ═════════ C1 · NOTORIÉTÉ : stories / reels ═════════ -->
-<section class="c story" data-out="c1-story-platrerie">
-  <img class="bg" src="../photos/placo-vissage.jpg" alt="" style="object-position:40% 50%">
-  <div class="shade"></div>
-  <div class="top"><span class="mono"></span><span class="lbl">Benjamin Landry</span></div>
-  <div class="body">
-    <span class="n">01</span>
-    <h2 class="disp">Plâtrerie.</h2>
+<!-- ═════════ C1 · NOTORIÉTÉ : stories ═════════ -->
+<section class="c story grain fibres" data-out="c1-story-platrerie">
+  <div class="head"><span class="mono press"></span><span class="it">Benjamin Landry · Les Ancizes-Comps</span></div>
+  <div class="ph"><img src="../photos/placo-vissage.jpg" alt="" style="object-position:40% 50%"></div>
+  <div class="tx">
+    <div class="row"><span class="num">01</span><h2 class="disp press">Plâtrerie</h2></div>
     <p class="txt">Des murs droits, des plafonds nets, une isolation qui se fait oublier.</p>
-    <p class="mots">Cloisons · Faux plafonds · Isolation</p>
+    <p class="it acc mots">Cloisons / Faux plafonds / Isolation</p>
   </div>
 </section>
 
-<section class="c story" data-out="c1-story-peinture">
-  <img class="bg" src="../photos/finition.jpg" alt="" style="object-position:62% 50%">
-  <div class="shade"></div>
-  <div class="top"><span class="mono"></span><span class="lbl">Benjamin Landry</span></div>
-  <div class="body">
-    <span class="n">02</span>
-    <h2 class="disp">Peinture.</h2>
+<section class="c story grain fibres" data-out="c1-story-peinture">
+  <div class="head"><span class="mono press"></span><span class="it">Benjamin Landry · Les Ancizes-Comps</span></div>
+  <div class="ph"><img src="../photos/finition.jpg" alt="" style="object-position:62% 50%"></div>
+  <div class="tx">
+    <div class="row"><span class="num">02</span><h2 class="disp press">Peinture</h2></div>
     <p class="txt">Une préparation sans compromis, une finition qui tient dans le temps.</p>
-    <p class="mots">Intérieur · Façades · Boiseries</p>
+    <p class="it acc mots">Intérieur / Façades / Boiseries</p>
   </div>
 </section>
 
-<section class="c story" data-out="c1-story-carrelage">
-  <img class="bg" src="../photos/carrelage-sdb.jpg" alt="">
-  <div class="shade"></div>
-  <div class="top"><span class="mono"></span><span class="lbl">Benjamin Landry</span></div>
-  <div class="body">
-    <span class="n">03</span>
-    <h2 class="disp">Carrelage.</h2>
+<section class="c story grain fibres" data-out="c1-story-carrelage">
+  <div class="head"><span class="mono press"></span><span class="it">Benjamin Landry · Les Ancizes-Comps</span></div>
+  <div class="ph"><img src="../photos/carrelage-sdb.jpg" alt=""></div>
+  <div class="tx">
+    <div class="row"><span class="num">03</span><h2 class="disp press">Carrelage</h2></div>
     <p class="txt">Des joints réguliers, des coupes nettes, des pièces d’eau étanches.</p>
-    <p class="mots">Sols · Salles de bains · Faïence</p>
+    <p class="it acc mots">Sols / Salles de bains / Faïence</p>
   </div>
 </section>
 
 <!-- ═════════ C2 · DEMANDES DE DEVIS : carrousel 1:1 ═════════ -->
-<section class="c sq" data-out="c2-carrousel-1-platrerie">
-  <img class="bg" src="../photos/placo-vissage.jpg" alt="" style="object-position:40% 45%">
-  <div class="shade"></div>
-  <div class="corner"><span class="mono"></span><span class="lbl">Les Ancizes-Comps</span></div>
-  <div class="body">
-    <span class="n">01</span>
-    <h2 class="disp">Plâtrerie</h2>
-    <p class="txt">Cloisons, faux plafonds, isolation des murs et des combles.</p>
-  </div>
+<section class="c sq grain fibres" data-out="c2-carrousel-1-platrerie">
+  <div class="ph"><img src="../photos/placo-vissage.jpg" alt="" style="object-position:40% 45%"></div>
+  <div class="tx"><div class="row"><h2 class="disp press">Plâtrerie</h2><span class="num">01</span></div><p class="txt">Cloisons, faux plafonds, isolation des murs et des combles.</p></div>
 </section>
 
-<section class="c sq" data-out="c2-carrousel-2-peinture">
-  <img class="bg" src="../photos/applique.jpg" alt="" style="object-position:50% 40%">
-  <div class="shade"></div>
-  <div class="corner"><span class="mono"></span><span class="lbl">Les Ancizes-Comps</span></div>
-  <div class="body">
-    <span class="n">02</span>
-    <h2 class="disp">Peinture</h2>
-    <p class="txt">Murs, plafonds, boiseries et façades, finitions soignées.</p>
-  </div>
+<section class="c sq grain fibres" data-out="c2-carrousel-2-peinture">
+  <div class="ph"><img src="../photos/applique.jpg" alt="" style="object-position:50% 40%"></div>
+  <div class="tx"><div class="row"><h2 class="disp press">Peinture</h2><span class="num">02</span></div><p class="txt">Murs, plafonds, boiseries et façades, finitions soignées.</p></div>
 </section>
 
-<section class="c sq" data-out="c2-carrousel-3-carrelage">
-  <img class="bg" src="../photos/carrelage-pose.jpg" alt="" style="object-position:55% 50%">
-  <div class="shade"></div>
-  <div class="corner"><span class="mono"></span><span class="lbl">Les Ancizes-Comps</span></div>
-  <div class="body">
-    <span class="n">03</span>
-    <h2 class="disp">Carrelage</h2>
-    <p class="txt">Sols, salles de bains, douches à l’italienne et faïence.</p>
-  </div>
+<section class="c sq grain fibres" data-out="c2-carrousel-3-carrelage">
+  <div class="ph"><img src="../photos/carrelage-pose.jpg" alt="" style="object-position:55% 50%"></div>
+  <div class="tx"><div class="row"><h2 class="disp press">Carrelage</h2><span class="num">03</span></div><p class="txt">Sols, salles de bains, douches à l’italienne et faïence.</p></div>
 </section>
 
-<section class="c sq end" data-out="c2-carrousel-4-devis">
+<section class="c sq end grain fibres" data-out="c2-carrousel-4-devis">
   <div class="in">
-    <span class="mono"></span>
-    <h2 class="disp">Visite et devis<br>gratuits</h2>
-    <p class="tel">06 58 38 78 37</p>
-    <p class="sub">Combrailles · Riom · Clermont-Ferrand</p>
+    <span class="deboss"><i></i><i></i><i></i></span>
+    <h2 class="disp press">Visite et devis<br>gratuits</h2>
+    <p class="tel press">06 58 38 78 37</p>
+    <p class="it">Combrailles / Riom / Clermont-Ferrand</p>
   </div>
 </section>
 
-<!-- ═════════ C2 · DEMANDES DE DEVIS : image fil 4:5 ═════════ -->
-<section class="c feed split" data-out="c2-fil-un-seul-artisan">
-  <div class="ph"><img src="../photos/artisan.jpg" alt="" style="object-position:58% 40%"><span class="badge">Visite<br>& devis<br>gratuits</span></div>
+<!-- ═════════ C2 · image fil 4:5 ═════════ -->
+<section class="c feed fil grain fibres" data-out="c2-fil-un-seul-artisan">
+  <div class="ph"><img src="../photos/artisan.jpg" alt="" style="object-position:58% 40%"><span class="stamp">Visite<br>&amp; devis<br>gratuits</span></div>
   <div class="tx">
-    <h2 class="disp">Du placo <em>à la dernière</em> couche</h2>
-    <p>Un seul artisan pour vos cloisons, vos peintures et vos carrelages, des Combrailles à Clermont-Ferrand.</p>
-    <div class="row"><span class="lbl">Benjamin Landry</span><span class="mono"></span></div>
+    <h2 class="disp press">Du placo <em>à la dernière</em> couche</h2>
+    <p class="txt">Un seul artisan pour vos cloisons, vos peintures et vos carrelages, des Combrailles à Clermont-Ferrand.</p>
+    <div class="row"><span class="it acc" style="font-size:32px">Benjamin Landry</span><span class="mono press"></span></div>
   </div>
 </section>
 
-<!-- ═════════ C3 · RECIBLAGE : avant/après + garanties ═════════ -->
-<section class="c feed ba" data-out="c3-fil-avant-apres">
+<!-- ═════════ C3 · RECIBLAGE ═════════ -->
+<section class="c feed ba grain fibres" data-out="c3-fil-avant-apres">
   <div class="pair">
-    <figure class="av"><img src="../photos/combles-avant.jpg" alt=""><span class="tag">Avant</span></figure>
-    <figure><img src="../photos/combles-apres.jpg" alt=""><span class="tag">Après</span></figure>
+    <div class="ph av"><img src="../photos/combles-avant.jpg" alt=""></div>
+    <div class="ph"><img src="../photos/combles-apres.jpg" alt=""></div>
   </div>
-  <div class="foot">
-    <h2 class="disp">Des combles à la chambre</h2>
+  <div class="cap it"><span>Avant</span><span>Après</span></div>
+  <div class="tx">
+    <h2 class="disp press">Des combles à la chambre</h2>
     <p>Isolation, plaques de plâtre, bandes, peinture : un seul artisan du début à la fin.</p>
   </div>
 </section>
 
-<section class="c feed gar" data-out="c3-fil-garanties">
-  <div class="head">
-    <span class="lbl" style="color:var(--argile)">Vos garanties</span>
-    <h2 class="disp">Un chantier<br>sans mauvaise<br>surprise</h2>
+<section class="c feed gar grain fibres" data-out="c3-fil-garanties">
+  <div>
+    <span class="it acc" style="font-size:36px">Vos garanties</span>
+    <h2 class="disp press">Un chantier<br>sans mauvaise<br>surprise</h2>
   </div>
   <ul>
     <li><span>I.</span>Garantie décennale, attestation jointe au devis</li>
@@ -212,27 +175,31 @@
     <li><span>III.</span>Un seul interlocuteur, du devis à la réception</li>
     <li><span>IV.</span>Visite et devis gratuits</li>
   </ul>
-  <div class="foot"><span class="tel">06 58 38 78 37</span><span class="mono"></span></div>
+  <div class="foot"><span class="tel press">06 58 38 78 37</span><span class="mono press"></span></div>
 </section>
 
-<section class="c story ba" data-out="c3-story-avant-apres" style="grid-template-rows:1fr 1fr">
-  <figure class="av" style="position:relative;overflow:hidden"><img src="../photos/combles-avant.jpg" alt="" style="width:100%;height:100%;object-fit:cover;filter:grayscale(.85) brightness(.9)"><span class="tag" style="top:280px;left:80px">Avant</span></figure>
-  <figure style="position:relative;overflow:hidden"><img src="../photos/combles-apres.jpg" alt="" style="width:100%;height:100%;object-fit:cover"><span class="tag" style="top:40px;left:80px">Après</span>
-    <div style="position:absolute;left:80px;right:80px;bottom:380px;display:grid;gap:20px;z-index:2"><h2 class="disp" style="font-size:110px;text-shadow:0 4px 30px rgb(0 0 0 / .45)">Des combles<br>à la chambre</h2></div>
-    <div class="shade" style="z-index:1;background:linear-gradient(to top, rgb(16 15 14 / .75), transparent 60%)"></div>
-  </figure>
+<section class="c story sba grain fibres" data-out="c3-story-avant-apres">
+  <div class="ph av" style="top:290px;height:500px"><img src="../photos/combles-avant.jpg" alt="" style="filter:grayscale(.7) sepia(.12) contrast(.95) brightness(.95)"></div>
+  <span class="lab it" style="top:800px">Avant</span>
+  <div class="ph" style="top:870px;height:500px"><img src="../photos/combles-apres.jpg" alt=""></div>
+  <span class="lab it" style="top:1380px">Après</span>
+  <h2 class="disp press" style="position:absolute;left:90px;right:90px;top:1460px;font-size:66px">Des combles à la chambre</h2>
 </section>
 
-<!-- ═════════ Réseaux : couverture et profil ═════════ -->
-<section class="c cover" data-out="web-couverture-facebook">
-  <figure><img src="../photos/placo-vissage.jpg" alt="" style="object-position:40% 45%"><span>Plâtrerie</span></figure>
-  <figure><img src="../photos/finition.jpg" alt=""><span>Peinture</span></figure>
-  <figure><img src="../photos/carrelage-sdb.jpg" alt="" style="object-position:50% 60%"><span>Carrelage</span></figure>
+<!-- ═════════ Réseaux ═════════ -->
+<section class="c cover grain fibres" data-out="web-couverture-facebook">
+  <div class="ph"><img src="../photos/placo-vissage.jpg" alt="" style="object-position:40% 45%"></div>
+  <div class="ph"><img src="../photos/finition.jpg" alt=""></div>
+  <div class="ph"><img src="../photos/carrelage-sdb.jpg" alt="" style="object-position:50% 60%"></div>
+  <span class="lab it" style="left:70px">01 · Plâtrerie</span>
+  <span class="lab it" style="left:616px">02 · Peinture</span>
+  <span class="lab it" style="left:1162px">03 · Carrelage</span>
 </section>
 
-<section class="c avatar" data-out="web-photo-profil">
-  <span class="mono"></span>
+<section class="c avatar grain fibres" data-out="web-photo-profil">
+  <span class="deboss"><i></i><i></i><i></i></span>
 </section>
 
+<script src="da.js"></script>
 </body>
 </html>

@@ -1,0 +1,53 @@
+/* Direction artistique « organique / analogique » — Benjamin Landry
+   Papier de coton, pierre, terre, lin. Encre pressée, marquage à sec, lumière naturelle. */
+@font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-normal.woff2') format('woff2'); font-weight: 400 900; font-style: normal; }
+@font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-italic.woff2') format('woff2'); font-weight: 400 900; font-style: italic; }
+@font-face { font-family: 'Hanken'; src: url('../fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+
+:root {
+  --coton: #efe9df;     /* papier de coton */
+  --lin: #e4ddd1;       /* lin, fonds */
+  --pierre: #cfc6b8;    /* pierre calcaire, carte recto */
+  --taupe: #8e8476;     /* textes secondaires */
+  --argile: #a5694a;    /* terre cuite, accent */
+  --ardoise: #55574f;   /* ardoise, pierre de Volvic */
+  --encre: #2a2724;     /* encre */
+  --serif: 'Bodoni', Didot, Georgia, serif;
+  --sans: 'Hanken', 'Helvetica Neue', Arial, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Grain de papier, superposé en multiplication */
+.grain::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply; opacity: .5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .41 0 0 0 0 .36 0 0 0 .38 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+/* Fibres du papier fait main */
+.fibres::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply; opacity: .35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .09' numOctaves='3' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .46 0 0 0 0 .4 0 0 0 .5 -.05'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+}
+/* Lumière de fenêtre avec ombre de feuillage */
+.lumiere::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply;
+  background:
+    radial-gradient(60% 45% at 20% 20%, rgb(255 250 240 / .0), rgb(60 48 36 / .14) 100%),
+    linear-gradient(115deg, transparent 0 38%, rgb(60 48 36 / .10) 38% 52%, transparent 52% 60%, rgb(60 48 36 / .08) 60% 70%, transparent 70%);
+  filter: blur(18px);
+}
+
+.mono { display: inline-block; aspect-ratio: 659 / 806; background: currentColor; -webkit-mask: url('../photos/logo-bl.png') center / contain no-repeat; mask: url('../photos/logo-bl.png') center / contain no-repeat; }
+/* Monogramme marqué à sec : creux sombre + reflet de lumière décalé */
+.deboss { position: relative; display: inline-block; aspect-ratio: 659 / 806; }
+.deboss i { position: absolute; inset: 0; -webkit-mask: url('../photos/logo-bl.png') center / contain no-repeat; mask: url('../photos/logo-bl.png') center / contain no-repeat; }
+.deboss i:nth-child(1) { background: rgb(255 255 255 / .55); transform: translate(.6%, .7%); }
+.deboss i:nth-child(2) { background: rgb(60 50 40 / .30); transform: translate(-.4%, -.5%); }
+.deboss i:nth-child(3) { background: currentColor; opacity: .5; }
+
+.press { filter: url(#press); }
+.press-soft { filter: url(#press-soft); }
+.it { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: .06em; }
+.lbl { font-family: var(--sans); text-transform: uppercase; letter-spacing: .26em; font-weight: 500; }
+.serif { font-family: var(--serif); font-variation-settings: 'opsz' 11; }
+.disp { font-family: var(--serif); font-variation-settings: 'opsz' 11; text-transform: uppercase; font-weight: 450; line-height: .92; }
+.num { font-family: var(--serif); font-variation-settings: 'opsz' 11; color: var(--taupe); }

@@ -13,26 +13,27 @@
 <style>
   /* Mise en page : identité du site Benjamin Landry (lin, basalte, argile ; Bodoni + Hanken), document de campagne en chapitres numérotés */
   :root {
-    --bg: #f3efe8; --bg-2: #e9e3d9; --fg: #1a1917; --muted: #67615a; --line: rgb(26 25 23 / .14);
-    --accent: #9a6a32; --card: #fbf9f5; --ink: #1a1917; --on-ink: #f3efe8; --ok: #3f6b4a; --warn: #a45a1f;
+    --bg: #ece6dc; --bg-2: #e2dacd; --fg: #2a2724; --muted: #7d7467; --line: rgb(42 39 36 / .14);
+    --accent: #a5694a; --card: #f3eee6; --ink: #2a2724; --on-ink: #efe9df; --ok: #5d6b4f; --warn: #a5694a;
     --serif: 'Bodoni Moda', Didot, 'Bodoni 72', Georgia, serif;
     --sans: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
     --w: 1180px;
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .41 0 0 0 0 .36 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
   }
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) { --bg: #171614; --bg-2: #201e1b; --fg: #efe9df; --muted: #a49d93; --line: rgb(239 233 223 / .14); --accent: #d19a57; --card: #22201d; --ink: #0f0e0d; --on-ink: #f3efe8; --ok: #7fb08a; --warn: #e09a5c; color-scheme: dark; }
+    :root:not([data-theme="light"]) { --bg: #1d1b18; --bg-2: #25221e; --fg: #ece5d9; --muted: #a39a8c; --line: rgb(236 229 217 / .13); --accent: #c88b68; --card: #26231f; --ink: #12110f; --on-ink: #efe9df; --ok: #9fb08c; --warn: #d39a74; color-scheme: dark; }
   }
-  :root[data-theme="dark"] { --bg: #171614; --bg-2: #201e1b; --fg: #efe9df; --muted: #a49d93; --line: rgb(239 233 223 / .14); --accent: #d19a57; --card: #22201d; --ink: #0f0e0d; --on-ink: #f3efe8; --ok: #7fb08a; --warn: #e09a5c; color-scheme: dark; }
+  :root[data-theme="dark"] { --bg: #1d1b18; --bg-2: #25221e; --fg: #ece5d9; --muted: #a39a8c; --line: rgb(236 229 217 / .13); --accent: #c88b68; --card: #26231f; --ink: #12110f; --on-ink: #efe9df; --ok: #9fb08c; --warn: #d39a74; color-scheme: dark; }
 
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 16px; line-height: 1.6; }
+  body { margin: 0; background: var(--bg) var(--grain); color: var(--fg); font-family: var(--sans); font-size: 16px; line-height: 1.6; }
   .wrap { max-width: var(--w); margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); }
   h1, h2, h3 { font-family: var(--serif); font-weight: 500; font-variation-settings: 'opsz' 11; text-wrap: balance; margin: 0; line-height: 1.05; }
   p { margin: 0; }
   a { color: inherit; }
-  .k { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; color: var(--accent); }
+  .k { font-family: var(--serif); font-style: italic; font-size: 17px; letter-spacing: .04em; color: var(--accent); }
   .muted { color: var(--muted); }
   .mono { display: inline-block; aspect-ratio: 659 / 806; background: currentColor; -webkit-mask: url('img/logo-bl.png') center / contain no-repeat; mask: url('img/logo-bl.png') center / contain no-repeat; }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
@@ -271,6 +272,17 @@
   @media (min-width: 980px) { .gpost { grid-template-columns: 300px minmax(0, 1fr); } }
   .gpost .phone { max-width: 300px; }
   .rules li { grid-template-columns: 28px minmax(0, 1fr) auto; }
+
+  /* Direction artistique */
+  .da-grid { display: grid; gap: 28px; }
+  @media (min-width: 900px) { .da-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } }
+  .da-board { max-width: 520px; justify-self: center; width: 100%; }
+  .da-side { display: grid; gap: 28px; }
+  .swatches { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .swatches li { display: grid; gap: 2px; font-size: 13px; }
+  .swatches li::before { content: ''; display: block; aspect-ratio: 4 / 3; background: var(--c); border: 1px solid var(--line); margin-bottom: 6px; }
+  .swatches b { font-family: var(--serif); font-weight: 500; font-size: 1.05rem; }
+  .swatches span { color: var(--muted); }
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)} img{max-width:100%} [hidden]{display:none!important}</style>
 </head>
@@ -326,19 +338,50 @@
   <div class="wrap">
     <div class="ch-head"><p class="k">Sommaire</p><h2>Ce que contient ce dossier</h2></div>
     <ol class="tiles">
-      <li><a href="#constat"><span>01</span><b>Constat</b><small>Ce que fait la concurrence</small></a></li>
-      <li><a href="#strategie"><span>02</span><b>Stratégie</b><small>Trois campagnes qui s’enchaînent</small></a></li>
-      <li><a href="#c1"><img src="creas/c1-story-platrerie.jpg" alt="" loading="lazy"><span>03</span><b>Campagne 1</b><small>Notoriété</small></a></li>
-      <li><a href="#c2"><img src="creas/c2-carrousel-1-platrerie.jpg" alt="" loading="lazy"><span>04</span><b>Campagne 2</b><small>Demandes de devis</small></a></li>
-      <li><a href="#c3"><img src="creas/c3-fil-avant-apres.jpg" alt="" loading="lazy"><span>05</span><b>Campagne 3</b><small>Reciblage</small></a></li>
-      <li><a href="#formulaire"><span>06</span><b>Formulaire</b><small>Les questions posées</small></a></li>
-      <li><a href="#budget"><span>07</span><b>Budget</b><small>Montants et calendrier</small></a></li>
-      <li><a href="#groupes"><img src="creas/c3-fil-avant-apres.jpg" alt="" loading="lazy"><span>08</span><b>Groupes Facebook</b><small>Publications gratuites</small></a></li>
-      <li><a href="#cartes"><img src="print/mockup-presentoir.jpg" alt="" loading="lazy"><span>09</span><b>Cartes de visite</b><small>Recto, verso, présentoir</small></a></li>
-      <li><a href="#print"><img src="print/flyer-a5-recto.jpg" alt="" loading="lazy"><span>10</span><b>Flyer et bâche</b><small>Fichiers d’impression</small></a></li>
-      <li><a href="#web"><img src="creas/web-couverture-facebook.jpg" alt="" loading="lazy"><span>11</span><b>Web et réseaux</b><small>Profils et Google</small></a></li>
-      <li><a href="#lancement"><span>12</span><b>Lancement</b><small>La liste avant de démarrer</small></a></li>
+      <li><a href="#da"><img src="img/planche-tendance.jpg" alt="" loading="lazy"><span>01</span><b>Direction artistique</b><small>Matière et lumière</small></a></li>
+      <li><a href="#constat"><span>02</span><b>Constat</b><small>Ce que fait la concurrence</small></a></li>
+      <li><a href="#strategie"><span>03</span><b>Stratégie</b><small>Trois campagnes qui s’enchaînent</small></a></li>
+      <li><a href="#c1"><img src="creas/c1-story-platrerie.jpg" alt="" loading="lazy"><span>04</span><b>Campagne 1</b><small>Notoriété</small></a></li>
+      <li><a href="#c2"><img src="creas/c2-carrousel-1-platrerie.jpg" alt="" loading="lazy"><span>05</span><b>Campagne 2</b><small>Demandes de devis</small></a></li>
+      <li><a href="#c3"><img src="creas/c3-fil-avant-apres.jpg" alt="" loading="lazy"><span>06</span><b>Campagne 3</b><small>Reciblage</small></a></li>
+      <li><a href="#formulaire"><span>07</span><b>Formulaire</b><small>Les questions posées</small></a></li>
+      <li><a href="#budget"><span>08</span><b>Budget</b><small>Montants et calendrier</small></a></li>
+      <li><a href="#groupes"><img src="creas/c3-fil-avant-apres.jpg" alt="" loading="lazy"><span>09</span><b>Groupes Facebook</b><small>Publications gratuites</small></a></li>
+      <li><a href="#cartes"><img src="print/mockup-presentoir.jpg" alt="" loading="lazy"><span>10</span><b>Cartes de visite</b><small>Recto, verso, présentoir</small></a></li>
+      <li><a href="#print"><img src="print/flyer-a5-recto.jpg" alt="" loading="lazy"><span>11</span><b>Flyer et bâche</b><small>Fichiers d’impression</small></a></li>
+      <li><a href="#web"><img src="creas/web-couverture-facebook.jpg" alt="" loading="lazy"><span>12</span><b>Web et réseaux</b><small>Profils et Google</small></a></li>
+      <li><a href="#lancement"><span>13</span><b>Lancement</b><small>La liste avant de démarrer</small></a></li>
     </ol>
+  </div>
+</section>
+
+<!-- ═════════ Direction artistique ═════════ -->
+<section class="ch" id="da" data-title="Direction artistique">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="k">Matière &nbsp;/&nbsp; Lumière</p>
+      <h2>Une identité qui a le toucher du chantier</h2>
+      <p>Les matériaux que Benjamin travaille donnent le ton : plâtre, pierre, terre, papier. Des supports qui se touchent avant de se lire, des couleurs prises au chantier, une lumière naturelle.</p>
+    </div>
+    <div class="da-grid">
+      <figure class="hero-mock zoomable da-board"><img src="img/planche-tendance.jpg" alt="Planche de tendance : monogramme imprimé sur papier de coton, pierres et terre cuite, carte posée contre une pierre, étiquette ardoise et ficelle" loading="lazy"></figure>
+      <div class="da-side">
+        <ul class="swatches">
+          <li style="--c:#efe9df"><b>Coton</b><span>Papier, fonds</span></li>
+          <li style="--c:#cfc6b8"><b>Pierre</b><span>Cartes, bâche</span></li>
+          <li style="--c:#8e8476"><b>Taupe</b><span>Textes secondaires</span></li>
+          <li style="--c:#a5694a"><b>Argile</b><span>Accent</span></li>
+          <li style="--c:#55574f"><b>Ardoise</b><span>Étiquettes</span></li>
+          <li style="--c:#2a2724"><b>Encre</b><span>Textes</span></li>
+        </ul>
+        <ul class="check rules">
+          <li><span>Papier de coton et teintes pierre plutôt que noir et blanc</span><small>Matière</small></li>
+          <li><span>Impression typographique au verso, marquage à sec au recto</span><small>Print</small></li>
+          <li><span>Photos tirées comme des épreuves, couleurs adoucies</span><small>Photo</small></li>
+          <li><span>Titres en capitales Bodoni, légendes en italique</span><small>Typo</small></li>
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -739,14 +782,14 @@ Benjamin Landry, Les Ancizes-Comps</dd></div></dl>
     <div class="ch-head">
       <p class="k">Cartes de visite</p>
       <h2>La carte qui reste sur le frigo</h2>
-      <p>Recto noir avec le monogramme, verso clair avec le téléphone en grand. À laisser à chaque visite de devis et sur le comptoir des commerces partenaires, dans un présentoir en plexiglas.</p>
+      <p>Recto couleur pierre avec le monogramme marqué à sec, verso en papier de coton imprimé à l’encre, téléphone en grand. À laisser à chaque visite de devis, et sur le comptoir des commerces partenaires, glissée dans un bloc de pierre.</p>
     </div>
-    <figure class="hero-mock zoomable"><img src="print/mockup-presentoir.jpg" alt="Cartes de visite Benjamin Landry dans un présentoir en plexiglas, deux cartes posées devant" loading="lazy"></figure>
+    <figure class="hero-mock zoomable"><img src="print/mockup-presentoir.jpg" alt="Cartes de visite Benjamin Landry glissées dans un bloc de pierre, une carte verso posée sur le lin" loading="lazy"></figure>
     <div class="cards-grid">
       <div class="flipbox">
         <button type="button" class="flip" id="flip-card" aria-pressed="false" aria-label="Retourner la carte">
           <span class="flip-in">
-            <img class="f-front" src="print/carte-recto-hd.jpg" alt="Recto : monogramme BL sur fond noir">
+            <img class="f-front" src="print/carte-recto-hd.jpg" alt="Recto : monogramme BL marqué à sec sur papier pierre">
             <img class="f-back" src="print/carte-verso-hd.jpg" alt="Verso : nom, métiers, téléphone, adresse et SIRET">
           </span>
         </button>
@@ -757,10 +800,10 @@ Benjamin Landry, Les Ancizes-Comps</dd></div></dl>
         <dl>
           <dt>Format</dt><dd>85 × 55 mm, recto verso</dd>
           <dt>Fichiers</dt><dd>carte-visite-recto.pdf et carte-visite-verso.pdf, 3 mm de fonds perdus</dd>
-          <dt>Papier</dt><dd>350 g mat, pelliculage toucher doux</dd>
-          <dt>Option</dt><dd>Monogramme en dorure à chaud ou vernis sélectif au recto</dd>
+          <dt>Papier</dt><dd>Coton 600 g, teinte pierre au recto, naturelle au verso (carte contrecollée)</dd>
+          <dt>Finitions</dt><dd>Recto : monogramme marqué à sec, sans encre. Verso : impression typographique, une couleur</dd>
           <dt>Quantité</dt><dd>250 à 500 exemplaires</dd>
-          <dt>Présentoir</dt><dd>Plexiglas de comptoir pour cartes horizontales, environ 10 €</dd>
+          <dt>Présentoir</dt><dd>Bloc de pierre ou de bois brut avec une fente, à faire tailler ou à acheter chez un artisan</dd>
         </dl>
       </div>
     </div>
@@ -781,12 +824,12 @@ Benjamin Landry, Les Ancizes-Comps</dd></div></dl>
         <div class="item">
           <div class="frame a5-pair swipe"><img src="print/flyer-a5-recto.jpg" alt="Flyer A5 recto : photo plâtrerie, titre et téléphone"><img src="print/flyer-a5-verso.jpg" alt="Flyer A5 verso : trois métiers, garanties, coordonnées"></div>
           <h3>Flyer A5</h3>
-          <dl><dt>Format</dt><dd>148 × 210 mm, recto verso</dd><dt>Papier</dt><dd>170 g couché mat</dd><dt>Diffusion</dt><dd>Boîtes aux lettres autour des chantiers, commerces, mairies</dd></dl>
+          <dl><dt>Format</dt><dd>148 × 210 mm, recto verso</dd><dt>Papier</dt><dd>Papier non couché naturel 250 g, effet coton</dd><dt>Diffusion</dt><dd>Boîtes aux lettres autour des chantiers, commerces, mairies</dd></dl>
         </div>
         <div class="item">
           <div class="frame"><img src="print/bache-chantier-120x80.jpg" alt="Bâche de chantier : monogramme, nom, métiers, devis gratuit et téléphone" style="width:min(460px,100%)"></div>
           <h3>Bâche de chantier</h3>
-          <dl><dt>Format</dt><dd>120 × 80 cm</dd><dt>Matière</dt><dd>PVC 510 g, œillets tous les 50 cm</dd><dt>Usage</dt><dd>Sur chaque chantier visible depuis la rue, avec l’accord du client</dd></dl>
+          <dl><dt>Format</dt><dd>120 × 80 cm</dd><dt>Matière</dt><dd>Toile PVC 510 g mate, teinte pierre, œillets tous les 50 cm</dd><dt>Usage</dt><dd>Sur chaque chantier visible depuis la rue, avec l’accord du client</dd></dl>
         </div>
       </div>
     </div>
