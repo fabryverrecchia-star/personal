@@ -4,8 +4,7 @@ import Base from '../layouts/Base.astro';
 import BeforeAfter from '../components/BeforeAfter.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
-import Chapitre from '../components/Chapitre.astro';
-import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale, garanties, marques, instagram, chaine, visuel, univers, peinture, carrelage } from '../data/site';
+import { site, services, zones, etapes, selection, galerie, heroPhotos, photos, palette, faqGenerale, garanties, marques, instagram, visuel, univers } from '../data/site';
 import { u } from '../lib/url';
 
 const faqLd = {
@@ -18,7 +17,7 @@ const roman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 const spots = [
   { x: 3, y: 12, w: 10, mx: -6, my: 7, mw: 24, d: 0.6 },
   { x: 9, y: 60, w: 9, mx: 76, my: 6, mw: 24, d: 1.1 },
-  { x: 79, y: 10, w: 12, mx: -6, my: 78, mw: 34, d: 0.8 },
+  { x: 79, y: 10, w: 12, mx: -8, my: 84, mw: 26, d: 0.8 },
   { x: 85, y: 55, w: 10, mx: 74, my: 80, mw: 26, d: 1.3 },
   { x: 19, y: 84, w: 8, mx: -99, my: 0, mw: 0, d: 0.9 },
   { x: 71, y: 83, w: 8, mx: -99, my: 0, mw: 0, d: 1.2 },
@@ -116,64 +115,22 @@ const svcImg = visuel;
     </figure>
   </section>
 
-  <!-- ─── Le placo : de l'ossature à la dernière couche ─── -->
-  <section class="chain" id="placo" aria-labelledby="chain-t" data-chain>
-    <Chapitre n="01" nom="Plâtrerie" id="chain-t">
-      <Fragment slot="titre">Le placo, <em>notre cœur de métier</em></Fragment>
-      <p>
-        Cloisons, doublages, faux plafonds, isolation : une plâtrerie bien faite, c’est un mur qui reste droit et une
-        finition qui tient. Voici comment une pièce est menée, de l’ossature à la dernière couche.
-      </p>
-    </Chapitre>
-    <div class="wrap chain__grid">
-      <div class="chain__media" aria-hidden="true">
-        <div class="chain__frame">
-          {chaine.map((c, i) => (
-            <Image src={c.photo} alt="" widths={[600, 1100]} sizes="(min-width: 1024px) 42vw, 92vw" class:list={['chain__img', { 'is-on': i === 0 }]} data-chain-img={i} />
-          ))}
+  <!-- ─── Les trois métiers : un panneau plein écran chacun ─── -->
+  <section class="unis" aria-label="Plâtrerie, peinture, carrelage" data-unis>
+    {univers.map((x, i) => (
+      <article class="upanel" id={x.id} style={`z-index:${i + 1}`} data-upanel aria-labelledby={`${x.id}-t`}>
+        <div class="upanel__in" data-upanel-in>
+          <Image src={x.photo} alt={x.alt} widths={[700, 1200, 1900]} sizes="100vw" class="upanel__img" data-upanel-img />
+          <span class="upanel__shade" aria-hidden="true"></span>
+          <div class="upanel__txt wrap">
+            <span class="upanel__n" aria-hidden="true">{x.n}</span>
+            <h2 id={`${x.id}-t`} class="display upanel__t">{x.nom}</h2>
+            <p class="upanel__p">{x.phrase}</p>
+            <p class="upanel__mots label">{x.mots.join('  ·  ')}</p>
+          </div>
         </div>
-        <p class="chain__count label"><span data-chain-n>01</span> / {String(chaine.length).padStart(2, '0')}</p>
-      </div>
-      <ol class="chain__list">
-        {chaine.map((c, i) => (
-          <li class="cstep" data-chain-step={i}>
-            <figure class="cstep__img" data-reveal="img">
-              <Image src={c.photo} alt={c.alt} widths={[500, 900]} sizes="92vw" />
-            </figure>
-            <span class="cstep__n">{String(i + 1).padStart(2, '0')}</span>
-            <h3 class="title cstep__t">{c.titre}</h3>
-            <p class="cstep__p">{c.texte}</p>
-          </li>
-        ))}
-      </ol>
-    </div>
-  </section>
-
-
-
-  <!-- ─── 02 Peinture ────────────────────────── -->
-  <section class="uni uni--peinture" id="peinture" aria-labelledby="peinture-t">
-    <Chapitre n="02" nom="Peinture" id="peinture-t">
-      <Fragment slot="titre">Peinture <em>intérieure et extérieure</em></Fragment>
-      <p>
-        Murs, plafonds, boiseries, volets et façades. Chaque support reçoit l’impression qui lui convient, puis deux
-        couches croisées, dans la finition adaptée à l’usage de la pièce et à sa lumière.
-      </p>
-    </Chapitre>
-    <div class="wrap pein">
-      <figure class="pein__a" data-reveal="img" data-parallax-wrap>
-        <Image src={peinture.photos[0].src} alt={peinture.photos[0].alt} widths={[600, 1100]} sizes="(min-width: 1024px) 40vw, 92vw" data-parallax />
-      </figure>
-      <figure class="pein__b" data-reveal="img">
-        <Image src={peinture.photos[1].src} alt={peinture.photos[1].alt} widths={[500, 900]} sizes="(min-width: 1024px) 26vw, 60vw" />
-      </figure>
-      <figure class="pein__c" data-reveal="img">
-        <Image src={peinture.photos[2].src} alt={peinture.photos[2].alt} widths={[500, 900]} sizes="(min-width: 1024px) 22vw, 50vw" />
-      </figure>
-      <ul class="uni__points pein__pts">
-        {peinture.points.map((x) => <li data-reveal="fade"><span class="uni__dot" aria-hidden="true"></span>{x}</li>)}
-      </ul>
-    </div>
+      </article>
+    ))}
   </section>
 
   <!-- ─── Territoire : nuancier du Puy-de-Dôme ─── -->
@@ -230,29 +187,6 @@ const svcImg = visuel;
       </div>
     </div>
   </section>
-  <!-- ─── 03 Carrelage ───────────────────────── -->
-  <section class="uni uni--carrelage dark" id="carrelage" aria-labelledby="carrelage-t">
-    <Chapitre n="03" nom="Carrelage" id="carrelage-t">
-      <Fragment slot="titre">Carrelage <em>et faïence</em></Fragment>
-      <p>
-        Sols, salles de bains, douches à l’italienne, crédences. Un carrelage se juge à la régularité de ses joints et
-        à la netteté de ses coupes : tout se prépare avant la première colle.
-      </p>
-    </Chapitre>
-    <div class="wrap">
-      <div class="tiles" data-tiles>
-        {carrelage.photos.map((x, i) => (
-          <figure class={`tile tile--${i}`} data-tile>
-            <Image src={x.src} alt={x.alt} widths={[500, 1000]} sizes={i === 0 ? '(min-width: 1024px) 40vw, 92vw' : '(min-width: 1024px) 26vw, 46vw'} />
-          </figure>
-        ))}
-      </div>
-      <ul class="uni__points carr__pts">
-        {carrelage.points.map((x) => <li data-reveal="fade"><span class="uni__dot" aria-hidden="true"></span>{x}</li>)}
-      </ul>
-    </div>
-  </section>
-
   <!-- ─── Lumière rasante ────────────────────── -->
   <section class="light dark" aria-labelledby="light-t" data-light>
     <div class="light__sticky">
@@ -640,254 +574,78 @@ const svcImg = visuel;
     }
   }
 
-  /* ─── Univers : peinture et carrelage ─── */
-  .uni {
-    padding-block: clamp(96px, 12vw, 170px);
-  }
-  .uni__points {
-    display: grid;
-    gap: 0;
-    border-top: 1px solid var(--line);
-  }
-  .uni__points li {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .uni__dot {
-    flex: none;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--argile);
-  }
-  .pein {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 14px;
-  }
-  .pein figure {
-    margin: 0;
+  /* ─── Les trois métiers ─── */
+  .upanel {
+    position: sticky;
+    top: 0;
+    height: 100svh;
     overflow: hidden;
+    color: var(--lin);
+    background: #1a1917;
   }
-  .pein :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .pein__a {
-    grid-column: 1 / -1;
-    aspect-ratio: 4 / 5;
-    position: relative;
-  }
-  .pein__a :global(img) {
+  .upanel__in {
     position: absolute;
-    inset: -8% 0;
-    height: 116%;
+    inset: 0;
+    transform-origin: 50% 100%;
   }
-  .pein__b {
-    grid-column: 1 / 5;
-    aspect-ratio: 4 / 5;
-  }
-  .pein__c {
-    grid-column: 4 / 7;
-    aspect-ratio: 3 / 4;
-    margin-top: -30% !important;
-  }
-  .pein__pts {
-    grid-column: 1 / -1;
-    margin-top: 32px;
-  }
-  @media (min-width: 1024px) {
-    .pein {
-      grid-template-columns: repeat(12, 1fr);
-      gap: 2vw;
-      align-items: start;
-    }
-    .pein__a {
-      grid-column: 1 / 6;
-      grid-row: 1 / 3;
-    }
-    .pein__b {
-      grid-column: 7 / 10;
-      margin-top: 6vw !important;
-    }
-    .pein__c {
-      grid-column: 10 / 13;
-      margin-top: 16vw !important;
-    }
-    .pein__pts {
-      grid-column: 7 / 13;
-      margin-top: 4vw;
-    }
-  }
-  /* Carrelage : la grille de photos dessine des joints */
-  .tiles {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
-    padding: 6px;
-    background: rgb(243 239 232 / 0.16);
-  }
-  .tile {
-    margin: 0;
-    overflow: hidden;
-    aspect-ratio: 1;
-  }
-  .tile :global(img) {
+  .upanel :global(.upanel__img) {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  .tile--0 {
-    grid-column: 1 / -1;
-    aspect-ratio: 4 / 5;
+  .upanel__shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(16 15 14 / 0.82), rgb(16 15 14 / 0.25) 55%, rgb(16 15 14 / 0.15));
   }
-  .tile--1,
-  .tile--4 {
-    grid-column: 1 / -1;
-    aspect-ratio: 3 / 2;
-  }
-  .carr__pts {
-    margin-top: 40px;
-  }
-  @media (min-width: 1024px) {
-    .tiles {
-      grid-template-columns: repeat(4, 1fr);
-      grid-template-rows: repeat(2, 22vw);
-      gap: 8px;
-      padding: 8px;
-    }
-    .tile {
-      aspect-ratio: auto !important;
-    }
-    .tile--0 {
-      grid-column: 1 / 2;
-      grid-row: 1 / 3;
-    }
-    .tile--1 {
-      grid-column: 2 / 4;
-      grid-row: 1 / 2;
-    }
-    .tile--2 {
-      grid-column: 4 / 5;
-      grid-row: 1 / 2;
-    }
-    .tile--3 {
-      grid-column: 2 / 3;
-      grid-row: 2 / 3;
-    }
-    .tile--4 {
-      grid-column: 3 / 5;
-      grid-row: 2 / 3;
-    }
-    .carr__pts {
-      grid-template-columns: repeat(2, 1fr);
-      column-gap: 4vw;
-    }
-  }
-
-  /* ─── Le placo ─── */
-  .chain {
-    padding-block: clamp(96px, 12vw, 170px);
-    background: var(--lin-2);
-  }
-  .chain__media {
-    display: none;
-  }
-  .chain__list {
+  .upanel__txt {
+    position: absolute;
+    inset: auto 0 0;
     display: grid;
-    gap: 56px;
+    gap: 14px;
+    padding-bottom: calc(clamp(36px, 7vh, 80px) + env(safe-area-inset-bottom));
   }
-  .cstep {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 10px 16px;
-    align-items: baseline;
-  }
-  .cstep__img {
-    grid-column: 1 / -1;
-    margin: 0 0 10px;
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-  }
-  .cstep__img :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .cstep__n {
+  .upanel__n {
     font-family: var(--serif);
-    font-size: 2.6rem;
+    font-size: clamp(2.4rem, 5vw, 4rem);
     line-height: 1;
     color: transparent;
-    -webkit-text-stroke: 1px var(--argile);
+    -webkit-text-stroke: 1px var(--lin);
   }
-  .cstep__t {
-    font-size: clamp(1.6rem, 3vw, 2.4rem);
+  .upanel__t {
+    font-size: clamp(3rem, 14vw, 10rem);
+    line-height: 0.88;
   }
-  .cstep__p {
-    grid-column: 1 / -1;
-    max-width: 44ch;
-    color: var(--muted);
+  .upanel__p {
+    max-width: 34ch;
+    font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+  }
+  .upanel__mots {
+    opacity: 0.8;
+    white-space: pre-wrap;
+  }
+  @media (max-width: 1023px) {
+    .upanel__txt {
+      padding-bottom: calc(100px + env(safe-area-inset-bottom));
+    }
   }
   @media (min-width: 1024px) {
-    .chain__grid {
-      display: grid;
-      grid-template-columns: 6fr 5fr;
-      gap: 7vw;
-      align-items: start;
+    .upanel__txt {
+      grid-template-columns: auto 1fr;
+      align-items: end;
+      column-gap: 3vw;
     }
-    .chain__media {
-      display: grid;
-      gap: 16px;
-      position: sticky;
-      top: 12vh;
+    .upanel__n {
+      grid-row: 1 / 3;
+      align-self: start;
+      margin-top: 1.2rem;
     }
-    .chain__frame {
-      position: relative;
-      height: 76vh;
-      overflow: hidden;
-    }
-    .chain__frame :global(.chain__img) {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      clip-path: inset(100% 0 0 0);
-      transform: scale(1.08);
-      transition:
-        clip-path 1.1s var(--ease),
-        transform 1.6s var(--ease-out);
-    }
-    .chain__frame :global(.chain__img.is-on) {
-      clip-path: inset(0 0 0 0);
-      transform: none;
-    }
-    .chain__count {
-      color: var(--muted);
-    }
-    .chain__list {
-      gap: 0;
-      padding-block: 20vh 30vh;
-    }
-    .cstep {
-      min-height: 62vh;
-      align-content: center;
-      opacity: 0.25;
-      transition: opacity 0.6s var(--ease);
-    }
-    .cstep.is-on {
-      opacity: 1;
-    }
-    .cstep__img {
-      display: none;
-    }
-    .cstep__n {
-      font-size: 4rem;
+    .upanel__t,
+    .upanel__p,
+    .upanel__mots {
+      grid-column: 2;
     }
   }
 
@@ -967,132 +725,6 @@ const svcImg = visuel;
     }
     .light__p {
       font-size: var(--fs-body);
-    }
-  }
-
-  /* ─── Savoir-faire ─── */
-  .skills {
-    position: relative;
-    padding-block: clamp(96px, 12vw, 180px);
-    overflow: hidden;
-  }
-  .skills__giant {
-    position: relative;
-    z-index: 2;
-    white-space: nowrap;
-    font-size: clamp(4.4rem, 17vw, 16rem);
-    line-height: 1;
-    pointer-events: none;
-    will-change: transform;
-    margin-bottom: clamp(-3rem, -5vw, -1.4rem);
-  }
-  .skills__giant span {
-    display: inline-block;
-  }
-  .skills__grid {
-    display: grid;
-    gap: 40px;
-  }
-  .skills__media {
-    position: relative;
-    aspect-ratio: 4 / 5;
-    max-width: 100%;
-    overflow: hidden;
-  }
-  .skills__media :global(.skills__img) {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0;
-    transform: scale(1.05);
-    transition:
-      opacity 0.8s var(--ease),
-      transform 1.4s var(--ease-out);
-  }
-  .skills__media :global(.skills__img.is-on) {
-    opacity: 1;
-    transform: none;
-  }
-  .skills__body {
-    display: grid;
-    gap: 36px;
-    align-content: end;
-  }
-  .skills__intro {
-    max-width: 38ch;
-    color: var(--muted);
-  }
-  .skills__list {
-    border-top: 1px solid var(--line);
-  }
-  .skill {
-    border-bottom: 1px solid var(--line);
-  }
-  .skill__head {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 2.8rem 1fr auto;
-    align-items: baseline;
-    gap: 8px;
-    padding: 20px 0;
-    text-align: left;
-  }
-  .skill__n {
-    font-family: var(--serif);
-    color: var(--muted);
-  }
-  .skill__t {
-    font-family: var(--serif);
-    font-size: clamp(1.35rem, 2.4vw, 1.9rem);
-    line-height: 1.2;
-    transition: transform 0.6s var(--ease);
-  }
-  .skill__head[aria-expanded='true'] .skill__t {
-    font-style: italic;
-  }
-  @media (hover: hover) {
-    .skill__head:hover .skill__t {
-      transform: translateX(10px);
-    }
-  }
-  .skill__plus {
-    position: relative;
-    width: 12px;
-    height: 12px;
-    align-self: center;
-    transition: transform 0.6s var(--ease);
-  }
-  .skill__plus::before,
-  .skill__plus::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 12px;
-    height: 1px;
-    background: currentColor;
-  }
-  .skill__plus::after {
-    transform: rotate(90deg);
-  }
-  .skill__head[aria-expanded='true'] .skill__plus {
-    transform: rotate(135deg);
-  }
-  .skill__body {
-    overflow: hidden;
-  }
-  .skill__body p {
-    padding: 0 0 24px 2.8rem;
-    max-width: 54ch;
-    color: var(--muted);
-  }
-  @media (min-width: 1024px) {
-    .skills__grid {
-      grid-template-columns: 5fr 6fr;
-      gap: 7vw;
-      align-items: end;
     }
   }
 

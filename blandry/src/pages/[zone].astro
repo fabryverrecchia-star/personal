@@ -15,7 +15,7 @@ const autres = zones.filter((o) => o.slug !== z.slug);
 const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
 const listeCommunes = z.communes.slice(0, -1).join(', ') + ' et ' + z.communes.at(-1);
 const roman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
-const heroImg = { 'plaquiste-peintre-combrailles': 'placo-plafond-bandes', 'plaquiste-peintre-riom': 'enduit-couteau', 'plaquiste-peintre-clermont-ferrand': 'placo-vissage' }[z.slug] ?? 'placo-vissage';
+const heroImg = { 'plaquiste-peintre-combrailles': 'placo-vissage', 'plaquiste-peintre-riom': 'carrelage-salle-de-bain', 'plaquiste-peintre-clermont-ferrand': 'finition-lumiere' }[z.slug] ?? 'placo-vissage';
 const hero = visuel(heroImg);
 const words = z.dans.split(' ');
 

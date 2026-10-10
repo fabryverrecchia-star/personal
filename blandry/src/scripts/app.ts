@@ -833,35 +833,23 @@ function parallax() {
     gsap.fromTo(m, { yPercent: -7 }, { yPercent: 7, ease: 'none', scrollTrigger: { trigger: wrap, start: 'top bottom', end: 'bottom top', scrub: true } });
   });
 }
-function tiles() {
-  const t = $$('[data-tile]');
-  if (!t.length) return;
-  // Les carreaux se posent un à un, comme sur un chantier
-  gsap.fromTo(
-    t,
-    { clipPath: 'inset(0 0 100% 0)', y: 30 },
-    { clipPath: 'inset(0 0 0% 0)', y: 0, duration: 1.2, ease: EASE, stagger: 0.12, scrollTrigger: { trigger: t[0].parentElement!, start: 'top 75%', once: true } },
-  );
-}
-function chain() {
-  const sec = $('[data-chain]');
-  if (!sec) return;
-  const imgs = $$('[data-chain-img]', sec);
-  const steps = $$('[data-chain-step]', sec);
-  const n = $('[data-chain-n]', sec);
-  const set = (i: number) => {
-    imgs.forEach((im, j) => {
-      // les images précédentes restent visibles dessous : la nouvelle se dévoile par-dessus
-      im.classList.toggle('is-on', j <= i);
-      im.style.zIndex = String(j);
-    });
-    steps.forEach((s, j) => s.classList.toggle('is-on', j === i));
-    if (n) n.textContent = String(i + 1).padStart(2, '0');
-  };
-  set(0);
-  steps.forEach((st, i) =>
-    ScrollTrigger.create({ trigger: st, start: 'top 55%', end: 'bottom 55%', onToggle: (self) => self.isActive && set(i) }),
-  );
+/* ─── Les trois métiers : panneaux plein écran empilés ── */
+function unis() {
+  const panels = $$('[data-upanel]');
+  panels.forEach((pn, i) => {
+    const img = $('[data-upanel-img]', pn);
+    const inner = $('[data-upanel-in]', pn)!;
+    const txt = $('.upanel__txt', pn)!;
+    if (img) gsap.fromTo(img, { scale: 1.25 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: pn, start: 'top bottom', end: 'top top', scrub: true } });
+    gsap.fromTo(
+      txt.children,
+      { yPercent: 60, opacity: 0 },
+      { yPercent: 0, opacity: 1, stagger: 0.1, ease: 'none', scrollTrigger: { trigger: pn, start: 'top 75%', end: 'top 5%', scrub: true } },
+    );
+    // Le panneau recule pendant que le suivant le recouvre
+    const next = panels[i + 1];
+    if (next) gsap.to(inner, { scale: 0.88, opacity: 0.3, ease: 'none', scrollTrigger: { trigger: next, start: 'top bottom', end: 'top top', scrub: true } });
+  });
 }
 function contactMono() {
   const m = $('[data-contact-mono] .bl-logo');
@@ -949,7 +937,7 @@ function init() {
   gsap.set($$('[data-float]'), { opacity: 0 });
 
   // Les sections épinglées d'abord : leurs espaces de défilement décalent tout ce qui suit
-  chain();
+  unis();
   terre();
   process();
   reveals();
@@ -964,7 +952,6 @@ function init() {
   parallax();
   autoVideos();
   contactMono();
-  tiles();
   faq();
   form();
   onScroll();

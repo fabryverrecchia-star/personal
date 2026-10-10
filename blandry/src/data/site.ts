@@ -16,7 +16,9 @@ const g = (slug: string) => galerieFiles[`../assets/galerie/${slug}.jpg`].defaul
 const metierFiles = import.meta.glob<{ default: ImageMetadata }>('../assets/metier/*.jpg', { eager: true });
 const m = (slug: string) => metierFiles[`../assets/metier/${slug}.jpg`].default;
 // Photo par identifiant, qu'elle vienne de la galerie ou des photos métier
-export const visuel = (slug: string) => metierFiles[`../assets/metier/${slug}.jpg`]?.default ?? g(slug);
+const chantierFiles = import.meta.glob<{ default: ImageMetadata }>('../assets/chantiers/*.jpg', { eager: true });
+export const visuel = (slug: string) =>
+  metierFiles[`../assets/metier/${slug}.jpg`]?.default ?? chantierFiles[`../assets/chantiers/${slug}.jpg`]?.default ?? g(slug);
 
 export const site = {
   url: 'https://18h22.com/blandry', // À COMPLÉTER : domaine définitif
@@ -147,50 +149,47 @@ export const galerie: Photo[] = [
 export const heroPhotos: Photo[] = [
   P('placo-vissage', '', 'Intérieur'),
   P('carrelage-salle-de-bain', '', 'Intérieur'),
-  P('enduit-couteau', '', 'Intérieur'),
+  P('finition-lumiere', '', 'Intérieur'),
   P('carrelage-faience-grise', '', 'Intérieur'),
-  P('poncage-main', '', 'Intérieur'),
-  P('peinture-baladeuse', '', 'Intérieur'),
-  P('placo-plafond-bandes', '', 'Intérieur'),
+  P('artisan-poncage', '', 'Intérieur'),
   P('carrelage-mur-courbe', '', 'Intérieur'),
+  P('applique-lumiere', '', 'Intérieur'),
+  P('carrelage-douche-sombre', '', 'Intérieur'),
 ];
 
-// ── Les trois univers ─────────────────────────────────────────
+// ── Les trois univers (un panneau plein écran chacun) ─────────
 export const univers = [
-  { id: 'placo', n: '01', nom: 'Plâtrerie', court: 'Cloisons, plafonds, isolation' },
-  { id: 'peinture', n: '02', nom: 'Peinture', court: 'Intérieur, extérieur, finitions' },
-  { id: 'carrelage', n: '03', nom: 'Carrelage', court: 'Sols, faïence, salles de bains' },
+  {
+    id: 'placo',
+    n: '01',
+    nom: 'Plâtrerie',
+    court: 'Cloisons, plafonds, isolation',
+    phrase: 'Des murs droits, des plafonds nets, une isolation qui se fait oublier.',
+    mots: ['Cloisons', 'Faux plafonds', 'Isolation'],
+    photo: m('placo-vissage'),
+    alt: 'Vissage d’une plaque de plâtre le long d’un trait laser',
+  },
+  {
+    id: 'peinture',
+    n: '02',
+    nom: 'Peinture',
+    court: 'Intérieur, extérieur, finitions',
+    phrase: 'Une préparation sans compromis, une finition qui tient dans le temps.',
+    mots: ['Intérieur', 'Façades', 'Boiseries'],
+    photo: visuel('finition-lumiere'),
+    alt: 'Angle de mur arrondi, enduit parfaitement lisse baigné de lumière',
+  },
+  {
+    id: 'carrelage',
+    n: '03',
+    nom: 'Carrelage',
+    court: 'Sols, faïence, salles de bains',
+    phrase: 'Des joints réguliers, des coupes nettes, des pièces d’eau étanches.',
+    mots: ['Sols', 'Salles de bains', 'Faïence'],
+    photo: m('carrelage-salle-de-bain'),
+    alt: 'Salle de bains en carrelage grand format gris',
+  },
 ];
-
-export const peinture = {
-  points: ['Préparation complète des supports', 'Finitions mate, velours ou satinée', 'Murs, plafonds, boiseries et façades', 'Échantillons posés chez vous'],
-  photos: [
-    { src: m('peinture-baladeuse'), alt: 'Peinture d’un mur au rouleau à la lumière d’une baladeuse' },
-    { src: g('chambre-vert-sapin'), alt: 'Chambre au mur d’accent vert sapin' },
-    { src: g('salon-papier-peint'), alt: 'Salon au papier peint panoramique' },
-  ],
-};
-
-export const carrelage = {
-  points: ['Calepinage étudié avant la pose', 'Support mis à niveau, étanchéité dans les pièces d’eau', 'Nivellement des grands formats', 'Joints réguliers, coupes nettes'],
-  photos: [
-    { src: m('carrelage-salle-de-bain'), alt: 'Salle de bains en carrelage grand format gris' },
-    { src: m('carrelage-pose-croisillons'), alt: 'Pose de carrelage grand format avec système de nivellement' },
-    { src: m('carrelage-faience-grise'), alt: 'Faïence murale en baguettes émaillées grises' },
-    { src: m('carrelage-douche-sombre'), alt: 'Douche en carrelage sombre, joints fins' },
-    { src: m('carrelage-mur-courbe'), alt: 'Mur courbe habillé de grands carreaux blancs' },
-  ],
-};
-
-// ── De l'ossature à la dernière couche (section « Le placo ») ─────
-export const chaine = [
-  { titre: 'Tracer et monter', texte: 'Rails et montants tracés au laser, plaques vissées à entraxe régulier. Une cloison droite commence par une ossature juste.', photo: m('placo-vissage'), alt: 'Vissage d’une plaque de plâtre hydrofuge le long d’un trait laser' },
-  { titre: 'Jointer', texte: 'Bandes et enduit à joints sur chaque raccord et chaque tête de vis, au plafond comme aux murs.', photo: m('placo-plafond-bandes'), alt: 'Pose de bandes et d’enduit à joints sur un plafond en plaques de plâtre' },
-  { titre: 'Lisser', texte: 'Enduit de finition tiré au couteau large, passe après passe, jusqu’à une surface parfaitement plane.', photo: m('enduit-couteau'), alt: 'Enduit de lissage appliqué au couteau sur un mur clair' },
-  { titre: 'Poncer et contrôler', texte: 'Ponçage à la main dans les angles, contrôle à la lumière rasante : aucun défaut ne doit survivre à cette étape.', photo: m('poncage-main'), alt: 'Ponçage à la main d’un angle de mur sous une lumière chaude' },
-  { titre: 'Peindre', texte: 'Impression, puis deux couches croisées, sous une baladeuse pour vérifier chaque passe.', photo: m('peinture-baladeuse'), alt: 'Peinture d’un mur au rouleau à la lumière d’une baladeuse' },
-];
-
 
 // ── Garanties et engagements (également utiles au référencement) ─
 // À VÉRIFIER : nom de l'assureur décennale à indiquer dans site.assurance
@@ -249,7 +248,7 @@ export const services = [
     titre: 'Plafonds, doublages et isolation',
     texte:
       'Faux plafonds suspendus, doublages collés ou sur ossature, isolation thermique et acoustique des murs et des combles. Des pièces plus confortables et des surfaces parfaitement planes, du sol au plafond.',
-    photo: 'placo-plafond-bandes',
+    photo: 'artisan-poncage',
   },
   {
     id: 'bandes',
@@ -257,7 +256,7 @@ export const services = [
     titre: 'Bandes, enduits et préparation',
     texte:
       'Bandes à joints, enduits de lissage, reprises de plâtre et ponçage soigné. C’est l’étape que l’on ne voit plus une fois le chantier terminé, et celle qui décide de tout : une peinture ne corrige pas un défaut, elle le révèle.',
-    photo: 'enduit-couteau',
+    photo: 'finition-lumiere',
   },
   {
     id: 'peinture',
@@ -265,7 +264,7 @@ export const services = [
     titre: 'Peinture intérieure et extérieure',
     texte:
       'Murs, plafonds, boiseries, volets et façades. Chaque support reçoit l’impression qui lui convient, puis deux couches croisées, dans la finition mate, velours ou satinée adaptée à l’usage de la pièce et à sa lumière.',
-    photo: 'peinture-baladeuse',
+    photo: 'applique-lumiere',
   },
   {
     id: 'carrelage',
@@ -273,7 +272,7 @@ export const services = [
     titre: 'Carrelage et faïence',
     texte:
       'Sols, murs de salle de bains, douches à l’italienne et crédences. Support préparé et mis à niveau, étanchéité sous carrelage dans les pièces d’eau, calepinage étudié et joints réguliers.',
-    photo: 'douche-carrelage',
+    photo: 'carrelage-salle-de-bain',
   },
 ];
 
