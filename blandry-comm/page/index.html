@@ -1,0 +1,620 @@
+<title>Campagnes Benjamin Landry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Hanken+Grotesk:wght@400;500;600&display=swap">
+<style>
+  /* Mise en page : identité du site Benjamin Landry (lin, basalte, argile ; Bodoni + Hanken), document de campagne en chapitres numérotés */
+  :root {
+    --bg: #f3efe8; --bg-2: #e9e3d9; --fg: #1a1917; --muted: #67615a; --line: rgb(26 25 23 / .14);
+    --accent: #9a6a32; --card: #fbf9f5; --ink: #1a1917; --on-ink: #f3efe8; --ok: #3f6b4a; --warn: #a45a1f;
+    --serif: 'Bodoni Moda', Didot, 'Bodoni 72', Georgia, serif;
+    --sans: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
+    --w: 1180px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #171614; --bg-2: #201e1b; --fg: #efe9df; --muted: #a49d93; --line: rgb(239 233 223 / .14); --accent: #d19a57; --card: #22201d; --ink: #0f0e0d; --on-ink: #f3efe8; --ok: #7fb08a; --warn: #e09a5c; color-scheme: dark; }
+  }
+  :root[data-theme="dark"] { --bg: #171614; --bg-2: #201e1b; --fg: #efe9df; --muted: #a49d93; --line: rgb(239 233 223 / .14); --accent: #d19a57; --card: #22201d; --ink: #0f0e0d; --on-ink: #f3efe8; --ok: #7fb08a; --warn: #e09a5c; color-scheme: dark; }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 16px; line-height: 1.6; }
+  .wrap { max-width: var(--w); margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 500; font-variation-settings: 'opsz' 11; text-wrap: balance; margin: 0; line-height: 1.05; }
+  p { margin: 0; }
+  a { color: inherit; }
+  .k { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; color: var(--accent); }
+  .muted { color: var(--muted); }
+  .mono { display: inline-block; aspect-ratio: 659 / 806; background: currentColor; -webkit-mask: url('img/logo-bl.png') center / contain no-repeat; mask: url('img/logo-bl.png') center / contain no-repeat; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  /* Navigation */
+  .nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .nav .wrap { display: flex; align-items: center; gap: 24px; height: 56px; }
+  .nav .brand { display: flex; align-items: center; gap: 10px; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; text-decoration: none; flex: none; }
+  .nav .brand .mono { height: 26px; }
+  .nav ul { display: flex; gap: 20px; list-style: none; margin: 0; padding: 0; overflow-x: auto; scrollbar-width: none; font-size: 13px; }
+  .nav ul::-webkit-scrollbar { display: none; }
+  .nav li a { text-decoration: none; color: var(--muted); white-space: nowrap; }
+  .nav li a:hover { color: var(--fg); }
+
+  /* Ouverture */
+  .hero { padding-block: clamp(48px, 8vw, 104px) clamp(40px, 6vw, 72px); border-bottom: 1px solid var(--line); }
+  .hero .wrap { display: grid; gap: 40px; }
+  .hero h1 { font-size: clamp(2.6rem, 7vw, 5.6rem); text-transform: uppercase; letter-spacing: .005em; }
+  .hero h1 em { text-transform: none; font-style: italic; }
+  .hero .lead { font-size: clamp(1.05rem, 1.6vw, 1.25rem); max-width: 58ch; color: var(--muted); }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); border-top: 1px solid var(--line); }
+  .facts div { padding: 18px 20px 0 0; display: grid; gap: 4px; }
+  .facts b { font-family: var(--serif); font-weight: 500; font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+  .facts span { font-size: 14px; color: var(--muted); }
+  @media (min-width: 960px) { .hero .wrap { grid-template-columns: 1.5fr 1fr; align-items: end; } .facts { grid-column: 1 / -1; } }
+
+  section.ch { padding-block: clamp(56px, 8vw, 104px); border-bottom: 1px solid var(--line); }
+  .ch-head { display: grid; gap: 14px; margin-bottom: clamp(32px, 5vw, 56px); max-width: 760px; }
+  .ch-head h2 { font-size: clamp(2rem, 4.4vw, 3.4rem); }
+  .ch-head p { color: var(--muted); max-width: 62ch; }
+  .num { font-family: var(--serif); font-size: clamp(3rem, 7vw, 5rem); line-height: .8; color: transparent; -webkit-text-stroke: 1px var(--accent); }
+
+  /* Constat */
+  .vs { display: grid; gap: 16px; }
+  @media (min-width: 860px) { .vs { grid-template-columns: 1fr 1fr; } }
+  .vs article { background: var(--card); border: 1px solid var(--line); padding: 28px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+  .vs h3 { font-size: 1.5rem; }
+  .vs ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
+  .vs .them { background: transparent; }
+
+  /* Entonnoir */
+  .funnel { display: grid; gap: 0; border: 1px solid var(--line); }
+  .funnel a { display: grid; grid-template-columns: 64px 1fr; gap: 6px 18px; padding: 22px 24px; text-decoration: none; border-top: 1px solid var(--line); align-items: baseline; }
+  .funnel a:first-child { border-top: 0; }
+  .funnel a:hover { background: var(--bg-2); }
+  .funnel .fn { font-family: var(--serif); font-size: 2.2rem; color: var(--accent); line-height: 1; grid-row: 1 / 3; }
+  .funnel strong { font-family: var(--serif); font-weight: 500; font-size: 1.35rem; }
+  .funnel span { color: var(--muted); font-size: 15px; }
+  .funnel .bar { grid-column: 2; height: 6px; background: var(--bg-2); position: relative; margin-top: 6px; }
+  .funnel .bar i { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
+
+  /* Fiche campagne */
+  .spec { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); margin-bottom: 40px; }
+  .spec div { padding: 16px 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; gap: 4px; align-content: start; min-width: 0; }
+  .spec dt { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .spec dd { margin: 0; font-size: 15px; }
+  .spec code { font-size: 13px; background: var(--bg-2); padding: 1px 6px; overflow-wrap: anywhere; }
+
+  .ads { display: grid; gap: 28px; }
+  @media (min-width: 980px) { .ads { grid-template-columns: 360px 1fr; align-items: start; } }
+
+  /* Maquettes Facebook / Instagram */
+  .phone { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; max-width: 380px; width: 100%; justify-self: center; box-shadow: 0 18px 50px -30px rgb(0 0 0 / .45); }
+  .ph-top { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
+  .ph-av { width: 34px; height: 34px; border-radius: 50%; background: var(--fg); color: var(--bg); display: grid; place-items: center; flex: none; }
+  .ph-av .mono { height: 18px; }
+  .ph-top b { font-size: 14px; display: block; line-height: 1.2; }
+  .ph-top small { font-size: 12px; color: var(--muted); }
+  .ph-txt { padding: 0 14px 12px; font-size: 14px; line-height: 1.45; }
+  .ph-img img, .ph-img video { display: block; width: 100%; height: auto; }
+  .ph-cta { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: var(--bg-2); }
+  .ph-cta small { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .ph-cta b { font-size: 14px; display: block; line-height: 1.25; }
+  .ph-cta span { flex: none; font-size: 13px; font-weight: 600; padding: 8px 12px; background: var(--fg); color: var(--bg); border-radius: 6px; }
+  .carousel { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 14px 12px; scrollbar-width: thin; }
+  .carousel figure { margin: 0; flex: 0 0 78%; scroll-snap-align: start; border: 1px solid var(--line); background: var(--card); }
+  .carousel img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+  .carousel figcaption { padding: 8px 10px; font-size: 13px; font-weight: 600; }
+  .stories { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
+  .story { flex: 0 0 200px; scroll-snap-align: start; border-radius: 14px; overflow: hidden; aspect-ratio: 9 / 16; background: #000; position: relative; border: 1px solid var(--line); }
+  .story img, .story video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .story i { position: absolute; top: 10px; left: 10px; right: 10px; height: 3px; background: rgb(255 255 255 / .45); border-radius: 2px; }
+  .story em { position: absolute; bottom: 10px; left: 10px; right: 10px; text-align: center; font-style: normal; font-size: 12px; font-weight: 600; color: #fff; background: rgb(0 0 0 / .35); border-radius: 20px; padding: 6px; }
+
+  /* Textes d'annonce */
+  .copy { display: grid; gap: 18px; min-width: 0; }
+  .copyset { background: var(--card); border: 1px solid var(--line); }
+  .copyset { min-width: 0; }
+  .copyset header { flex-wrap: wrap; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  .copyset header h3 { font-size: 1.2rem; }
+  .copyset header span { font-size: 12px; color: var(--muted); }
+  .field { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); align-items: start; }
+  .field:last-child { border-bottom: 0; }
+  .field dt { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; grid-column: 1; }
+  .field dd { margin: 0; grid-column: 1; font-size: 15px; white-space: pre-line; min-width: 0; overflow-wrap: anywhere; }
+  .field .len { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; grid-column: 2; grid-row: 1; }
+  .field button { grid-column: 2; grid-row: 2; }
+  button.cp { font: 600 12px var(--sans); letter-spacing: .06em; text-transform: uppercase; border: 1px solid var(--line); background: transparent; color: var(--fg); padding: 6px 10px; cursor: pointer; }
+  button.cp:hover { border-color: var(--fg); }
+  button.cp.ok { background: var(--fg); color: var(--bg); }
+
+  /* Formulaire instantané */
+  .form-mock { display: grid; gap: 24px; }
+  @media (min-width: 900px) { .form-mock { grid-template-columns: 1fr 1fr; } }
+  .steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); counter-reset: s; }
+  .steps li { padding: 16px 0 16px 46px; border-bottom: 1px solid var(--line); position: relative; counter-increment: s; }
+  .steps li::before { content: counter(s, decimal-leading-zero); position: absolute; left: 0; top: 14px; font-family: var(--serif); font-size: 1.3rem; color: var(--accent); }
+  .steps b { display: block; }
+  .steps span { color: var(--muted); font-size: 15px; }
+
+  /* Tableaux */
+  .tbl { overflow-x: auto; border: 1px solid var(--line); }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 620px; }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--bg-2); }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tfoot td { font-weight: 600; border-bottom: 0; }
+  .two { display: grid; gap: 24px; }
+  @media (min-width: 900px) { .two { grid-template-columns: 1fr 1fr; } }
+  .tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border: 1px solid currentColor; border-radius: 20px; }
+  .tag.ok { color: var(--ok); }
+  .tag.warn { color: var(--warn); }
+
+  /* Supports */
+  .gallery { display: grid; gap: 28px; grid-template-columns: minmax(0, 1fr); }
+  .item { display: grid; gap: 14px; min-width: 0; }
+  .item .frame { background: var(--bg-2); padding: clamp(16px, 3vw, 32px); display: flex; gap: 16px; justify-content: center; align-items: center; flex-wrap: wrap; }
+  .item .frame img { max-width: 100%; height: auto; box-shadow: 0 14px 40px -24px rgb(0 0 0 / .6); }
+  .item h3 { font-size: 1.4rem; }
+  .item .copyset dl { display: block; }
+  .item > dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; font-size: 14px; }
+  .item > dl dt { color: var(--muted); }
+  .item > dl dd { margin: 0; }
+  @media (min-width: 900px) { .gallery.g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .card-pair img { width: min(320px, 100%); }
+  .a5-pair img { width: min(260px, 46%); }
+
+  .check { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
+  .check li > span { min-width: 0; }
+  .check code { overflow-wrap: anywhere; font-size: 13px; }
+  .check li { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .check li::before { content: ''; width: 16px; height: 16px; border: 1.5px solid var(--fg); transform: translateY(3px); }
+  .check small { color: var(--muted); font-size: 13px; }
+
+  footer { padding-block: 48px 64px; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; }
+</style>
+
+<nav class="nav" aria-label="Sommaire">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="mono" aria-hidden="true"></span>Benjamin Landry</a>
+    <ul>
+      <li><a href="#constat">Constat</a></li>
+      <li><a href="#strategie">Stratégie</a></li>
+      <li><a href="#c1">Campagne 1</a></li>
+      <li><a href="#c2">Campagne 2</a></li>
+      <li><a href="#c3">Campagne 3</a></li>
+      <li><a href="#formulaire">Formulaire</a></li>
+      <li><a href="#budget">Budget</a></li>
+      <li><a href="#print">Print</a></li>
+      <li><a href="#web">Web</a></li>
+      <li><a href="#lancement">Lancement</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div style="display:grid;gap:22px">
+      <p class="k">Plan de communication · Meta Ads, print et web</p>
+      <h1>Plâtrerie, peinture <em>&amp; carrelage</em></h1>
+    </div>
+    <p class="lead">Trois campagnes Facebook et Instagram pour faire connaître Benjamin Landry, générer des demandes de devis et convaincre les hésitants, dans un rayon d’environ 1 h 30 autour des Ancizes-Comps. Tous les visuels et les textes sont prêts à importer dans le Gestionnaire de publicités.</p>
+    <div class="facts">
+      <div><b>3</b><span>campagnes : notoriété, devis, reciblage</span></div>
+      <div><b>11</b><span>visuels publicitaires aux formats Meta</span></div>
+      <div><b>21 €</b><span>par jour conseillés, soit environ 630 € par mois une fois les trois campagnes actives</span></div>
+      <div><b>5</b><span>fichiers d’impression : carte, flyer, bâche</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ═════════ Constat ═════════ -->
+<section class="ch" id="constat">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="k">Constat</p>
+      <h2>La concurrence occupe déjà les fils d’actualité</h2>
+      <p>Les artisans du secteur publient chaque semaine dans les groupes locaux comme « Les P’tites Annonces des Combrailles ». Exemple observé : un peintre en bâtiment annonce plâtrerie, peinture, revêtements, bandes placo et isolation, avec un visuel générique de pinceau et d’éclaboussures.</p>
+    </div>
+    <div class="vs">
+      <article class="them">
+        <p class="k" style="color:var(--muted)">Ce que fait la concurrence</p>
+        <h3>Une liste de services sur une image de banque</h3>
+        <ul>
+          <li>Visuel générique, sans photo de chantier réel</li>
+          <li>Les mêmes services que Benjamin, présentés en vrac</li>
+          <li>Publication organique dans les groupes, sans ciblage</li>
+          <li>Aucune preuve : ni réalisation, ni garantie, ni zone précise</li>
+        </ul>
+      </article>
+      <article>
+        <p class="k">Notre réponse</p>
+        <h3>Une image d’artisan haut de gamme, prouvée par les chantiers</h3>
+        <ul>
+          <li>Trois métiers clairement identifiés : plâtrerie, peinture, carrelage</li>
+          <li>Un argument que les autres n’ont pas : un seul artisan du placo à la dernière couche</li>
+          <li>Des preuves : avant/après réels, garantie décennale, devis au prix ferme</li>
+          <li>Une diffusion payante ciblée, en plus des groupes locaux, qui restent gratuits</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ Stratégie ═════════ -->
+<section class="ch" id="strategie">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="k">Stratégie</p>
+      <h2>Trois campagnes qui s’enchaînent</h2>
+      <p>Chaque campagne a un rôle. La première fait connaître, la deuxième recueille les demandes de devis, la troisième relance les personnes qui ont déjà vu Benjamin sans le contacter. La largeur des barres montre la part du budget.</p>
+    </div>
+    <div class="funnel">
+      <a href="#c1"><span class="fn">01</span><strong>Notoriété · « Trois métiers, un seul artisan »</strong><span>Stories, Reels et vidéos, auprès des propriétaires de la zone.</span><span class="bar"><i style="width:24%"></i></span></a>
+      <a href="#c2"><span class="fn">02</span><strong>Demandes de devis · « Visite et devis gratuits »</strong><span>Carrousel et image, avec un formulaire Meta prérempli.</span><span class="bar"><i style="width:57%"></i></span></a>
+      <a href="#c3"><span class="fn">03</span><strong>Reciblage · « Un chantier sans mauvaise surprise »</strong><span>Avant/après et garanties pour les personnes déjà touchées.</span><span class="bar"><i style="width:19%"></i></span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ Campagne 1 ═════════ -->
+<section class="ch" id="c1">
+  <div class="wrap">
+    <div class="ch-head">
+      <span class="num" aria-hidden="true">01</span>
+      <p class="k">Campagne 1 · Notoriété</p>
+      <h2>Trois métiers, un seul artisan</h2>
+      <p>Installer le nom de Benjamin Landry auprès des propriétaires de la zone, avec des formats plein écran qui défilent vite. Cette campagne alimente aussi l’audience de reciblage de la campagne 3.</p>
+    </div>
+    <dl class="spec">
+      <div><dt>Objectif Meta</dt><dd>Notoriété · Couverture</dd></div>
+      <div><dt>Nom de campagne</dt><dd><code>BL_C1_NOTORIETE_3METIERS</code></dd></div>
+      <div><dt>Zone</dt><dd>Les Ancizes-Comps + 60 km, « personnes qui vivent dans ce lieu »</dd></div>
+      <div><dt>Public</dt><dd>30 à 65 ans et plus. Audience Advantage+, suggestions : rénovation, décoration intérieure, bricolage, achat immobilier</dd></div>
+      <div><dt>Placements</dt><dd>Stories et Reels Facebook et Instagram</dd></div>
+      <div><dt>Répétition</dt><dd>2 affichages maximum par personne tous les 7 jours</dd></div>
+      <div><dt>Budget</dt><dd>5 € par jour, en continu</dd></div>
+      <div><dt>Indicateurs</dt><dd>Couverture, coût pour 1 000 personnes, vues de vidéo à 50 %</dd></div>
+    </dl>
+    <div class="ads">
+      <div style="display:grid;gap:12px;min-width:0">
+        <p class="k" style="color:var(--muted)">Stories et Reels · 1080 × 1920</p>
+        <div class="stories">
+          <div class="story"><i></i><img src="creas/c1-story-platrerie.jpg" alt="Story plâtrerie : visseuse sur plaque de plâtre, titre Plâtrerie"><em>En savoir plus</em></div>
+          <div class="story"><i></i><img src="creas/c1-story-peinture.jpg" alt="Story peinture : angle de mur lisse dans la lumière, titre Peinture"><em>En savoir plus</em></div>
+          <div class="story"><i></i><img src="creas/c1-story-carrelage.jpg" alt="Story carrelage : salle de bains en grands carreaux gris, titre Carrelage"><em>En savoir plus</em></div>
+          <div class="story"><i></i><video src="video/peinture-720.mp4" poster="video/peinture-poster.jpg" muted loop playsinline autoplay aria-label="Vidéo : peinture malaxée dans son seau"></video><em>Reel · préparation</em></div>
+          <div class="story"><i></i><video src="video/metier-720.mp4" muted loop playsinline autoplay aria-label="Vidéo : ponçage, enduit, reprise des joints"></video><em>Reel · chantier</em></div>
+        </div>
+        <p class="muted" style="font-size:14px">Les deux vidéos sont celles du site. Ajoutez les sous-titres automatiques de Meta, car la plupart des gens regardent sans le son.</p>
+      </div>
+      <div class="copy">
+        <div class="copyset">
+          <header><h3>Texte commun aux 5 publicités</h3><span>Ton : première personne, artisan local</span></header>
+          <dl>
+            <div class="field"><dt>Texte principal</dt><dd>Plâtrerie, peinture, carrelage : je réalise tout le chantier, de l’ossature en plaques de plâtre à la dernière couche. Artisan aux Ancizes-Comps, j’interviens dans les Combrailles, à Riom et à Clermont-Ferrand.</dd></div>
+            <div class="field"><dt>Titre</dt><dd>Benjamin Landry, artisan</dd></div>
+            <div class="field"><dt>Bouton</dt><dd>En savoir plus → page d’accueil du site</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ Campagne 2 ═════════ -->
+<section class="ch" id="c2">
+  <div class="wrap">
+    <div class="ch-head">
+      <span class="num" aria-hidden="true">02</span>
+      <p class="k">Campagne 2 · Demandes de devis</p>
+      <h2>Visite et devis gratuits</h2>
+      <p>La campagne principale. Le formulaire s’ouvre dans Facebook ou Instagram, déjà rempli avec le nom et le téléphone : la personne n’a qu’à indiquer ses travaux et sa commune.</p>
+    </div>
+    <dl class="spec">
+      <div><dt>Objectif Meta</dt><dd>Prospects · Formulaire instantané</dd></div>
+      <div><dt>Nom de campagne</dt><dd><code>BL_C2_DEVIS_FORMULAIRE</code></dd></div>
+      <div><dt>Zone</dt><dd>Les Ancizes-Comps + 60 km, « personnes qui vivent dans ce lieu »</dd></div>
+      <div><dt>Public</dt><dd>30 à 65 ans et plus, Audience Advantage+ (mêmes suggestions)</dd></div>
+      <div><dt>Placements</dt><dd>Advantage+ (tous les placements)</dd></div>
+      <div><dt>Publicités</dt><dd>A : carrousel des 3 métiers · B : image « Du placo à la dernière couche »</dd></div>
+      <div><dt>Budget</dt><dd>12 € par jour, en continu</dd></div>
+      <div><dt>Indicateurs</dt><dd>Nombre de demandes, coût par demande, part de demandes rappelées</dd></div>
+    </dl>
+    <div class="ads">
+      <div class="phone" aria-label="Aperçu de la publicité A dans le fil Facebook">
+        <div class="ph-top"><span class="ph-av"><span class="mono"></span></span><div><b>Benjamin Landry</b><small>Sponsorisé</small></div></div>
+        <p class="ph-txt">Cloisons, faux plafonds, peinture, carrelage : un seul artisan pour tout le chantier…</p>
+        <div class="carousel">
+          <figure><img src="creas/c2-carrousel-1-platrerie.jpg" alt="Carte 1 : plâtrerie"><figcaption>Plâtrerie et isolation</figcaption></figure>
+          <figure><img src="creas/c2-carrousel-2-peinture.jpg" alt="Carte 2 : peinture"><figcaption>Peinture intérieure et extérieure</figcaption></figure>
+          <figure><img src="creas/c2-carrousel-3-carrelage.jpg" alt="Carte 3 : carrelage"><figcaption>Carrelage et faïence</figcaption></figure>
+          <figure><img src="creas/c2-carrousel-4-devis.jpg" alt="Carte 4 : visite et devis gratuits, 06 58 38 78 37"><figcaption>Rappel sous 48 heures</figcaption></figure>
+        </div>
+        <div class="ph-cta"><div><small>Formulaire</small><b>Visite et devis gratuits</b></div><span>Obtenir un devis</span></div>
+      </div>
+      <div class="copy">
+        <div class="copyset">
+          <header><h3>Publicité A · Carrousel</h3><span>4 cartes 1080 × 1080</span></header>
+          <dl>
+            <div class="field"><dt>Texte principal</dt><dd>Cloisons, faux plafonds, peinture, carrelage : un seul artisan pour tout le chantier, du placo à la dernière couche. Visite et devis gratuits dans les Combrailles, à Riom et à Clermont-Ferrand.</dd></div>
+            <div class="field"><dt>Titres des cartes</dt><dd>1. Plâtrerie et isolation
+2. Peinture intérieure et extérieure
+3. Carrelage et faïence
+4. Rappel sous 48 heures</dd></div>
+            <div class="field"><dt>Bouton</dt><dd>Obtenir un devis → formulaire « Devis Benjamin Landry »</dd></div>
+          </dl>
+        </div>
+        <div class="copyset">
+          <header><h3>Publicité B · Image</h3><span>1080 × 1350</span></header>
+          <dl>
+            <div class="field"><dt>Texte principal</dt><dd>Vous rénovez une pièce, des combles ou une salle de bains ? Je monte les cloisons, j’isole, je prépare, puis je peins ou je carrelle. Un seul interlocuteur, un devis détaillé au prix ferme.</dd></div>
+            <div class="field"><dt>Titre</dt><dd>Un seul artisan, du placo à la finition</dd></div>
+            <div class="field"><dt>Description</dt><dd>Visite et devis gratuits</dd></div>
+            <div class="field"><dt>Bouton</dt><dd>Obtenir un devis → même formulaire</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="ads" style="margin-top:28px">
+      <div class="phone" aria-label="Aperçu de la publicité B dans le fil Instagram">
+        <div class="ph-top"><span class="ph-av"><span class="mono"></span></span><div><b>benjamin_landry_finitions</b><small>Sponsorisé</small></div></div>
+        <div class="ph-img"><img src="creas/c2-fil-un-seul-artisan.jpg" alt="Benjamin Landry ponçant un plafond, titre Du placo à la dernière couche, pastille Visite et devis gratuits"></div>
+        <div class="ph-cta"><div><small>Formulaire</small><b>Un seul artisan, du placo à la finition</b></div><span>Obtenir un devis</span></div>
+      </div>
+      <div class="copy" style="align-content:start">
+        <p class="muted">Cette image utilise la seule photo où l’on voit Benjamin au travail, avec son logo sur le dos. C’est le visuel le plus personnel de la série, et celui qui se distingue le plus des visuels de banque d’images de la concurrence. Une série de photos de lui sur ses propres chantiers renforcerait encore cette campagne.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ Campagne 3 ═════════ -->
+<section class="ch" id="c3">
+  <div class="wrap">
+    <div class="ch-head">
+      <span class="num" aria-hidden="true">03</span>
+      <p class="k">Campagne 3 · Reciblage</p>
+      <h2>Un chantier sans mauvaise surprise</h2>
+      <p>Relancer les personnes qui ont déjà vu Benjamin (vidéos, site, profil) sans demander de devis. Les deux arguments qui rassurent le plus : un résultat visible et des garanties claires.</p>
+    </div>
+    <dl class="spec">
+      <div><dt>Objectif Meta</dt><dd>Prospects · Formulaire instantané</dd></div>
+      <div><dt>Nom de campagne</dt><dd><code>BL_C3_RECIBLAGE_PREUVES</code></dd></div>
+      <div><dt>Audiences incluses</dt><dd>Vidéos vues à 50 % (30 jours) · visiteurs du site (30 jours) · interactions avec la page et le compte Instagram (60 jours) · formulaire ouvert sans envoi (30 jours)</dd></div>
+      <div><dt>Exclusion</dt><dd>Personnes ayant déjà envoyé le formulaire</dd></div>
+      <div><dt>Démarrage</dt><dd>2 semaines après les campagnes 1 et 2, quand les audiences sont assez grandes</dd></div>
+      <div><dt>Publicités</dt><dd>A : avant/après des combles · B : garanties · C : story avant/après</dd></div>
+      <div><dt>Budget</dt><dd>4 € par jour</dd></div>
+      <div><dt>Indicateurs</dt><dd>Coût par demande, répétition (à garder sous 4)</dd></div>
+    </dl>
+    <div class="ads">
+      <div class="phone" aria-label="Aperçu de la publicité A dans le fil Facebook">
+        <div class="ph-top"><span class="ph-av"><span class="mono"></span></span><div><b>Benjamin Landry</b><small>Sponsorisé</small></div></div>
+        <p class="ph-txt">Des combles bruts à une chambre lumineuse…</p>
+        <div class="ph-img"><img src="creas/c3-fil-avant-apres.jpg" alt="Avant / après : combles bruts puis chambre aménagée"></div>
+        <div class="ph-cta"><div><small>Formulaire</small><b>Visite et devis gratuits</b></div><span>Obtenir un devis</span></div>
+      </div>
+      <div class="copy">
+        <div class="copyset">
+          <header><h3>Publicité A · Avant/après</h3><span>1080 × 1350 et story 1080 × 1920</span></header>
+          <dl>
+            <div class="field"><dt>Texte principal</dt><dd>Des combles bruts à une chambre lumineuse : isolation, plaques de plâtre, bandes et peinture, réalisées par le même artisan. Votre projet sera le prochain ?</dd></div>
+            <div class="field"><dt>Titre</dt><dd>Visite et devis gratuits</dd></div>
+            <div class="field"><dt>Bouton</dt><dd>Obtenir un devis</dd></div>
+          </dl>
+        </div>
+        <div class="copyset">
+          <header><h3>Publicité B · Garanties</h3><span>1080 × 1350</span></header>
+          <dl>
+            <div class="field"><dt>Texte principal</dt><dd>Garantie décennale, devis détaillé poste par poste au prix ferme, un seul interlocuteur du devis à la réception. Parlons de votre chantier.</dd></div>
+            <div class="field"><dt>Titre</dt><dd>Un chantier sans mauvaise surprise</dd></div>
+            <div class="field"><dt>Bouton</dt><dd>Obtenir un devis, ou Appeler (06 58 38 78 37) en variante</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="gallery g2" style="margin-top:28px">
+      <div class="item"><div class="frame"><img src="creas/c3-fil-garanties.jpg" alt="Visuel garanties : quatre engagements et le numéro de téléphone" style="width:min(340px,100%)"></div></div>
+      <div class="item"><div class="frame"><img src="creas/c3-story-avant-apres.jpg" alt="Story avant/après des combles" style="width:min(220px,100%)"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ Formulaire ═════════ -->
+<section class="ch" id="formulaire">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="k">Formulaire instantané</p>
+      <h2>« Devis Benjamin Landry »</h2>
+      <p>Le même formulaire sert aux campagnes 2 et 3. Choisir le type « Intention plus élevée » : une étape de vérification en plus, mais des demandes plus sérieuses.</p>
+    </div>
+    <div class="form-mock">
+      <ol class="steps">
+        <li><b>Introduction</b><span>Titre : « Visite et devis gratuits ». Texte : « Plâtrerie, peinture, carrelage. Benjamin vous rappelle sous 48 heures. » Image : visuel du carrousel n° 4.</span></li>
+        <li><b>Type de travaux</b><span>Choix multiple : Plâtrerie et isolation · Peinture · Carrelage · Plusieurs travaux</span></li>
+        <li><b>Commune du chantier</b><span>Réponse courte</span></li>
+        <li><b>Délai souhaité</b><span>Dès que possible · Dans 1 à 3 mois · Plus tard</span></li>
+        <li><b>Coordonnées</b><span>Prénom, nom, téléphone, e-mail (préremplis par Meta)</span></li>
+      </ol>
+      <ol class="steps">
+        <li><b>Politique de confidentialité</b><span>Lien obligatoire : la page Mentions légales du site, qui contient la section Données personnelles.</span></li>
+        <li><b>Message de fin</b><span>« Merci. Benjamin vous rappelle sous 48 heures pour convenir d’une visite. »</span></li>
+        <li><b>Bouton de fin</b><span>« Appeler » avec le 06 58 38 78 37, ou « Voir le site ».</span></li>
+        <li><b>Réception des demandes</b><span>Notifications par e-mail activées dans Meta Business Suite, et rappel le jour même autant que possible : un prospect rappelé vite signe beaucoup plus souvent.</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ Budget ═════════ -->
+<section class="ch" id="budget">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="k">Budget et calendrier</p>
+      <h2>21 € par jour pour démarrer</h2>
+      <p>Montants conseillés pour un premier mois. Les coûts réels dépendent de la concurrence sur la zone : on ajuste après deux semaines, à partir des chiffres observés.</p>
+    </div>
+    <div style="display:grid;gap:24px">
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Campagne</th><th class="n">Par jour</th><th class="n">30 jours</th><th class="n">Part par jour</th></tr></thead>
+          <tbody>
+            <tr><td>01 · Notoriété</td><td class="n">5 €</td><td class="n">150 €</td><td class="n">24 %</td></tr>
+            <tr><td>02 · Demandes de devis</td><td class="n">12 €</td><td class="n">360 €</td><td class="n">57 %</td></tr>
+            <tr><td>03 · Reciblage (à partir de J+14)</td><td class="n">4 €</td><td class="n">64 €</td><td class="n">19 %</td></tr>
+          </tbody>
+          <tfoot><tr><td>Total premier mois</td><td class="n">21 €</td><td class="n">574 €</td><td class="n">100 %</td></tr></tfoot>
+        </table>
+      </div>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Semaine</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td>S1</td><td>Pixel installé, formulaire créé, lancement des campagnes 1 et 2</td></tr>
+            <tr><td>S2</td><td>Premier point : couper la publicité la plus faible de la campagne 2</td></tr>
+            <tr><td>S3</td><td>Lancement de la campagne 3, nouvelles photos de chantier</td></tr>
+            <tr><td>S4</td><td>Bilan : coût par demande, devis signés, budget du mois 2</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="tbl" style="margin-top:24px">
+      <table>
+        <thead><tr><th>Indicateur</th><th>À surveiller</th><th>Si le seuil est franchi</th></tr></thead>
+        <tbody>
+          <tr><td>Taux de clic (lien)</td><td><span class="tag warn">sous 0,8 %</span></td><td>Changer le visuel ou la première phrase du texte</td></tr>
+          <tr><td>Répétition, campagne 1</td><td><span class="tag warn">au-dessus de 3</span></td><td>Ajouter de nouvelles stories ou élargir la zone</td></tr>
+          <tr><td>Coût par demande</td><td><span class="tag ok">objectif fixé en S2</span></td><td>Basculer le budget vers la publicité la plus rentable</td></tr>
+          <tr><td>Demandes non joignables</td><td><span class="tag warn">plus d’1 sur 3</span></td><td>Ajouter une question de vérification au formulaire</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ Print ═════════ -->
+<section class="ch" id="print">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="k">Supports print</p>
+      <h2>Le même univers, de la carte de visite à la bâche</h2>
+      <p>Fichiers PDF au format fini avec 3 mm de fonds perdus (10 mm pour la bâche), prêts à envoyer à l’imprimeur. Les visuels ci-dessous sont des aperçus.</p>
+    </div>
+    <div class="gallery">
+      <div class="item">
+        <div class="frame card-pair"><img src="print/carte-visite-recto.jpg" alt="Carte de visite, recto : monogramme BL sur fond noir"><img src="print/carte-visite-verso.jpg" alt="Carte de visite, verso : nom, métiers, téléphone, adresse, SIRET"></div>
+        <h3>Carte de visite</h3>
+        <dl><dt>Format</dt><dd>85 × 55 mm, recto verso</dd><dt>Papier</dt><dd>350 g mat, pelliculage toucher doux</dd><dt>Quantité</dt><dd>250 à 500 exemplaires</dd></dl>
+      </div>
+      <div class="gallery g2">
+        <div class="item">
+          <div class="frame a5-pair"><img src="print/flyer-a5-recto.jpg" alt="Flyer A5 recto : photo plâtrerie, titre et téléphone"><img src="print/flyer-a5-verso.jpg" alt="Flyer A5 verso : trois métiers, garanties, coordonnées"></div>
+          <h3>Flyer A5</h3>
+          <dl><dt>Format</dt><dd>148 × 210 mm, recto verso</dd><dt>Papier</dt><dd>170 g couché mat</dd><dt>Diffusion</dt><dd>Boîtes aux lettres autour des chantiers, commerces, mairies</dd></dl>
+        </div>
+        <div class="item">
+          <div class="frame"><img src="print/bache-chantier-120x80.jpg" alt="Bâche de chantier : monogramme, nom, métiers, devis gratuit et téléphone" style="width:min(460px,100%)"></div>
+          <h3>Bâche de chantier</h3>
+          <dl><dt>Format</dt><dd>120 × 80 cm</dd><dt>Matière</dt><dd>PVC 510 g, œillets tous les 50 cm</dd><dt>Usage</dt><dd>Sur chaque chantier visible depuis la rue, avec l’accord du client</dd></dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ Web ═════════ -->
+<section class="ch" id="web">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="k">Web et réseaux</p>
+      <h2>Des profils cohérents avec les publicités</h2>
+      <p>Une personne qui clique sur une publicité regarde d’abord le profil. Il doit montrer les trois mêmes métiers et le même univers.</p>
+    </div>
+    <div class="gallery">
+      <div class="item"><div class="frame"><img src="creas/web-couverture-facebook.jpg" alt="Couverture Facebook : plâtrerie, peinture, carrelage" style="width:min(820px,100%)"></div><h3>Couverture Facebook</h3><dl><dt>Format</dt><dd>1640 × 624 px</dd></dl></div>
+      <div class="gallery g2">
+        <div class="item"><div class="frame"><img src="creas/web-photo-profil.jpg" alt="Photo de profil : monogramme BL" style="width:180px;border-radius:50%"></div><h3>Photo de profil</h3><dl><dt>Format</dt><dd>1080 × 1080 px, affichée en rond</dd></dl></div>
+        <div class="item">
+          <div class="copyset">
+            <header><h3>Bio Instagram</h3><span>150 caractères maximum</span></header>
+            <dl>
+              <div class="field"><dt>Bio</dt><dd>Plâtrerie · Peinture · Carrelage
+Artisan aux Ancizes-Comps (63)
+Combrailles, Riom, Clermont · Devis gratuit</dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <h3>Fiche Google Business Profile</h3>
+        <dl>
+          <dt>Catégorie principale</dt><dd>Plâtrier</dd>
+          <dt>Catégories secondaires</dt><dd>Peintre en bâtiment, Carreleur</dd>
+          <dt>Zone desservie</dt><dd>Combrailles, Riom, Clermont-Ferrand et communes des pages locales du site</dd>
+          <dt>Rythme</dt><dd>Une publication par semaine avec une photo de chantier, et une demande d’avis à chaque fin de chantier</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ Lancement ═════════ -->
+<section class="ch" id="lancement">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="k">Mise en ligne</p>
+      <h2>Avant de lancer</h2>
+    </div>
+    <ul class="check">
+      <li><span>Créer ou vérifier la page Facebook et le compte Instagram professionnel, reliés dans Meta Business Suite</span><small>Benjamin</small></li>
+      <li><span>Ajouter un moyen de paiement au compte publicitaire</span><small>Benjamin</small></li>
+      <li><span>Installer le pixel Meta sur le site, avec les événements « Contact » (clic sur le téléphone) et « Lead » (formulaire)</span><small>Site</small></li>
+      <li><span>Mettre le site en ligne sur son domaine définitif, pour les liens des publicités et la politique de confidentialité</span><small>Site</small></li>
+      <li><span>Importer les 11 visuels et créer le formulaire « Devis Benjamin Landry »</span><small>Agence</small></li>
+      <li><span>Ajouter les paramètres de suivi aux liens : <code>utm_source=meta&amp;utm_medium=paid_social&amp;utm_campaign=bl_c2_devis</code></span><small>Agence</small></li>
+      <li><span>Commander cartes, flyers et bâche à partir des PDF</span><small>Benjamin</small></li>
+      <li><span>Prendre des photos des prochains chantiers, en lumière du jour, pour renouveler les visuels chaque mois</span><small>Benjamin</small></li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Benjamin Landry · Plâtrerie, peinture et carrelage · Les Ancizes-Comps (63)</span>
+    <span>06 58 38 78 37 · @benjamin_landry_finitions</span>
+  </div>
+</footer>
+
+<script>
+  // Bouton « Copier » et compteur de caractères sur chaque texte d'annonce
+  document.querySelectorAll('.field').forEach((f, i) => {
+    const dd = f.querySelector('dd');
+    if (!dd) return;
+    const n = document.createElement('span');
+    n.className = 'len';
+    n.textContent = dd.textContent.trim().length + ' car.';
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'cp';
+    b.id = 'cp-' + i;
+    b.textContent = 'Copier';
+    b.addEventListener('click', () => {
+      const t = dd.textContent.trim();
+      const done = () => { b.textContent = 'Copié'; b.classList.add('ok'); setTimeout(() => { b.textContent = 'Copier'; b.classList.remove('ok'); }, 1600); };
+      const fallback = () => { const r = document.createRange(); r.selectNodeContents(dd); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Sélectionné'; };
+      try { navigator.clipboard.writeText(t).then(done, fallback); } catch (e) { fallback(); }
+    });
+    f.append(n, b);
+  });
+  // Vidéos : lecture seulement quand elles sont visibles
+  const vids = document.querySelectorAll('video');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((es) => es.forEach((e) => (e.isIntersecting ? e.target.play().catch(() => {}) : e.target.pause())), { threshold: 0.2 });
+    vids.forEach((v) => io.observe(v));
+  }
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) vids.forEach((v) => { v.removeAttribute('autoplay'); v.pause(); });
+</script>

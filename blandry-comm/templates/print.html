@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Supports print — Benjamin Landry</title>
+<style>
+  /* Chaque document inclut 3 mm de fonds perdus (10 mm pour la bâche). Zone de sécurité : 3 mm à l’intérieur du format fini. */
+  @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-normal.woff2') format('woff2'); font-weight: 400 900; }
+  @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-italic.woff2') format('woff2'); font-weight: 400 900; font-style: italic; }
+  @font-face { font-family: 'Hanken'; src: url('../fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+  :root { --lin: #f3efe8; --ink: #1a1917; --argile: #a8773d; --volvic: #7d766d; --serif: 'Bodoni', Didot, Georgia, serif; --sans: 'Hanken', Arial, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .disp, .serif, [class*='tel'], .nom, .n, .t { font-variation-settings: 'opsz' 11; }
+  @page { margin: 0; }
+  html, body { background: #888; font-family: var(--sans); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { display: flex; flex-wrap: wrap; gap: 20mm; padding: 20mm; }
+  @media print { body { padding: 0; gap: 0; display: block; background: none; } .doc:not(.on) { display: none !important; } }
+  .doc { position: relative; overflow: hidden; flex: none; page-break-after: always; }
+  .mono { display: inline-block; aspect-ratio: 659 / 806; background: currentColor; -webkit-mask: url('../photos/logo-bl.png') center / contain no-repeat; mask: url('../photos/logo-bl.png') center / contain no-repeat; }
+  .lbl { letter-spacing: .22em; text-transform: uppercase; font-weight: 500; }
+  .disp { font-family: var(--serif); font-weight: 450; text-transform: uppercase; line-height: .92; }
+  .serif { font-family: var(--serif); }
+
+  /* ── Carte de visite 85×55 + 3 mm ── */
+  .card { width: 91mm; height: 61mm; }
+  .card-r { background: var(--ink); color: var(--lin); display: grid; place-items: center; }
+  .card-r .in { display: grid; justify-items: center; gap: 4mm; }
+  .card-r .mono { height: 19mm; color: var(--lin); }
+  .card-r .lbl { font-size: 2.3mm; }
+  .card-v { background: var(--lin); color: var(--ink); padding: 8mm 8mm 7.5mm; display: grid; grid-template-rows: auto 1fr auto; }
+  .card-v .nom { font-family: var(--serif); font-size: 5.4mm; text-transform: uppercase; letter-spacing: .02em; }
+  .card-v .met { font-size: 2.2mm; letter-spacing: .18em; text-transform: uppercase; color: var(--argile); margin-top: 1.4mm; font-weight: 600; }
+  .card-v .tel { font-family: var(--serif); font-size: 6.2mm; align-self: center; }
+  .card-v .bas { display: flex; justify-content: space-between; align-items: end; font-size: 2.1mm; line-height: 1.45; color: #4a4640; }
+  .card-v .bas .mono { height: 9mm; color: var(--ink); }
+
+  /* ── Flyer A5 148×210 + 3 mm ── */
+  .a5 { width: 154mm; height: 216mm; }
+  .a5-r { background: var(--ink); color: var(--lin); display: grid; grid-template-rows: 62% 38%; }
+  .a5-r .ph { position: relative; overflow: hidden; }
+  .a5-r .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .a5-r .ph .top { position: absolute; top: 11mm; left: 11mm; display: flex; align-items: center; gap: 3mm; font-size: 2.8mm; }
+  .a5-r .ph .top .mono { height: 9mm; }
+  .a5-r .ph::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgb(16 15 14 / .45), transparent 30%); }
+  .a5-r .ph .top { z-index: 2; }
+  .a5-r .tx { padding: 9mm 11mm 12mm; display: grid; align-content: space-between; }
+  .a5-r .disp { font-size: 13.5mm; }
+  .a5-r .disp em { font-style: italic; }
+  .a5-r .row { display: flex; justify-content: space-between; align-items: end; gap: 6mm; }
+  .a5-r .offre { font-size: 3.1mm; letter-spacing: .2em; text-transform: uppercase; color: var(--argile); font-weight: 600; }
+  .a5-r .tel { font-family: var(--serif); font-size: 9.5mm; }
+  .a5-v { background: var(--lin); color: var(--ink); padding: 12mm 11mm 10mm; display: grid; grid-template-rows: auto auto 1fr auto; gap: 7mm; }
+  .a5-v .k { font-size: 2.6mm; color: var(--argile); }
+  .a5-v .t { font-family: var(--serif); font-size: 8.2mm; line-height: 1.05; }
+  .a5-v .t em { font-style: italic; }
+  .a5-v .met { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
+  .a5-v .met figure { display: grid; gap: 2.2mm; }
+  .a5-v .met img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: block; }
+  .a5-v .met b { font-family: var(--serif); font-weight: 450; font-size: 4.4mm; text-transform: uppercase; }
+  .a5-v .met span { font-size: 2.55mm; line-height: 1.4; color: #4a4640; }
+  .a5-v ul { list-style: none; border-top: .25mm solid rgb(26 25 23 / .2); align-self: start; }
+  .a5-v li { padding: 2.4mm 0; border-bottom: .25mm solid rgb(26 25 23 / .2); font-size: 3.1mm; display: grid; grid-template-columns: 8mm 1fr; }
+  .a5-v li i { font-style: normal; font-family: var(--serif); color: var(--argile); }
+  .a5-v .pied { display: grid; grid-template-columns: 1fr auto; gap: 2mm 6mm; align-items: end; }
+  .a5-v .pied .tel { font-family: var(--serif); font-size: 8mm; }
+  .a5-v .pied .mono { height: 15mm; grid-row: 1 / 3; grid-column: 2; }
+  .a5-v .pied .legal { font-size: 2.1mm; line-height: 1.5; color: #6a655d; }
+
+  /* ── Bâche de chantier 120×80 cm + 10 mm ── */
+  .bache { width: 1220mm; height: 820mm; background: var(--ink); color: var(--lin); display: grid; grid-template-columns: 0.75fr 1.45fr; }
+  .bache .g { display: grid; place-items: center; border-right: 1.2mm solid rgb(243 239 232 / .18); }
+  .bache .g .mono { height: 380mm; color: var(--lin); }
+  .bache .d { padding: 80mm 70mm; display: grid; align-content: space-between; }
+  .bache .nom { font-family: var(--serif); font-size: 84mm; text-transform: uppercase; line-height: .95; }
+  .bache .met { font-size: 24mm; letter-spacing: .12em; white-space: nowrap; text-transform: uppercase; color: var(--argile); font-weight: 600; margin-top: 22mm; }
+  .bache .tel { font-family: var(--serif); font-size: 108mm; white-space: nowrap; }
+  .bache .sub { font-size: 30mm; letter-spacing: .16em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<!-- Carte de visite -->
+<section class="doc card card-r" data-doc="carte-visite-recto" data-w="91" data-h="61">
+  <div class="in"><span class="mono"></span><span class="lbl">Benjamin Landry</span></div>
+</section>
+<section class="doc card card-v" data-doc="carte-visite-verso" data-w="91" data-h="61">
+  <div><p class="nom">Benjamin Landry</p><p class="met">Plâtrerie · Peinture · Carrelage</p></div>
+  <p class="tel">06 58 38 78 37</p>
+  <div class="bas">
+    <p>59 rue du Boucheix, 63770 Les Ancizes-Comps<br>Instagram @benjamin_landry_finitions<br>SIRET 822 175 519 00021</p>
+    <span class="mono"></span>
+  </div>
+</section>
+
+<!-- Flyer A5 -->
+<section class="doc a5 a5-r" data-doc="flyer-a5-recto" data-w="154" data-h="216">
+  <div class="ph"><img src="../photos/placo-vissage.jpg" alt="" style="object-position:40% 45%"><div class="top"><span class="mono"></span><span class="lbl">Benjamin Landry</span></div></div>
+  <div class="tx">
+    <h1 class="disp">Plâtrerie,<br>peinture<br><em>&amp; carrelage</em></h1>
+    <div class="row">
+      <div><p class="offre">Visite et devis gratuits</p><p class="tel">06 58 38 78 37</p></div>
+    </div>
+  </div>
+</section>
+<section class="doc a5 a5-v" data-doc="flyer-a5-verso" data-w="154" data-h="216">
+  <div>
+    <p class="k lbl">Un seul artisan, de l’ossature à la finition</p>
+    <h2 class="t">Trois métiers, <em>une même exigence</em></h2>
+  </div>
+  <div class="met">
+    <figure><img src="../photos/placo-vissage.jpg" alt=""><b>Plâtrerie</b><span>Cloisons, faux plafonds, isolation des murs et des combles</span></figure>
+    <figure><img src="../photos/finition.jpg" alt=""><b>Peinture</b><span>Murs, plafonds, boiseries, façades</span></figure>
+    <figure><img src="../photos/carrelage-sdb.jpg" alt=""><b>Carrelage</b><span>Sols, salles de bains, douches, faïence</span></figure>
+  </div>
+  <ul>
+    <li><i>I.</i>Garantie décennale, attestation jointe au devis</li>
+    <li><i>II.</i>Devis détaillé poste par poste, prix ferme</li>
+    <li><i>III.</i>Un seul interlocuteur, du devis à la réception</li>
+    <li><i>IV.</i>Combrailles, Riom, Clermont-Ferrand et alentours</li>
+  </ul>
+  <div class="pied">
+    <p class="tel">06 58 38 78 37</p>
+    <span class="mono"></span>
+    <p class="legal">Benjamin Landry, entrepreneur individuel · 59 rue du Boucheix, 63770 Les Ancizes-Comps<br>SIRET 822 175 519 00021 · Instagram @benjamin_landry_finitions<br>Ne pas jeter sur la voie publique.</p>
+  </div>
+</section>
+
+<!-- Bâche de chantier -->
+<section class="doc bache" data-doc="bache-chantier-120x80" data-w="1220" data-h="820">
+  <div class="g"><span class="mono"></span></div>
+  <div class="d">
+    <div><p class="nom">Benjamin<br>Landry</p><p class="met">Plâtrerie · Peinture · Carrelage</p></div>
+    <div><p class="sub">Devis gratuit</p><p class="tel">06 58 38 78 37</p></div>
+  </div>
+</section>
+
+</body>
+</html>

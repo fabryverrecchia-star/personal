@@ -1,0 +1,49 @@
+BENJAMIN LANDRY · CAMPAGNES META ADS · TEXTES À COPIER
+Zone : Les Ancizes-Comps + 60 km (personnes qui vivent dans ce lieu) · 30-65 ans et + · Audience Advantage+
+Formulaire instantané : « Devis Benjamin Landry » (Intention plus élevée)
+
+──────── CAMPAGNE 1 · NOTORIÉTÉ (BL_C1_NOTORIETE_3METIERS) ────────
+Objectif : Notoriété > Couverture · Stories et Reels · 2 affichages / 7 jours · 5 €/jour
+Visuels : meta/c1-story-platrerie.png, c1-story-peinture.png, c1-story-carrelage.png + vidéos peinture-720.mp4 et metier-720.mp4 du site
+Texte principal : Plâtrerie, peinture, carrelage : je réalise tout le chantier, de l’ossature en plaques de plâtre à la dernière couche. Artisan aux Ancizes-Comps, j’interviens dans les Combrailles, à Riom et à Clermont-Ferrand.
+Titre : Benjamin Landry, artisan
+Bouton : En savoir plus → page d’accueil du site
+
+──────── CAMPAGNE 2 · DEMANDES DE DEVIS (BL_C2_DEVIS_FORMULAIRE) ────────
+Objectif : Prospects > Formulaire instantané · Placements Advantage+ · 12 €/jour
+
+Publicité A · Carrousel (meta/c2-carrousel-1 à 4)
+Texte principal : Cloisons, faux plafonds, peinture, carrelage : un seul artisan pour tout le chantier, du placo à la dernière couche. Visite et devis gratuits dans les Combrailles, à Riom et à Clermont-Ferrand.
+Titres des cartes : 1. Plâtrerie et isolation · 2. Peinture intérieure et extérieure · 3. Carrelage et faïence · 4. Rappel sous 48 heures
+Bouton : Obtenir un devis
+
+Publicité B · Image (meta/c2-fil-un-seul-artisan.png)
+Texte principal : Vous rénovez une pièce, des combles ou une salle de bains ? Je monte les cloisons, j’isole, je prépare, puis je peins ou je carrelle. Un seul interlocuteur, un devis détaillé au prix ferme.
+Titre : Un seul artisan, du placo à la finition
+Description : Visite et devis gratuits
+Bouton : Obtenir un devis
+
+──────── CAMPAGNE 3 · RECIBLAGE (BL_C3_RECIBLAGE_PREUVES) ────────
+Objectif : Prospects > Formulaire instantané · 4 €/jour · démarrage à J+14
+Audiences : vidéos vues à 50 % (30 j) · visiteurs du site (30 j) · interactions page FB et compte IG (60 j) · formulaire ouvert sans envoi (30 j)
+Exclusion : personnes ayant envoyé le formulaire
+
+Publicité A · Avant/après (meta/c3-fil-avant-apres.png + c3-story-avant-apres.png)
+Texte principal : Des combles bruts à une chambre lumineuse : isolation, plaques de plâtre, bandes et peinture, réalisées par le même artisan. Votre projet sera le prochain ?
+Titre : Visite et devis gratuits
+Bouton : Obtenir un devis
+
+Publicité B · Garanties (meta/c3-fil-garanties.png)
+Texte principal : Garantie décennale, devis détaillé poste par poste au prix ferme, un seul interlocuteur du devis à la réception. Parlons de votre chantier.
+Titre : Un chantier sans mauvaise surprise
+Bouton : Obtenir un devis (variante : Appeler, 06 58 38 78 37)
+
+──────── FORMULAIRE « DEVIS BENJAMIN LANDRY » ────────
+Introduction : « Visite et devis gratuits » — « Plâtrerie, peinture, carrelage. Benjamin vous rappelle sous 48 heures. »
+Questions : Type de travaux (Plâtrerie et isolation · Peinture · Carrelage · Plusieurs travaux) · Commune du chantier · Délai (Dès que possible · Dans 1 à 3 mois · Plus tard) · Prénom, nom, téléphone, e-mail
+Confidentialité : lien vers la page Mentions légales du site
+Message de fin : « Merci. Benjamin vous rappelle sous 48 heures pour convenir d’une visite. » · Bouton : Appeler
+
+──────── SUIVI ────────
+Paramètres des liens : utm_source=meta&utm_medium=paid_social&utm_campaign=bl_c1_notoriete | bl_c2_devis | bl_c3_reciblage
+Pixel Meta : événements Contact (clic téléphone) et Lead (formulaire du site)
