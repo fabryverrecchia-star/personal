@@ -256,6 +256,13 @@
   .lb[open] { display: grid; place-items: center; }
   .lb img { max-width: calc(100vw - 32px); max-height: calc(100dvh - 120px); object-fit: contain; box-shadow: 0 30px 80px -30px #000; }
   .lb-x { position: fixed; top: calc(16px + env(safe-area-inset-top, 0px)); right: 16px; font: 600 12px var(--sans); letter-spacing: .14em; text-transform: uppercase; background: #f3efe8; color: #1a1917; border: 0; padding: 10px 14px; cursor: pointer; }
+
+  /* Groupes Facebook */
+  .gposts { display: grid; gap: 28px; }
+  .gpost { display: grid; gap: 18px; align-items: start; }
+  @media (min-width: 980px) { .gpost { grid-template-columns: 300px minmax(0, 1fr); } }
+  .gpost .phone { max-width: 300px; }
+  .rules li { grid-template-columns: 28px minmax(0, 1fr) auto; }
 </style>
 
 <nav class="nav" aria-label="En-tête">
@@ -295,7 +302,7 @@
     <div class="facts">
       <div><b>3</b><span>campagnes : notoriété, devis, reciblage</span></div>
       <div><b>11</b><span>visuels publicitaires aux formats Meta</span></div>
-      <div><b>21 €</b><span>par jour conseillés, soit environ 630 € par mois une fois les trois campagnes actives</span></div>
+      <div><b>450 €</b><span>par mois de publicité, soit 15 € par jour pour les trois campagnes</span></div>
       <div><b>5</b><span>fichiers d’impression : carte, flyer, bâche</span></div>
     </div>
   </div>
@@ -314,10 +321,11 @@
       <li><a href="#c3"><img src="creas/c3-fil-avant-apres.jpg" alt="" loading="lazy"><span>05</span><b>Campagne 3</b><small>Reciblage</small></a></li>
       <li><a href="#formulaire"><span>06</span><b>Formulaire</b><small>Les questions posées</small></a></li>
       <li><a href="#budget"><span>07</span><b>Budget</b><small>Montants et calendrier</small></a></li>
-      <li><a href="#cartes"><img src="print/mockup-presentoir.jpg" alt="" loading="lazy"><span>08</span><b>Cartes de visite</b><small>Recto, verso, présentoir</small></a></li>
-      <li><a href="#print"><img src="print/flyer-a5-recto.jpg" alt="" loading="lazy"><span>09</span><b>Flyer et bâche</b><small>Fichiers d’impression</small></a></li>
-      <li><a href="#web"><img src="creas/web-couverture-facebook.jpg" alt="" loading="lazy"><span>10</span><b>Web et réseaux</b><small>Profils et Google</small></a></li>
-      <li><a href="#lancement"><span>11</span><b>Lancement</b><small>La liste avant de démarrer</small></a></li>
+      <li><a href="#groupes"><img src="creas/c3-fil-avant-apres.jpg" alt="" loading="lazy"><span>08</span><b>Groupes Facebook</b><small>Publications gratuites</small></a></li>
+      <li><a href="#cartes"><img src="print/mockup-presentoir.jpg" alt="" loading="lazy"><span>09</span><b>Cartes de visite</b><small>Recto, verso, présentoir</small></a></li>
+      <li><a href="#print"><img src="print/flyer-a5-recto.jpg" alt="" loading="lazy"><span>10</span><b>Flyer et bâche</b><small>Fichiers d’impression</small></a></li>
+      <li><a href="#web"><img src="creas/web-couverture-facebook.jpg" alt="" loading="lazy"><span>11</span><b>Web et réseaux</b><small>Profils et Google</small></a></li>
+      <li><a href="#lancement"><span>12</span><b>Lancement</b><small>La liste avant de démarrer</small></a></li>
     </ol>
   </div>
 </section>
@@ -364,9 +372,9 @@
       <p>Chaque campagne a un rôle. La première fait connaître, la deuxième recueille les demandes de devis, la troisième relance les personnes qui ont déjà vu Benjamin sans le contacter. La largeur des barres montre la part du budget.</p>
     </div>
     <div class="funnel">
-      <a href="#c1"><span class="fn">01</span><strong>Notoriété · « Trois métiers, un seul artisan »</strong><span>Stories, Reels et vidéos, auprès des propriétaires de la zone.</span><span class="bar"><i style="width:24%"></i></span></a>
-      <a href="#c2"><span class="fn">02</span><strong>Demandes de devis · « Visite et devis gratuits »</strong><span>Carrousel et image, avec un formulaire Meta prérempli.</span><span class="bar"><i style="width:57%"></i></span></a>
-      <a href="#c3"><span class="fn">03</span><strong>Reciblage · « Un chantier sans mauvaise surprise »</strong><span>Avant/après et garanties pour les personnes déjà touchées.</span><span class="bar"><i style="width:19%"></i></span></a>
+      <a href="#c1"><span class="fn">01</span><strong>Notoriété · « Trois métiers, un seul artisan »</strong><span>Stories, Reels et vidéos, auprès des propriétaires de la zone.</span><span class="bar"><i style="width:20%"></i></span></a>
+      <a href="#c2"><span class="fn">02</span><strong>Demandes de devis · « Visite et devis gratuits »</strong><span>Carrousel et image, avec un formulaire Meta prérempli.</span><span class="bar"><i style="width:60%"></i></span></a>
+      <a href="#c3"><span class="fn">03</span><strong>Reciblage · « Un chantier sans mauvaise surprise »</strong><span>Avant/après et garanties pour les personnes déjà touchées.</span><span class="bar"><i style="width:20%"></i></span></a>
     </div>
   </div>
 </section>
@@ -387,7 +395,7 @@
       <div><dt>Public</dt><dd>30 à 65 ans et plus. Audience Advantage+, suggestions : rénovation, décoration intérieure, bricolage, achat immobilier</dd></div>
       <div><dt>Placements</dt><dd>Stories et Reels Facebook et Instagram</dd></div>
       <div><dt>Répétition</dt><dd>2 affichages maximum par personne tous les 7 jours</dd></div>
-      <div><dt>Budget</dt><dd>5 € par jour, en continu</dd></div>
+      <div><dt>Budget</dt><dd>3 € par jour, soit 90 € par mois</dd></div>
       <div><dt>Indicateurs</dt><dd>Couverture, coût pour 1 000 personnes, vues de vidéo à 50 %</dd></div>
     </dl>
     <div class="ads">
@@ -432,7 +440,7 @@
       <div><dt>Public</dt><dd>30 à 65 ans et plus, Audience Advantage+ (mêmes suggestions)</dd></div>
       <div><dt>Placements</dt><dd>Advantage+ (tous les placements)</dd></div>
       <div><dt>Publicités</dt><dd>A : carrousel des 3 métiers · B : image « Du placo à la dernière couche »</dd></div>
-      <div><dt>Budget</dt><dd>12 € par jour, en continu</dd></div>
+      <div><dt>Budget</dt><dd>9 € par jour, soit 270 € par mois</dd></div>
       <div><dt>Indicateurs</dt><dd>Nombre de demandes, coût par demande, part de demandes rappelées</dd></div>
     </dl>
     <div class="ads">
@@ -497,9 +505,9 @@
       <div><dt>Nom de campagne</dt><dd><code>BL_C3_RECIBLAGE_PREUVES</code></dd></div>
       <div><dt>Audiences incluses</dt><dd>Vidéos vues à 50 % (30 jours) · visiteurs du site (30 jours) · interactions avec la page et le compte Instagram (60 jours) · formulaire ouvert sans envoi (30 jours)</dd></div>
       <div><dt>Exclusion</dt><dd>Personnes ayant déjà envoyé le formulaire</dd></div>
-      <div><dt>Démarrage</dt><dd>2 semaines après les campagnes 1 et 2, quand les audiences sont assez grandes</dd></div>
+      <div><dt>Démarrage</dt><dd>Dès le lancement, sur les personnes qui suivent déjà la page et le compte Instagram ; l’audience grandit ensuite avec les vidéos de la campagne 1</dd></div>
       <div><dt>Publicités</dt><dd>A : avant/après des combles · B : garanties · C : story avant/après</dd></div>
-      <div><dt>Budget</dt><dd>4 € par jour</dd></div>
+      <div><dt>Budget</dt><dd>3 € par jour, soit 90 € par mois</dd></div>
       <div><dt>Indicateurs</dt><dd>Coût par demande, répétition (à garder sous 4)</dd></div>
     </dl>
     <div class="ads">
@@ -566,28 +574,28 @@
   <div class="wrap">
     <div class="ch-head">
       <p class="k">Budget et calendrier</p>
-      <h2>21 € par jour pour démarrer</h2>
-      <p>Montants conseillés pour un premier mois. Les coûts réels dépendent de la concurrence sur la zone : on ajuste après deux semaines, à partir des chiffres observés.</p>
+      <h2>450 € par mois, tout compris</h2>
+      <p>Budget publicitaire mensuel fixe de 450 €, versé à Meta. La répartition entre les campagnes s’ajuste après deux semaines selon le coût réel par demande, sans dépasser ce total.</p>
     </div>
     <div style="display:grid;gap:24px">
       <div class="tbl">
         <table>
-          <thead><tr><th>Campagne</th><th class="n">Par jour</th><th class="n">30 jours</th><th class="n">Part par jour</th></tr></thead>
+          <thead><tr><th>Campagne</th><th class="n">Par jour</th><th class="n">Par mois</th><th class="n">Part par jour</th></tr></thead>
           <tbody>
-            <tr><td>01 · Notoriété</td><td class="n">5 €</td><td class="n">150 €</td><td class="n">24 %</td></tr>
-            <tr><td>02 · Demandes de devis</td><td class="n">12 €</td><td class="n">360 €</td><td class="n">57 %</td></tr>
-            <tr><td>03 · Reciblage (à partir de J+14)</td><td class="n">4 €</td><td class="n">64 €</td><td class="n">19 %</td></tr>
+            <tr><td>01 · Notoriété</td><td class="n">3 €</td><td class="n">90 €</td><td class="n">20 %</td></tr>
+            <tr><td>02 · Demandes de devis</td><td class="n">9 €</td><td class="n">270 €</td><td class="n">60 %</td></tr>
+            <tr><td>03 · Reciblage</td><td class="n">3 €</td><td class="n">90 €</td><td class="n">20 %</td></tr>
           </tbody>
-          <tfoot><tr><td>Total premier mois</td><td class="n">21 €</td><td class="n">574 €</td><td class="n">100 %</td></tr></tfoot>
+          <tfoot><tr><td>Total par mois</td><td class="n">15 €</td><td class="n">450 €</td><td class="n">100 %</td></tr></tfoot>
         </table>
       </div>
       <div class="tbl">
         <table>
           <thead><tr><th>Semaine</th><th>Actions</th></tr></thead>
           <tbody>
-            <tr><td>S1</td><td>Pixel installé, formulaire créé, lancement des campagnes 1 et 2</td></tr>
+            <tr><td>S1</td><td>Pixel installé, formulaire créé, lancement des trois campagnes</td></tr>
             <tr><td>S2</td><td>Premier point : couper la publicité la plus faible de la campagne 2</td></tr>
-            <tr><td>S3</td><td>Lancement de la campagne 3, nouvelles photos de chantier</td></tr>
+            <tr><td>S3</td><td>Nouvelles photos de chantier, nouveaux visuels pour la campagne 1</td></tr>
             <tr><td>S4</td><td>Bilan : coût par demande, devis signés, budget du mois 2</td></tr>
           </tbody>
         </table>
@@ -603,6 +611,112 @@
           <tr><td>Demandes non joignables</td><td><span class="tag warn">plus d’1 sur 3</span></td><td>Ajouter une question de vérification au formulaire</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ Groupes Facebook locaux ═════════ -->
+<section class="ch" id="groupes" data-title="Groupes Facebook">
+  <div class="wrap">
+    <div class="ch-head">
+      <p class="k">Groupes Facebook locaux</p>
+      <h2>Être présent là où les concurrents publient</h2>
+      <p>Gratuit et complémentaire des publicités : une publication par semaine dans les groupes d’annonces et d’entraide de la zone, publiée par Benjamin. Six textes à faire tourner, chacun avec un visuel de la campagne.</p>
+    </div>
+    <div class="two" style="margin-bottom:40px">
+      <ul class="check rules">
+        <li><span>Lire le règlement de chaque groupe : beaucoup réservent la publicité à un jour précis de la semaine.</span><small>Avant</small></li>
+        <li><span>Une seule publication par groupe et par semaine, jamais le même texte le même jour dans plusieurs groupes.</span><small>Rythme</small></li>
+        <li><span>Toujours une image, et le numéro de téléphone dans le texte plutôt qu’un lien.</span><small>Format</small></li>
+        <li><span>Publier le soir entre 18 h et 20 h ou le dimanche matin, quand les groupes sont les plus actifs.</span><small>Horaire</small></li>
+        <li><span>Répondre à chaque commentaire dans l’heure, puis proposer d’échanger en message privé.</span><small>Après</small></li>
+      </ul>
+      <div class="copyset" style="align-self:start">
+        <header><h3>Où publier</h3><span>Zone de 1 h 30</span></header>
+        <dl>
+          <div class="field"><dt>Groupe repéré</dt><dd>Les P’tites Annonces des Combrailles</dd></div>
+          <div class="field"><dt>À rechercher sur Facebook</dt><dd>Le nom de chaque commune (Les Ancizes-Comps, Saint-Georges-de-Mons, Pontgibaud, Riom, Châtel-Guyon, Volvic, Clermont-Ferrand…) suivi de « annonces », « entraide » ou « bons plans »</dd></div>
+          <div class="field"><dt>Réponse type en commentaire</dt><dd>Merci pour votre message. Je vous écris en privé pour en parler, ou vous pouvez m’appeler au 06 58 38 78 37.</dd></div>
+        </dl>
+      </div>
+    </div>
+    <div class="gposts">
+      <article class="gpost">
+        <div class="phone">
+          <div class="ph-top"><span class="ph-av"><span class="mono"></span></span><div><b>Benjamin Landry</b><small>Les P’tites Annonces des Combrailles · Semaine 1</small></div></div>
+          <div class="ph-img"><img src="creas/c2-fil-un-seul-artisan.jpg" alt="Visuel à joindre : présentation" loading="lazy"></div>
+        </div>
+        <div class="copyset">
+          <header><h3>1. Présentation</h3><span>Semaine 1</span></header>
+          <dl><div class="field"><dt>Texte de la publication</dt><dd>Bonjour à tous,
+Je m’appelle Benjamin Landry, artisan installé aux Ancizes-Comps. Je réalise vos travaux de plâtrerie (cloisons, faux plafonds, isolation), de peinture et de carrelage, du début à la fin du chantier : un seul interlocuteur, un devis détaillé au prix ferme.
+Visite et devis gratuits dans les Combrailles, à Riom et à Clermont-Ferrand.
+Tél. 06 58 38 78 37</dd></div></dl>
+        </div>
+      </article>
+      <article class="gpost">
+        <div class="phone">
+          <div class="ph-top"><span class="ph-av"><span class="mono"></span></span><div><b>Benjamin Landry</b><small>Les P’tites Annonces des Combrailles · Semaine 2</small></div></div>
+          <div class="ph-img"><img src="creas/c3-fil-avant-apres.jpg" alt="Visuel à joindre : avant / après" loading="lazy"></div>
+        </div>
+        <div class="copyset">
+          <header><h3>2. Avant / après</h3><span>Semaine 2</span></header>
+          <dl><div class="field"><dt>Texte de la publication</dt><dd>Avant / après d’un chantier récent : des combles bruts transformés en chambre.
+Isolation, plaques de plâtre, bandes, enduits et peinture, réalisés de A à Z.
+Vous avez des combles ou une pièce à aménager ? Je me déplace gratuitement pour voir votre projet.
+Benjamin Landry, Les Ancizes-Comps · 06 58 38 78 37</dd></div></dl>
+        </div>
+      </article>
+      <article class="gpost">
+        <div class="phone">
+          <div class="ph-top"><span class="ph-av"><span class="mono"></span></span><div><b>Benjamin Landry</b><small>Les P’tites Annonces des Combrailles · Semaine 3</small></div></div>
+          <div class="ph-img"><img src="creas/c2-carrousel-1-platrerie.jpg" alt="Visuel à joindre : plâtrerie" loading="lazy"></div>
+        </div>
+        <div class="copyset">
+          <header><h3>3. Plâtrerie</h3><span>Semaine 3</span></header>
+          <dl><div class="field"><dt>Texte de la publication</dt><dd>Besoin d’une cloison, d’un faux plafond ou d’isoler une pièce ?
+Je pose vos plaques de plâtre sur ossature, avec des murs droits et des joints invisibles une fois peints.
+Devis gratuit, intervention dans les Combrailles, à Riom et à Clermont-Ferrand.
+Benjamin Landry · 06 58 38 78 37</dd></div></dl>
+        </div>
+      </article>
+      <article class="gpost">
+        <div class="phone">
+          <div class="ph-top"><span class="ph-av"><span class="mono"></span></span><div><b>Benjamin Landry</b><small>Les P’tites Annonces des Combrailles · Semaine 4</small></div></div>
+          <div class="ph-img"><img src="creas/c2-carrousel-2-peinture.jpg" alt="Visuel à joindre : peinture" loading="lazy"></div>
+        </div>
+        <div class="copyset">
+          <header><h3>4. Peinture</h3><span>Semaine 4</span></header>
+          <dl><div class="field"><dt>Texte de la publication</dt><dd>Une peinture qui dure, c’est d’abord une bonne préparation : rebouchage, enduit, ponçage, impression, puis deux couches.
+Murs, plafonds, boiseries et façades, en intérieur comme en extérieur.
+Pour un devis gratuit : Benjamin Landry, 06 58 38 78 37</dd></div></dl>
+        </div>
+      </article>
+      <article class="gpost">
+        <div class="phone">
+          <div class="ph-top"><span class="ph-av"><span class="mono"></span></span><div><b>Benjamin Landry</b><small>Les P’tites Annonces des Combrailles · Semaine 5</small></div></div>
+          <div class="ph-img"><img src="creas/c2-carrousel-3-carrelage.jpg" alt="Visuel à joindre : carrelage" loading="lazy"></div>
+        </div>
+        <div class="copyset">
+          <header><h3>5. Carrelage</h3><span>Semaine 5</span></header>
+          <dl><div class="field"><dt>Texte de la publication</dt><dd>Salle de bains, douche à l’italienne, sol de cuisine : je pose votre carrelage et votre faïence, avec étanchéité dans les pièces d’eau et joints réguliers.
+Visite et devis gratuits, je vous conseille aussi sur le choix des formats.
+Benjamin Landry · 06 58 38 78 37</dd></div></dl>
+        </div>
+      </article>
+      <article class="gpost">
+        <div class="phone">
+          <div class="ph-top"><span class="ph-av"><span class="mono"></span></span><div><b>Benjamin Landry</b><small>Les P’tites Annonces des Combrailles · Semaine 6</small></div></div>
+          <div class="ph-img"><img src="creas/c3-fil-garanties.jpg" alt="Visuel à joindre : disponibilités" loading="lazy"></div>
+        </div>
+        <div class="copyset">
+          <header><h3>6. Disponibilités</h3><span>Semaine 6</span></header>
+          <dl><div class="field"><dt>Texte de la publication</dt><dd>Il me reste quelques disponibilités pour [mois] pour vos travaux de plâtrerie, peinture ou carrelage.
+Garantie décennale, devis détaillé au prix ferme, un seul interlocuteur du devis à la fin du chantier.
+Contactez-moi au 06 58 38 78 37 ou en message privé.
+Benjamin Landry, Les Ancizes-Comps</dd></div></dl>
+        </div>
+      </article>
     </div>
   </div>
 </section>

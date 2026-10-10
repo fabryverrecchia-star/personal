@@ -1,16 +1,17 @@
 BENJAMIN LANDRY · CAMPAGNES META ADS · TEXTES À COPIER
 Zone : Les Ancizes-Comps + 60 km (personnes qui vivent dans ce lieu) · 30-65 ans et + · Audience Advantage+
 Formulaire instantané : « Devis Benjamin Landry » (Intention plus élevée)
+Budget total : 450 € par mois (15 €/jour)
 
 ──────── CAMPAGNE 1 · NOTORIÉTÉ (BL_C1_NOTORIETE_3METIERS) ────────
-Objectif : Notoriété > Couverture · Stories et Reels · 2 affichages / 7 jours · 5 €/jour
+Objectif : Notoriété > Couverture · Stories et Reels · 2 affichages / 7 jours · 3 €/jour (90 €/mois)
 Visuels : meta/c1-story-platrerie.png, c1-story-peinture.png, c1-story-carrelage.png + vidéos peinture-720.mp4 et metier-720.mp4 du site
 Texte principal : Plâtrerie, peinture, carrelage : je réalise tout le chantier, de l’ossature en plaques de plâtre à la dernière couche. Artisan aux Ancizes-Comps, j’interviens dans les Combrailles, à Riom et à Clermont-Ferrand.
 Titre : Benjamin Landry, artisan
 Bouton : En savoir plus → page d’accueil du site
 
 ──────── CAMPAGNE 2 · DEMANDES DE DEVIS (BL_C2_DEVIS_FORMULAIRE) ────────
-Objectif : Prospects > Formulaire instantané · Placements Advantage+ · 12 €/jour
+Objectif : Prospects > Formulaire instantané · Placements Advantage+ · 9 €/jour (270 €/mois)
 
 Publicité A · Carrousel (meta/c2-carrousel-1 à 4)
 Texte principal : Cloisons, faux plafonds, peinture, carrelage : un seul artisan pour tout le chantier, du placo à la dernière couche. Visite et devis gratuits dans les Combrailles, à Riom et à Clermont-Ferrand.
@@ -24,7 +25,7 @@ Description : Visite et devis gratuits
 Bouton : Obtenir un devis
 
 ──────── CAMPAGNE 3 · RECIBLAGE (BL_C3_RECIBLAGE_PREUVES) ────────
-Objectif : Prospects > Formulaire instantané · 4 €/jour · démarrage à J+14
+Objectif : Prospects > Formulaire instantané · 3 €/jour (90 €/mois) · dès le lancement
 Audiences : vidéos vues à 50 % (30 j) · visiteurs du site (30 j) · interactions page FB et compte IG (60 j) · formulaire ouvert sans envoi (30 j)
 Exclusion : personnes ayant envoyé le formulaire
 
@@ -47,3 +48,41 @@ Message de fin : « Merci. Benjamin vous rappelle sous 48 heures pour convenir d
 ──────── SUIVI ────────
 Paramètres des liens : utm_source=meta&utm_medium=paid_social&utm_campaign=bl_c1_notoriete | bl_c2_devis | bl_c3_reciblage
 Pixel Meta : événements Contact (clic téléphone) et Lead (formulaire du site)
+
+──────── GROUPES FACEBOOK LOCAUX (gratuit, 1 publication par semaine) ────────
+
+1. Présentation · Semaine 1 · visuel : meta/c2-fil-un-seul-artisan.png
+Bonjour à tous,
+Je m’appelle Benjamin Landry, artisan installé aux Ancizes-Comps. Je réalise vos travaux de plâtrerie (cloisons, faux plafonds, isolation), de peinture et de carrelage, du début à la fin du chantier : un seul interlocuteur, un devis détaillé au prix ferme.
+Visite et devis gratuits dans les Combrailles, à Riom et à Clermont-Ferrand.
+Tél. 06 58 38 78 37
+
+2. Avant / après · Semaine 2 · visuel : meta/c3-fil-avant-apres.png
+Avant / après d’un chantier récent : des combles bruts transformés en chambre.
+Isolation, plaques de plâtre, bandes, enduits et peinture, réalisés de A à Z.
+Vous avez des combles ou une pièce à aménager ? Je me déplace gratuitement pour voir votre projet.
+Benjamin Landry, Les Ancizes-Comps · 06 58 38 78 37
+
+3. Plâtrerie · Semaine 3 · visuel : meta/c2-carrousel-1-platrerie.png
+Besoin d’une cloison, d’un faux plafond ou d’isoler une pièce ?
+Je pose vos plaques de plâtre sur ossature, avec des murs droits et des joints invisibles une fois peints.
+Devis gratuit, intervention dans les Combrailles, à Riom et à Clermont-Ferrand.
+Benjamin Landry · 06 58 38 78 37
+
+4. Peinture · Semaine 4 · visuel : meta/c2-carrousel-2-peinture.png
+Une peinture qui dure, c’est d’abord une bonne préparation : rebouchage, enduit, ponçage, impression, puis deux couches.
+Murs, plafonds, boiseries et façades, en intérieur comme en extérieur.
+Pour un devis gratuit : Benjamin Landry, 06 58 38 78 37
+
+5. Carrelage · Semaine 5 · visuel : meta/c2-carrousel-3-carrelage.png
+Salle de bains, douche à l’italienne, sol de cuisine : je pose votre carrelage et votre faïence, avec étanchéité dans les pièces d’eau et joints réguliers.
+Visite et devis gratuits, je vous conseille aussi sur le choix des formats.
+Benjamin Landry · 06 58 38 78 37
+
+6. Disponibilités · Semaine 6 · visuel : meta/c3-fil-garanties.png
+Il me reste quelques disponibilités pour [mois] pour vos travaux de plâtrerie, peinture ou carrelage.
+Garantie décennale, devis détaillé au prix ferme, un seul interlocuteur du devis à la fin du chantier.
+Contactez-moi au 06 58 38 78 37 ou en message privé.
+Benjamin Landry, Les Ancizes-Comps
+
+Réponse type en commentaire : Merci pour votre message. Je vous écris en privé pour en parler, ou vous pouvez m’appeler au 06 58 38 78 37.
