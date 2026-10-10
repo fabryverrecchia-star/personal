@@ -1,0 +1,7 @@
+MISE EN LIGNE PAR FTP
+1. Décompressez ce zip sur votre ordinateur (clic droit > Extraire tout).
+2. Avec votre logiciel FTP (FileZilla…), créez un dossier sur le serveur, par exemple « campagnes ».
+3. Envoyez dans ce dossier LE CONTENU du dossier décompressé : index.html et les dossiers creas, print, img, video.
+   N’envoyez pas le fichier .zip lui-même : le serveur ne le décompresse pas.
+4. Ouvrez https://votre-domaine/campagnes/ dans le navigateur.
+La page est en « noindex » : elle n’apparaîtra pas dans Google.
