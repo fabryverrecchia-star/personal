@@ -11,6 +11,8 @@ const { lang } = Astro.props;
 const t = dicts[lang];
 const canonical = new URL(langPath(lang), Astro.site).href;
 const ogImage = new URL(asset('media/og.jpg'), Astro.site).href;
+// Étiquette de version : visible dans le code source et la console
+const version = `v11 · ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC`;
 ---
 
 <!doctype html>
@@ -21,6 +23,7 @@ const ogImage = new URL(asset('media/og.jpg'), Astro.site).href;
     <title>{t.meta.title}</title>
     <meta name="description" content={t.meta.description} />
     <meta name="theme-color" content="#070908" />
+    <meta name="soundslike-version" content={version} />
     <link rel="canonical" href={canonical} />
     {LANGS.map((l) => <link rel="alternate" hreflang={l} href={new URL(langPath(l), Astro.site).href} />)}
     <link rel="alternate" hreflang="x-default" href={new URL(langPath('fr'), Astro.site).href} />
@@ -42,6 +45,7 @@ const ogImage = new URL(asset('media/og.jpg'), Astro.site).href;
 
     <script is:inline>
       document.documentElement.classList.add('js');
+      console.info('Soundslike', document.querySelector('meta[name="soundslike-version"]')?.content);
       try {
         if (sessionStorage.getItem('sl-entered')) document.documentElement.classList.add('is-return');
       } catch (e) {}
