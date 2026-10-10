@@ -1117,7 +1117,7 @@
   </div>
   <svg class="wm footer-mark" viewBox="0 0 2182.14 347.73" role="img" aria-label="Jacqueline"><use href="#wordmark"/></svg>
   <div class="footer-bottom">
-    <span>© 2026 Jacqueline <span class="build" aria-hidden="true">· v12</span></span>
+    <span>© 2026 Jacqueline <span class="build" aria-hidden="true">· v13</span></span>
     <a href="#top">Haut de page ↑</a>
   </div>
 </footer>
@@ -1365,11 +1365,11 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
 <script>
 /* ---------- Séquences: the five illustrations, alive in WebGL ----------
    The drawings are the real artwork, never shown as a still image:
-   - on arrival, the drawing comes out of swirling filaments of ink and
-     settles into place;
-   - from one sequence to the next, ink in water: a slow current tears the
-     drawing into filaments that thin out, while the next one comes out of
-     its own volutes and settles, the scroll guiding it little by little;
+   - on arrival, the drawing condenses out of volutes of ink, its dark line
+     first, then its washes blooming outwards with a darker wet edge;
+   - from one sequence to the next the drawing disperses like ink let go in
+     water, carried into volutes by a slow current, while the next one
+     condenses out of them, the scroll guiding the hand-over little by little;
    - each drawing breathes with its own character (the iode flows like water,
      the végétal sways on its stem, the corsé barely moves, the fruité
      trembles, the gourmand drifts slowly);
@@ -1486,23 +1486,12 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
       "  return vec3(tex(idx, uv - split).r, tex(idx, uv).g, tex(idx, uv + split).b);",
       "}",
       "float lum(vec3 c){ return dot(c, vec3(0.333)); }",
-      // a slow, divergence-free current (the curl of a few waves): ink
-      // follows it in volutes. advect() carries a point along it in six
-      // small steps, so the pigment stretches into filaments, not a blur
-      "vec2 flowAt(vec2 q, float s){",
-      "  float t = uTime * 0.12;",
-      "  float A = q.x * 4.0 + t + s, B = q.y * 3.0 - t * 0.8 + s * 0.5;",
-      "  float C = q.x * 2.3 - q.y * 5.1 + 1.7 + s;",
-      "  float D = q.x * 7.0 + q.y * 6.0 + s * 2.0 - t;",
-      "  float dx = 2.0 * cos(A) * cos(B) + 0.805 * cos(C) + 1.05 * cos(D);",
-      "  float dy = -1.5 * sin(A) * sin(B) - 1.785 * cos(C) + 0.9 * cos(D);",
-      "  return vec2(dy, -dx);",
-      "}",
-      "vec2 advect(vec2 uv, float k, float s){",
-      "  vec2 q = vec2(uv.x, uv.y * uAspect);",
-      "  for(int n = 0; n < 6; n++){ q += flowAt(q, s) * k * 0.022; }",
-      "  return vec2(q.x, q.y / uAspect);",
-      "}",
+      "float fbm3(vec2 p){ float v = 0.0, a = 0.5; for(int i = 0; i < 3; i++){ v += a * n2(p); p *= 2.03; a *= 0.5; } return v; }",
+      // a divergence-free current, like slow water: ink follows it in volutes
+      "vec2 curl(vec2 p){ float e = 0.03;",
+      "  float dy = fbm3(p + vec2(0.0, e)) - fbm3(p - vec2(0.0, e));",
+      "  float dx = fbm3(p + vec2(e, 0.0)) - fbm3(p - vec2(e, 0.0));",
+      "  return vec2(dy, -dx) / (2.0 * e); }",
       // the pigment spread out: a soft ring of taps around the point
       "vec3 spread(float idx, vec2 uv, float r){",
       "  vec3 c = tex(idx, uv) * 0.2;",
@@ -1532,28 +1521,38 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
       // the brush trail drags the pigment
       "  disp -= vel * vec2(1.0, 1.0 / uAspect) * 0.07;",
       "  vec2 split = vel * vec2(1.0, 1.0 / uAspect) * 0.006 + vec2(wet * 0.0015, 0.0);",
-      // ink in water, not a fade: both drawings stay on the paper while a
-      // slow current carries their pigment into swirling filaments (the
-      // texture is advected step by step along a divergence-free flow). The
-      // leaving one is torn into volutes and thins out; the arriving one
-      // comes out of its own volutes and settles back into place.
+      // ink, not a fade. The leaving drawing disperses like ink let go in
+      // water: it is carried along the current into volutes, spreads and
+      // pales, its light washes first, its dark line last. The arriving one
+      // condenses out of the same kind of volutes: its dark line gathers
+      // first, then its washes bloom outwards with a darker wet edge.
+      "  vec2 sc = vec2(1.7, 1.7 * uAspect);",
       "  float g = fbm(vUv * vec2(4.0, 4.0 * uAspect) + 11.0);",
       "  vec3 col;",
       "  if(uReveal < 1.0){",
-      "    float kr = 1.0 - uReveal; kr = kr * kr * (3.0 - 2.0 * kr);",
-      "    vec3 c = spread(uA, advect(uv + disp, kr, 3.1), kr * 0.035);",
-      "    c = mix(c, vec3(1.0), kr * 0.4);",
-      "    col = mix(vec3(1.0), c, smoothstep(0.08 + g * 0.18, 0.62 + g * 0.18, uReveal));",
+      // first appearance: the current drawing condenses out of the water
+      "    float kr = (1.0 - uReveal) * (1.0 - uReveal);",
+      "    vec2 wr = curl(uv * sc + vec2(3.7, -uTime * 0.04)) * vec2(1.0, 1.0 / uAspect) * 0.15 * kr;",
+      "    vec3 c = spread(uA, uv + disp + wr, kr * 0.07);",
+      "    float fr = g * 0.45 + lum(c) * 0.55;",
+      "    float tr = uReveal * 1.35 - 0.25;",
+      "    col = mix(vec3(1.0), c, smoothstep(fr, fr + 0.1, tr));",
+      "    col *= 1.0 - exp(-pow((tr - fr - 0.04) / 0.035, 2.0)) * (1.0 - lum(c)) * 0.3;",
       "  } else if(uMix > 0.0){",
-      "    float ka = uMix * uMix * (3.0 - 2.0 * uMix);",
-      "    float kb = 1.0 - ka;",
-      "    vec3 a = spread(uA, advect(uv + disp, ka, 0.0), ka * 0.035);",
-      "    vec3 b = spread(uB, advect(uv + disp, kb, 5.3), kb * 0.035);",
-      "    a = mix(a, vec3(1.0), ka * 0.35);",
-      "    b = mix(b, vec3(1.0), kb * 0.35);",
-      "    float visA = 1.0 - smoothstep(0.45 + g * 0.2, 0.88 + g * 0.1, uMix);",
-      "    float visB = smoothstep(0.12 + g * 0.15, 0.55 + g * 0.2, uMix);",
+      "    float ka = uMix * uMix;",
+      "    vec2 wa = curl(uv * sc + vec2(0.0, uTime * 0.04)) * vec2(1.0, 1.0 / uAspect) * 0.16 * ka + vec2(0.0, -0.05 * ka);",
+      "    vec3 a = spread(uA, uv + disp + wa, ka * 0.09);",
+      "    float fa = g * 0.45 + (1.0 - lum(a)) * 0.55;",
+      "    float visA = 1.0 - smoothstep(fa - 0.08, fa + 0.04, uMix * 1.3);",
+      "    float kb = (1.0 - uMix) * (1.0 - uMix);",
+      "    vec2 wb = curl(uv * sc + vec2(7.3, -uTime * 0.04)) * vec2(1.0, 1.0 / uAspect) * 0.14 * kb;",
+      "    vec3 b = spread(uB, uv + disp + wb, kb * 0.07);",
+      "    float g2 = fbm(vUv * vec2(4.0, 4.0 * uAspect) + 23.0);",
+      "    float fb = g2 * 0.45 + lum(b) * 0.55;",
+      "    float tb = uMix * 1.3 - 0.18;",
+      "    float visB = smoothstep(fb, fb + 0.1, tb);",
       "    col = mix(vec3(1.0), a, visA) * mix(vec3(1.0), b, visB);",
+      "    col *= 1.0 - exp(-pow((tb - fb - 0.04) / 0.035, 2.0)) * (1.0 - lum(b)) * 0.3;",
       "  } else {",
       "    col = pigment(uA, uv + disp, split);",
       "  }",
