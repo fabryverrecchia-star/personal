@@ -671,7 +671,7 @@
   .sticky-cta{display:none;}
 
   /* ============ SÉQUENCES — one WebGL line, five characters ============ */
-  .sequences{height:820vh;background:var(--page);}
+  .sequences{height:640vh;background:var(--page);}
   .seq-sticky{
     position:sticky;
     top:0;
@@ -800,6 +800,7 @@
     /* on a phone the drawing is the subject: only the eyebrow above it,
        one line of text below it ("Séquence 1  L'iode"), and the drawing
        fills the whole height in between (measured by the script) */
+    .seq-sticky{height:100svh;height:100dvh;}
     .seq-ui{padding-top:4.6rem;padding-bottom:1.1rem;}
     .seq-head .eyebrow{margin-bottom:0;}
     .seq-title{display:none;}
@@ -1601,10 +1602,10 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
       bottom = H - 28;
       cx = W * .66;
     } else {
-      top = head.getBoundingClientRect().bottom - cr.top + 16;
+      top = head.getBoundingClientRect().bottom - cr.top + 10;
       let textTop = Infinity;
       items.forEach(function(el){ textTop = Math.min(textTop, el.getBoundingClientRect().top); });
-      bottom = textTop - cr.top - 12;
+      bottom = textTop - cr.top - 8;
       cx = W * .5;
     }
     let h = Math.max(160, bottom - top), w = h / CELL_RATIO;
@@ -1636,7 +1637,7 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
   section.addEventListener("touchmove", function(e){ const t = e.touches[0]; moveTo(t.clientX, t.clientY); }, { passive:true });
   section.addEventListener("touchend", function(){ pointer.target = 0; }, { passive:true });
 
-  let progress = 0, target = 0, velocity = 0, reveal = 0, revealing = false;
+  let progress = 0, target = 0, velocity = 0, reveal = 0, revealTarget = 0;
   const stage = section.querySelector(".seq-sticky");
   function readScroll(){
     const r = section.getBoundingClientRect();
@@ -1646,8 +1647,9 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
     }
     const span = r.height - window.innerHeight;
     target = span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 0;
-    // the drawing paints itself in once the section is well on screen
-    if(!revealing && r.top < window.innerHeight * .45) revealing = true;
+    // the drawing rises in once the section is well on screen, and sinks
+    // away again when the visitor scrolls back out, above or below
+    revealTarget = (r.top < window.innerHeight * .45 && r.bottom > window.innerHeight * .55) ? 1 : 0;
   }
   window.addEventListener("scroll", readScroll, { passive:true });
   readScroll();
@@ -1656,6 +1658,9 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
   function lerp(a, b, t){ return a + (b - a) * t; }
 
   /* ---------- frame ---------- */
+  const MORPH_SECONDS = 2.4;  // one drawing into the next
+  const REVEAL_SECONDS = 3.2; // rising in when the section arrives
+  const morph = { a:0, b:0, m:0 };
   let visible = false, raf = 0, last = performance.now(), time = 0;
   function frame(now){
     if(!visible){ raf = 0; return; }
@@ -1663,7 +1668,8 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
     const dt = Math.min(.05, (now - last) / 1000);
     last = now;
     time += dt * (reduceMotion ? .25 : 1);
-    if(revealing && reveal < 1) reveal = Math.min(1, reveal + dt / (reduceMotion ? .6 : 2.6));
+    const rs = dt / (reduceMotion ? .6 : REVEAL_SECONDS);
+    reveal = revealTarget > reveal ? Math.min(revealTarget, reveal + rs) : Math.max(revealTarget, reveal - rs * 1.25);
 
     const before = progress;
     progress = lerp(progress, target, 1 - Math.pow(.002, dt));
@@ -1677,13 +1683,20 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
     const fl = Math.hypot(fvx, fvy);
     if(fl > 1){ fvx /= fl; fvy /= fl; }
 
-    // each drawing holds, then hands over to the next over the last part of
-    // its scroll span
+    // the scroll only chooses which drawing is wanted; the hand-over itself
+    // always takes the same slow time, however hard the visitor scrolls
     const s = Math.min(progress * COUNT, COUNT - .0001);
-    const i = Math.floor(s);
-    const j = Math.min(i + 1, COUNT - 1);
-    const m = j === i ? 0 : smooth(.68, 1, s - i);
-    updateUi(i, m, s);
+    // read from the raw scroll position, so a hard scroll goes straight to
+    // the wanted drawing in one slow hand-over instead of queueing them all
+    const want = Math.floor(Math.min(target * COUNT, COUNT - .0001));
+    if(morph.m === 0 && want !== morph.a) morph.b = want;
+    if(morph.b !== morph.a){
+      morph.m = Math.min(1, morph.m + dt / (reduceMotion ? .5 : MORPH_SECONDS));
+      if(morph.m >= 1){ morph.a = morph.b; morph.m = 0; }
+    }
+    const i = morph.a, j = morph.b;
+    const m = morph.m === 0 ? 0 : smooth(0, 1, morph.m);
+    updateUi(i, j, m, s);
 
     rect = layoutRect;
 
@@ -1733,8 +1746,8 @@ function t(t,i,e){return Math.max(t,Math.min(i,e))}var i=class{isRunning=!1;valu
 
   /* ---------- text and progress ---------- */
   let current = -1;
-  function updateUi(i, m, s){
-    const active = m > .5 ? Math.min(i + 1, COUNT - 1) : i;
+  function updateUi(i, j, m, s){
+    const active = m > .5 ? j : i;
     if(active !== current){
       current = active;
       items.forEach(function(el, n){
