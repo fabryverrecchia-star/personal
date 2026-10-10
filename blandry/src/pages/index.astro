@@ -195,7 +195,10 @@ const svcImg = visuel;
       </figure>
       <div class="light__txt wrap">
         <p class="label light__k">Le souci du détail</p>
-        <h2 id="light-t" class="display light__t" data-light-t>La qualité<br />se joue au millimètre</h2>
+        <h2 id="light-t" class="display light__t" data-light-t>
+          <span class="light__dim">La qualité<br />se joue au millimètre</span>
+          <span class="light__lit" aria-hidden="true" data-light-lit>La qualité<br />se joue au millimètre</span>
+        </h2>
         <p class="light__p" data-light-p>
           Un angle net, un mur parfaitement plan, une découpe impeccable au ras d’un plafond ou d’une applique :
           ce sont ces détails, souvent invisibles au premier regard, qui distinguent un travail d’artisan. Ils
@@ -675,7 +678,8 @@ const svcImg = visuel;
     object-fit: cover;
     object-position: 50% 55%;
     transform: scale(1.25);
-    will-change: transform;
+    filter: brightness(0.35);
+    will-change: transform, filter;
   }
   .light__txt {
     position: relative;
@@ -690,18 +694,30 @@ const svcImg = visuel;
   .light__k {
     color: rgb(243 239 232 / 0.6);
   }
-  /* Le titre s'éclaire comme sous un faisceau de lumière */
+  /* Le titre s'éclaire : un calque lumineux dévoilé par un masque à bord doux */
   .light__t {
-    --lx: -40%;
-    --base: 0.14;
+    display: grid;
     font-size: clamp(1.9rem, 8vw, 6rem);
     line-height: 1.02;
-    color: transparent;
-    background-image:
-      radial-gradient(38% 140% at var(--lx) 55%, #fffdf8 0%, rgb(243 239 232 / 0.95) 35%, rgb(243 239 232 / 0) 72%),
-      linear-gradient(rgb(243 239 232 / var(--base)), rgb(243 239 232 / var(--base)));
-    -webkit-background-clip: text;
-    background-clip: text;
+  }
+  .light__dim,
+  .light__lit {
+    grid-area: 1 / 1;
+  }
+  .light__dim {
+    color: rgb(243 239 232 / 0.16);
+  }
+  .light__lit {
+    color: #fffdf8;
+    text-shadow: 0 0 36px rgb(255 236 200 / 0.35);
+    -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 42%, transparent 58%, transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0%, #000 42%, transparent 58%, transparent 100%);
+    -webkit-mask-size: 300% 100%;
+    mask-size: 300% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
   }
   .light__p {
     max-width: 44ch;
