@@ -38,20 +38,20 @@
 
   var UI = {
     fr: { contact: 'Contact', projects: 'Index', close: 'Fermer', hint: 'Touchez pour tout voir',
-          name: 'Nom', email: 'E-mail', phone: 'Téléphone (facultatif)', message: 'Votre projet', send: 'Envoyer',
-          title: 'Parlons de votre projet', sending: 'Envoi…', sent: 'Merci, votre message est bien parti. Nous revenons vers vous très vite.',
+          name: 'Nom', email: 'E-mail', phone: 'Téléphone (facultatif)', message: 'Votre maison, votre projet', send: 'Envoyer',
+          title: 'Prendre contact', sending: 'Envoi…', sent: 'Merci, votre message est bien parti. Nous revenons vers vous très vite.',
           error: 'L\u2019envoi n\u2019a pas abouti. Vérifiez les champs et réessayez.', preview: 'Aperçu : le formulaire enverra les messages une fois le site en ligne.' },
     en: { contact: 'Contact', projects: 'Index', close: 'Close', hint: 'Tap to see everything',
-          name: 'Name', email: 'Email', phone: 'Phone (optional)', message: 'Your project', send: 'Send',
-          title: 'Tell us about your project', sending: 'Sending…', sent: 'Thank you, your message is on its way. We will get back to you shortly.',
+          name: 'Name', email: 'Email', phone: 'Phone (optional)', message: 'Your house, your project', send: 'Send',
+          title: 'Get in touch', sending: 'Sending…', sent: 'Thank you, your message is on its way. We will get back to you shortly.',
           error: 'The message could not be sent. Check the fields and try again.', preview: 'Preview: the form will send messages once the site is live.' },
     es: { contact: 'Contacto', projects: 'Índice', close: 'Cerrar', hint: 'Toca para verlo todo',
-          name: 'Nombre', email: 'Correo', phone: 'Teléfono (opcional)', message: 'Tu proyecto', send: 'Enviar',
-          title: 'Hablemos de tu proyecto', sending: 'Enviando…', sent: 'Gracias, tu mensaje se ha enviado. Te responderemos muy pronto.',
+          name: 'Nombre', email: 'Correo', phone: 'Teléfono (opcional)', message: 'Tu casa, tu proyecto', send: 'Enviar',
+          title: 'Contactar', sending: 'Enviando…', sent: 'Gracias, tu mensaje se ha enviado. Te responderemos muy pronto.',
           error: 'No se pudo enviar. Revisa los campos e inténtalo de nuevo.', preview: 'Vista previa: el formulario enviará los mensajes cuando el sitio esté en línea.' },
     it: { contact: 'Contatti', projects: 'Indice', close: 'Chiudi', hint: 'Tocca per vedere tutto',
-          name: 'Nome', email: 'E-mail', phone: 'Telefono (facoltativo)', message: 'Il tuo progetto', send: 'Invia',
-          title: 'Parliamo del tuo progetto', sending: 'Invio…', sent: 'Grazie, il tuo messaggio è partito. Ti risponderemo a breve.',
+          name: 'Nome', email: 'E-mail', phone: 'Telefono (facoltativo)', message: 'La vostra maison, il vostro progetto', send: 'Invia',
+          title: 'Contattaci', sending: 'Invio…', sent: 'Grazie, il tuo messaggio è partito. Ti risponderemo a breve.',
           error: 'Invio non riuscito. Controlla i campi e riprova.', preview: 'Anteprima: il modulo invierà i messaggi quando il sito sarà online.' }
   };
 

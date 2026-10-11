@@ -15,160 +15,160 @@
      ------------------------------------------------------------------------ */
   var COPY = {
     fr: {
-      cue: 'Découvrir l’agence',
-      reelLabel: 'Showreel', reelLine: 'Paris, de l’aube à 18h22.', soundOn: 'Avec le son', soundOff: 'Couper le son',
-      introLabel: 'L’agence',
-      introTitle: '18H22 donne une image aux lieux qui reçoivent : restaurants, hôtels, bars, maisons de musique.',
-      introText: 'Nous pensons l’identité, nous la photographions et nous la publions, chaque semaine. Une seule équipe, de la direction artistique au post du mardi : votre lieu garde la même voix à table, sur la carte et dans le feed.',
-      ctaTalk: 'Parler de votre lieu', ctaWork: 'Voir les projets', ctaMeet: 'Prendre rendez-vous', ctaFloat: 'Parler de votre lieu',
-      offerLabel: 'Ce que nous faisons', offerTitle: 'Tout ce qui fait venir, et revenir.',
+      cue: 'Entrer',
+      reelLabel: 'Showreel', reelLine: 'Paris, 18h22.', soundOn: 'Son', soundOff: 'Couper le son',
+      introLabel: 'Studio',
+      introTitle: 'Direction artistique, image et présence digitale pour les maisons et les marques d’exception.',
+      introText: 'Depuis Paris, 18H22 conçoit des identités, les photographie et les fait vivre dans le temps. Hôtellerie, gastronomie, mode, musique, artisanat.',
+      ctaTalk: 'Prendre contact', ctaWork: 'Projets', ctaMeet: 'Prendre contact', ctaFloat: 'Contact',
+      offerLabel: 'Expertises', offerTitle: '',
       offer: [
-        { t: 'Direction artistique', d: 'Le socle qui rend votre lieu reconnaissable au premier regard.', i: ['Logo et identité', 'Charte, couleurs, typographies', 'Direction photo', 'Menus, cartes, signalétique'] },
-        { t: 'Photo et vidéo', d: 'Des images qui donnent envie de venir, et de rester.', i: ['Shootings culinaires et d’ambiance', 'Portraits des équipes', 'Reels et formats courts', 'Jours de passage planifiés'] },
-        { t: 'Réseaux sociaux', d: 'Un plan du mois pensé à l’avance, validé avec vous, publié pour vous.', i: ['Planning mensuel des posts', 'Légendes rédigées', 'Campagnes sponsorisées et budget', 'Suivi et ajustements'] },
-        { t: 'Lancements', d: 'Une ouverture, une nouvelle carte, une soirée : un temps fort préparé de bout en bout.', i: ['Teasing et calendrier', 'Invitations et print', 'Couverture photo et vidéo', 'Contenus d’après'] }
+        { t: 'Identité', d: 'Création et refonte d’identités : signe, typographie, papeterie, objets.' },
+        { t: 'Image', d: 'Photographie et film. Une lumière, un cadrage, une écriture propres à chaque maison.' },
+        { t: 'Présence digitale', d: 'Ligne éditoriale, calendrier mensuel, publication et campagnes ciblées.' },
+        { t: 'Lancements', d: 'Ouverture, collection, nouvelle saison : la mise en scène d’un moment.' }
       ],
-      workLabel: 'Sélection', workTitle: 'Traversez le temps, projet après projet.', workHint: 'Faites défiler pour avancer', workAll: 'Tout l’index',
-      spaceLabel: 'Votre espace 18H22', spaceTitle: 'Votre mois entier, dans votre poche.',
-      spaceText: 'Chaque client reçoit sa page privée. Le plan du mois, les visuels à valider, les jours de shooting et les missions en cours : tout est au même endroit, sur votre téléphone. Plus de fils d’e-mails, plus de fichiers perdus.',
-      spaceList: ['Le mois en aperçu, comme dans votre feed', 'Chaque post validé en un geste', 'Les jours de shooting dans le calendrier', 'Les campagnes et leur budget, en clair'],
-      phoneMonth: 'Novembre', phoneRow1: 'Mardi 14 · Shooting nouvelle carte', phoneRow2: 'Reel d’ouverture · validé',
-      methodLabel: 'Une journée avec nous', methodTitle: 'De la première visite à 18h22.',
+      workLabel: 'Projets', workTitle: 'Sélection', workHint: 'Défiler', workAll: 'Index',
+      spaceLabel: 'Espace client', spaceTitle: 'Un espace privé pour chaque maison.',
+      spaceText: 'Calendrier éditorial, visuels à valider, dates de prise de vue, travaux en cours : réunis sur une page confidentielle, accessible depuis votre téléphone.',
+      spaceList: ['Calendrier éditorial', 'Validation des contenus', 'Dates de prise de vue', 'Suivi des campagnes'],
+      phoneMonth: 'Novembre', phoneRow1: 'Mar. 14 · Prise de vue', phoneRow2: 'Film de lancement · validé',
+      methodLabel: 'Méthode', methodTitle: 'De 9h00 à 18h22.',
       steps: [
-        { h: 9, m: 0, t: 'Rencontre', d: 'Nous venons chez vous, nous goûtons, nous écoutons. Nous repartons avec ce qui rend votre lieu unique.' },
-        { h: 11, m: 30, t: 'Direction', d: 'Une direction claire : images, ton, rythme. Vous validez avant la moindre production.' },
-        { h: 15, m: 0, t: 'Production', d: 'Shootings, visuels, légendes. Tout arrive dans votre espace pour validation.' },
-        { h: 18, m: 22, t: 'Publication', d: 'Les posts sortent au bon moment, les campagnes tournent. Chaque mois, on mesure et on ajuste.' }
+        { h: 9, m: 0, t: 'Rencontre', d: 'Nous commençons sur place, au contact de la maison et de ceux qui la font.' },
+        { h: 11, m: 30, t: 'Direction', d: 'Une direction artistique écrite et validée avant toute production.' },
+        { h: 15, m: 0, t: 'Production', d: 'Prises de vue, création, rédaction. Chaque élément vous est soumis.' },
+        { h: 18, m: 22, t: 'Diffusion', d: 'Publication, campagnes et lecture des résultats, chaque mois.' }
       ],
-      plansLabel: 'Travailler ensemble', plansTitle: 'Trois façons de commencer.',
+      plansLabel: 'Collaborations', plansTitle: '',
       plans: [
-        { k: 'monthly', t: 'Accompagnement mensuel', d: 'Pour les lieux qui veulent exister chaque semaine.', i: ['Plan média du mois', 'Shooting mensuel', 'Publication et légendes', 'Campagnes sponsorisées', 'Votre espace 18H22'], c: 'Demander un devis' },
-        { k: 'identity', t: 'Identité', d: 'Pour une ouverture ou un nouveau départ.', i: ['Logo et charte', 'Direction artistique', 'Menus et print', 'Shooting de lancement'], c: 'Demander un devis' },
-        { k: 'shoot', t: 'Shooting', d: 'Pour renouveler vos images, vite et bien.', i: ['Demi-journée ou journée', 'Retouche et sélection', 'Formats prêts pour les réseaux'], c: 'Réserver une date' }
+        { k: 'monthly', t: 'Accompagnement', d: 'Une présence suivie, mois après mois.', i: ['Direction éditoriale', 'Prises de vue régulières', 'Publication', 'Campagnes ciblées', 'Espace client'], c: 'Demander une proposition' },
+        { k: 'identity', t: 'Identité', d: 'Création ou refonte.', i: ['Signe et système graphique', 'Direction artistique', 'Édition et objets', 'Prise de vue de lancement'], c: 'Demander une proposition' },
+        { k: 'shoot', t: 'Prise de vue', d: 'Photographie et film, à la journée.', i: ['Direction de la prise de vue', 'Retouche', 'Déclinaisons par support'], c: 'Réserver une date' }
       ],
-      quote: 'Sur devis',
-      clientsLabel: 'Ils nous confient leur image',
-      endTitle: 'Votre lieu a son heure. Trouvons-la ensemble.',
-      endText: 'Un premier rendez-vous pour comprendre votre lieu, puis une proposition claire avec le plan du premier mois.',
-      navOffer: 'Offre', navWork: 'Projets', navMethod: 'Méthode', navContact: 'Contact',
-      need: 'Votre besoin', needMonthly: 'Accompagnement mensuel', needIdentity: 'Identité', needShoot: 'Shooting', needOther: 'Autre'
+      quote: 'Sur proposition',
+      clientsLabel: 'Clients',
+      endTitle: 'Écrivez-nous.',
+      endText: 'Quelques lignes sur votre maison et votre projet suffisent. Nous revenons vers vous avec une proposition.',
+      navOffer: 'Expertises', navWork: 'Projets', navMethod: 'Méthode', navContact: 'Contact',
+      need: 'Objet', needMonthly: 'Accompagnement', needIdentity: 'Identité', needShoot: 'Prise de vue', needOther: 'Autre'
     },
     en: {
-      cue: 'Discover the agency',
-      reelLabel: 'Showreel', reelLine: 'Paris, from dawn to 18:22.', soundOn: 'Sound on', soundOff: 'Sound off',
-      introLabel: 'The agency',
-      introTitle: '18H22 gives an image to places that welcome people: restaurants, hotels, bars, music houses.',
-      introText: 'We shape the identity, we photograph it and we publish it, every week. One team, from art direction to Tuesday’s post: your place keeps the same voice at the table, on the menu and in the feed.',
-      ctaTalk: 'Talk about your place', ctaWork: 'See the work', ctaMeet: 'Book a meeting', ctaFloat: 'Talk about your place',
-      offerLabel: 'What we do', offerTitle: 'Everything that makes people come, and come back.',
+      cue: 'Enter',
+      reelLabel: 'Showreel', reelLine: 'Paris, 18:22.', soundOn: 'Sound', soundOff: 'Mute',
+      introLabel: 'Studio',
+      introTitle: 'Art direction, image and digital presence for houses and brands of distinction.',
+      introText: 'From Paris, 18H22 designs identities, photographs them and keeps them alive over time. Hospitality, gastronomy, fashion, music, craftsmanship.',
+      ctaTalk: 'Get in touch', ctaWork: 'Work', ctaMeet: 'Get in touch', ctaFloat: 'Contact',
+      offerLabel: 'Expertise', offerTitle: '',
       offer: [
-        { t: 'Art direction', d: 'The foundation that makes your place recognisable at first glance.', i: ['Logo and identity', 'Guidelines, colours, typefaces', 'Photo direction', 'Menus, cards, signage'] },
-        { t: 'Photo and video', d: 'Images that make people want to come, and to stay.', i: ['Food and atmosphere shoots', 'Team portraits', 'Reels and short formats', 'Planned shooting days'] },
-        { t: 'Social media', d: 'A monthly plan thought out ahead, approved with you, published for you.', i: ['Monthly post planning', 'Written captions', 'Sponsored campaigns and budget', 'Tracking and adjustments'] },
-        { t: 'Launches', d: 'An opening, a new menu, an evening: a key moment prepared end to end.', i: ['Teasing and calendar', 'Invitations and print', 'Photo and video coverage', 'Follow-up content'] }
+        { t: 'Identity', d: 'Identity creation and redesign: mark, typography, stationery, objects.' },
+        { t: 'Image', d: 'Photography and film. A light, a framing, a language specific to each house.' },
+        { t: 'Digital presence', d: 'Editorial line, monthly calendar, publishing and targeted campaigns.' },
+        { t: 'Launches', d: 'An opening, a collection, a new season: staging a moment.' }
       ],
-      workLabel: 'Selection', workTitle: 'Travel through time, project after project.', workHint: 'Scroll to move forward', workAll: 'Full index',
-      spaceLabel: 'Your 18H22 space', spaceTitle: 'Your whole month, in your pocket.',
-      spaceText: 'Every client gets a private page. The month’s plan, the visuals to approve, the shooting days and the work in progress: everything in one place, on your phone. No more email threads, no more lost files.',
-      spaceList: ['The month at a glance, as in your feed', 'Every post approved in one tap', 'Shooting days in the calendar', 'Campaigns and their budget, clearly'],
-      phoneMonth: 'November', phoneRow1: 'Tuesday 14 · New menu shoot', phoneRow2: 'Opening reel · approved',
-      methodLabel: 'A day with us', methodTitle: 'From the first visit to 18:22.',
+      workLabel: 'Work', workTitle: 'Selection', workHint: 'Scroll', workAll: 'Index',
+      spaceLabel: 'Client space', spaceTitle: 'A private space for every house.',
+      spaceText: 'Editorial calendar, visuals to approve, shooting dates, work in progress: gathered on a confidential page, available from your phone.',
+      spaceList: ['Editorial calendar', 'Content approval', 'Shooting dates', 'Campaign tracking'],
+      phoneMonth: 'November', phoneRow1: 'Tue 14 · Shoot', phoneRow2: 'Launch film · approved',
+      methodLabel: 'Method', methodTitle: 'From 9:00 to 18:22.',
       steps: [
-        { h: 9, m: 0, t: 'Meeting', d: 'We come to your place, we taste, we listen. We leave with what makes it unique.' },
-        { h: 11, m: 30, t: 'Direction', d: 'A clear direction: images, tone, rhythm. You approve before anything is produced.' },
-        { h: 15, m: 0, t: 'Production', d: 'Shoots, visuals, captions. Everything lands in your space for approval.' },
-        { h: 18, m: 22, t: 'Publishing', d: 'Posts go out at the right time, campaigns run. Every month we measure and adjust.' }
+        { h: 9, m: 0, t: 'Encounter', d: 'We begin on site, close to the house and the people who make it.' },
+        { h: 11, m: 30, t: 'Direction', d: 'A written art direction, approved before any production.' },
+        { h: 15, m: 0, t: 'Production', d: 'Shoots, design, writing. Every piece is submitted to you.' },
+        { h: 18, m: 22, t: 'Release', d: 'Publishing, campaigns and a reading of the results, every month.' }
       ],
-      plansLabel: 'Working together', plansTitle: 'Three ways to start.',
+      plansLabel: 'Engagements', plansTitle: '',
       plans: [
-        { k: 'monthly', t: 'Monthly partnership', d: 'For places that want to be seen every week.', i: ['Monthly media plan', 'Monthly shoot', 'Publishing and captions', 'Sponsored campaigns', 'Your 18H22 space'], c: 'Ask for a quote' },
-        { k: 'identity', t: 'Identity', d: 'For an opening or a fresh start.', i: ['Logo and guidelines', 'Art direction', 'Menus and print', 'Launch shoot'], c: 'Ask for a quote' },
-        { k: 'shoot', t: 'Shoot', d: 'To renew your images, fast and well.', i: ['Half day or full day', 'Retouching and selection', 'Formats ready for social'], c: 'Book a date' }
+        { k: 'monthly', t: 'Partnership', d: 'A sustained presence, month after month.', i: ['Editorial direction', 'Regular shoots', 'Publishing', 'Targeted campaigns', 'Client space'], c: 'Request a proposal' },
+        { k: 'identity', t: 'Identity', d: 'Creation or redesign.', i: ['Mark and graphic system', 'Art direction', 'Print and objects', 'Launch shoot'], c: 'Request a proposal' },
+        { k: 'shoot', t: 'Shoot', d: 'Photography and film, by the day.', i: ['Shoot direction', 'Retouching', 'Formats for every medium'], c: 'Book a date' }
       ],
-      quote: 'On quotation',
-      clientsLabel: 'They trust us with their image',
-      endTitle: 'Your place has its hour. Let’s find it together.',
-      endText: 'A first meeting to understand your place, then a clear proposal with the plan for the first month.',
-      navOffer: 'Services', navWork: 'Work', navMethod: 'Method', navContact: 'Contact',
-      need: 'What you need', needMonthly: 'Monthly partnership', needIdentity: 'Identity', needShoot: 'Shoot', needOther: 'Other'
+      quote: 'On proposal',
+      clientsLabel: 'Clients',
+      endTitle: 'Write to us.',
+      endText: 'A few lines about your house and your project are enough. We will come back to you with a proposal.',
+      navOffer: 'Expertise', navWork: 'Work', navMethod: 'Method', navContact: 'Contact',
+      need: 'Subject', needMonthly: 'Partnership', needIdentity: 'Identity', needShoot: 'Shoot', needOther: 'Other'
     },
     es: {
-      cue: 'Descubrir la agencia',
-      reelLabel: 'Showreel', reelLine: 'París, del alba a las 18:22.', soundOn: 'Con sonido', soundOff: 'Sin sonido',
-      introLabel: 'La agencia',
-      introTitle: '18H22 da imagen a los lugares que reciben: restaurantes, hoteles, bares, casas de música.',
-      introText: 'Pensamos la identidad, la fotografiamos y la publicamos, cada semana. Un solo equipo, de la dirección de arte al post del martes: tu lugar mantiene la misma voz en la mesa, en la carta y en el feed.',
-      ctaTalk: 'Hablar de tu lugar', ctaWork: 'Ver los proyectos', ctaMeet: 'Pedir una cita', ctaFloat: 'Hablar de tu lugar',
-      offerLabel: 'Lo que hacemos', offerTitle: 'Todo lo que hace venir, y volver.',
+      cue: 'Entrar',
+      reelLabel: 'Showreel', reelLine: 'París, 18:22.', soundOn: 'Sonido', soundOff: 'Silenciar',
+      introLabel: 'Estudio',
+      introTitle: 'Dirección de arte, imagen y presencia digital para casas y marcas de excepción.',
+      introText: 'Desde París, 18H22 diseña identidades, las fotografía y las hace vivir en el tiempo. Hotelería, gastronomía, moda, música, artesanía.',
+      ctaTalk: 'Contactar', ctaWork: 'Proyectos', ctaMeet: 'Contactar', ctaFloat: 'Contacto',
+      offerLabel: 'Especialidades', offerTitle: '',
       offer: [
-        { t: 'Dirección de arte', d: 'La base que hace tu lugar reconocible a primera vista.', i: ['Logo e identidad', 'Manual, colores, tipografías', 'Dirección fotográfica', 'Menús, cartas, señalética'] },
-        { t: 'Foto y vídeo', d: 'Imágenes que dan ganas de venir, y de quedarse.', i: ['Sesiones gastronómicas y de ambiente', 'Retratos del equipo', 'Reels y formatos cortos', 'Días de rodaje planificados'] },
-        { t: 'Redes sociales', d: 'Un plan mensual pensado con antelación, validado contigo, publicado por nosotros.', i: ['Planificación mensual', 'Textos redactados', 'Campañas patrocinadas y presupuesto', 'Seguimiento y ajustes'] },
-        { t: 'Lanzamientos', d: 'Una apertura, una nueva carta, una velada: un momento clave preparado de principio a fin.', i: ['Teasing y calendario', 'Invitaciones e impresos', 'Cobertura de foto y vídeo', 'Contenidos posteriores'] }
+        { t: 'Identidad', d: 'Creación y rediseño de identidades: signo, tipografía, papelería, objetos.' },
+        { t: 'Imagen', d: 'Fotografía y cine. Una luz, un encuadre, una escritura propios de cada casa.' },
+        { t: 'Presencia digital', d: 'Línea editorial, calendario mensual, publicación y campañas segmentadas.' },
+        { t: 'Lanzamientos', d: 'Una apertura, una colección, una nueva temporada: la puesta en escena de un momento.' }
       ],
-      workLabel: 'Selección', workTitle: 'Atraviesa el tiempo, proyecto tras proyecto.', workHint: 'Desplázate para avanzar', workAll: 'Índice completo',
-      spaceLabel: 'Tu espacio 18H22', spaceTitle: 'Tu mes entero, en el bolsillo.',
-      spaceText: 'Cada cliente recibe su página privada. El plan del mes, los visuales por validar, los días de rodaje y las misiones en curso: todo en un mismo lugar, en tu teléfono. Sin cadenas de correos ni archivos perdidos.',
-      spaceList: ['El mes de un vistazo, como en tu feed', 'Cada post validado con un gesto', 'Los días de rodaje en el calendario', 'Las campañas y su presupuesto, claros'],
-      phoneMonth: 'Noviembre', phoneRow1: 'Martes 14 · Sesión nueva carta', phoneRow2: 'Reel de apertura · validado',
-      methodLabel: 'Un día con nosotros', methodTitle: 'De la primera visita a las 18:22.',
+      workLabel: 'Proyectos', workTitle: 'Selección', workHint: 'Desplazar', workAll: 'Índice',
+      spaceLabel: 'Espacio cliente', spaceTitle: 'Un espacio privado para cada casa.',
+      spaceText: 'Calendario editorial, visuales por validar, fechas de rodaje, trabajos en curso: reunidos en una página confidencial, accesible desde tu teléfono.',
+      spaceList: ['Calendario editorial', 'Validación de contenidos', 'Fechas de rodaje', 'Seguimiento de campañas'],
+      phoneMonth: 'Noviembre', phoneRow1: 'Mar. 14 · Rodaje', phoneRow2: 'Película de lanzamiento · validada',
+      methodLabel: 'Método', methodTitle: 'De 9:00 a 18:22.',
       steps: [
-        { h: 9, m: 0, t: 'Encuentro', d: 'Vamos a tu lugar, probamos, escuchamos. Nos llevamos lo que lo hace único.' },
-        { h: 11, m: 30, t: 'Dirección', d: 'Una dirección clara: imágenes, tono, ritmo. Validas antes de cualquier producción.' },
-        { h: 15, m: 0, t: 'Producción', d: 'Sesiones, visuales, textos. Todo llega a tu espacio para validar.' },
-        { h: 18, m: 22, t: 'Publicación', d: 'Los posts salen en el momento justo, las campañas funcionan. Cada mes medimos y ajustamos.' }
+        { h: 9, m: 0, t: 'Encuentro', d: 'Empezamos en el lugar, cerca de la casa y de quienes la hacen.' },
+        { h: 11, m: 30, t: 'Dirección', d: 'Una dirección de arte escrita y validada antes de cualquier producción.' },
+        { h: 15, m: 0, t: 'Producción', d: 'Rodajes, diseño, redacción. Cada pieza se te presenta.' },
+        { h: 18, m: 22, t: 'Difusión', d: 'Publicación, campañas y lectura de resultados, cada mes.' }
       ],
-      plansLabel: 'Trabajar juntos', plansTitle: 'Tres maneras de empezar.',
+      plansLabel: 'Colaboraciones', plansTitle: '',
       plans: [
-        { k: 'monthly', t: 'Acompañamiento mensual', d: 'Para los lugares que quieren existir cada semana.', i: ['Plan de medios mensual', 'Sesión mensual', 'Publicación y textos', 'Campañas patrocinadas', 'Tu espacio 18H22'], c: 'Pedir presupuesto' },
-        { k: 'identity', t: 'Identidad', d: 'Para una apertura o un nuevo comienzo.', i: ['Logo y manual', 'Dirección de arte', 'Menús e impresos', 'Sesión de lanzamiento'], c: 'Pedir presupuesto' },
-        { k: 'shoot', t: 'Sesión de fotos', d: 'Para renovar tus imágenes, rápido y bien.', i: ['Media jornada o jornada', 'Retoque y selección', 'Formatos listos para redes'], c: 'Reservar fecha' }
+        { k: 'monthly', t: 'Acompañamiento', d: 'Una presencia constante, mes a mes.', i: ['Dirección editorial', 'Rodajes regulares', 'Publicación', 'Campañas segmentadas', 'Espacio cliente'], c: 'Pedir una propuesta' },
+        { k: 'identity', t: 'Identidad', d: 'Creación o rediseño.', i: ['Signo y sistema gráfico', 'Dirección de arte', 'Edición y objetos', 'Rodaje de lanzamiento'], c: 'Pedir una propuesta' },
+        { k: 'shoot', t: 'Rodaje', d: 'Fotografía y cine, por jornada.', i: ['Dirección del rodaje', 'Retoque', 'Formatos para cada soporte'], c: 'Reservar fecha' }
       ],
-      quote: 'Bajo presupuesto',
-      clientsLabel: 'Nos confían su imagen',
-      endTitle: 'Tu lugar tiene su hora. Encontrémosla juntos.',
-      endText: 'Una primera cita para entender tu lugar, y luego una propuesta clara con el plan del primer mes.',
-      navOffer: 'Servicios', navWork: 'Proyectos', navMethod: 'Método', navContact: 'Contacto',
-      need: 'Lo que necesitas', needMonthly: 'Acompañamiento mensual', needIdentity: 'Identidad', needShoot: 'Sesión de fotos', needOther: 'Otro'
+      quote: 'Según propuesta',
+      clientsLabel: 'Clientes',
+      endTitle: 'Escríbenos.',
+      endText: 'Unas líneas sobre tu casa y tu proyecto bastan. Volveremos a ti con una propuesta.',
+      navOffer: 'Especialidades', navWork: 'Proyectos', navMethod: 'Método', navContact: 'Contacto',
+      need: 'Asunto', needMonthly: 'Acompañamiento', needIdentity: 'Identidad', needShoot: 'Rodaje', needOther: 'Otro'
     },
     it: {
-      cue: 'Scopri l’agenzia',
-      reelLabel: 'Showreel', reelLine: 'Parigi, dall’alba alle 18:22.', soundOn: 'Con l’audio', soundOff: 'Senza audio',
-      introLabel: 'L’agenzia',
-      introTitle: '18H22 dà un’immagine ai luoghi che accolgono: ristoranti, hotel, bar, case della musica.',
-      introText: 'Pensiamo l’identità, la fotografiamo e la pubblichiamo, ogni settimana. Un’unica squadra, dalla direzione artistica al post del martedì: il tuo locale mantiene la stessa voce a tavola, sul menu e nel feed.',
-      ctaTalk: 'Parliamo del tuo locale', ctaWork: 'Vedi i progetti', ctaMeet: 'Fissa un appuntamento', ctaFloat: 'Parliamo del tuo locale',
-      offerLabel: 'Cosa facciamo', offerTitle: 'Tutto ciò che fa venire, e tornare.',
+      cue: 'Entra',
+      reelLabel: 'Showreel', reelLine: 'Parigi, 18:22.', soundOn: 'Audio', soundOff: 'Muto',
+      introLabel: 'Studio',
+      introTitle: 'Direzione artistica, immagine e presenza digitale per maison e marchi d’eccezione.',
+      introText: 'Da Parigi, 18H22 disegna identità, le fotografa e le fa vivere nel tempo. Ospitalità, gastronomia, moda, musica, artigianato.',
+      ctaTalk: 'Contattaci', ctaWork: 'Progetti', ctaMeet: 'Contattaci', ctaFloat: 'Contatti',
+      offerLabel: 'Competenze', offerTitle: '',
       offer: [
-        { t: 'Direzione artistica', d: 'La base che rende il tuo locale riconoscibile al primo sguardo.', i: ['Logo e identità', 'Manuale, colori, caratteri', 'Direzione fotografica', 'Menu, carte, segnaletica'] },
-        { t: 'Foto e video', d: 'Immagini che fanno venire voglia di venire, e di restare.', i: ['Shooting di piatti e atmosfera', 'Ritratti dello staff', 'Reel e formati brevi', 'Giornate di shooting pianificate'] },
-        { t: 'Social media', d: 'Un piano mensile pensato in anticipo, approvato con te, pubblicato per te.', i: ['Planning mensile dei post', 'Didascalie scritte', 'Campagne sponsorizzate e budget', 'Monitoraggio e aggiustamenti'] },
-        { t: 'Lanci', d: 'Un’apertura, un nuovo menu, una serata: un momento chiave preparato dall’inizio alla fine.', i: ['Teasing e calendario', 'Inviti e stampa', 'Copertura foto e video', 'Contenuti del dopo'] }
+        { t: 'Identità', d: 'Creazione e restyling di identità: segno, tipografia, cancelleria, oggetti.' },
+        { t: 'Immagine', d: 'Fotografia e film. Una luce, un’inquadratura, una scrittura proprie di ogni maison.' },
+        { t: 'Presenza digitale', d: 'Linea editoriale, calendario mensile, pubblicazione e campagne mirate.' },
+        { t: 'Lanci', d: 'Un’apertura, una collezione, una nuova stagione: la messa in scena di un momento.' }
       ],
-      workLabel: 'Selezione', workTitle: 'Attraversa il tempo, progetto dopo progetto.', workHint: 'Scorri per avanzare', workAll: 'Indice completo',
-      spaceLabel: 'Il tuo spazio 18H22', spaceTitle: 'Il tuo mese intero, in tasca.',
-      spaceText: 'Ogni cliente riceve la sua pagina privata. Il piano del mese, i visual da approvare, le giornate di shooting e le attività in corso: tutto in un solo posto, sul tuo telefono. Basta catene di email e file persi.',
-      spaceList: ['Il mese a colpo d’occhio, come nel feed', 'Ogni post approvato con un gesto', 'Le giornate di shooting nel calendario', 'Le campagne e il loro budget, chiari'],
-      phoneMonth: 'Novembre', phoneRow1: 'Martedì 14 · Shooting nuovo menu', phoneRow2: 'Reel d’apertura · approvato',
-      methodLabel: 'Una giornata con noi', methodTitle: 'Dalla prima visita alle 18:22.',
+      workLabel: 'Progetti', workTitle: 'Selezione', workHint: 'Scorri', workAll: 'Indice',
+      spaceLabel: 'Area cliente', spaceTitle: 'Uno spazio privato per ogni maison.',
+      spaceText: 'Calendario editoriale, visual da approvare, date di shooting, lavori in corso: riuniti in una pagina riservata, accessibile dal telefono.',
+      spaceList: ['Calendario editoriale', 'Approvazione dei contenuti', 'Date di shooting', 'Monitoraggio delle campagne'],
+      phoneMonth: 'Novembre', phoneRow1: 'Mar 14 · Shooting', phoneRow2: 'Film di lancio · approvato',
+      methodLabel: 'Metodo', methodTitle: 'Dalle 9:00 alle 18:22.',
       steps: [
-        { h: 9, m: 0, t: 'Incontro', d: 'Veniamo da te, assaggiamo, ascoltiamo. Ripartiamo con ciò che rende unico il tuo locale.' },
-        { h: 11, m: 30, t: 'Direzione', d: 'Una direzione chiara: immagini, tono, ritmo. Approvi prima di qualsiasi produzione.' },
-        { h: 15, m: 0, t: 'Produzione', d: 'Shooting, visual, didascalie. Tutto arriva nel tuo spazio per l’approvazione.' },
-        { h: 18, m: 22, t: 'Pubblicazione', d: 'I post escono al momento giusto, le campagne girano. Ogni mese misuriamo e aggiustiamo.' }
+        { h: 9, m: 0, t: 'Incontro', d: 'Iniziamo sul posto, a contatto con la maison e con chi la fa vivere.' },
+        { h: 11, m: 30, t: 'Direzione', d: 'Una direzione artistica scritta e approvata prima di ogni produzione.' },
+        { h: 15, m: 0, t: 'Produzione', d: 'Shooting, design, scrittura. Ogni elemento vi viene sottoposto.' },
+        { h: 18, m: 22, t: 'Diffusione', d: 'Pubblicazione, campagne e lettura dei risultati, ogni mese.' }
       ],
-      plansLabel: 'Lavorare insieme', plansTitle: 'Tre modi per iniziare.',
+      plansLabel: 'Collaborazioni', plansTitle: '',
       plans: [
-        { k: 'monthly', t: 'Accompagnamento mensile', d: 'Per i locali che vogliono esistere ogni settimana.', i: ['Piano media del mese', 'Shooting mensile', 'Pubblicazione e didascalie', 'Campagne sponsorizzate', 'Il tuo spazio 18H22'], c: 'Chiedi un preventivo' },
-        { k: 'identity', t: 'Identità', d: 'Per un’apertura o un nuovo inizio.', i: ['Logo e manuale', 'Direzione artistica', 'Menu e stampa', 'Shooting di lancio'], c: 'Chiedi un preventivo' },
-        { k: 'shoot', t: 'Shooting', d: 'Per rinnovare le tue immagini, presto e bene.', i: ['Mezza giornata o giornata', 'Ritocco e selezione', 'Formati pronti per i social'], c: 'Prenota una data' }
+        { k: 'monthly', t: 'Accompagnamento', d: 'Una presenza costante, mese dopo mese.', i: ['Direzione editoriale', 'Shooting regolari', 'Pubblicazione', 'Campagne mirate', 'Area cliente'], c: 'Richiedi una proposta' },
+        { k: 'identity', t: 'Identità', d: 'Creazione o restyling.', i: ['Segno e sistema grafico', 'Direzione artistica', 'Editoria e oggetti', 'Shooting di lancio'], c: 'Richiedi una proposta' },
+        { k: 'shoot', t: 'Shooting', d: 'Fotografia e film, a giornata.', i: ['Direzione dello shooting', 'Ritocco', 'Formati per ogni supporto'], c: 'Prenota una data' }
       ],
-      quote: 'Su preventivo',
-      clientsLabel: 'Ci affidano la loro immagine',
-      endTitle: 'Il tuo locale ha la sua ora. Troviamola insieme.',
-      endText: 'Un primo incontro per capire il tuo locale, poi una proposta chiara con il piano del primo mese.',
-      navOffer: 'Servizi', navWork: 'Progetti', navMethod: 'Metodo', navContact: 'Contatti',
-      need: 'Di cosa hai bisogno', needMonthly: 'Accompagnamento mensile', needIdentity: 'Identità', needShoot: 'Shooting', needOther: 'Altro'
+      quote: 'Su proposta',
+      clientsLabel: 'Clienti',
+      endTitle: 'Scriveteci.',
+      endText: 'Bastano poche righe sulla vostra maison e sul vostro progetto. Torneremo da voi con una proposta.',
+      navOffer: 'Competenze', navWork: 'Progetti', navMethod: 'Metodo', navContact: 'Contatti',
+      need: 'Oggetto', needMonthly: 'Accompagnamento', needIdentity: 'Identità', needShoot: 'Shooting', needOther: 'Altro'
     }
   };
 
@@ -193,6 +193,7 @@
     $$('[data-s]').forEach(function (el) {
       var v = c[el.dataset.s];
       if (v == null) return;
+      el.hidden = v === '';
       if (el.classList.contains('rv-lines')) {
         splitWords(el, v);
         if (el.classList.contains('is-in')) $$('.w > span', el).forEach(function (s) { s.style.transform = 'none'; });
@@ -206,8 +207,8 @@
     $('#offerList').innerHTML = c.offer.map(function (o, i) {
       return '<li class="offer__row rv" data-peek="' + (i * 5 + 2) % Math.max(1, PROJECTS.length) + '">' +
         '<h3 class="offer__t">' + esc(o.t) + '</h3>' +
-        '<div class="offer__body"><p>' + esc(o.d) + '</p><ul>' +
-        o.i.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div></li>';
+        '<div class="offer__body"><p>' + esc(o.d) + '</p>' +
+        (o.i ? '<ul>' + o.i.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') + '</div></li>';
     }).join('');
 
     $('#spaceList').innerHTML = c.spaceList.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('');
@@ -379,7 +380,7 @@
     }
     var T = window.THREE;
     var renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
-    renderer.setClearColor(0x10162a, 1);
+    renderer.setClearColor(0x1c2333, 1);
     var scene = new T.Scene();
     var camera = new T.PerspectiveCamera(55, 1, 0.05, 120);
     var mobile = false;
@@ -413,7 +414,7 @@
       '  float r = texture2D(uTex, uv + vec2(s, 0.0)).r;',
       '  float b = texture2D(uTex, uv - vec2(s, 0.0)).b;',
       '  vec3 col = vec3(r, c.g, b);',
-      '  vec3 bg = vec3(0.063, 0.086, 0.165);',
+      '  vec3 bg = vec3(0.110, 0.137, 0.200);',
       '  col = mix(bg, col, uReady);',
       '  gl_FragColor = vec4(col, uAlpha);',
       '}'

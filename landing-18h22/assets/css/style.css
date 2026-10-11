@@ -22,8 +22,8 @@
 }
 
 :root {
-  --bg: #10162a;          /* nuit 18H22 */
-  --bg-raise: #161e36;    /* panneaux */
+  --bg: #1c2333;          /* nuit 18H22 */
+  --bg-raise: #242c3e;    /* panneaux */
   --ink: #ece5d6;         /* os */
   --ink-soft: rgba(236, 229, 214, 0.62);
   --ink-faint: rgba(236, 229, 214, 0.16);
@@ -366,7 +366,7 @@ button { font: inherit; color: inherit; }
   justify-content: space-between;
   gap: 16px;
   padding: calc(var(--gutter) + env(safe-area-inset-top)) var(--gutter) 24px;
-  background: linear-gradient(var(--bg) 75%, rgba(16, 22, 42, 0));
+  background: linear-gradient(var(--bg) 75%, rgba(28, 35, 51, 0));
 }
 .gallery__title {
   margin: 0;
@@ -430,7 +430,7 @@ button { font: inherit; color: inherit; }
 .contact__veil {
   position: absolute;
   inset: 0;
-  background: rgba(8, 11, 22, 0.55);
+  background: rgba(12, 15, 22, 0.55);
   opacity: 0;
 }
 .contact__panel {

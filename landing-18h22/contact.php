@@ -26,7 +26,7 @@ $name = str_replace(["\r", "\n"], ' ', $clean('name', 120));
 $email = $clean('email', 160);
 $phone = str_replace(["\r", "\n"], ' ', $clean('phone', 40));
 $message = $clean('message', 5000);
-$needs = ['monthly' => 'Accompagnement mensuel', 'identity' => 'Identité', 'shoot' => 'Shooting', 'other' => 'Autre'];
+$needs = ['monthly' => 'Accompagnement', 'identity' => 'Identité', 'shoot' => 'Prise de vue', 'other' => 'Autre'];
 $need = $needs[$clean('need', 20)] ?? '—';
 
 if ($name === '' || $message === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
