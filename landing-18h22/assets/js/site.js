@@ -19,7 +19,13 @@
     { t: 'Creative & Digital', i: ['Creative Direction', 'Identity Design', 'Digital & Print', 'Mobile, Web & App Development', 'UI/UX Design', 'Packaging & Retail Design', 'Copy Writing & Content Creation'] },
     { t: 'Social Media', i: ['Social Media Strategy', 'Content Map & Development', 'Community Management', 'Paid & Promotional Campaigns', 'Analysis & Reporting'] }
   ];
-  var CLIENTS = ['La Petite Maison', 'Enza Famiglia', 'Jacqueline', 'Agata Paris', 'Sounds Like Paris', 'Helicave', 'Melar Bescond', 'Bivouak'];
+  // nos points forts, dans le bandeau qui défile
+  var STRENGTHS = {
+    fr: ['Logiciel de création dédié', 'Calendrier des services, actions et tournages', 'Développement et consolidation de l’image de marque', 'Positionnement'],
+    en: ['Dedicated creative software', 'Calendar of services, actions and shoots', 'Brand image development and consolidation', 'Positioning'],
+    es: ['Software de creación dedicado', 'Calendario de servicios, acciones y rodajes', 'Desarrollo y consolidación de la imagen de marca', 'Posicionamiento'],
+    it: ['Software di creazione dedicato', 'Calendario di servizi, azioni e riprese', 'Sviluppo e consolidamento dell’immagine di marca', 'Posizionamento']
+  };
 
   var COPY = {
     fr: {
@@ -395,8 +401,11 @@
      Bandeau clients : défile en continu, accélère et penche avec le défilement
      ------------------------------------------------------------------------ */
   var marquee = $('#marquee');
-  var row = CLIENTS.map(function (n) { return '<span>' + esc(n) + '</span><i></i>'; }).join('');
-  marquee.innerHTML = '<div>' + row + '</div><div aria-hidden="true">' + row + '</div>';
+  function renderStrengths(l) {
+    var row = (STRENGTHS[l] || STRENGTHS.fr).map(function (n) { return '<span>' + esc(n) + '</span><i></i>'; }).join('');
+    marquee.innerHTML = '<div>' + row + '</div><div aria-hidden="true">' + row + '</div>';
+  }
+  renderStrengths(current);
   var mq = { x: 0, v: 0, lastY: window.scrollY };
   (function mqLoop() {
     var y = window.scrollY;
@@ -729,6 +738,7 @@
     lang: function (l) {
       if (l === current && manifestoWords.length) return;
       render(l);
+      renderStrengths(l);
       $$('.panel__cta span').forEach(function (s) { s.textContent = COPY[l].endCta; });
       onScroll();
     }
