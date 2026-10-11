@@ -38,8 +38,6 @@
 
 html, body {
   margin: 0;
-  height: 100%;
-  overflow: hidden;
   background: var(--bg);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
@@ -48,9 +46,9 @@ html, body {
 body {
   font-family: var(--text);
   font-size: var(--ui);
-  overscroll-behavior: none;
-  touch-action: none;
+  touch-action: manipulation;
 }
+body.is-intro, body.is-locked { overflow: hidden; }
 button { font: inherit; color: inherit; }
 @media (pointer: fine) {
   body, button, a { cursor: none; }

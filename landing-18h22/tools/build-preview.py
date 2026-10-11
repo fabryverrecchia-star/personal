@@ -13,11 +13,15 @@ def read(p):
     return open(os.path.join(ROOT, p), encoding='utf-8').read()
 
 html = read('index.html')
-css = read('assets/css/style.css')
+css = read('assets/css/style.css') + '\n' + read('assets/css/site.css')
 css = re.sub(r"url\('\.\./fonts/([^']+)'\)", lambda m: "url('%s')" % data_uri('assets/fonts/' + m.group(1), 'font/woff2'), css)
 projects = re.sub(r"src: '([^']+)'", lambda m: "src: '%s'" % data_uri(m.group(1), 'image/webp'), read('assets/js/projects.js'))
 app = read('assets/js/app.js')
+site = read('assets/js/site.js')
+three = read('assets/vendor/three.min.js')
 
+html = html.replace('src="assets/reel/reel.mp4"', 'src="%s"' % data_uri('assets/reel/reel.mp4', 'video/mp4'))
+html = html.replace('poster="assets/reel/reel-poster.jpg"', 'poster="%s"' % data_uri('assets/reel/reel-poster.jpg', 'image/jpeg'))
 head = re.search(r'<head>(.*?)</head>', html, re.S).group(1)
 body = re.search(r'<body[^>]*>(.*?)</body>', html, re.S).group(1)
 # pas de fichiers externes : on retire liens locaux et scripts, on les remet inline
@@ -28,6 +32,6 @@ body = re.sub(r'\s*<script src="assets/[^"]+"></script>', '', body)
 page = (head.strip() + '\n<style>\n' + css + '\n</style>\n' + body.strip() +
         '\n<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>\n'
         '<script>document.body.classList.add("is-intro"); window.PREVIEW = true;</script>\n'
-        '<script>\n' + projects + '\n</script>\n<script>\n' + app + '\n</script>\n')
+        '<script>\n' + projects + '\n</script>\n<script>\n' + three + '\n</script>\n<script>\n' + site + '\n</script>\n<script>\n' + app + '\n</script>\n')
 open(out, 'w', encoding='utf-8').write(page)
 print(out, round(len(page) / 1024), 'Ko')

@@ -26,6 +26,8 @@ $name = str_replace(["\r", "\n"], ' ', $clean('name', 120));
 $email = $clean('email', 160);
 $phone = str_replace(["\r", "\n"], ' ', $clean('phone', 40));
 $message = $clean('message', 5000);
+$needs = ['monthly' => 'Accompagnement mensuel', 'identity' => 'Identité', 'shoot' => 'Shooting', 'other' => 'Autre'];
+$need = $needs[$clean('need', 20)] ?? '—';
 
 if ($name === '' || $message === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
   http_response_code(422);
@@ -35,7 +37,7 @@ if ($name === '' || $message === '' || !filter_var($email, FILTER_VALIDATE_EMAIL
 
 $host = preg_replace('/[^a-z0-9.-]/i', '', $_SERVER['HTTP_HOST'] ?? '18h22.com');
 $subject = '=?UTF-8?B?' . base64_encode('18H22 · Nouveau message de ' . $name) . '?=';
-$body = "Nom : $name\nE-mail : $email\nTéléphone : " . ($phone ?: '—') . "\n\n$message\n";
+$body = "Besoin : $need\nNom : $name\nE-mail : $email\nTéléphone : " . ($phone ?: '—') . "\n\n$message\n";
 $headers = "From: 18H22 <no-reply@$host>\r\n"
   . "Reply-To: $email\r\n"
   . "MIME-Version: 1.0\r\n"

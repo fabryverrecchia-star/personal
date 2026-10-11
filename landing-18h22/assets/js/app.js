@@ -63,6 +63,7 @@
     $$('[data-i18n-label]').forEach(function (el) {
       el.setAttribute('aria-label', UI[l][el.dataset.i18nLabel]);
     });
+    if (window.SITE) window.SITE.lang(l);
   }
 
   function detectLang() {
@@ -403,7 +404,7 @@
 
   // Zones à laisser libres : logo, menu, accroche, crédit (le grand nom, lui, peut passer dessous)
   function uiRects(pad) {
-    var list = ['#logo', '.menu', '#tagline', '#credit', '#time'].map(function (s) {
+    var list = ['#logo', '.menu', '#tagline', '#credit', '#time', '#cue'].map(function (s) {
       var b = $(s).getBoundingClientRect();
       return { x: b.left - pad, y: b.top - pad, w: b.width + pad * 2, h: b.height + pad * 2 };
     });
@@ -548,7 +549,7 @@
 
     cursor.style.transform = 'translate3d(' + ptr.mx + 'px,' + ptr.my + 'px,0)';
 
-    if (running) {
+    if (running && window.scrollY < H * 0.8) {
       clock += dt;
       if (clock >= nextSpawn) { clock = 0; nextSpawn = SET.every * rand(0.55, 1.45) * 1000; spawn(); }
     }
@@ -760,7 +761,7 @@
   var grid = $('#galleryGrid');
   var sceneLayers = ['#stage', '#stageDom', '#captions'];
 
-  var UI_SEL = 'button, a, input, textarea, label, .lang, .contact__panel';
+  var UI_SEL = 'button, a, input, textarea, label, .lang, .contact__panel, .site, .float-cta';
   document.addEventListener('pointerover', function (e) {
     overUI = !!(e.target.closest && e.target.closest(UI_SEL));
   });
@@ -781,6 +782,7 @@
     if (galleryOpen || !ready) return;
     galleryOpen = true;
     running = false;
+    document.body.classList.add('is-locked');
     buildGallery();
     gallery.scrollTop = 0;
     gallery.classList.add('is-open');
@@ -796,6 +798,7 @@
   function closeGallery() {
     if (!galleryOpen) return;
     galleryOpen = false;
+    document.body.classList.remove('is-locked');
     gallery.setAttribute('aria-hidden', 'true');
     gsap.to(gallery, {
       opacity: 0, duration: 0.5, ease: 'power2.in',
@@ -808,6 +811,7 @@
   document.addEventListener('click', function (e) {
     if (!ready || galleryOpen || contactOpen) return;
     if (e.target.closest(UI_SEL)) return;
+    if (window.scrollY > H * 0.4) return; // la suite du site se lit, elle n'ouvre pas l'index
     openGallery();
   });
   $('#indexBtn').addEventListener('click', openGallery);
@@ -822,9 +826,14 @@
   var status = $('#cf-status');
   var hiddenPanel = function () { return isMobile() ? { yPercent: 100, xPercent: 0 } : { xPercent: 100, yPercent: 0 }; };
 
-  function openContact() {
+  function openContact(need) {
+    if (typeof need === 'string') {
+      var r = form.querySelector('input[name="need"][value="' + need + '"]');
+      if (r) r.checked = true;
+    }
     if (contactOpen) return;
     contactOpen = true;
+    document.body.classList.add('is-locked');
     contact.classList.add('is-open');
     contact.setAttribute('aria-hidden', 'false');
     gsap.set(panel, { x: 0, y: 0 });
@@ -838,16 +847,18 @@
   function closeContact() {
     if (!contactOpen) return;
     contactOpen = false;
+    if (!galleryOpen) document.body.classList.remove('is-locked');
     contact.setAttribute('aria-hidden', 'true');
     gsap.to(panel, Object.assign(hiddenPanel(), { duration: 0.6, ease: 'power3.in' }));
     gsap.to('.contact__veil', {
       opacity: 0, duration: 0.6,
       onComplete: function () { contact.classList.remove('is-open'); }
     });
-    $('#contactBtn').focus({ preventScroll: true });
+    if (finePointer) $('#contactBtn').focus({ preventScroll: true });
   }
 
-  $('#contactBtn').addEventListener('click', openContact);
+  $('#contactBtn').addEventListener('click', function () { openContact(); });
+  window.APP = { openContact: openContact, openGallery: openGallery };
   $$('#contact [data-close]').forEach(function (b) { b.addEventListener('click', closeContact); });
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;

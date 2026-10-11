@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#10162a">
   <title>18H22</title>
-  <meta name="description" content="18H22">
+  <meta name="description" content="18H22, agence de direction artistique, photographie et réseaux sociaux pour restaurants, hôtels et lieux de vie.">
   <link rel="icon" href="assets/brand/18h22-mark.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/HankenGrotesk-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body class="is-intro">
+<div class="hero" id="hero">
   <!-- Projets : rendu WebGL (repli <img> si WebGL indisponible) -->
   <canvas class="stage" id="stage" aria-hidden="true"></canvas>
   <div class="stage-dom" id="stageDom" aria-hidden="true"></div>
@@ -32,6 +34,16 @@
     </svg>
   </div>
   <p class="time" id="time" aria-label="18h22"><span id="hh">00</span><span class="time__sep">:</span><span id="mm">00</span></p>
+
+  <p class="tagline" id="tagline"></p>
+
+  <footer class="credit" id="credit">
+    <span>Art direction <b>Fabrizio Verrecchia</b></span>
+    <span>Co-founder &amp; photography director, Sadiksansvoltaire</span>
+  </footer>
+
+  <a class="cue" id="cue" href="#agence" data-s="cue">Découvrir l’agence</a>
+</div>
 
   <main class="lockup" id="lockup">
     <div class="mark" id="mark">
@@ -84,12 +96,137 @@
     </nav>
   </header>
 
-  <p class="tagline" id="tagline"></p>
+  <!-- ======================================================================
+       Le site : il glisse par-dessus la montre quand on fait défiler
+       ====================================================================== -->
+  <div class="site" id="site">
 
-  <footer class="credit" id="credit">
-    <span>Art direction <b>Fabrizio Verrecchia</b></span>
-    <span>Co-founder &amp; photography director, Sadiksansvoltaire</span>
-  </footer>
+    <section class="s s-intro" id="agence">
+      <p class="s__label" data-s="introLabel">L’agence</p>
+      <h2 class="statement rv-lines" data-s="introTitle">18H22 donne une image aux lieux qui reçoivent : restaurants, hôtels, bars, maisons de musique.</h2>
+      <div class="s-intro__cols">
+        <p class="lead rv" data-s="introText">Nous pensons l’identité, nous la photographions et nous la publions, chaque semaine. Une seule équipe, de la direction artistique au post du mardi : votre lieu garde la même voix à table, sur la carte et dans le feed.</p>
+        <div class="actions rv">
+          <button class="btn btn--solid" type="button" data-contact="" data-s="ctaTalk">Parler de votre lieu</button>
+          <a class="btn btn--line" href="#selection" data-s="ctaWork">Voir les projets</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Showreel : la vidéo s'ouvre jusqu'au plein écran en faisant défiler -->
+    <section class="reel" id="reel">
+      <div class="reel__sticky">
+        <div class="reel__frame" id="reelFrame">
+          <video class="reel__video" id="reelVideo" src="assets/reel/reel.mp4" poster="assets/reel/reel-poster.jpg" muted loop playsinline preload="metadata"></video>
+          <p class="reel__line" id="reelLine" data-s="reelLine">Paris, de l’aube à 18h22.</p>
+          <button class="reel__sound" id="reelSound" type="button" aria-pressed="false"><span data-s="soundOn">Avec le son</span></button>
+        </div>
+        <p class="reel__label" id="reelLabel" data-s="reelLabel">Showreel</p>
+      </div>
+    </section>
+
+    <section class="s s-offer" id="offre">
+      <header class="s__head">
+        <p class="s__label" data-s="offerLabel">Ce que nous faisons</p>
+        <h2 class="s__title rv-lines" data-s="offerTitle">Tout ce qui fait venir, et revenir.</h2>
+      </header>
+      <ol class="offer" id="offerList"></ol>
+    </section>
+
+    <!-- Le tunnel du temps : on avance à travers les projets en faisant défiler (three.js) -->
+    <section class="tunnel" id="selection">
+      <div class="tunnel__sticky">
+        <canvas class="tunnel__gl" id="tunnelGl" aria-hidden="true"></canvas>
+        <div class="tunnel__head">
+          <p class="s__label" data-s="workLabel">Sélection</p>
+          <h2 class="s__title" data-s="workTitle">Traversez le temps, projet après projet.</h2>
+        </div>
+        <p class="tunnel__now" id="tunnelNow" aria-live="polite"></p>
+        <div class="tunnel__foot">
+          <p class="tunnel__hint" data-s="workHint">Faites défiler pour avancer</p>
+          <button class="btn btn--line" type="button" id="workAll"><span data-s="workAll">Tout l’index</span></button>
+        </div>
+        <div class="tunnel__fallback" id="tunnelFallback"></div>
+      </div>
+    </section>
+
+    <section class="s s-space" id="espace">
+      <div class="space">
+        <div class="space__text">
+          <p class="s__label" data-s="spaceLabel">Votre espace 18H22</p>
+          <h2 class="s__title rv-lines" data-s="spaceTitle">Votre mois entier, dans votre poche.</h2>
+          <p class="lead rv" data-s="spaceText">Chaque client reçoit sa page privée. Le plan du mois, les visuels à valider, les jours de shooting et les missions en cours : tout est au même endroit, sur votre téléphone. Plus de fils d’e-mails, plus de fichiers perdus.</p>
+          <ul class="ticks rv" id="spaceList"></ul>
+        </div>
+        <div class="phone rv" aria-hidden="true">
+          <div class="phone__screen">
+            <div class="phone__bar"><svg viewBox="0 0 418.46 277.09"><use href="#markFill"/></svg><span data-s="phoneMonth">Novembre</span></div>
+            <div class="phone__grid" id="phoneGrid"></div>
+            <div class="phone__row"><i></i><span data-s="phoneRow1">Mardi 14 · Shooting nouvelle carte</span></div>
+            <div class="phone__row is-done"><i></i><span data-s="phoneRow2">Reel ouverture · validé</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="s s-method" id="methode">
+      <div class="method">
+        <div class="method__clock" aria-hidden="true">
+          <svg viewBox="-110 -110 220 220">
+            <circle class="mc__ring" r="100"/>
+            <g class="mc__ticks" id="mcTicks"></g>
+            <line class="mc__hour" id="mcHour" x1="0" y1="9" x2="0" y2="-50"/>
+            <line class="mc__min" id="mcMin" x1="0" y1="11" x2="0" y2="-80"/>
+            <circle class="mc__pin" r="2.4"/>
+          </svg>
+          <p class="method__time" id="mcTime">09:00</p>
+        </div>
+        <div class="method__steps">
+          <p class="s__label" data-s="methodLabel">Une journée avec nous</p>
+          <h2 class="s__title rv-lines" data-s="methodTitle">De la première visite à 18h22.</h2>
+          <ol class="steps" id="steps"></ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="s s-plans" id="formules">
+      <header class="s__head">
+        <p class="s__label" data-s="plansLabel">Travailler ensemble</p>
+        <h2 class="s__title rv-lines" data-s="plansTitle">Trois façons de commencer.</h2>
+      </header>
+      <div class="plans" id="plans"></div>
+    </section>
+
+    <section class="s s-clients" id="references">
+      <p class="s__label" data-s="clientsLabel">Ils nous confient leur image</p>
+      <ul class="clients" id="clients"></ul>
+    </section>
+
+    <section class="s s-end" id="fin">
+      <h2 class="end__title rv-lines" data-s="endTitle">Votre lieu a son heure. Trouvons-la ensemble.</h2>
+      <p class="lead rv" data-s="endText">Un premier rendez-vous pour comprendre votre lieu, puis une proposition claire avec le plan du premier mois.</p>
+      <div class="actions rv">
+        <button class="btn btn--solid btn--big" type="button" data-contact="" data-s="ctaMeet">Prendre rendez-vous</button>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <a class="foot__logo" href="#top" aria-label="18H22"><svg viewBox="0 0 418.46 277.09" aria-hidden="true"><use href="#markFill"/></svg></a>
+      <div class="foot__credit">
+        <span>Art direction <b>Fabrizio Verrecchia</b></span>
+        <span>Co-founder &amp; photography director, Sadiksansvoltaire</span>
+      </div>
+      <nav class="foot__nav">
+        <a href="#offre" data-s="navOffer">Offre</a>
+        <a href="#selection" data-s="navWork">Projets</a>
+        <a href="#methode" data-s="navMethod">Méthode</a>
+        <button type="button" data-contact="" data-s="navContact">Contact</button>
+      </nav>
+      <p class="foot__copy">© <span id="year">2026</span> 18H22</p>
+    </footer>
+  </div>
+
+  <button class="float-cta" id="floatCta" type="button" data-contact="" data-s="ctaFloat">Parler de votre lieu</button>
 
   <!-- Tous les projets -->
   <section class="gallery" id="gallery" aria-hidden="true" aria-labelledby="galleryTitle">
@@ -107,6 +244,15 @@
       <button class="contact__close" type="button" data-close data-i18n="close">Fermer</button>
       <h2 class="contact__title" id="contactTitle" data-i18n="title">Parlons de votre projet</h2>
       <form class="contact__form" id="contactForm" action="contact.php" method="post" novalidate>
+        <fieldset class="field need">
+          <legend data-i18n="need">Votre besoin</legend>
+          <div class="need__chips">
+            <label><input type="radio" name="need" value="monthly"><span data-i18n="needMonthly">Accompagnement mensuel</span></label>
+            <label><input type="radio" name="need" value="identity"><span data-i18n="needIdentity">Identité</span></label>
+            <label><input type="radio" name="need" value="shoot"><span data-i18n="needShoot">Shooting</span></label>
+            <label><input type="radio" name="need" value="other"><span data-i18n="needOther">Autre</span></label>
+          </div>
+        </fieldset>
         <label class="field"><span data-i18n="name">Nom</span><input id="cf-name" name="name" type="text" autocomplete="name" required maxlength="120"></label>
         <label class="field"><span data-i18n="email">E-mail</span><input id="cf-email" name="email" type="email" autocomplete="email" required maxlength="160"></label>
         <label class="field"><span data-i18n="phone">Téléphone (facultatif)</span><input id="cf-phone" name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
@@ -125,6 +271,8 @@
 
   <script src="assets/vendor/gsap.min.js"></script>
   <script src="assets/js/projects.js"></script>
+  <script src="assets/vendor/three.min.js"></script>
+  <script src="assets/js/site.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

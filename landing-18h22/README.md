@@ -34,3 +34,10 @@ Copier le dossier tel quel sur le serveur (ex. `18h22.com/`). La page doit être
 Paramètres de test : `?skip` (saute l'intro), `?nogl` (force le repli sans WebGL), `?lang=es`.
 
 `python3 tools/build-preview.py sortie.html` produit un aperçu en un seul fichier.
+
+## Site complet (sous la montre)
+
+- Les textes des sections (agence, offre, showreel, espace client, méthode, formules, références) sont dans `assets/js/site.js`, objet `COPY`, en fr/en/es/it. Les noms de clients sont dans `CLIENTS`.
+- Le showreel est `assets/reel/reel.mp4` (+ `reel-poster.jpg`). Remplacer ces deux fichiers suffit pour changer la vidéo.
+- Le tunnel du temps utilise three.js (`assets/vendor/three.min.js`) et les projets de l'admin. Sans WebGL, une grille d'images s'affiche à la place.
+- Le formulaire envoie aussi le besoin choisi (accompagnement, identité, shooting, autre).
