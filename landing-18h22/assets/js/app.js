@@ -761,7 +761,7 @@
   var grid = $('#galleryGrid');
   var sceneLayers = ['#stage', '#stageDom', '#captions'];
 
-  var UI_SEL = 'button, a, input, textarea, label, .lang, .contact__panel, .site, .float-cta';
+  var UI_SEL = 'button, a, input, textarea, label, .lang, .contact__panel, .site';
   document.addEventListener('pointerover', function (e) {
     overUI = !!(e.target.closest && e.target.closest(UI_SEL));
   });
