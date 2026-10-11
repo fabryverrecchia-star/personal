@@ -602,17 +602,28 @@
     try { renderer = new T.WebGLRenderer({ canvas: canvas, antialias: false, alpha: false, powerPreference: 'high-performance' }); }
     catch (e) { return; }
     var scene = new T.Scene(), cam = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    var uni = { uTime: { value: 0 }, uRes: { value: new T.Vector2(1, 1) }, uMouse: { value: new T.Vector2(0.5, 0.5) }, uScroll: { value: 0 }, uDark: { value: 0 }, uLight: { value: 0 } };
+    var uni = { uTime: { value: 0 }, uRes: { value: new T.Vector2(1, 1) }, uMouse: { value: new T.Vector2(0.5, 0.5) }, uScroll: { value: 0 }, uDark: { value: 0 }, uLight: { value: 0 }, uPx: { value: 1 }, uFig: { value: 0 }, uFigPos: { value: new T.Vector3(0.72, 0.0, 0.62) } };
     var mat = new T.ShaderMaterial({
       uniforms: uni,
       vertexShader: 'void main(){ gl_Position = vec4(position.xy, 0.0, 1.0); }',
       fragmentShader: [
         'precision highp float;',
         'uniform float uTime; uniform vec2 uRes; uniform vec2 uMouse; uniform float uScroll; uniform float uDark; uniform float uLight;',
-        'float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }',
+        'uniform float uPx; uniform float uFig; uniform vec3 uFigPos;',
+        'float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }',
         'float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);',
         '  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y); }',
         'float fbm(vec2 p){ float v = 0.0, a = 0.5; for (int i = 0; i < 4; i++) { v += a * noise(p); p = p * 2.02 + 3.1; a *= 0.5; } return v; }',
+        'float sdBox(vec2 p, vec2 b){ vec2 d = abs(p) - b; return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0); }',
+        'float smin(float a, float b, float k){ float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0); return mix(b, a, h) - k * h * (1.0 - h); }',
+        // une silhouette : tête, nuque, épaules, buste
+        'float bust(vec2 q){',
+        '  float head = (length((q - vec2(0.0, 0.60)) / vec2(0.100, 0.130)) - 1.0) * 0.10;',
+        '  float neck = sdBox(q - vec2(0.0, 0.45), vec2(0.04, 0.06)) - 0.02;',
+        '  float sh = (length((q - vec2(0.0, 0.22)) / vec2(0.30, 0.19)) - 1.0) * 0.19;',
+        '  float body = sdBox(q - vec2(0.0, -0.35), vec2(0.27, 0.55)) - 0.05;',
+        '  float d = smin(head, neck, 0.05); d = smin(d, sh, 0.09); return smin(d, body, 0.12);',
+        '}',
         'void main(){',
         '  vec2 uv = gl_FragCoord.xy / uRes;',
         '  float asp = uRes.x / uRes.y;',
@@ -648,8 +659,26 @@
         '  c *= mix(1.0, 0.6, uDark * (1.0 - uLight));',
         '  float v = smoothstep(1.25, 0.35, length(uv - 0.5) * 1.6);',
         '  c *= mix(mix(0.72, 0.94, uLight), 1.0, v);',
-        '  float g = hash(gl_FragCoord.xy + fract(uTime * 7.0) * 311.0);',
-        '  c += (g - 0.5) * mix(0.17, 0.11, uLight);',
+        // présence humaine dans la brume : une silhouette nette, son ombre géante derrière, la lumière dans le dos
+        '  if (uFig > 0.001) {',
+        '    vec2 fp = vec2(uFigPos.x * asp, uFigPos.y);',
+        '    vec2 qf = (p - fp) / uFigPos.z;',
+        '    qf.x -= (uMouse.x - 0.5) * 0.05 * smoothstep(0.35, 0.6, qf.y) + sin(uTime * 0.35) * 0.008;',
+        '    vec2 qg = (p - fp - vec2(-0.16 * uFigPos.z, -0.05)) / (uFigPos.z * 1.75);',
+        '    float d1 = bust(qf), d2 = bust(qg);',
+        '    float ghost = smoothstep(0.10, -0.08, d2) * uFig;',
+        '    float body = smoothstep(0.03, -0.035, d1) * uFig;',
+        '    float rim = exp(-pow(max(d1, 0.0) / 0.035, 2.0)) * uFig * smoothstep(-0.2, 0.5, qf.y);',
+        '    vec3 shade = mix(vec3(0.01, 0.02, 0.05), vec3(0.11, 0.10, 0.26), uLight);',
+        '    vec3 halo = mix(vec3(1.0, 0.62, 0.30), vec3(0.98, 0.42, 0.16), uLight);',
+        '    c = mix(c, c * mix(0.55, 0.78, uLight) + mix(vec3(0.03, 0.07, 0.12), vec3(0.05, 0.05, 0.12), uLight), ghost * 0.7);',
+        '    c = mix(c, shade, body * 0.9);',
+        '    c += halo * rim * mix(0.34, 0.5, uLight);',
+        '  }',
+        // grain de pellicule : plus gros, plus doux, renouvelé douze fois par seconde
+        '  vec2 gp = gl_FragCoord.xy / (2.3 * uPx) + mod(floor(uTime * 12.0), 97.0) * vec2(7.13, 3.71);',
+        '  float g = noise(gp) * 0.65 + hash(floor(gp)) * 0.35;',
+        '  c += (g - 0.5) * mix(0.15, 0.10, uLight);',
         '  gl_FragColor = vec4(clamp(c, 0.0, 1.0), 1.0);',
         '}'
       ].join('\n')
@@ -660,11 +689,12 @@
       renderer.setPixelRatio(dpr);
       renderer.setSize(window.innerWidth, window.innerHeight, false);
       renderer.getDrawingBufferSize(uni.uRes.value);
+      uni.uPx.value = dpr;
     }
     size();
     window.addEventListener('resize', size);
     document.documentElement.classList.add('has-grad');
-    var sc = 0, light = 0;
+    var sc = 0, light = 0, fig = 0;
     (function loop(t) {
       requestAnimationFrame(loop);
       if (document.hidden) return;
@@ -681,6 +711,14 @@
       var lt = clamp(1 - $('#references').getBoundingClientRect().top / window.innerHeight, 0, 1);
       light += (lt - light) * 0.06;
       uni.uLight.value = light;
+      // la silhouette apparaît avec le manifeste, revient à la fin dans la brume claire
+      var mob = window.innerWidth < 700;
+      var figM = clamp((y - 0.75) / 0.5, 0, 1) * clamp((3.4 - y) / 0.6, 0, 1);
+      var figT = Math.max(figM, light);
+      fig += (figT - fig) * 0.05;
+      uni.uFig.value = fig;
+      if (light > 0.5) uni.uFigPos.value.set(mob ? 0.72 : 0.8, mob ? 0.02 : -0.1, mob ? 0.42 : 0.6);
+      else uni.uFigPos.value.set(mob ? 0.66 : 0.74, mob ? -0.2 : -0.05, mob ? 0.5 : 0.68);
       document.body.classList.toggle('is-light', light > 0.5);
       uni.uTime.value = reduce ? 0 : t * 0.001;
       renderer.render(scene, cam);
@@ -772,7 +810,7 @@
       var H = window.innerHeight;
       var y = window.scrollY / H;                 // 0 en haut, 1 après la montre…
       smooth += (y - smooth) * 0.08;
-      var fade = clamp(1 - (smooth - 2.2) / 0.8, 0, 1); // les lignes s'effacent avant le showreel
+      var fade = clamp(1 - (smooth - (mobile ? 1.05 : 1.5)) / 0.6, 0, 1); // les lignes laissent la place à la silhouette
       if (fade <= 0 && st.alpha > 0.99) { canvas.style.visibility = 'hidden'; return; }
       canvas.style.visibility = '';
       press += (pressT - press) * 0.08;
@@ -786,13 +824,14 @@
 
       // en ouverture au centre ; au manifeste, le faisceau glisse à droite et se déroule
       var m1 = clamp(smooth, 0, 1), m2 = clamp(smooth - 1, 0, 1.4);
-      var scale = mobile ? 0.44 : 1;
+      // au repos, le monogramme tient dans le cadran de la montre ; il grandit en quittant l'ouverture
+      var scale = (mobile ? 0.33 : 0.5) * (1 + m1 * 1.1);
       group.position.x = (mobile ? 0.2 : 1.7) * m2;
-      group.position.y = (mobile ? -1.1 : 0) * m2;
+      group.position.y = (mobile ? 0.16 : 0) * (1 - m1) + (mobile ? -1.1 : 0) * m2;
       group.rotation.y = Math.sin(t * 0.25) * 0.25 + m1 * 0.5 + m2 * 0.9 + (px - 0.5) * 0.4;
       group.rotation.x = Math.cos(t * 0.21) * 0.12 + (py - 0.5) * 0.3 - m2 * 0.2;
       group.rotation.z = m2 * 0.35;
-      group.scale.setScalar(scale * (1 + m1 * 0.25 + press * 0.08));
+      group.scale.setScalar(scale * (1 + press * 0.08));
 
       var spread = (0.05 + 0.5 * st.open + m1 * 0.5 + m2 * 0.9 + press * 0.5);
       var depth = 0.4 + 1.6 * st.open + m2 * 2.2;

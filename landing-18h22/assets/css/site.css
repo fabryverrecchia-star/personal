@@ -364,8 +364,8 @@
 .grad, .lines { position: fixed; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
 .grad { z-index: 0; }
 .lines { z-index: 1; opacity: 0; }
-/* le cadran laisse la place aux lignes ; sa zone sert encore à placer les projets */
-.clock__svg, .time { visibility: hidden !important; }
+/* la montre revient : un cadran fin autour du monogramme en lignes */
+.clock__ring { stroke-opacity: 0.7; }
 .reel__frame { background: rgba(7, 12, 38, 0.6); }
 
 /* Le bas de page passe au jour : encre sombre sur brume */
