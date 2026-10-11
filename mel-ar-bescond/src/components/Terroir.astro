@@ -1,21 +1,18 @@
 ---
-import { Image } from 'astro:assets';
-import { maybe } from '../lib/photos';
+import { getImage } from 'astro:assets';
+import { photo } from '../lib/photos';
 import { site } from '../site.config';
-// grand format : affiché seulement avec une photo du shooting (les recadrages du kit sont trop petits)
-const band = maybe('terroir', 'ruche');
+// grand bandeau : Nathalie et Frédéric au rucher, dans la fumée de l'enfumoir
+const poster = await getImage({ src: photo('fumee-poster'), width: 1280, format: 'webp' });
 ---
 
 <section class="terroir" id="terroir">
-  {
-    band ? (
-      <figure class="terroir__band" data-band data-gl data-reveal-img data-gl-parallax="0.18">
-        <Image src={band} alt="" widths={[800, 1400, 2000]} sizes="100vw" />
-      </figure>
-    ) : (
-      <div class="terroir__rule wrap"><div class="rule" /></div>
-    )
-  }
+  <figure class="terroir__band" data-band data-reveal-img>
+    <video class="terroir__video" data-autoplay poster={poster.src} muted loop playsinline preload="metadata" aria-hidden="true">
+      <source src="videos/fumee.mp4" type="video/mp4" />
+      <source src="videos/fumee.webm" type="video/webm" />
+    </video>
+  </figure>
 
   <div class="wrap terroir__grid">
     <p class="label muted" data-reveal>Le terroir</p>
@@ -44,9 +41,11 @@ const band = maybe('terroir', 'ruche');
     margin-bottom: clamp(80px, 10vw, 160px);
     background: var(--paper);
   }
-  .terroir__band :global(img) {
+  .terroir__video {
+    position: absolute;
+    inset: -8% 0;
     width: 100%;
-    height: 100%;
+    height: 116%;
     object-fit: cover;
   }
   .terroir__rule {

@@ -9,7 +9,7 @@ Astro + GSAP (ScrollTrigger, SplitText) + Lenis + OGL (images en WebGL). Directi
 npm install
 npm run dev            # http://localhost:4321
 npm run build          # site statique dans dist/
-npm run preview:file   # site en un seul fichier : artifact/mel-ar-bescond-site/index.html (à mettre en ligne)
+npm run preview:file   # site prêt à mettre en ligne : artifact/mel-ar-bescond-site/ (index.html + videos/)
                        # et artifact/mel-ar-bescond.html (version artefact)
 ```
 
@@ -20,10 +20,11 @@ npm run preview:file   # site en un seul fichier : artifact/mel-ar-bescond-site/
 | Ouverture | sur fond blanc, le monogramme NF se compose au rythme du chargement (contour tracé, puis rempli d’encre), « Mel ar Bescond » apparaît dessous, puis le rideau se lève sur le site |
 | Hero | les 4 photos du shooting en plein écran (WebGL, transition liquide, léger suivi de la souris), grand titre révélé ligne par ligne, navigation par barres de progression ; au défilement la photo se resserre en cadre |
 | Promesse | les mots s’éclairent au fil de la lecture |
+| Film | vidéo du miel qui coule du rayon, en plein écran, qui s’ouvre au défilement |
 | La maison | photos en WebGL : révélation organique, parallaxe, courbure au défilement, ondulation au survol |
 | La récolte | deux saisons en très grand ; au survol, une photo suit le curseur |
 | Commander | une ligne par miel, une case par contenance ; le panier se compose avec les photos des pots |
-| Le terroir, pied de page | faits du lieu-dit, grand logo |
+| Le terroir, pied de page | vidéo des apiculteurs dans la fumée, faits du lieu-dit, grand logo |
 
 Toutes les photos (sauf les vignettes du panier) sont redessinées en WebGL par `src/scripts/gl.ts` sur un canvas fixe calé sur les `<figure data-gl>` ; sans WebGL, les images normales s’affichent.
 
@@ -46,17 +47,19 @@ Pas de paiement ni de compte client : le visiteur compose son panier, laisse son
 
 ## Photos
 
-Les photos du shooting sont dans `brand/shooting/` et `src/assets/photos/` : `duo`, `recolte`, `ruche`, `fleur`. Pour en changer, on remplace le fichier en gardant le nom (jpg, png, webp ou avif) ; `src/lib/photos.ts` prend automatiquement la photo du shooting, sinon un recadrage du brand kit.
+Les photos du shooting sont dans `brand/shooting/` et `src/assets/photos/` : `duo`, `rayon`, `ruche`, `fleur`, `abeille`, `texture`. Pour en changer, on remplace le fichier en gardant le nom (jpg, png, webp ou avif) ; `src/lib/photos.ts` prend automatiquement la photo du shooting, sinon un recadrage du brand kit.
 
 | Nom | Emplacement |
 | --- | --- |
-| `duo`, `recolte`, `ruche`, `fleur` | diaporama du hero (dans cet ordre) |
-| `duo` / `ruche` | « La maison » (grande / petite photo) |
-| `fleur` / `ete` (sinon `recolte`) | saisons Printemps / Été |
-| `terroir` (sinon `ruche`) | grand bandeau du terroir |
+| `duo`, `rayon`, `ruche`, `fleur` | diaporama du hero (dans cet ordre) |
+| `duo` / `texture` | « La maison » (grande / petite photo) |
+| `fleur` / `abeille` | saisons Printemps / Été |
+| `miel-poster`, `fumee-poster` | images d’attente des vidéos |
 | `pot-seul` (sinon `pot`) | vignette des pots dans le panier |
 
 Astro génère les versions optimisées au build.
+
+Vidéos (`public/videos/`, en MP4 H.264 + WebM VP9, sans son) : `miel` (le miel qui coule, séquence film) et `fumee` (bandeau du terroir). Elles ne se lisent que lorsqu’elles sont à l’écran.
 
 ## Identité
 
@@ -68,4 +71,3 @@ Astro génère les versions optimisées au build.
 
 Polices : Cormorant (titres et texte) et Exo 2 (petites capitales), auto-hébergées via Fontsource.
 
-Le grand bandeau du terroir n’apparaît qu’avec une photo du shooting : les recadrages du brand kit sont trop petits pour ce format.

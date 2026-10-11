@@ -3,9 +3,9 @@
 // partout : à la racine ou dans un sous-dossier d'un hébergement, en local, ou comme artefact.
 // Usage : npm run preview:file
 //   → artifact/mel-ar-bescond.html        (version artefact, sans squelette html/head/body)
-//   → artifact/mel-ar-bescond-site/index.html  (site complet à mettre en ligne)
+//   → artifact/mel-ar-bescond-site/index.html + videos/  (site complet à mettre en ligne)
 import { build } from 'esbuild';
-import { readFileSync, writeFileSync, mkdirSync, statSync, existsSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, statSync, existsSync, rmSync, cpSync } from 'node:fs';
 import { join, extname } from 'node:path';
 
 const root = new URL('..', import.meta.url).pathname;
@@ -47,6 +47,9 @@ const siteDir = join(root, 'artifact', 'mel-ar-bescond-site');
 rmSync(join(siteDir, 'site'), { recursive: true, force: true });
 mkdirSync(siteDir, { recursive: true });
 writeFileSync(join(siteDir, 'index.html'), html);
+// vidéos : fichiers à côté de la page (chemins relatifs « videos/… »), trop lourdes pour être intégrées
+rmSync(join(siteDir, 'videos'), { recursive: true, force: true });
+cpSync(join(dist, 'videos'), join(siteDir, 'videos'), { recursive: true });
 
 // 2. version artefact : le squelette <html><head><body> est ajouté à la publication ;
 //    on garde charset et viewport, indispensables sur téléphone
