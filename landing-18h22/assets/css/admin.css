@@ -1,14 +1,30 @@
 @font-face {
-  font-family: 'Cormorant Garamond';
-  src: url('../fonts/CormorantGaramond-Light.woff2') format('woff2');
-  font-weight: 300;
+  font-family: 'Bodoni Moda';
+  src: url('../fonts/BodoniModa-opsz.woff2') format('woff2');
+  font-weight: 400 900;
   font-style: normal;
+  font-display: swap;
 }
 @font-face {
-  font-family: 'Cormorant Garamond';
-  src: url('../fonts/CormorantGaramond-LightItalic.woff2') format('woff2');
-  font-weight: 300;
+  font-family: 'Bodoni Moda';
+  src: url('../fonts/BodoniModa-opsz-Italic.woff2') format('woff2');
+  font-weight: 400 900;
   font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hanken Grotesk';
+  src: url('../fonts/HankenGrotesk-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hanken Grotesk';
+  src: url('../fonts/HankenGrotesk-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
 }
 
 :root {
@@ -18,8 +34,8 @@
   --ink-soft: #55648a;
   --ink-faint: rgba(34, 54, 95, 0.16);
   --alert: #a2432f;
-  --display: 'Cormorant Garamond', 'Times New Roman', serif;
-  --label: 'Jost', 'Gill Sans', 'Helvetica Neue', sans-serif;
+  --display: 'Bodoni Moda', 'Didot', 'Times New Roman', serif;
+  --label: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 

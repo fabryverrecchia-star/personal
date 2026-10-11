@@ -180,7 +180,6 @@ $writable = is_writable(__DIR__ . '/data') && is_writable(__DIR__ . '/' . $DIR) 
   <meta name="theme-color" content="#f1eee6">
   <title>18H22 · Admin</title>
   <link rel="icon" href="assets/brand/18h22-mark.svg" type="image/svg+xml">
-  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/admin.css">
 </head>
 <body>

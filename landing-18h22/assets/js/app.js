@@ -37,19 +37,19 @@
   };
 
   var UI = {
-    fr: { contact: 'Contact', projects: 'Tous les projets', close: 'Fermer', hint: 'Touchez pour tout voir',
+    fr: { contact: 'Contact', projects: 'Index', close: 'Fermer', hint: 'Touchez pour tout voir',
           name: 'Nom', email: 'E-mail', phone: 'Téléphone (facultatif)', message: 'Votre projet', send: 'Envoyer',
           title: 'Parlons de votre projet', sending: 'Envoi…', sent: 'Merci, votre message est bien parti. Nous revenons vers vous très vite.',
           error: 'L\u2019envoi n\u2019a pas abouti. Vérifiez les champs et réessayez.', preview: 'Aperçu : le formulaire enverra les messages une fois le site en ligne.' },
-    en: { contact: 'Contact', projects: 'All projects', close: 'Close', hint: 'Tap to see everything',
+    en: { contact: 'Contact', projects: 'Index', close: 'Close', hint: 'Tap to see everything',
           name: 'Name', email: 'Email', phone: 'Phone (optional)', message: 'Your project', send: 'Send',
           title: 'Tell us about your project', sending: 'Sending…', sent: 'Thank you, your message is on its way. We will get back to you shortly.',
           error: 'The message could not be sent. Check the fields and try again.', preview: 'Preview: the form will send messages once the site is live.' },
-    es: { contact: 'Contacto', projects: 'Todos los proyectos', close: 'Cerrar', hint: 'Toca para verlo todo',
+    es: { contact: 'Contacto', projects: 'Índice', close: 'Cerrar', hint: 'Toca para verlo todo',
           name: 'Nombre', email: 'Correo', phone: 'Teléfono (opcional)', message: 'Tu proyecto', send: 'Enviar',
           title: 'Hablemos de tu proyecto', sending: 'Enviando…', sent: 'Gracias, tu mensaje se ha enviado. Te responderemos muy pronto.',
           error: 'No se pudo enviar. Revisa los campos e inténtalo de nuevo.', preview: 'Vista previa: el formulario enviará los mensajes cuando el sitio esté en línea.' },
-    it: { contact: 'Contatti', projects: 'Tutti i progetti', close: 'Chiudi', hint: 'Tocca per vedere tutto',
+    it: { contact: 'Contatti', projects: 'Indice', close: 'Chiudi', hint: 'Tocca per vedere tutto',
           name: 'Nome', email: 'E-mail', phone: 'Telefono (facoltativo)', message: 'Il tuo progetto', send: 'Invia',
           title: 'Parliamo del tuo progetto', sending: 'Invio…', sent: 'Grazie, il tuo messaggio è partito. Ti risponderemo a breve.',
           error: 'Invio non riuscito. Controlla i campi e riprova.', preview: 'Anteprima: il modulo invierà i messaggi quando il sito sarà online.' }
@@ -145,9 +145,7 @@
       // 4. « 18h22 » sort à la plume, de gauche à droite
       .to('.word__ink', { '--m': 0, duration: 1.9, ease: 'power2.inOut' }, 3.8)
       .to(letters, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 1.3, stagger: 0.14, ease: 'expo.out' }, 3.85)
-      .to('.word__rule', { scaleX: 1, duration: 1.4, ease: 'expo.inOut' }, 4.6)
-      // 5. L'accroche
-      .add(showTagline(), 5.0);
+      .to({}, { duration: 0.5 });
 
     if (params.has('skip') || reduce) tl.progress(1);
     return tl;
@@ -408,14 +406,12 @@
   function rand(a, b) { return a + Math.random() * (b - a); }
   function isMobile() { return W < 700; }
 
-  function lockupRect(pad) {
-    var r = null;
-    ['#mark', '#word', '#tagline'].forEach(function (s) {
+  // Zones à laisser libres : logo, menu, accroche, crédit (le grand nom, lui, peut passer dessous)
+  function uiRects(pad) {
+    return ['#logo', '.menu', '#tagline', '#credit'].map(function (s) {
       var b = $(s).getBoundingClientRect();
-      if (!r) r = { x: b.left, y: b.top, r: b.right, b: b.bottom };
-      else { r.x = Math.min(r.x, b.left); r.y = Math.min(r.y, b.top); r.r = Math.max(r.r, b.right); r.b = Math.max(r.b, b.bottom); }
+      return { x: b.left - pad, y: b.top - pad, w: b.width + pad * 2, h: b.height + pad * 2 };
     });
-    return { x: r.x - pad, y: r.y - pad, w: r.r - r.x + pad * 2, h: r.b - r.y + pad * 2 };
   }
 
   function overlap(a, b) {
@@ -443,10 +439,10 @@
     var maxH = H * (mobile ? 0.2 : 0.34);
     if (h > maxH) { h = maxH; w = h * ar; }
     var edge = mobile ? 16 : 40;
-    var top = mobile ? 56 : 70;
-    var bottom = mobile ? 120 : 96;
+    var top = mobile ? 64 : 80;
+    var bottom = $('#credit').getBoundingClientRect().height + (mobile ? 30 : 40);
     var amp = amplitude();
-    var L = lockupRect(amp + (mobile ? 10 : 28));
+    var L = uiRects(amp * 0.6 + (mobile ? 8 : 20));
     var pad = 22 + SPACING * 70 + amp * 0.5 * SPACING; // légende + écart voulu entre deux projets
     var live = items;
     var best = null, bestScore = -Infinity;
@@ -455,7 +451,8 @@
         var r = { x: rand(edge, Math.max(edge, W - w - edge)), y: rand(top, Math.max(top, H - h - bottom - 24)), w: w, h: h };
         var score = 500;
         live.forEach(function (it) { score = Math.min(score, gap(r, it) - pad); });
-        var o = overlap(r, L);
+        var o = 0;
+        L.forEach(function (z) { o += overlap(r, z); });
         if (o > 0) score -= 10000 + o;
         if (score > bestScore) { bestScore = score; best = r; }
       }
@@ -500,7 +497,7 @@
     }
     it.cap = document.createElement('div');
     it.cap.className = 'cap';
-    it.cap.innerHTML = '<b>N° ' + String(index + 1).padStart(2, '0') + '</b>' + (p.title ? '<span>' + p.title + '</span>' : '');
+    it.cap.textContent = p.title || '';
     captions.appendChild(it.cap);
     items.push(it);
 
@@ -508,7 +505,6 @@
     gsap.to(it, { reveal: 1, duration: SET.fade * rand(1.2, 1.8), ease: 'expo.out' });
 
     shown++;
-    $('.counter__now').textContent = String(index + 1).padStart(2, '0');
   }
 
   function retire(it) {
@@ -641,6 +637,7 @@
      Redimensionnement
      ------------------------------------------------------------------------ */
   window.addEventListener('resize', function () {
+    fitGiant();
     var W0 = W, H0 = H;
     W = window.innerWidth;
     H = window.innerHeight;
@@ -657,15 +654,57 @@
   /* ------------------------------------------------------------------------
      Départ
      ------------------------------------------------------------------------ */
-  $('.counter__all').textContent = String(PROJECTS.length).padStart(2, '0');
-  $('#year').textContent = new Date().getFullYear();
+  /* Le grand nom occupe toute la largeur de l'écran */
+  var giantInk = $('.giant__ink');
+  function fitGiant() {
+    giantInk.style.fontSize = '100px';
+    var w = giantInk.getBoundingClientRect().width;
+    var avail = $('#giant').getBoundingClientRect().width;
+    giantInk.style.fontSize = (100 * avail / w).toFixed(2) + 'px';
+  }
+  fitGiant();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitGiant);
+
+  /* Fin de l'intro : le picto devient le logo, « 18h22 » descend et s'étire au pied de l'écran */
+  function settle(done) {
+    fitGiant();
+    var instant = params.has('skip') || reduce;
+    var mark = $('#mark'), word = $('#word');
+    var mr = mark.getBoundingClientRect();
+    var pad = 20 / 458.46, inner = 418.46 / 458.46;
+    var lr = $('#logo').getBoundingClientRect();
+    var ms = lr.width / (mr.width * inner);
+    var hr = word.getBoundingClientRect();
+    var wr = $('.word__ink').getBoundingClientRect();
+    var gr = giantInk.getBoundingClientRect();
+    var ws = gr.width / wr.width;
+    var tl = gsap.timeline({
+      onComplete: function () {
+        document.body.classList.add('is-ready');
+        gsap.set('#lockup', { autoAlpha: 0 });
+        done();
+      }
+    });
+    tl.to(mark, {
+      x: lr.left - mr.left - mr.width * pad * ms,
+      y: lr.top - mr.top - mr.height * (20 / 317.09) * ms,
+      scale: ms, duration: 1.5, ease: 'expo.inOut'
+    }, 0).to(word, {
+      x: gr.left - hr.left - (wr.left - hr.left) * ws,
+      y: gr.top - hr.top - (wr.top - hr.top) * ws,
+      scale: ws, duration: 1.6, ease: 'expo.inOut'
+    }, 0.05);
+    if (instant) tl.progress(1);
+  }
 
   function start() {
     document.body.classList.remove('is-intro');
-    document.body.classList.add('is-ready');
-    ready = true;
-    running = true;
-    spawn();
+    settle(function () {
+      ready = true;
+      running = true;
+      showTagline(0.1);
+      spawn();
+    });
   }
 
   /* ------------------------------------------------------------------------
@@ -677,7 +716,7 @@
   var overUI = false;
   var gallery = $('#gallery');
   var grid = $('#galleryGrid');
-  var sceneLayers = ['#stage', '#stageDom', '#captions', '#lockup'];
+  var sceneLayers = ['#stage', '#stageDom', '#captions'];
 
   var UI_SEL = 'button, a, input, textarea, label, .lang, .contact__panel';
   document.addEventListener('pointerover', function (e) {
@@ -689,7 +728,8 @@
     PROJECTS.forEach(function (p, i) {
       var f = document.createElement('figure');
       f.innerHTML = '<img src="' + p.src + '" width="' + p.w + '" height="' + p.h + '" alt="" loading="lazy" decoding="async">' +
-        '<figcaption>N\u00b0 ' + String(i + 1).padStart(2, '0') + (p.title ? ' \u2014 ' + p.title : '') + '</figcaption>';
+        '<figcaption></figcaption>';
+      f.querySelector('figcaption').textContent = p.title || '';
       grid.appendChild(f);
     });
     $('#galleryCount').textContent = String(PROJECTS.length).padStart(2, '0');
@@ -728,7 +768,7 @@
     if (e.target.closest(UI_SEL)) return;
     openGallery();
   });
-  $('#hint').addEventListener('click', openGallery);
+  $('#indexBtn').addEventListener('click', openGallery);
   $('#galleryClose').addEventListener('click', closeGallery);
 
   /* ------------------------------------------------------------------------

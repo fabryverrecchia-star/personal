@@ -25,7 +25,7 @@ Page d'accueil autonome (HTML/CSS/JS statique, aucune compilation).
 - **Projets** : depuis l'admin (voir plus haut).
 - **Rythme, tailles, espacement** : depuis l'admin (réglages « Animation »).
 - **Accroches** : objet `TAGLINES` dans `assets/js/app.js`.
-- **Couleurs** : variables `--bg`, `--ink` dans `assets/css/style.css`.
+- **Couleurs et polices** : variables en haut de `assets/css/style.css` (nuit 18H22, os ; Bodoni Moda et Hanken Grotesk, libres de droits, hébergées dans `assets/fonts/`).
 
 ## Mise en ligne
 
