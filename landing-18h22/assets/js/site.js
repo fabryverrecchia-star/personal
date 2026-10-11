@@ -325,8 +325,8 @@
       return;
     }
     var T = window.THREE;
-    var renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
-    renderer.setClearColor(0x1c2333, 1);
+    var renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, premultipliedAlpha: false, powerPreference: 'high-performance' });
+    renderer.setClearColor(0x000000, 0);
     var scene = new T.Scene();
     var camera = new T.PerspectiveCamera(55, 1, 0.05, 120);
     var mobile = false;
@@ -360,9 +360,7 @@
       '  float r = texture2D(uTex, uv + vec2(s, 0.0)).r;',
       '  float b = texture2D(uTex, uv - vec2(s, 0.0)).b;',
       '  vec3 col = vec3(r, c.g, b);',
-      '  vec3 bg = vec3(0.110, 0.137, 0.200);',
-      '  col = mix(bg, col, uReady);',
-      '  gl_FragColor = vec4(col, uAlpha);',
+      '  gl_FragColor = vec4(col, uAlpha * uReady);',
       '}'
     ].join('\n');
 
@@ -386,7 +384,7 @@
     });
 
     // un cadran entre deux projets : anneau, graduations et deux aiguilles
-    var ink = new T.Color(0xece5d6);
+    var ink = new T.Color(0xf2f4ff);
     var rings = [];
     for (var i = 0; i <= N; i++) {
       var g = new T.Group();
@@ -582,6 +580,249 @@
   })();
 
   /* ------------------------------------------------------------------------
+     Fond : dégradé rétro granuleux, qui respire, suit le doigt ou la souris
+     et change de lumière au fil de la page
+     ------------------------------------------------------------------------ */
+  var pointer = { x: 0.5, y: 0.5, sx: 0.5, sy: 0.5, tilt: null };
+  window.addEventListener('pointermove', function (e) {
+    pointer.x = e.clientX / window.innerWidth; pointer.y = e.clientY / window.innerHeight;
+  }, { passive: true });
+  window.addEventListener('touchmove', function (e) {
+    var t = e.touches[0]; pointer.x = t.clientX / window.innerWidth; pointer.y = t.clientY / window.innerHeight;
+  }, { passive: true });
+  window.addEventListener('deviceorientation', function (e) {
+    if (e.gamma == null || fine) return;
+    pointer.tilt = { x: clamp(e.gamma / 35, -1, 1), y: clamp((e.beta - 50) / 35, -1, 1) };
+  });
+
+  function gradient() {
+    var canvas = $('#grad');
+    if (!window.THREE) return;
+    var T = window.THREE, renderer;
+    try { renderer = new T.WebGLRenderer({ canvas: canvas, antialias: false, alpha: false, powerPreference: 'high-performance' }); }
+    catch (e) { return; }
+    var scene = new T.Scene(), cam = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    var uni = { uTime: { value: 0 }, uRes: { value: new T.Vector2(1, 1) }, uMouse: { value: new T.Vector2(0.5, 0.5) }, uScroll: { value: 0 }, uDark: { value: 0 }, uLight: { value: 0 } };
+    var mat = new T.ShaderMaterial({
+      uniforms: uni,
+      vertexShader: 'void main(){ gl_Position = vec4(position.xy, 0.0, 1.0); }',
+      fragmentShader: [
+        'precision highp float;',
+        'uniform float uTime; uniform vec2 uRes; uniform vec2 uMouse; uniform float uScroll; uniform float uDark; uniform float uLight;',
+        'float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }',
+        'float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);',
+        '  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y); }',
+        'float fbm(vec2 p){ float v = 0.0, a = 0.5; for (int i = 0; i < 4; i++) { v += a * noise(p); p = p * 2.02 + 3.1; a *= 0.5; } return v; }',
+        'void main(){',
+        '  vec2 uv = gl_FragCoord.xy / uRes;',
+        '  float asp = uRes.x / uRes.y;',
+        '  vec2 p = vec2(uv.x * asp, uv.y);',
+        '  float t = uTime * 0.035;',
+        '  vec2 q = vec2(fbm(p * 1.1 + t), fbm(p * 1.1 + vec2(5.2, 1.3) - t));',
+        '  vec2 r = vec2(fbm(p * 1.3 + 2.2 * q + vec2(1.7, 9.2) + t * 1.4 + uScroll * 0.9), fbm(p * 1.3 + 2.2 * q + vec2(8.3, 2.8) - t + uScroll * 0.5));',
+        '  float f = fbm(p * 0.9 + 2.4 * r);',
+        '  vec2 m = vec2(uMouse.x * asp, 1.0 - uMouse.y);',
+        '  f += 0.32 * exp(-dot(p - m, p - m) * 5.0);',
+        '  float glow = exp(-dot(p - m, p - m) * 9.0);',
+        // nuit : bleu profond, cobalt, sarcelle, brume, et une lumière chaude derrière le voile
+        '  vec3 night  = vec3(0.016, 0.028, 0.10);',
+        '  vec3 royal  = vec3(0.07, 0.13, 0.44);',
+        '  vec3 cobalt = vec3(0.17, 0.31, 0.76);',
+        '  vec3 teal   = vec3(0.33, 0.60, 0.68);',
+        '  vec3 mist   = vec3(0.84, 0.88, 0.93);',
+        '  vec3 amber  = vec3(1.0, 0.56, 0.24);',
+        '  vec3 c = mix(night, royal, smoothstep(0.28, 0.52, f));',
+        '  c = mix(c, cobalt, smoothstep(0.50, 0.68, f));',
+        '  c = mix(c, teal, smoothstep(0.66, 0.84, f) * 0.85);',
+        '  c = mix(c, mist, smoothstep(0.86, 1.1, f) * 0.6);',
+        '  c = mix(c, amber, glow * 0.38 + smoothstep(0.7, 0.9, q.y) * smoothstep(0.55, 0.8, f) * 0.22);',
+        // jour : brume claire, lavande, indigo et orange, comme une silhouette derrière un tissu
+        '  vec3 paper  = vec3(0.92, 0.90, 0.88);',
+        '  vec3 lav    = vec3(0.66, 0.66, 0.80);',
+        '  vec3 indigo = vec3(0.16, 0.15, 0.36);',
+        '  vec3 orange = vec3(0.97, 0.43, 0.19);',
+        '  vec3 d = mix(paper, lav, smoothstep(0.50, 0.74, f));',
+        '  d = mix(d, indigo, smoothstep(0.72, 0.95, f));',
+        '  d = mix(d, orange, smoothstep(0.6, 0.82, q.x) * smoothstep(0.58, 0.8, f) * 0.55 + glow * 0.25);',
+        '  c = mix(c, d, uLight);',
+        '  c *= mix(1.0, 0.6, uDark * (1.0 - uLight));',
+        '  float v = smoothstep(1.25, 0.35, length(uv - 0.5) * 1.6);',
+        '  c *= mix(mix(0.72, 0.94, uLight), 1.0, v);',
+        '  float g = hash(gl_FragCoord.xy + fract(uTime * 7.0) * 311.0);',
+        '  c += (g - 0.5) * mix(0.17, 0.11, uLight);',
+        '  gl_FragColor = vec4(clamp(c, 0.0, 1.0), 1.0);',
+        '}'
+      ].join('\n')
+    });
+    scene.add(new T.Mesh(new T.PlaneGeometry(2, 2), mat));
+    function size() {
+      var dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 700 ? 1.25 : 1);
+      renderer.setPixelRatio(dpr);
+      renderer.setSize(window.innerWidth, window.innerHeight, false);
+      renderer.getDrawingBufferSize(uni.uRes.value);
+    }
+    size();
+    window.addEventListener('resize', size);
+    document.documentElement.classList.add('has-grad');
+    var sc = 0, light = 0;
+    (function loop(t) {
+      requestAnimationFrame(loop);
+      if (document.hidden) return;
+      var tx = pointer.tilt ? 0.5 + pointer.tilt.x * 0.35 : pointer.x;
+      var ty = pointer.tilt ? 0.5 + pointer.tilt.y * 0.3 : pointer.y;
+      pointer.sx += (tx - pointer.sx) * 0.04; pointer.sy += (ty - pointer.sy) * 0.04;
+      uni.uMouse.value.set(pointer.sx, pointer.sy);
+      var y = window.scrollY / Math.max(1, window.innerHeight);
+      sc += (y - sc) * 0.06;
+      uni.uScroll.value = sc;
+      // plus sombre derrière les textes, plus lumineux en ouverture
+      uni.uDark.value = clamp((y - 0.5) * 0.9, 0, 0.45);
+      // le bas de page passe au jour : brume claire, encre sombre
+      var lt = clamp(1 - $('#references').getBoundingClientRect().top / window.innerHeight, 0, 1);
+      light += (lt - light) * 0.06;
+      uni.uLight.value = light;
+      document.body.classList.toggle('is-light', light > 0.5);
+      uni.uTime.value = reduce ? 0 : t * 0.001;
+      renderer.render(scene, cam);
+    })(0);
+  }
+
+  /* ------------------------------------------------------------------------
+     Lignes : le monogramme 18H22 se dédouble en faisceau de lignes qui ondulent,
+     s'écartent du curseur et se déroulent au défilement
+     ------------------------------------------------------------------------ */
+  function logoLines() {
+    var canvas = $('#lines');
+    var paths = $$('#mark .strokes path');
+    if (!window.THREE || !paths.length) return;
+    var T = window.THREE, renderer;
+    try { renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true }); }
+    catch (e) { return; }
+    renderer.setClearColor(0x000000, 0);
+    var mobile = window.innerWidth < 700;
+    var K = mobile ? 26 : 44;     // lignes par tracé
+    var N = mobile ? 150 : 220;   // points par ligne
+    var scene = new T.Scene();
+    var camera = new T.PerspectiveCamera(32, 1, 0.1, 50);
+    camera.position.z = 7;
+
+    // points d'origine, pris sur le tracé central du monogramme
+    var strands = [];
+    var group = new T.Group();
+    scene.add(group);
+    var colA = new T.Color(0x9fe6ff), colB = new T.Color(0xffffff), colC = new T.Color(0x3b5bff);
+    paths.forEach(function (path, pi) {
+      var len = path.getTotalLength();
+      var base = [], norm = [];
+      for (var i = 0; i < N; i++) {
+        var pt = path.getPointAtLength(len * i / (N - 1));
+        base.push([(pt.x - 209) / 120, -(pt.y - 138) / 120]);
+      }
+      for (var j = 0; j < N; j++) {
+        var a = base[Math.max(0, j - 1)], b = base[Math.min(N - 1, j + 1)];
+        var dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
+        norm.push([-dy / l, dx / l]);
+      }
+      for (var k = 0; k < K; k++) {
+        var s = K > 1 ? k / (K - 1) - 0.5 : 0;
+        var geo = new T.BufferGeometry();
+        var pos = new Float32Array(N * 3);
+        geo.setAttribute('position', new T.BufferAttribute(pos, 3));
+        var c = colC.clone().lerp(colA, 1 - Math.abs(s) * 2).lerp(colB, Math.max(0, 0.6 - Math.abs(s) * 3));
+        var mat = new T.LineBasicMaterial({ color: c, transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false });
+        var line = new T.Line(geo, mat);
+        group.add(line);
+        strands.push({ base: base, norm: norm, s: s, pi: pi, pos: pos, geo: geo, mat: mat, op: (1 - Math.abs(s) * 1.7) * 0.55 + 0.08 });
+      }
+    });
+
+    function size() {
+      mobile = window.innerWidth < 700;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight, false);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    }
+    size();
+    window.addEventListener('resize', size);
+
+    // ouverture : les lignes naissent du picto quand il rejoint le logo
+    var st = { open: 0, alpha: 0 };
+    function appear() {
+      if (window.gsap) {
+        gsap.to(st, { alpha: 1, duration: 1.6, ease: 'power2.out' });
+        gsap.to(st, { open: 1, duration: 3.2, ease: 'expo.out', delay: 0.2 });
+      } else { st.alpha = 1; st.open = 1; }
+    }
+    if (document.body.classList.contains('is-ready')) appear();
+    else new MutationObserver(function (m, o) {
+      if (document.body.classList.contains('is-ready')) { o.disconnect(); appear(); }
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    canvas.style.opacity = 1;
+
+    var mouseW = new T.Vector3(), ray = new T.Vector3();
+    var press = 0, pressT = 0;
+    window.addEventListener('pointerdown', function () { pressT = 1; });
+    window.addEventListener('pointerup', function () { pressT = 0; });
+    var smooth = 0;
+
+    (function loop(now) {
+      requestAnimationFrame(loop);
+      var t = reduce ? 0 : now * 0.001;
+      var H = window.innerHeight;
+      var y = window.scrollY / H;                 // 0 en haut, 1 après la montre…
+      smooth += (y - smooth) * 0.08;
+      var fade = clamp(1 - (smooth - 2.2) / 0.8, 0, 1); // les lignes s'effacent avant le showreel
+      if (fade <= 0 && st.alpha > 0.99) { canvas.style.visibility = 'hidden'; return; }
+      canvas.style.visibility = '';
+      press += (pressT - press) * 0.08;
+
+      // pointeur projeté sur le plan z = 0
+      var px = pointer.tilt ? 0.5 + pointer.tilt.x * 0.3 : pointer.sx;
+      var py = pointer.tilt ? 0.5 + pointer.tilt.y * 0.3 : pointer.sy;
+      ray.set(px * 2 - 1, -(py * 2 - 1), 0.5).unproject(camera).sub(camera.position).normalize();
+      mouseW.copy(camera.position).add(ray.multiplyScalar(-camera.position.z / ray.z));
+      var lx = mouseW.x - group.position.x, ly = mouseW.y - group.position.y;
+
+      // en ouverture au centre ; au manifeste, le faisceau glisse à droite et se déroule
+      var m1 = clamp(smooth, 0, 1), m2 = clamp(smooth - 1, 0, 1.4);
+      var scale = mobile ? 0.44 : 1;
+      group.position.x = (mobile ? 0.2 : 1.7) * m2;
+      group.position.y = (mobile ? -1.1 : 0) * m2;
+      group.rotation.y = Math.sin(t * 0.25) * 0.25 + m1 * 0.5 + m2 * 0.9 + (px - 0.5) * 0.4;
+      group.rotation.x = Math.cos(t * 0.21) * 0.12 + (py - 0.5) * 0.3 - m2 * 0.2;
+      group.rotation.z = m2 * 0.35;
+      group.scale.setScalar(scale * (1 + m1 * 0.25 + press * 0.08));
+
+      var spread = (0.05 + 0.5 * st.open + m1 * 0.5 + m2 * 0.9 + press * 0.5);
+      var depth = 0.4 + 1.6 * st.open + m2 * 2.2;
+      strands.forEach(function (S) {
+        var p = S.pos, base = S.base, nr = S.norm, s = S.s;
+        for (var i = 0; i < N; i++) {
+          var u = i / (N - 1);
+          var wave = Math.sin(u * 9 + t * 1.3 + s * 5 + S.pi * 2) * (0.06 + m2 * 0.25) + Math.sin(u * 23 - t * 0.9 + s * 11) * 0.02 * st.open;
+          var off = s * spread + wave * (0.3 + Math.abs(s));
+          var x = base[i][0] + nr[i][0] * off;
+          var yy = base[i][1] + nr[i][1] * off;
+          var z = s * depth + Math.sin(u * 6 + t + s * 3) * 0.15 * st.open;
+          // le curseur écarte les lignes
+          var dx = x * scale - lx, dy = yy * scale - ly;
+          var d2 = dx * dx + dy * dy;
+          var push = Math.exp(-d2 * 3.2) * 0.45 * st.open;
+          var d = Math.sqrt(d2) || 1;
+          x += dx / d * push; yy += dy / d * push; z += push * 1.4;
+          // déroulé : la ligne s'étire en ruban
+          x += m2 * (u - 0.5) * 2.4 * (S.pi ? 1 : -1);
+          p[i * 3] = x; p[i * 3 + 1] = yy; p[i * 3 + 2] = z;
+        }
+        S.geo.attributes.position.needsUpdate = true;
+        S.mat.opacity = S.op * st.alpha * fade * (1 - Math.min(1, m2) * (mobile ? 0.78 : 0.55));
+      });
+      renderer.render(scene, camera);
+    })(0);
+  }
+
+  /* ------------------------------------------------------------------------
      Départ
      ------------------------------------------------------------------------ */
   var yr = $('#year'); if (yr) yr.textContent = new Date().getFullYear();
@@ -596,6 +837,8 @@
   render(document.documentElement.lang && COPY[document.documentElement.lang] ? document.documentElement.lang : 'fr');
   $$('.panel__cta span').forEach(function (s) { s.textContent = COPY[current].endCta; });
   if (window.gsap && !reduce) gsap.set($$('.ch > span', $('#endTitle')), { yPercent: 110 });
+  gradient();
+  logoLines();
   tunnel();
   onScroll();
 })();
