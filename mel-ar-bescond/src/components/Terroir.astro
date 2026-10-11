@@ -19,7 +19,8 @@ const poster = await getImage({ src: photo('fumee-poster'), width: 1280, format:
     <div class="terroir__body">
       <h2 class="h2" data-split>Né en Bretagne, <em>au pied du Menez Bré</em></h2>
       <p class="lead muted" data-reveal>
-        Nos ruches vivent à Coat ar Bescond, sur la commune de Louargat, entre bocage, landes et talus fleuris.
+        Nos ruches vivent à Coat ar Bescond, sur la commune de Louargat, entre bocage, landes et talus fleuris, à quelques
+        lieues de la Côte de Granit Rose.
       </p>
       <dl class="terroir__facts" data-reveal>
         <div><dt class="label muted">Lieu-dit</dt><dd>{site.address.street}</dd></div>
@@ -43,9 +44,9 @@ const poster = await getImage({ src: photo('fumee-poster'), width: 1280, format:
   }
   .terroir__video {
     position: absolute;
-    inset: -8% 0;
+    inset: 0;
     width: 100%;
-    height: 116%;
+    height: 100%;
     object-fit: cover;
   }
   .terroir__rule {

@@ -437,7 +437,7 @@ ScrollTrigger.create({ start: 0, end: 'max', onUpdate: updateDock });
 /* ───────────── Vidéos ───────────── */
 function films() {
   // lecture seulement quand la vidéo est à l'écran (batterie, données mobiles)
-  const vids = $$<HTMLVideoElement>('[data-film-video], [data-autoplay]');
+  const vids = $$<HTMLVideoElement>('[data-autoplay]');
   const io = new IntersectionObserver(
     (entries) =>
       entries.forEach((en) => {
@@ -452,37 +452,6 @@ function films() {
     io.observe(v);
   });
 
-  // le film s'ouvre en plein écran pendant qu'il entre dans la page
-  const film = $('[data-film]');
-  if (film) {
-    gsap.to('[data-film-frame]', {
-      clipPath: 'inset(0% 0% 0% 0%)',
-      ease: 'none',
-      scrollTrigger: { trigger: film, start: 'top 90%', end: 'top top', scrub: true },
-    });
-    gsap.to('[data-film-video]', {
-      scale: 1,
-      ease: 'none',
-      scrollTrigger: { trigger: film, start: 'top bottom', end: 'bottom top', scrub: true },
-    });
-    gsap.from($$('[data-film-text] > *'), {
-      y: 50,
-      opacity: 0,
-      duration: 1.6,
-      stagger: 0.12,
-      ease: 'expo.out',
-      scrollTrigger: { trigger: film, start: 'top 30%', once: true },
-    });
-  }
-
-  // bandeau du terroir : parallaxe douce de la vidéo
-  const band = $('[data-band] video');
-  if (band)
-    gsap.fromTo(
-      band,
-      { yPercent: -6 },
-      { yPercent: 6, ease: 'none', scrollTrigger: { trigger: '[data-band]', start: 'top bottom', end: 'bottom top', scrub: true } },
-    );
 }
 
 /* ───────────── Démarrage ───────────── */

@@ -18,10 +18,10 @@ npm run preview:file   # site prêt à mettre en ligne : artifact/mel-ar-bescond
 | Section | Mouvement |
 | --- | --- |
 | Ouverture | sur fond blanc, le monogramme NF se compose au rythme du chargement (contour tracé, puis rempli d’encre), « Mel ar Bescond » apparaît dessous, puis le rideau se lève sur le site |
-| Hero | les 4 photos du shooting en plein écran (WebGL, transition liquide, léger suivi de la souris), grand titre révélé ligne par ligne, navigation par barres de progression ; au défilement la photo se resserre en cadre |
+| Hero | 3 photos du shooting et la vidéo du miel qui coule (slide 2), en plein écran (WebGL, transition liquide, léger suivi de la souris), grand titre révélé ligne par ligne, navigation par barres de progression ; au défilement la photo se resserre en cadre |
 | Promesse | les mots s’éclairent au fil de la lecture |
-| Film | vidéo du miel qui coule du rayon, en plein écran, qui s’ouvre au défilement |
 | La maison | photos en WebGL : révélation organique, parallaxe, courbure au défilement, ondulation au survol |
+| Entre terre et mer | vidéo des vagues sur le sable (sans effet au défilement), la Côte de Granit Rose toute proche |
 | La récolte | deux saisons en très grand ; au survol, une photo suit le curseur |
 | Commander | une ligne par miel, une case par contenance ; le panier se compose avec les photos des pots |
 | Le terroir, pied de page | vidéo des apiculteurs dans la fumée, faits du lieu-dit, grand logo |
@@ -51,15 +51,15 @@ Les photos du shooting sont dans `brand/shooting/` et `src/assets/photos/` : `du
 
 | Nom | Emplacement |
 | --- | --- |
-| `duo`, `rayon`, `ruche`, `fleur` | diaporama du hero (dans cet ordre) |
+| `duo`, vidéo `miel`, `ruche`, `fleur` | diaporama du hero (dans cet ordre) |
 | `duo` / `texture` | « La maison » (grande / petite photo) |
 | `fleur` / `abeille` | saisons Printemps / Été |
-| `miel-poster`, `fumee-poster` | images d’attente des vidéos |
+| `miel-poster`, `mer-poster`, `fumee-poster` | images d’attente des vidéos |
 | `pot-seul` (sinon `pot`) | vignette des pots dans le panier |
 
 Astro génère les versions optimisées au build.
 
-Vidéos (`public/videos/`, en MP4 H.264 + WebM VP9, sans son) : `miel` (le miel qui coule, séquence film) et `fumee` (bandeau du terroir). Elles ne se lisent que lorsqu’elles sont à l’écran.
+Vidéos (`public/videos/`, en MP4 H.264 + WebM VP9, sans son, aucune parallaxe) : `miel` (slide 2 du hero, texture WebGL), `mer` (section « Entre terre et mer ») et `fumee` (bandeau du terroir). Elles ne se lisent que lorsqu’elles sont à l’écran.
 
 ## Identité
 

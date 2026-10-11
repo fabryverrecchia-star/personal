@@ -1,0 +1,82 @@
+---
+// La mer toute proche : vidéo des vagues sur le sable, sans effet au défilement.
+import { getImage } from 'astro:assets';
+import { photo } from '../lib/photos';
+const poster = await getImage({ src: photo('mer-poster'), width: 900, format: 'webp' });
+---
+
+<section class="mer" id="mer" data-theme="dark">
+  <div class="wrap mer__grid">
+    <figure class="mer__media">
+      <video class="mer__video" data-autoplay poster={poster.src} muted loop playsinline preload="metadata" aria-label="Vagues sur le sable, sur la côte des Côtes-d’Armor">
+        <source src="videos/mer.mp4" type="video/mp4" />
+        <source src="videos/mer.webm" type="video/webm" />
+      </video>
+    </figure>
+
+    <div class="mer__text">
+      <p class="label mer__kicker" data-reveal>Entre terre et mer</p>
+      <h2 class="h2" data-split>Tout près de la <em>Côte de Granit Rose</em></h2>
+      <p class="lead mer__lead" data-reveal>
+        De Louargat, la mer n’est jamais loin : une quarantaine de kilomètres séparent nos ruches des rochers roses de
+        Ploumanac’h. Un pays où le bocage descend doucement vers la Manche.
+      </p>
+      <p class="mer__body" data-reveal>
+        Un pays de vent doux et de lumière changeante, qui donne à chaque saison ses floraisons et à chaque miel son
+        caractère.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .mer {
+    background: var(--night);
+    color: var(--ivory);
+    padding-block: clamp(100px, 13vw, 200px);
+  }
+  .mer__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+    gap: clamp(40px, 7vw, 120px);
+    align-items: center;
+  }
+  .mer__media {
+    position: relative;
+    aspect-ratio: 9 / 14;
+    max-height: 86svh;
+    overflow: hidden;
+    background: #0d0a07;
+  }
+  .mer__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .mer__text {
+    display: grid;
+    gap: 1.8rem;
+    max-width: 36rem;
+  }
+  .mer__kicker {
+    color: color-mix(in srgb, var(--ivory) 55%, transparent);
+  }
+  .mer__text .h2 em {
+    color: #e9c98f;
+  }
+  .mer__lead {
+    color: color-mix(in srgb, var(--ivory) 85%, transparent);
+  }
+  .mer__body {
+    color: color-mix(in srgb, var(--ivory) 62%, transparent);
+  }
+
+  @media (max-width: 800px) {
+    .mer__grid {
+      grid-template-columns: 1fr;
+    }
+    .mer__media {
+      aspect-ratio: 4 / 5;
+    }
+  }
+</style>

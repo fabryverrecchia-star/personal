@@ -169,6 +169,9 @@ html.gl [data-gl] img,
 html.gl [data-gl-slides] img {
   visibility: hidden;
 }
+html.gl [data-gl-slides] video {
+  opacity: 0.001 !important;
+}
 html.gl [data-gl],
 html.gl [data-gl-slides] {
   background: transparent !important;

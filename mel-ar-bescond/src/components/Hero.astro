@@ -1,9 +1,10 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import { photo } from '../lib/photos';
+const mielPoster = await getImage({ src: photo('miel-poster'), width: 1280, format: 'webp' });
 const slides = [
   { img: photo('duo', 'apiculteurs'), cap: 'Nathalie & Frédéric', alt: 'Nathalie et Frédéric Baltzer auprès de leurs ruches' },
-  { img: photo('rayon', 'tamis'), cap: 'Le rayon', alt: 'Rayon de miel dans son miel' },
+  { video: 'miel', poster: mielPoster.src, cap: 'Le miel', alt: 'Le miel coule lentement du rayon' },
   { img: photo('ruche', 'filet'), cap: 'Au cœur de la ruche', alt: 'Abeilles sur les cadres de la ruche' },
   { img: photo('fleur', 'cuillere'), cap: 'Les floraisons', alt: 'Abeille sur une fleur de prunier' },
 ];
@@ -12,9 +13,16 @@ const slides = [
 <section class="hero" id="top" data-hero data-theme="dark">
   <figure class="hero__frame" data-hero-frame data-gl-slides data-gl-shade data-gl-parallax="0.12">
     {
-      slides.map((s, i) => (
-        <Image src={s.img} alt={s.alt} widths={[900, 1600, 2400]} sizes="100vw" loading="eager" data-slide={i} />
-      ))
+      slides.map((s, i) =>
+        s.video ? (
+          <video data-slide={i} data-autoplay poster={s.poster} muted loop playsinline preload="auto" aria-label={s.alt}>
+            <source src={`videos/${s.video}.mp4`} type="video/mp4" />
+            <source src={`videos/${s.video}.webm`} type="video/webm" />
+          </video>
+        ) : (
+          <Image src={s.img!} alt={s.alt} widths={[900, 1600, 2400]} sizes="100vw" loading="eager" data-slide={i} />
+        ),
+      )
     }
   </figure>
   <div class="hero__shade" aria-hidden="true"></div>
@@ -68,14 +76,16 @@ const slides = [
     inset: var(--inset);
     overflow: hidden;
   }
-  .hero__frame :global(img) {
+  .hero__frame :global(img),
+  .hero__frame :global(video) {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  .hero__frame :global(img:not([data-slide='0'])) {
+  .hero__frame :global(img:not([data-slide='0'])),
+  .hero__frame :global(video:not([data-slide='0'])) {
     opacity: 0;
   }
   /* voile de lisibilité (sans WebGL ; en WebGL l'assombrissement est dans le shader) */

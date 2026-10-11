@@ -159,6 +159,19 @@ export function initGL() {
   const items: GLItem[] = [];
   const state = { vel: 0, time: 0 };
 
+  const videoTextures: { tex: Texture; video: HTMLVideoElement }[] = [];
+  const loadVideo = (video: HTMLVideoElement, onSize: (w: number, h: number) => void) => {
+    const tex = new Texture(gl, { generateMipmaps: false, minFilter: gl.LINEAR });
+    const ready = () => {
+      tex.image = video;
+      onSize(video.videoWidth || 16, video.videoHeight || 9);
+      videoTextures.push({ tex, video });
+    };
+    if (video.readyState >= 2) ready();
+    else video.addEventListener('loadeddata', ready, { once: true });
+    return tex;
+  };
+
   const loadTexture = (img: HTMLImageElement, onSize: (w: number, h: number) => void) => {
     const tex = new Texture(gl, { generateMipmaps: false, minFilter: gl.LINEAR });
     const apply = () => {
@@ -176,7 +189,7 @@ export function initGL() {
   };
 
   const add = (el: HTMLElement) => {
-    const imgs = [...el.querySelectorAll('img')];
+    const imgs = [...el.querySelectorAll<HTMLImageElement | HTMLVideoElement>('img, video')];
     if (!imgs.length) return;
     const isSlides = el.hasAttribute('data-gl-slides');
     const common = {
@@ -193,7 +206,7 @@ export function initGL() {
       const sizes: [number, number][] = imgs.map(() => [1, 1]);
       let count = 0;
       const textures = imgs.map((im, i) =>
-        loadTexture(im, (w, h) => {
+        (im instanceof HTMLVideoElement ? loadVideo : loadTexture)(im as never, (w, h) => {
           sizes[i] = [w, h];
           if (++count >= Math.min(2, imgs.length)) item.loaded = true;
         }),
@@ -221,7 +234,7 @@ export function initGL() {
       });
     } else {
       const size: [number, number] = [1, 1];
-      const tex = loadTexture(imgs[0], (w, h) => {
+      const tex = loadTexture(imgs[0] as HTMLImageElement, (w, h) => {
         size[0] = w;
         size[1] = h;
         item.loaded = true;
@@ -255,6 +268,8 @@ export function initGL() {
   const hoverVal = new WeakMap<GLItem, number>();
   const tick = () => {
     state.time += 1 / 60;
+    // vidéos : nouvelle image envoyée au GPU tant qu'elles jouent
+    for (const v of videoTextures) if (!v.video.paused && v.video.readyState >= 2) v.tex.needsUpdate = true;
     for (const it of items) {
       const r = it.el.getBoundingClientRect();
       const visible = it.loaded && r.bottom > -100 && r.top < view[1] + 100 && r.width > 0 && it.alpha > 0.001;
