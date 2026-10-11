@@ -55,7 +55,7 @@
   opacity: var(--night, 0);
   background:
     radial-gradient(26% 34% at 38% 40%, rgba(255, 106, 61, 0.22), rgba(255, 106, 61, 0) 100%),
-    radial-gradient(60% 70% at 55% 48%, #2b2c5e 0%, #1a1b3c 55%, #0e0f24 100%);
+    radial-gradient(70% 50% at 50% 10%, #1d5a72 0%, #0f3445 45%, #050c0c 100%);
   filter: blur(24px);
 }
 .mist .mist__veil {
@@ -81,11 +81,11 @@
 
 /* Côté nuit de la marque : le tunnel et ses montres passent en sombre */
 body.is-night {
-  --ink: #ece5d6;
-  --ink-soft: rgba(236, 229, 214, 0.62);
-  --ink-faint: rgba(236, 229, 214, 0.16);
+  --ink: #dfe7ea;
+  --ink-soft: rgba(223, 231, 234, 0.62);
+  --ink-faint: rgba(223, 231, 234, 0.16);
 }
-body.is-night .top::before { background: rgba(26, 27, 60, 0.3); }
+body.is-night .top::before { background: rgba(5, 14, 16, 0.3); }
 .logo, .menu button, .tick, .tunnel__head, .tunnel__now, .tunnel__foot, .tunnel__foot .link, .cursor::before, .cursor__dot {
   transition-property: color, background-color, border-color, opacity, transform, background-size;
   transition-duration: 0.7s;

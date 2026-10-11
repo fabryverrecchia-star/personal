@@ -222,24 +222,27 @@
       '  vec2 dir = normalize(vec2(-0.55 + sin(uScroll * 0.8) * 0.5, -1.0));',
       '  float brush = noise((R * p) * vec2(2.0, 46.0) + r * 3.0);',
       '  float s = dot(p, dir) * 0.95 + (f - 0.5) * 1.35 + (brush - 0.5) * 0.07;',
-      '  float th = 0.62 - uCover;',
+      '  float th = 0.62 - uCover - 0.22 * uNight;',
       '  float L = smoothstep(th, th + 0.32, s);',
       '  float D = smoothstep(th + 0.2, th + 0.8, s);',
-      '  vec3 cream = mix(vec3(0.957, 0.925, 0.851), vec3(0.102, 0.106, 0.235), uNight);',
-      '  vec3 tealL = mix(vec3(0.52, 0.74, 0.79), vec3(0.20, 0.38, 0.50), uNight);',
-      '  vec3 teal = mix(vec3(0.10, 0.42, 0.53), vec3(0.09, 0.30, 0.42), uNight);',
+      '  vec3 cream = mix(vec3(0.957, 0.925, 0.851), vec3(0.020, 0.047, 0.047), uNight);',
+      '  vec3 tealL = mix(vec3(0.52, 0.74, 0.79), vec3(0.10, 0.34, 0.46), uNight);',
+      '  vec3 teal = mix(vec3(0.10, 0.42, 0.53), vec3(0.04, 0.18, 0.25), uNight);',
       '  vec3 deep = vec3(0.02, 0.06, 0.09);',
       '  vec3 col = mix(cream, tealL, L);',
       '  col = mix(col, teal, smoothstep(0.1, 0.65, D));',
       '  col = mix(col, deep, smoothstep(0.62, 1.0, D) * 0.92);',
       // reflets d'eau sur la matière
       '  float c = pow(1.0 - abs(fract(f * 5.0 + r.x * 2.0 - t * 2.0) - 0.5) * 2.0, 14.0);',
-      '  col = mix(col, vec3(0.98, 0.95, 0.88), c * L * (1.0 - D * 0.6) * 0.55);',
+      '  col = mix(col, vec3(0.98, 0.95, 0.88), c * L * (1.0 - D * 0.6) * 0.55 * (1.0 - 0.55 * uNight));',
       // le cœur orange, filamenteux, qui suit le curseur
       '  vec2 dc = (p - uCore) * vec2(1.0, 0.8);',
       '  float fil = smoothstep(0.42, 0.72, fbm(p * 11.0 + r * 3.0 + t));',
       '  float g = exp(-dot(dc, dc) * 70.0) * (0.35 + 1.1 * fil) + exp(-dot(dc, dc) * 14.0) * 0.12;',
       '  col = mix(col, vec3(1.0, 0.36, 0.10), clamp(g, 0.0, 1.0) * (0.55 + 0.35 * uNight));',
+      // la nuit, une auréole bleue autour du cœur orange
+      '  float halo = exp(-pow(length(dc) - 0.1, 2.0) * 1400.0) + exp(-pow(length(dc) - 0.1, 2.0) * 160.0) * 0.22;',
+      '  col = mix(col, vec3(0.30, 0.62, 0.95), clamp(halo, 0.0, 1.0) * uNight * 0.75);',
       // lumière qui retombe, un léger halo vers le haut
       '  col += (1.0 - uNight) * 0.03 * smoothstep(0.2, -0.6, p.y);',
       '  col += (hash(gl_FragCoord.xy + fract(uTime)) - 0.5) / 255.0;',
@@ -498,8 +501,8 @@
     ].join('\n');
 
     // brume claire le jour, nuit indigo dans le tunnel
-    var dayMist = new T.Color(0xf2ead8), nightMist = new T.Color(0x1a1b3c), mistCol = new T.Color(0xf2ead8);
-    var dayInk = new T.Color(0x1e2042), nightInk = new T.Color(0xece5d6);
+    var dayMist = new T.Color(0xf2ead8), nightMist = new T.Color(0x050c0c), mistCol = new T.Color(0xf2ead8);
+    var dayInk = new T.Color(0x1e2042), nightInk = new T.Color(0xdfe7ea);
     var loader = new T.TextureLoader();
     var geo = new T.PlaneGeometry(1, 1, 24, 24);
     var planes = PROJECTS.map(function (p, i) {
