@@ -16,6 +16,8 @@
   --my: 0;
   --dusk: 0;
 }
+.mist__flow { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.has-flow .mist i { display: none; }
 .mist i { position: absolute; display: block; border-radius: 50%; will-change: transform; }
 .mist__shade {
   left: 46%;
@@ -47,8 +49,18 @@
     linear-gradient(90deg, #4a7680 0%, #6a949b 22%, #a9c0bb 50%, #6a949b 78%, #4a7680 100%);
   filter: blur(30px);
 }
+.mist .mist__night {
+  inset: -10%;
+  border-radius: 0;
+  opacity: var(--night, 0);
+  background:
+    radial-gradient(26% 34% at 38% 40%, rgba(255, 106, 61, 0.22), rgba(255, 106, 61, 0) 100%),
+    radial-gradient(60% 70% at 55% 48%, #2b2c5e 0%, #1a1b3c 55%, #0e0f24 100%);
+  filter: blur(24px);
+}
 .mist .mist__veil {
   inset: 0;
+  opacity: calc(1 - var(--night, 0));
   border-radius: 0;
   background: linear-gradient(rgba(240, 239, 241, 0) 55%, rgba(240, 239, 241, 0.7) 100%);
 }
@@ -63,28 +75,20 @@
   100% { translate: 3vw -2vh; opacity: 0.7; }
 }
 
-/* Grain de pellicule : gros, doux, vivant */
-.grain {
-  position: fixed;
-  inset: -60px;
-  z-index: 55;
-  pointer-events: none;
-  opacity: 0.2;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.12 0 0 0 0 0.24 0 0 0 1.6 -0.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 440px 440px;
-  animation: grain 0.9s steps(6) infinite;
-}
-@keyframes grain {
-  0% { transform: translate(0, 0); }
-  17% { transform: translate(-22px, 14px); }
-  33% { transform: translate(18px, -26px); }
-  50% { transform: translate(-30px, -8px); }
-  67% { transform: translate(26px, 22px); }
-  83% { transform: translate(-8px, 30px); }
-  100% { transform: translate(12px, -16px); }
-}
 @media (prefers-reduced-motion: reduce) {
-  .grain, .mist i { animation: none; }
+  .mist i { animation: none; }
+}
+
+/* Côté nuit de la marque : le tunnel et ses montres passent en sombre */
+body.is-night {
+  --ink: #ece5d6;
+  --ink-soft: rgba(236, 229, 214, 0.62);
+  --ink-faint: rgba(236, 229, 214, 0.16);
+}
+body.is-night .top::before { background: rgba(26, 27, 60, 0.3); }
+.logo, .menu button, .tick, .tunnel__head, .tunnel__now, .tunnel__foot, .tunnel__foot .link, .cursor::before, .cursor__dot {
+  transition-property: color, background-color, border-color, opacity, transform, background-size;
+  transition-duration: 0.7s;
 }
 
 /* La montre reste derrière, le site glisse par-dessus */
@@ -125,7 +129,7 @@
   position: absolute;
   inset: 0 0 -28px;
   z-index: -1;
-  background: rgba(226, 225, 228, 0.22);
+  background: rgba(242, 234, 216, 0.22);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   -webkit-mask: linear-gradient(#000 60%, transparent);
@@ -259,6 +263,26 @@
   gap: 16px;
 }
 .tunnel__hint { margin: 0; font-size: 13px; color: var(--ink-soft); }
+.tunnel__stats {
+  position: absolute;
+  right: var(--gutter);
+  top: clamp(110px, 18vh, 180px);
+  display: grid;
+  gap: clamp(18px, 3vh, 34px);
+  justify-items: end;
+  text-align: right;
+  opacity: 0;
+  pointer-events: none;
+}
+.stat { margin: 0; display: grid; justify-items: inherit; }
+.stat__n {
+  font-size: clamp(54px, 6.4vw, 112px);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+}
+.stat__l { margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
+.no-tunnel .tunnel__stats { position: static; opacity: 1; justify-items: start; text-align: left; margin-bottom: 40px; }
 .tunnel__fallback { display: none; }
 .no-tunnel .tunnel { height: auto; }
 .no-tunnel .tunnel__sticky { position: static; height: auto; overflow: visible; padding: 120px var(--gutter) 90px; }
@@ -425,11 +449,13 @@
 @media (max-width: 700px) {
   .mist__shade { left: 30%; top: 30%; width: 80vw; height: 70vh; filter: blur(28px); }
   .mist__glow { left: 26%; top: 26%; width: 30vw; height: 40vh; filter: blur(24px); }
-  .grain { background-size: 330px 330px; }
   .cue { top: calc(46% + 37vw + 20px + 30px); }
   .tunnel { height: 300vh; }
   .tunnel__now { bottom: 92px; font-size: 15px; }
   .tunnel__head { top: 96px; }
+  .tunnel__stats { top: 96px; left: var(--gutter); right: auto; justify-items: start; text-align: left; grid-auto-flow: column; gap: 28px; }
+  .stat__n { font-size: 46px; }
+  .stat__l { font-size: 12px; max-width: 9.5em; }
   .no-tunnel .tunnel__fallback { columns: 2; }
   .reel { height: 220vh; }
   .reel__line { bottom: calc(var(--gutter) + 40px); }

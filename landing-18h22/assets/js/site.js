@@ -26,7 +26,7 @@
       cue: 'Entrer',
       manifesto: '18h22 est l’heure où la lumière change. Studio de création, nous donnons aux marques une image juste, et le temps de la faire vivre.',
       reelLabel: 'Showreel', reelLine: 'Paris, 18h22.',
-      workLabel: 'Projets', workTitle: 'Sélection', workHint: 'Défiler', workAll: 'Index',
+      workLabel: 'Projets', workTitle: 'Sélection', workHint: 'Défiler', workAll: 'Index', statProj: 'projets en 2026', statYears: 'années d’activité, depuis 2017',
       servicesLabel: 'Services',
       endTitle: 'Un projet ?', endCta: 'Écrivez-nous', copied: 'Adresse copiée',
       need: 'Objet', needOther: 'Autre',
@@ -36,7 +36,7 @@
       cue: 'Enter',
       manifesto: '18:22 is the hour the light changes. As a creative studio, we give brands the right image, and the time to make it live.',
       reelLabel: 'Showreel', reelLine: 'Paris, 18:22.',
-      workLabel: 'Work', workTitle: 'Selection', workHint: 'Scroll', workAll: 'Index',
+      workLabel: 'Work', workTitle: 'Selection', workHint: 'Scroll', workAll: 'Index', statProj: 'projects in 2026', statYears: 'years in practice, since 2017',
       servicesLabel: 'Services',
       endTitle: 'A project?', endCta: 'Write to us', copied: 'Address copied',
       need: 'Subject', needOther: 'Other',
@@ -46,7 +46,7 @@
       cue: 'Entrar',
       manifesto: 'Las 18:22 son la hora en que cambia la luz. Como estudio creativo, damos a las marcas la imagen justa, y el tiempo para hacerla vivir.',
       reelLabel: 'Showreel', reelLine: 'París, 18:22.',
-      workLabel: 'Proyectos', workTitle: 'Selección', workHint: 'Desplazar', workAll: 'Índice',
+      workLabel: 'Proyectos', workTitle: 'Selección', workHint: 'Desplazar', workAll: 'Índice', statProj: 'proyectos en 2026', statYears: 'años de actividad, desde 2017',
       servicesLabel: 'Servicios',
       endTitle: '¿Un proyecto?', endCta: 'Escríbenos', copied: 'Dirección copiada',
       need: 'Asunto', needOther: 'Otro',
@@ -56,7 +56,7 @@
       cue: 'Entra',
       manifesto: 'Le 18:22 sono l’ora in cui la luce cambia. Come studio creativo, diamo ai marchi l’immagine giusta, e il tempo per farla vivere.',
       reelLabel: 'Showreel', reelLine: 'Parigi, 18:22.',
-      workLabel: 'Progetti', workTitle: 'Selezione', workHint: 'Scorri', workAll: 'Indice',
+      workLabel: 'Progetti', workTitle: 'Selezione', workHint: 'Scorri', workAll: 'Indice', statProj: 'progetti nel 2026', statYears: 'anni di attività, dal 2017',
       servicesLabel: 'Servizi',
       endTitle: 'Un progetto?', endCta: 'Scriveteci', copied: 'Indirizzo copiato',
       need: 'Oggetto', needOther: 'Altro',
@@ -182,22 +182,113 @@
     return clamp(-r.top / Math.max(1, r.height - window.innerHeight), 0, 1);
   }
 
-  // la lueur suit doucement le curseur
+  /* ------------------------------------------------------------------------
+     Matière : un liquide teal sur papier crème, avec un cœur orange.
+     Le défilement le fait tourner et se transformer ; la nuit l'éteint en indigo.
+     ------------------------------------------------------------------------ */
   var mist = $('#mist');
-  if (fine && !reduce) {
-    var mt = { x: 0, y: 0 }, ms = { x: 0, y: 0 };
-    window.addEventListener('pointermove', function (e) {
-      mt.x = e.clientX / window.innerWidth - 0.5; mt.y = e.clientY / window.innerHeight - 0.5;
-    }, { passive: true });
-    (function mistLoop() {
-      ms.x += (mt.x - ms.x) * 0.03; ms.y += (mt.y - ms.y) * 0.03;
-      mist.style.setProperty('--mx', ms.x.toFixed(4));
-      mist.style.setProperty('--my', ms.y.toFixed(4));
-      requestAnimationFrame(mistLoop);
-    })();
-  }
+  var flowState = { night: 0, cover: 0.2, sc: 0, mx: 0.22, my: -0.06 };
+  (function flow() {
+    var cv = $('#flow'), gl = null;
+    try { gl = cv.getContext('webgl', { alpha: false, antialias: false, premultipliedAlpha: false }); } catch (e) { gl = null; }
+    if (!gl) return;
+    var vs = 'attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }';
+    var fs = [
+      'precision highp float;',
+      'uniform vec2 uRes; uniform float uTime, uScroll, uNight, uCover; uniform vec2 uCore;',
+      'float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }',
+      'float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);',
+      '  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y); }',
+      'float fbm(vec2 p){ float v = 0.0, a = 0.5; mat2 m = mat2(1.6, 1.2, -1.2, 1.6);',
+      '  for (int i = 0; i < 5; i++) { v += a * noise(p); p = m * p; a *= 0.5; } return v; }',
+      'void main(){',
+      '  vec2 uv = gl_FragCoord.xy / uRes; float asp = uRes.x / uRes.y;',
+      '  vec2 p = (uv - 0.5) * vec2(asp, 1.0);',
+      '  float t = uTime * 0.035 + uScroll * 0.9;',
+      '  float ang = -0.55 + uScroll * 0.7;',
+      '  mat2 R = mat2(cos(ang), -sin(ang), sin(ang), cos(ang));',
+      '  vec2 q0 = R * p; q0.x *= 0.42;',
+      // double déformation : la matière coule et se replie
+      '  vec2 q = vec2(fbm(q0 * 1.7 + vec2(0.0, t)), fbm(q0 * 1.7 + vec2(5.2, 1.3) - t));',
+      '  vec2 r = vec2(fbm(q0 * 1.7 + 3.0 * q + vec2(1.7, 9.2) + t * 0.7), fbm(q0 * 1.7 + 3.0 * q + vec2(8.3, 2.8) - t * 0.5));',
+      '  float f = fbm(q0 * 1.4 + 3.2 * r);',
+      // un front de liquide venu d'un bord, frangé comme un tissu balayé
+      '  vec2 dir = normalize(vec2(-0.55 + sin(uScroll * 0.8) * 0.5, -1.0));',
+      '  float brush = noise((R * p) * vec2(2.0, 46.0) + r * 3.0);',
+      '  float s = dot(p, dir) * 0.95 + (f - 0.5) * 1.35 + (brush - 0.5) * 0.07;',
+      '  float th = 0.62 - uCover;',
+      '  float L = smoothstep(th, th + 0.32, s);',
+      '  float D = smoothstep(th + 0.2, th + 0.8, s);',
+      '  vec3 cream = mix(vec3(0.957, 0.925, 0.851), vec3(0.102, 0.106, 0.235), uNight);',
+      '  vec3 tealL = mix(vec3(0.52, 0.74, 0.79), vec3(0.20, 0.38, 0.50), uNight);',
+      '  vec3 teal = mix(vec3(0.10, 0.42, 0.53), vec3(0.09, 0.30, 0.42), uNight);',
+      '  vec3 deep = vec3(0.02, 0.06, 0.09);',
+      '  vec3 col = mix(cream, tealL, L);',
+      '  col = mix(col, teal, smoothstep(0.1, 0.65, D));',
+      '  col = mix(col, deep, smoothstep(0.62, 1.0, D) * 0.92);',
+      // reflets d'eau sur la matière
+      '  float c = pow(1.0 - abs(fract(f * 5.0 + r.x * 2.0 - t * 2.0) - 0.5) * 2.0, 14.0);',
+      '  col = mix(col, vec3(0.98, 0.95, 0.88), c * L * (1.0 - D * 0.6) * 0.55);',
+      // le cœur orange, filamenteux, qui suit le curseur
+      '  vec2 dc = (p - uCore) * vec2(1.0, 0.8);',
+      '  float fil = smoothstep(0.42, 0.72, fbm(p * 11.0 + r * 3.0 + t));',
+      '  float g = exp(-dot(dc, dc) * 70.0) * (0.35 + 1.1 * fil) + exp(-dot(dc, dc) * 14.0) * 0.12;',
+      '  col = mix(col, vec3(1.0, 0.36, 0.10), clamp(g, 0.0, 1.0) * (0.55 + 0.35 * uNight));',
+      // lumière qui retombe, un léger halo vers le haut
+      '  col += (1.0 - uNight) * 0.03 * smoothstep(0.2, -0.6, p.y);',
+      '  col += (hash(gl_FragCoord.xy + fract(uTime)) - 0.5) / 255.0;',
+      '  gl_FragColor = vec4(col, 1.0);',
+      '}'
+    ].join('\n');
+    function sh(type, src) { var o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return gl.getShaderParameter(o, gl.COMPILE_STATUS) ? o : null; }
+    var v = sh(gl.VERTEX_SHADER, vs), f = sh(gl.FRAGMENT_SHADER, fs);
+    if (!v || !f) return;
+    var pr = gl.createProgram(); gl.attachShader(pr, v); gl.attachShader(pr, f); gl.linkProgram(pr);
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return;
+    gl.useProgram(pr);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    var al = gl.getAttribLocation(pr, 'a'); gl.enableVertexAttribArray(al); gl.vertexAttribPointer(al, 2, gl.FLOAT, false, 0, 0);
+    var U = {};
+    ['uRes', 'uTime', 'uScroll', 'uNight', 'uCover', 'uCore'].forEach(function (n) { U[n] = gl.getUniformLocation(pr, n); });
+    document.documentElement.classList.add('has-flow');
 
-  var endShown = false;
+    // basse définition : la matière est floue par nature, le GPU respire
+    function size() {
+      var k = window.innerWidth < 700 ? 0.45 : 0.5;
+      cv.width = Math.max(2, Math.round(window.innerWidth * k));
+      cv.height = Math.max(2, Math.round(window.innerHeight * k));
+      gl.viewport(0, 0, cv.width, cv.height);
+    }
+    size(); window.addEventListener('resize', size);
+
+    var tgt = { x: 0.22, y: -0.06 }, sm = { sc: 0, night: 0, cover: 0.2 };
+    if (fine) window.addEventListener('pointermove', function (e) {
+      var a = window.innerWidth / window.innerHeight;
+      tgt.x = (e.clientX / window.innerWidth - 0.5) * a; tgt.y = 0.5 - e.clientY / window.innerHeight;
+    }, { passive: true });
+    var t0 = performance.now();
+    (function loop(now) {
+      requestAnimationFrame(loop);
+      if (document.hidden) return;
+      sm.sc += (flowState.sc - sm.sc) * 0.06;
+      sm.night += (flowState.night - sm.night) * 0.12;
+      sm.cover += (flowState.cover - sm.cover) * 0.05;
+      flowState.mx += (tgt.x - flowState.mx) * 0.035;
+      flowState.my += (tgt.y - flowState.my) * 0.035;
+      // sur mobile, le cœur dérive seul
+      if (!fine) { var tt = (now - t0) * 0.0002; tgt.x = Math.sin(tt) * 0.12 + 0.05; tgt.y = Math.cos(tt * 1.3) * 0.12 - 0.05; }
+      gl.uniform2f(U.uRes, cv.width, cv.height);
+      gl.uniform1f(U.uTime, reduce ? 0 : (now - t0) / 1000);
+      gl.uniform1f(U.uScroll, sm.sc);
+      gl.uniform1f(U.uNight, sm.night);
+      gl.uniform1f(U.uCover, sm.cover);
+      gl.uniform2f(U.uCore, flowState.mx, flowState.my);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    })(t0);
+  })();
+
+  var endShown = false, night = 0;
   function onScroll() {
     var y = window.scrollY;
     var p = Math.min(1, y / H);
@@ -225,6 +316,16 @@
     // brume : le teal et l'ambre montent quand arrivent les services
     var sr = $('#services').getBoundingClientRect().top;
     mist.style.setProperty('--dusk', clamp((H * 0.75 - sr) / (H * 0.9), 0, 1).toFixed(3));
+
+    // côté nuit : le tunnel du temps passe en sombre, entrée et sortie en fondu
+    var tr = $('#selection').getBoundingClientRect();
+    night = Math.min(clamp((H * 0.9 - tr.top) / (H * 0.7), 0, 1), clamp((tr.bottom - H * 0.15) / (H * 0.7), 0, 1));
+    mist.style.setProperty('--night', night.toFixed(3));
+    var maxY = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    flowState.sc = y / H * 0.35;
+    flowState.night = night;
+    flowState.cover = (window.innerWidth < 700 ? 0.3 : 0.18) + 0.3 * clamp(y / maxY, 0, 1);
+    document.body.classList.toggle('is-night', night > 0.5);
 
     // titre final
     var et = $('#endTitle').getBoundingClientRect().top;
@@ -372,6 +473,7 @@
       'uniform float uAlpha;',
       'uniform float uReady;',
       'uniform float uFog;',
+      'uniform vec3 uMist;',
       'varying vec2 vUv;',
       'void main() {',
       '  vec2 uv = vUv;',
@@ -381,18 +483,20 @@
       '  float b = texture2D(uTex, uv - vec2(s, 0.0)).b;',
       '  vec3 col = vec3(r, c.g, b);',
       // les images sortent de la brume : voilées au loin, nettes de près
-      '  vec3 mist = vec3(0.886, 0.882, 0.894);',
-      '  col = mix(mist, col, uFog);',
+      '  col = mix(uMist, col, uFog);',
       '  gl_FragColor = vec4(col, uAlpha * uReady);',
       '}'
     ].join('\n');
 
+    // brume claire le jour, nuit indigo dans le tunnel
+    var dayMist = new T.Color(0xf2ead8), nightMist = new T.Color(0x1a1b3c), mistCol = new T.Color(0xf2ead8);
+    var dayInk = new T.Color(0x1e2042), nightInk = new T.Color(0xece5d6);
     var loader = new T.TextureLoader();
     var geo = new T.PlaneGeometry(1, 1, 24, 24);
     var planes = PROJECTS.map(function (p, i) {
       var mat = new T.ShaderMaterial({
         vertexShader: vert, fragmentShader: frag, transparent: true, depthWrite: false,
-        uniforms: { uTex: { value: null }, uVel: { value: 0 }, uTime: { value: 0 }, uAlpha: { value: 0 }, uReady: { value: 0 }, uFog: { value: 1 } }
+        uniforms: { uTex: { value: null }, uVel: { value: 0 }, uTime: { value: 0 }, uAlpha: { value: 0 }, uReady: { value: 0 }, uFog: { value: 1 }, uMist: { value: mistCol } }
       });
       var m = new T.Mesh(geo, mat);
       m.userData = { i: i, ang: i * 2.39996 + 0.6, ar: (p.w && p.h) ? p.w / p.h : 1.3, ready: 0 };
@@ -408,6 +512,7 @@
 
     // un cadran entre deux projets : anneau, graduations et deux aiguilles
     var ink = new T.Color(0x1e2042);
+    var lineMats = [];
     var rings = [];
     for (var i = 0; i <= N; i++) {
       var g = new T.Group();
@@ -431,6 +536,7 @@
       g.add(hand(0.8, mins * 6));
       g.position.z = -(i + 0.5) * GAP;
       g.userData = { mat: lineMat };
+      lineMats.push(lineMat);
       scene.add(g);
       rings.push(g);
     }
@@ -473,6 +579,9 @@
 
     var prog = 0, smooth = 0, vel = 0, lastTitle = -1;
     var head = $('.tunnel__head'), hint = $('.tunnel__hint');
+    // compteurs : les projets de 2026 et les années depuis 2017 montent avec le défilement
+    var stats = $('#tunnelStats'), statProj = $('#statProj'), statYears = $('#statYears');
+    var YEARS = Math.max(1, new Date().getFullYear() - 2017), lastP = -1, lastY = -1;
     function progress() {
       var r = section.getBoundingClientRect();
       var span = r.height - window.innerHeight;
@@ -494,6 +603,8 @@
       camera.lookAt(mouse.sx * 0.8, -mouse.sy * 0.5, camZ - 6);
       camera.rotation.z = smooth * 0.9 + vel * 0.06;
 
+      mistCol.copy(dayMist).lerp(nightMist, night);
+      ink.copy(dayInk).lerp(nightInk, night);
       var time = t * 0.001, nearest = -1, best = 1e9;
       planes.forEach(function (m) {
         var d = camZ - m.position.z; // distance devant la caméra
@@ -513,6 +624,7 @@
         if (d > 1.6 && d < best) { best = d; nearest = m.userData.i; }
       });
       rings.forEach(function (g) {
+        g.userData.mat.color.copy(ink);
         var d = camZ - g.position.z;
         var a = (1 - Math.min(1, Math.max(0, (d - 3) / 14))) * Math.min(1, Math.max(0, (d - 0.2) / 1.6));
         g.userData.mat.opacity = a * 0.55;
@@ -521,6 +633,12 @@
       });
 
       head.style.opacity = Math.max(0, 1 - smooth * 9).toFixed(3);
+      var ks = clamp((smooth - 0.06) / 0.62, 0, 1);
+      ks = 1 - Math.pow(1 - ks, 3);
+      stats.style.opacity = clamp((smooth - 0.05) * 12, 0, 1).toFixed(3);
+      var np = Math.round(32 * ks), ny = Math.round(YEARS * ks);
+      if (np !== lastP) { lastP = np; statProj.textContent = '+' + np; }
+      if (ny !== lastY) { lastY = ny; statYears.textContent = ny; }
       hint.style.opacity = Math.max(0, 1 - smooth * 6).toFixed(3);
       var show = nearest >= 0 && best < GAP * 1.4 && smooth > 0.02 ? nearest : -1;
       if (show !== lastTitle) {

@@ -1,7 +1,7 @@
 /* ==========================================================================
    18H22 — landing
    Brume : gris de lumière voilée, encre indigo, lueur orange, teal et ambre
-   en fin de parcours, grain de pellicule. Une seule grotesque.
+   en fin de parcours, matière liquide qui se transforme au défilement. Une seule grotesque.
    Composition : logo en haut à gauche, menu à droite, au centre un cadran
    dont les aiguilles se calent sur 18h22 ; les projets naissent sous
    l'aiguille des secondes.
@@ -23,8 +23,8 @@
 }
 
 :root {
-  --bg: #e2e1e4;          /* brume */
-  --bg-raise: #ebeaec;    /* panneaux */
+  --bg: #f2ead8;          /* papier, lumière */
+  --bg-raise: #f7f1e4;    /* panneaux */
   --ink: #1e2042;         /* encre indigo */
   --ink-soft: rgba(30, 32, 66, 0.6);
   --ink-faint: rgba(30, 32, 66, 0.16);
@@ -370,7 +370,7 @@ button { font: inherit; color: inherit; }
   justify-content: space-between;
   gap: 16px;
   padding: calc(var(--gutter) + env(safe-area-inset-top)) var(--gutter) 24px;
-  background: linear-gradient(var(--bg) 75%, rgba(226, 225, 228, 0));
+  background: linear-gradient(var(--bg) 75%, rgba(242, 234, 216, 0));
 }
 .gallery__title {
   margin: 0;
