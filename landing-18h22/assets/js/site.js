@@ -36,6 +36,7 @@
       servicesLabel: 'Services',
       endTitle: 'Un projet ?', endCta: 'Écrivez-nous', copied: 'Adresse copiée',
       need: 'Objet', needOther: 'Autre',
+      vClose: 'Fermer', vPrev: 'Précédent', vNext: 'Suivant',
       cur: { play: 'Lecture', view: 'Index', go: 'Écrire', copy: 'Copier' }
     },
     en: {
@@ -46,6 +47,7 @@
       servicesLabel: 'Services',
       endTitle: 'A project?', endCta: 'Write to us', copied: 'Address copied',
       need: 'Subject', needOther: 'Other',
+      vClose: 'Close', vPrev: 'Previous', vNext: 'Next',
       cur: { play: 'Play', view: 'Index', go: 'Write', copy: 'Copy' }
     },
     es: {
@@ -56,6 +58,7 @@
       servicesLabel: 'Servicios',
       endTitle: '¿Un proyecto?', endCta: 'Escríbenos', copied: 'Dirección copiada',
       need: 'Asunto', needOther: 'Otro',
+      vClose: 'Cerrar', vPrev: 'Anterior', vNext: 'Siguiente',
       cur: { play: 'Ver', view: 'Índice', go: 'Escribir', copy: 'Copiar' }
     },
     it: {
@@ -66,6 +69,7 @@
       servicesLabel: 'Servizi',
       endTitle: 'Un progetto?', endCta: 'Scriveteci', copied: 'Indirizzo copiato',
       need: 'Oggetto', needOther: 'Altro',
+      vClose: 'Chiudi', vPrev: 'Precedente', vNext: 'Successivo',
       cur: { play: 'Play', view: 'Indice', go: 'Scrivi', copy: 'Copia' }
     }
   };
@@ -145,17 +149,10 @@
   $('#workAll').addEventListener('click', function () { if (window.APP) window.APP.openGallery(); });
 
   /* ------------------------------------------------------------------------
-     Curseur : un mot dans le cercle selon ce qu'on survole ; boutons magnétiques
+     Curseur : le même œil partout ; boutons magnétiques
      ------------------------------------------------------------------------ */
   var cursor = $('#cursor'), cursorLabel = $('#cursorLabel');
   if (fine) {
-    document.addEventListener('pointerover', function (e) {
-      var t = e.target.closest && e.target.closest('[data-cursor]');
-      if (t) {
-        cursorLabel.textContent = COPY[current].cur[t.dataset.cursor] || '';
-        cursor.classList.add('is-label');
-      } else cursor.classList.remove('is-label');
-    });
     var mags = [];
     var collectMags = function () { mags = $$('[data-magnetic]').map(function (el) { return { el: el, x: 0, y: 0 }; }); };
     collectMags();
@@ -193,7 +190,7 @@
      Le défilement le fait tourner et se transformer ; la nuit l'éteint en indigo.
      ------------------------------------------------------------------------ */
   var mist = $('#mist');
-  var flowState = { night: 0, cover: 0.2, sc: 0, mx: 0.22, my: -0.06 };
+  var flowState = { night: 0, nightS: 0, time: 0, cover: 0.2, sc: 0, mx: 0.22, my: -0.06 };
   (function flow() {
     var cv = $('#flow'), gl = null;
     try { gl = cv.getContext('webgl', { alpha: false, antialias: false, premultipliedAlpha: false }); } catch (e) { gl = null; }
@@ -211,6 +208,11 @@
       '  vec2 uv = gl_FragCoord.xy / uRes; float asp = uRes.x / uRes.y;',
       '  vec2 p = (uv - 0.5) * vec2(asp, 1.0);',
       '  float t = uTime * 0.035 + uScroll * 0.9;',
+      // la nuit arrive comme une vague : un front liquide qui balaie l'écran
+      '  float nm = fbm(p * 1.6 + vec2(0.0, uTime * 0.05));',
+      '  float kk = uNight * 1.5 - 0.25;',
+      '  float N = smoothstep(nm - 0.05, nm + 0.05, kk);',
+      '  float rim = exp(-pow((kk - nm) / 0.018, 2.0)) * step(0.001, uNight) * step(uNight, 0.999);',
       '  float ang = -0.55 + uScroll * 0.7;',
       '  mat2 R = mat2(cos(ang), -sin(ang), sin(ang), cos(ang));',
       '  vec2 q0 = R * p; q0.x *= 0.42;',
@@ -222,29 +224,28 @@
       '  vec2 dir = normalize(vec2(-0.55 + sin(uScroll * 0.8) * 0.5, -1.0));',
       '  float brush = noise((R * p) * vec2(2.0, 46.0) + r * 3.0);',
       '  float s = dot(p, dir) * 0.95 + (f - 0.5) * 1.35 + (brush - 0.5) * 0.07;',
-      '  float th = 0.62 - uCover - 0.22 * uNight;',
+      '  float th = 0.62 - uCover - 0.22 * N;',
       '  float L = smoothstep(th, th + 0.32, s);',
       '  float D = smoothstep(th + 0.2, th + 0.8, s);',
-      '  vec3 cream = mix(vec3(0.957, 0.925, 0.851), vec3(0.020, 0.047, 0.047), uNight);',
-      '  vec3 tealL = mix(vec3(0.52, 0.74, 0.79), vec3(0.10, 0.34, 0.46), uNight);',
-      '  vec3 teal = mix(vec3(0.10, 0.42, 0.53), vec3(0.04, 0.18, 0.25), uNight);',
+      '  vec3 cream = mix(vec3(0.957, 0.925, 0.851), vec3(0.020, 0.047, 0.047), N);',
+      '  vec3 tealL = mix(vec3(0.52, 0.74, 0.79), vec3(0.10, 0.34, 0.46), N);',
+      '  vec3 teal = mix(vec3(0.10, 0.42, 0.53), vec3(0.04, 0.18, 0.25), N);',
       '  vec3 deep = vec3(0.02, 0.06, 0.09);',
       '  vec3 col = mix(cream, tealL, L);',
       '  col = mix(col, teal, smoothstep(0.1, 0.65, D));',
       '  col = mix(col, deep, smoothstep(0.62, 1.0, D) * 0.92);',
       // reflets d'eau sur la matière
       '  float c = pow(1.0 - abs(fract(f * 5.0 + r.x * 2.0 - t * 2.0) - 0.5) * 2.0, 14.0);',
-      '  col = mix(col, vec3(0.98, 0.95, 0.88), c * L * (1.0 - D * 0.6) * 0.55 * (1.0 - 0.55 * uNight));',
+      '  col = mix(col, vec3(0.98, 0.95, 0.88), c * L * (1.0 - D * 0.6) * 0.55 * (1.0 - 0.55 * N));',
       // le cœur orange, filamenteux, qui suit le curseur
       '  vec2 dc = (p - uCore) * vec2(1.0, 0.8);',
       '  float fil = smoothstep(0.42, 0.72, fbm(p * 11.0 + r * 3.0 + t));',
       '  float g = exp(-dot(dc, dc) * 70.0) * (0.35 + 1.1 * fil) + exp(-dot(dc, dc) * 14.0) * 0.12;',
-      '  col = mix(col, vec3(1.0, 0.36, 0.10), clamp(g, 0.0, 1.0) * (0.55 + 0.35 * uNight));',
-      // la nuit, une auréole bleue autour du cœur orange
-      '  float halo = exp(-pow(length(dc) - 0.1, 2.0) * 1400.0) + exp(-pow(length(dc) - 0.1, 2.0) * 160.0) * 0.22;',
-      '  col = mix(col, vec3(0.30, 0.62, 0.95), clamp(halo, 0.0, 1.0) * uNight * 0.75);',
+      '  col = mix(col, vec3(1.0, 0.36, 0.10), clamp(g, 0.0, 1.0) * (0.55 + 0.35 * N));',
+      // le bord de la vague brûle un instant, orange
+      '  col = mix(col, vec3(1.0, 0.42, 0.14), clamp(rim, 0.0, 1.0) * 0.85);',
       // lumière qui retombe, un léger halo vers le haut
-      '  col += (1.0 - uNight) * 0.03 * smoothstep(0.2, -0.6, p.y);',
+      '  col += (1.0 - N) * 0.03 * smoothstep(0.2, -0.6, p.y);',
       '  col += (hash(gl_FragCoord.xy + fract(uTime)) - 0.5) / 255.0;',
       '  gl_FragColor = vec4(col, 1.0);',
       '}'
@@ -281,7 +282,9 @@
       requestAnimationFrame(loop);
       if (document.hidden) return;
       sm.sc += (flowState.sc - sm.sc) * 0.06;
-      sm.night += (flowState.night - sm.night) * 0.12;
+      sm.night += (flowState.night - sm.night) * 0.08;
+      flowState.nightS = sm.night;
+      flowState.time = reduce ? 0 : (now - t0) / 1000;
       sm.cover += (flowState.cover - sm.cover) * 0.05;
       flowState.mx += (tgt.x - flowState.mx) * 0.035;
       flowState.my += (tgt.y - flowState.my) * 0.035;
@@ -354,7 +357,7 @@
       '<h3 class="panel__t">' + esc(s.t) + '</h3>' +
       '<ul class="panel__list">' + s.i.map(function (x) { return '<li><span>' + esc(x) + '</span></li>'; }).join('') + '</ul>' +
       (img ? '<figure class="panel__img"><img src="' + img.src + '" alt="" loading="lazy" decoding="async"></figure>' : '') +
-      '<button class="link panel__cta" type="button" data-contact="' + ['strategy', 'creative', 'social'][k] + '" data-magnetic data-cursor="go"><span data-s="endCta"></span></button>' +
+      '<button class="link panel__cta" type="button" data-contact="' + ['strategy', 'creative', 'social'][k] + '" data-magnetic><span data-s="endCta"></span></button>' +
       '</article>';
   }).join('');
   var panels = $$('.panel', track);
@@ -486,9 +489,23 @@
       'uniform float uReady;',
       'uniform float uFog;',
       'uniform vec3 uMist;',
+      'uniform vec2 uRes;',
+      'uniform float uNight, uClock;',
       'varying vec2 vUv;',
+      'float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }',
+      'float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);',
+      '  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y); }',
+      'float fbm(vec2 p){ float v = 0.0, a = 0.5; mat2 m = mat2(1.6, 1.2, -1.2, 1.6);',
+      '  for (int i = 0; i < 5; i++) { v += a * noise(p); p = m * p; a *= 0.5; } return v; }',
       'void main() {',
       '  vec2 uv = vUv;',
+      // le même front liquide que le fond : il déforme les photos en passant
+      '  vec2 sp = (gl_FragCoord.xy / uRes - 0.5) * vec2(uRes.x / uRes.y, 1.0);',
+      '  float nm = fbm(sp * 1.6 + vec2(0.0, uClock * 0.05));',
+      '  float kk = uNight * 1.5 - 0.25;',
+      '  float N = smoothstep(nm - 0.05, nm + 0.05, kk);',
+      '  float edge = exp(-pow((kk - nm) / 0.07, 2.0)) * step(0.001, uNight) * step(uNight, 0.999);',
+      '  uv += (vec2(noise(sp * 9.0 + uClock), noise(sp * 9.0 - uClock + 4.0)) - 0.5) * 0.16 * edge;',
       '  float s = clamp(abs(uVel), 0.0, 1.0) * 0.012;',
       '  vec4 c = texture2D(uTex, uv);',
       '  float r = texture2D(uTex, uv + vec2(s, 0.0)).r;',
@@ -496,6 +513,11 @@
       '  vec3 col = vec3(r, c.g, b);',
       // les images sortent de la brume : voilées au loin, nettes de près
       '  col = mix(uMist, col, uFog);',
+      // derrière la vague, la photo passe dans la nuit : ombres noir vert, lumières bleu pétrole
+      '  float lum = dot(col, vec3(0.299, 0.587, 0.114));',
+      '  vec3 nightTone = mix(vec3(0.02, 0.05, 0.05), vec3(0.62, 0.80, 0.86), smoothstep(0.05, 0.95, lum));',
+      '  col = mix(col, mix(nightTone, col, 0.3), N * 0.8);',
+      '  col = mix(col, vec3(1.0, 0.42, 0.14), clamp(exp(-pow((kk - nm) / 0.018, 2.0)) * step(0.001, uNight) * step(uNight, 0.999), 0.0, 1.0) * 0.8);',
       '  gl_FragColor = vec4(col, uAlpha * uReady);',
       '}'
     ].join('\n');
@@ -503,12 +525,13 @@
     // brume claire le jour, nuit indigo dans le tunnel
     var dayMist = new T.Color(0xf2ead8), nightMist = new T.Color(0x050c0c), mistCol = new T.Color(0xf2ead8);
     var dayInk = new T.Color(0x1e2042), nightInk = new T.Color(0xdfe7ea);
+    var resV = new T.Vector2(1, 1);
     var loader = new T.TextureLoader();
     var geo = new T.PlaneGeometry(1, 1, 24, 24);
     var planes = PROJECTS.map(function (p, i) {
       var mat = new T.ShaderMaterial({
         vertexShader: vert, fragmentShader: frag, transparent: true, depthWrite: false,
-        uniforms: { uTex: { value: null }, uVel: { value: 0 }, uTime: { value: 0 }, uAlpha: { value: 0 }, uReady: { value: 0 }, uFog: { value: 1 }, uMist: { value: mistCol } }
+        uniforms: { uTex: { value: null }, uVel: { value: 0 }, uTime: { value: 0 }, uAlpha: { value: 0 }, uReady: { value: 0 }, uFog: { value: 1 }, uMist: { value: mistCol }, uRes: { value: resV }, uNight: { value: 0 }, uClock: { value: 0 } }
       });
       var m = new T.Mesh(geo, mat);
       m.userData = { i: i, ang: i * 2.39996 + 0.6, ar: (p.w && p.h) ? p.w / p.h : 1.3, ready: 0 };
@@ -615,8 +638,10 @@
       camera.lookAt(mouse.sx * 0.8, -mouse.sy * 0.5, camZ - 6);
       camera.rotation.z = smooth * 0.9 + vel * 0.06;
 
-      mistCol.copy(dayMist).lerp(nightMist, night);
-      ink.copy(dayInk).lerp(nightInk, night);
+      var nS = flowState.nightS;
+      mistCol.copy(dayMist).lerp(nightMist, nS);
+      ink.copy(dayInk).lerp(nightInk, nS);
+      renderer.getDrawingBufferSize(resV);
       var time = t * 0.001, nearest = -1, best = 1e9;
       planes.forEach(function (m) {
         var d = camZ - m.position.z; // distance devant la caméra
@@ -628,6 +653,8 @@
         u.uFog.value = 0.25 + 0.75 * Math.pow(fadeIn, 1.6);
         u.uVel.value = Math.max(-0.8, Math.min(0.8, vel * 1.6));
         u.uTime.value = time;
+        u.uNight.value = nS;
+        u.uClock.value = flowState.time;
         if (m.userData.loaded) u.uReady.value = Math.min(1, u.uReady.value + 0.04);
         m.visible = u.uAlpha.value > 0.002;
         // les images regardent légèrement la caméra
@@ -667,7 +694,32 @@
     }
     requestAnimationFrame(frame);
 
-    canvas.addEventListener('click', function () { if (window.APP) window.APP.openGallery(); });
+    // un projet se clique seul : on vise l'image sous le doigt ou le curseur
+    var ray = new T.Raycaster(), ndc = new T.Vector2();
+    function pick(x, y) {
+      var r = canvas.getBoundingClientRect();
+      ndc.set((x - r.left) / r.width * 2 - 1, -((y - r.top) / r.height) * 2 + 1);
+      ray.setFromCamera(ndc, camera);
+      var hits = ray.intersectObjects(planes.filter(function (m) { return m.visible && m.material.uniforms.uAlpha.value > 0.3; }), false);
+      return hits.length ? hits[0].object : null;
+    }
+    function screenRect(m) {
+      var r = canvas.getBoundingClientRect(), box = new T.Box3().setFromObject(m), pts = [];
+      [box.min.x, box.max.x].forEach(function (x) { [box.min.y, box.max.y].forEach(function (y) { [box.min.z, box.max.z].forEach(function (z) {
+        var v = new T.Vector3(x, y, z).project(camera);
+        pts.push([r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]);
+      }); }); });
+      var xs = pts.map(function (p) { return p[0]; }), ys = pts.map(function (p) { return p[1]; });
+      return { l: Math.min.apply(null, xs), t: Math.min.apply(null, ys), r: Math.max.apply(null, xs), b: Math.max.apply(null, ys) };
+    }
+    if (fine) canvas.addEventListener('pointermove', function (e) {
+      $('#cursor').classList.toggle('is-hit', !!pick(e.clientX, e.clientY));
+    });
+    canvas.addEventListener('pointerleave', function () { $('#cursor').classList.remove('is-hit'); });
+    canvas.addEventListener('click', function (e) {
+      var m = pick(e.clientX, e.clientY);
+      if (m) openViewer(m.userData.i, screenRect(m));
+    });
   }
 
 
@@ -675,6 +727,66 @@
   /* ------------------------------------------------------------------------
      Showreel : un cadre qui s'ouvre jusqu'au plein écran ; un clic lance le film avec le son
      ------------------------------------------------------------------------ */
+  /* ------------------------------------------------------------------------
+     Un projet seul : il s'ouvre depuis l'endroit où on l'a touché
+     ------------------------------------------------------------------------ */
+  var viewer = $('#viewer'), vImg = $('#viewerImg'), vCap = $('#viewerCap'), vAt = 0;
+  function showProject(i) {
+    vAt = (i + PROJECTS.length) % PROJECTS.length;
+    var p = PROJECTS[vAt];
+    vImg.src = p.src;
+    vImg.alt = p.title || '';
+    vCap.textContent = p.title || '';
+  }
+  function openViewer(i, rect) {
+    if (!PROJECTS.length) return;
+    showProject(i);
+    viewer.classList.add('is-open');
+    viewer.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('is-locked');
+    if (window.gsap) {
+      var W = window.innerWidth, Hh = window.innerHeight;
+      var from = rect ? 'inset(' + clamp(rect.t, 0, Hh) + 'px ' + clamp(W - rect.r, 0, W) + 'px ' + clamp(Hh - rect.b, 0, Hh) + 'px ' + clamp(rect.l, 0, W) + 'px)' : 'inset(50% 50% 50% 50%)';
+      gsap.fromTo(viewer, { clipPath: from }, { clipPath: 'inset(0px 0px 0px 0px)', duration: 1, ease: 'expo.inOut' });
+      gsap.fromTo(vImg, { scale: 1.15, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.1, ease: 'expo.out', delay: 0.25 });
+    }
+  }
+  function closeViewer() {
+    if (!viewer.classList.contains('is-open')) return;
+    var end = function () {
+      viewer.classList.remove('is-open');
+      viewer.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('is-locked');
+      viewer.style.clipPath = '';
+    };
+    if (window.gsap) gsap.to(viewer, { clipPath: 'inset(50% 0% 50% 0%)', duration: 0.7, ease: 'expo.inOut', onComplete: end });
+    else end();
+  }
+  function stepViewer(d) {
+    if (window.gsap) {
+      gsap.to(vImg, { opacity: 0, x: -30 * d, duration: 0.25, ease: 'power2.in', onComplete: function () {
+        showProject(vAt + d);
+        gsap.fromTo(vImg, { opacity: 0, x: 30 * d }, { opacity: 1, x: 0, duration: 0.6, ease: 'expo.out' });
+      } });
+    } else showProject(vAt + d);
+  }
+  $('#viewerClose').addEventListener('click', closeViewer);
+  $('#viewerPrev').addEventListener('click', function () { stepViewer(-1); });
+  $('#viewerNext').addEventListener('click', function () { stepViewer(1); });
+  document.addEventListener('keydown', function (e) {
+    if (!viewer.classList.contains('is-open')) return;
+    if (e.key === 'Escape') closeViewer();
+    if (e.key === 'ArrowRight') stepViewer(1);
+    if (e.key === 'ArrowLeft') stepViewer(-1);
+  });
+  var sw = null;
+  viewer.addEventListener('touchstart', function (e) { sw = e.touches[0].clientX; }, { passive: true });
+  viewer.addEventListener('touchend', function (e) {
+    if (sw === null) return;
+    var dx = e.changedTouches[0].clientX - sw; sw = null;
+    if (Math.abs(dx) > 50) stepViewer(dx < 0 ? 1 : -1);
+  }, { passive: true });
+
   (function reel() {
     var sec = $('#reel'), frame = $('#reelFrame'), video = $('#reelVideo');
     var line = $('#reelLine'), label = $('#reelLabel');

@@ -403,6 +403,36 @@ body.is-night .top::before { background: rgba(5, 14, 16, 0.3); }
   background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat;
 }
 
+/* Un projet seul : côté nuit, l'image au centre */
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 41;
+  display: grid;
+  place-items: center;
+  background: #050c0c;
+  color: #dfe7ea;
+  visibility: hidden;
+  touch-action: pan-y;
+}
+.viewer.is-open { visibility: visible; }
+.viewer__fig { margin: 0; display: grid; justify-items: center; gap: 16px; }
+.viewer__img { display: block; max-width: min(84vw, 1200px); max-height: 74vh; width: auto; height: auto; object-fit: contain; }
+.viewer__cap { font-size: 14px; color: rgba(223, 231, 234, 0.7); min-height: 1.2em; }
+.viewer__btn {
+  position: absolute;
+  appearance: none; border: 0; background: none; padding: 0 0 6px;
+  font: inherit; font-size: 14px; color: inherit;
+  background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat;
+  transition: background-size 0.6s var(--ease);
+}
+.viewer__btn:hover { background-size: 0 1px; }
+.viewer__close { top: calc(var(--gutter) + env(safe-area-inset-top)); right: var(--gutter); }
+.viewer__prev { left: var(--gutter); bottom: calc(var(--gutter) + env(safe-area-inset-bottom)); }
+.viewer__next { right: var(--gutter); bottom: calc(var(--gutter) + env(safe-area-inset-bottom)); }
+@media (pointer: fine) { .viewer, .viewer button { cursor: none; } }
+@media (max-width: 700px) { .viewer__img { max-width: 92vw; max-height: 66vh; } }
+
 /* Curseur : un mot dans le cercle */
 .cursor__label {
   position: absolute;

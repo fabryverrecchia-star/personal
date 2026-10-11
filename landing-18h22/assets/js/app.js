@@ -637,8 +637,8 @@
       }
     }
     cursor.classList.toggle('is-over', over);
-    cursor.classList.toggle('is-eye', ready && !galleryOpen && !contactOpen && !overUI);
-    cursor.classList.toggle('is-ui', overUI);
+    // un seul curseur pour tout le site : l'œil
+    cursor.classList.toggle('is-eye', ready && !galleryOpen && !contactOpen);
 
     if (ready) {
       // l'aiguille des secondes fait un tour en douze apparitions

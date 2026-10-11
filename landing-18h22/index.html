@@ -112,7 +112,7 @@
     <!-- Showreel : la vidéo s'ouvre jusqu'au plein écran en faisant défiler -->
     <section class="reel" id="reel">
       <div class="reel__sticky">
-        <div class="reel__frame" id="reelFrame" data-cursor="play">
+        <div class="reel__frame" id="reelFrame">
           <video class="reel__video" id="reelVideo" src="assets/reel/reel.mp4" poster="assets/reel/reel-poster.jpg" muted loop playsinline preload="metadata"></video>
           <p class="reel__line" id="reelLine" data-s="reelLine">Paris, de l’aube à 18h22.</p>
         </div>
@@ -123,7 +123,7 @@
     <!-- Le tunnel du temps : on avance à travers les projets en faisant défiler (three.js) -->
     <section class="tunnel" id="selection">
       <div class="tunnel__sticky">
-        <canvas class="tunnel__gl" id="tunnelGl" aria-hidden="true" data-cursor="view"></canvas>
+        <canvas class="tunnel__gl" id="tunnelGl" aria-hidden="true"></canvas>
         <div class="tunnel__head">
           <p class="s__label" data-s="workLabel">Sélection</p>
           <h2 class="s__title" data-s="workTitle">Traversez le temps, projet après projet.</h2>
@@ -159,8 +159,8 @@
     <section class="end" id="fin">
       <h2 class="end__title" id="endTitle" data-s="endTitle">Un projet ?</h2>
       <div class="end__links">
-        <button class="end__cta" type="button" data-contact="" data-magnetic data-cursor="go"><span data-s="endCta">Écrivez-nous</span></button>
-        <button class="end__mail" type="button" id="mailCopy" data-cursor="copy"><span id="mailText">contact@18h22.com</span></button>
+        <button class="end__cta" type="button" data-contact="" data-magnetic><span data-s="endCta">Écrivez-nous</span></button>
+        <button class="end__mail" type="button" id="mailCopy"><span id="mailText">contact@18h22.com</span></button>
       </div>
     </section>
 
@@ -181,6 +181,13 @@
   </div>
 
   <!-- Showreel en plein écran, avec le son -->
+  <!-- Un projet seul, ouvert depuis le tunnel -->
+  <div class="viewer" id="viewer" aria-hidden="true" role="dialog" aria-modal="true">
+    <figure class="viewer__fig"><img class="viewer__img" id="viewerImg" alt=""><figcaption class="viewer__cap" id="viewerCap"></figcaption></figure>
+    <button class="viewer__btn viewer__close" id="viewerClose" type="button" data-s="vClose">Fermer</button>
+    <button class="viewer__btn viewer__prev" id="viewerPrev" type="button" data-s="vPrev">Précédent</button>
+    <button class="viewer__btn viewer__next" id="viewerNext" type="button" data-s="vNext">Suivant</button>
+  </div>
   <div class="theatre" id="theatre" aria-hidden="true">
     <video class="theatre__video" id="theatreVideo" playsinline loop></video>
     <button class="theatre__close" id="theatreClose" type="button" data-i18n="close">Fermer</button>
