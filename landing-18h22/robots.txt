@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin.php
+Disallow: /data/
+
+Sitemap: https://18h22.com/sitemap.xml

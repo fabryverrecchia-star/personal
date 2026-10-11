@@ -549,6 +549,14 @@
 
     cursor.style.transform = 'translate3d(' + ptr.mx + 'px,' + ptr.my + 'px,0)';
 
+    // la montre n'est plus à l'écran : on ne calcule plus rien pour elle
+    if (window.scrollY > H * 1.05) {
+      cursor.classList.toggle('is-eye', ready && !galleryOpen && !contactOpen);
+      cursor.classList.remove('is-over');
+      requestAnimationFrame(frame);
+      return;
+    }
+
     if (running && window.scrollY < H * 0.8) {
       clock += dt;
       if (clock >= nextSpawn) { clock = 0; nextSpawn = SET.every * rand(0.55, 1.45) * 1000; spawn(); }

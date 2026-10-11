@@ -5,6 +5,12 @@
 (function () {
   'use strict';
 
+  // pour les curieux qui ouvrent la console
+  try {
+    console.log('%c18H22', 'font: 500 42px Helvetica, Arial, sans-serif; letter-spacing: -2px; color: #1e2042;');
+    console.log('%cVous cherchez qui a fait ce site ? Un robot ? Une IA ?\nNon : des humains, du café, et une montre bloquée sur 18h22.\nOn recrute les curieux comme vous : contact@18h22.com', 'font: 13px Helvetica, Arial, sans-serif; color: #1e2042; line-height: 1.6;');
+  } catch (e) {}
+
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var PROJECTS = window.PROJECTS || [];
@@ -32,7 +38,7 @@
       cue: 'Entrer',
       manifesto: '18h22 est l’heure où la lumière change. Studio de création, nous donnons aux marques une image juste, et le temps de la faire vivre.',
       reelLabel: 'Showreel', reelLine: 'Paris, 18h22.',
-      workLabel: 'Projets', workTitle: 'Sélection', workHint: 'Défiler', workAll: 'Index', statProj: 'projets en 2026', statYears: 'années d’activité, depuis 2017',
+      workLabel: 'Projets', workTitle: 'Sélection', workHint: 'Défiler', workAll: 'Index', statProj: 'projets en 2026', statYears: 'années d’activité, depuis 2017', statBriefs: 'briefings créatifs', footSeo: 'Agence de création à Paris. Création de logo, identité visuelle, sites web et applications, packaging, réseaux sociaux. Paris et toute la France.',
       servicesLabel: 'Services',
       endTitle: 'Un projet ?', endCta: 'Écrivez-nous', copied: 'Adresse copiée',
       need: 'Objet', needOther: 'Autre',
@@ -43,7 +49,7 @@
       cue: 'Enter',
       manifesto: '18:22 is the hour the light changes. As a creative studio, we give brands the right image, and the time to make it live.',
       reelLabel: 'Showreel', reelLine: 'Paris, 18:22.',
-      workLabel: 'Work', workTitle: 'Selection', workHint: 'Scroll', workAll: 'Index', statProj: 'projects in 2026', statYears: 'years in practice, since 2017',
+      workLabel: 'Work', workTitle: 'Selection', workHint: 'Scroll', workAll: 'Index', statProj: 'projects in 2026', statYears: 'years in practice, since 2017', statBriefs: 'creative briefs', footSeo: 'Creative agency in Paris. Logo design, visual identity, websites and apps, packaging, social media. Paris and all of France.',
       servicesLabel: 'Services',
       endTitle: 'A project?', endCta: 'Write to us', copied: 'Address copied',
       need: 'Subject', needOther: 'Other',
@@ -54,7 +60,7 @@
       cue: 'Entrar',
       manifesto: 'Las 18:22 son la hora en que cambia la luz. Como estudio creativo, damos a las marcas la imagen justa, y el tiempo para hacerla vivir.',
       reelLabel: 'Showreel', reelLine: 'París, 18:22.',
-      workLabel: 'Proyectos', workTitle: 'Selección', workHint: 'Desplazar', workAll: 'Índice', statProj: 'proyectos en 2026', statYears: 'años de actividad, desde 2017',
+      workLabel: 'Proyectos', workTitle: 'Selección', workHint: 'Desplazar', workAll: 'Índice', statProj: 'proyectos en 2026', statYears: 'años de actividad, desde 2017', statBriefs: 'briefings creativos', footSeo: 'Agencia creativa en París. Diseño de logotipos, identidad visual, sitios web y apps, packaging, redes sociales. París y toda Francia.',
       servicesLabel: 'Servicios',
       endTitle: '¿Un proyecto?', endCta: 'Escríbenos', copied: 'Dirección copiada',
       need: 'Asunto', needOther: 'Otro',
@@ -65,7 +71,7 @@
       cue: 'Entra',
       manifesto: 'Le 18:22 sono l’ora in cui la luce cambia. Come studio creativo, diamo ai marchi l’immagine giusta, e il tempo per farla vivere.',
       reelLabel: 'Showreel', reelLine: 'Parigi, 18:22.',
-      workLabel: 'Progetti', workTitle: 'Selezione', workHint: 'Scorri', workAll: 'Indice', statProj: 'progetti nel 2026', statYears: 'anni di attività, dal 2017',
+      workLabel: 'Progetti', workTitle: 'Selezione', workHint: 'Scorri', workAll: 'Indice', statProj: 'progetti nel 2026', statYears: 'anni di attività, dal 2017', statBriefs: 'brief creativi', footSeo: 'Agenzia creativa a Parigi. Logo, identità visiva, siti web e app, packaging, social media. Parigi e tutta la Francia.',
       servicesLabel: 'Servizi',
       endTitle: 'Un progetto?', endCta: 'Scriveteci', copied: 'Indirizzo copiato',
       need: 'Oggetto', needOther: 'Altro',
@@ -190,6 +196,20 @@
      Le défilement le fait tourner et se transformer ; la nuit l'éteint en indigo.
      ------------------------------------------------------------------------ */
   var mist = $('#mist');
+  // encre claire sur fond sombre et l'inverse : le corps passe en nuit avec la vague,
+  // le haut de page et la petite montre suivent aussi le showreel plein écran
+  var reelCover = false, toneState = '';
+  function tone() {
+    var n = flowState.nightS > 0.5;
+    var key = (n ? 'n' : 'd') + (reelCover ? 'r' : '');
+    if (key === toneState) return;
+    toneState = key;
+    document.body.classList.toggle('is-night', n);
+    var dark = n || reelCover;
+    $('#top').classList.toggle('on-dark', dark);
+    $('#tick').classList.toggle('on-dark', dark);
+  }
+  var flowOn = false;
   var flowState = { night: 0, nightS: 0, time: 0, cover: 0.2, sc: 0, mx: 0.22, my: -0.06 };
   (function flow() {
     var cv = $('#flow'), gl = null;
@@ -262,10 +282,12 @@
     var U = {};
     ['uRes', 'uTime', 'uScroll', 'uNight', 'uCover', 'uCore'].forEach(function (n) { U[n] = gl.getUniformLocation(pr, n); });
     document.documentElement.classList.add('has-flow');
+    flowOn = true;
 
     // basse définition : la matière est floue par nature, le GPU respire
+    var q = window.innerWidth < 700 ? 0.4 : 0.5;
     function size() {
-      var k = window.innerWidth < 700 ? 0.45 : 0.5;
+      var k = q;
       cv.width = Math.max(2, Math.round(window.innerWidth * k));
       cv.height = Math.max(2, Math.round(window.innerHeight * k));
       gl.viewport(0, 0, cv.width, cv.height);
@@ -278,12 +300,23 @@
       tgt.x = (e.clientX / window.innerWidth - 0.5) * a; tgt.y = 0.5 - e.clientY / window.innerHeight;
     }, { passive: true });
     var t0 = performance.now();
+    var covered = function () {
+      return ['#viewer', '#theatre', '#gallery'].some(function (id) { var el = $(id); return el && el.classList.contains('is-open'); });
+    };
+    var last = t0, slow = 0, skip = 0, mob = !fine;
     (function loop(now) {
       requestAnimationFrame(loop);
-      if (document.hidden) return;
+      if (document.hidden || covered()) return;
+      // sur téléphone, une image sur deux suffit à la matière
+      if (mob && (skip = 1 - skip)) return;
+      // si l'appareil peine, on baisse la définition (la matière est floue de toute façon)
+      var dt = now - last; last = now;
+      slow = dt > (mob ? 45 : 24) ? slow + 1 : Math.max(0, slow - 1);
+      if (slow > 40 && q > 0.26) { q *= 0.8; slow = 0; size(); }
       sm.sc += (flowState.sc - sm.sc) * 0.06;
       sm.night += (flowState.night - sm.night) * 0.08;
       flowState.nightS = sm.night;
+      tone();
       flowState.time = reduce ? 0 : (now - t0) / 1000;
       sm.cover += (flowState.cover - sm.cover) * 0.05;
       flowState.mx += (tgt.x - flowState.mx) * 0.035;
@@ -337,7 +370,7 @@
     flowState.sc = y / H * 0.35;
     flowState.night = night;
     flowState.cover = (window.innerWidth < 700 ? 0.3 : 0.18) + 0.3 * clamp(y / maxY, 0, 1);
-    document.body.classList.toggle('is-night', night > 0.5);
+    if (!flowOn) { flowState.nightS = night; tone(); }
 
     // titre final
     var et = $('#endTitle').getBoundingClientRect().top;
@@ -444,7 +477,24 @@
      Tunnel du temps (three.js) : on avance dans l'axe, les projets défilent
      en spirale, un cadran à chaque étape, les aiguilles avancent vers 18h22
      ------------------------------------------------------------------------ */
+  // three.js ne se charge qu'à l'approche du tunnel : la page s'ouvre plus vite
   function tunnel() {
+    if (window.THREE) return tunnelInit();
+    var sec = $('#selection'), started = false;
+    var go = function () {
+      if (started) return; started = true;
+      var sc = document.createElement('script');
+      sc.src = 'assets/vendor/three.min.js';
+      sc.onload = tunnelInit;
+      sc.onerror = tunnelInit;
+      document.head.appendChild(sc);
+    };
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (e) { if (e[0].isIntersecting) { io.disconnect(); go(); } }, { rootMargin: '250% 0px' });
+      io.observe(sec);
+    } else go();
+  }
+  function tunnelInit() {
     var section = $('#selection');
     var canvas = $('#tunnelGl');
     var now = $('#tunnelNow');
@@ -472,12 +522,17 @@
     var vert = [
       'uniform float uVel;',
       'uniform float uTime;',
+      'uniform float uPress;',
+      'uniform vec2 uHit;',
       'varying vec2 vUv;',
       'void main() {',
       '  vUv = uv;',
       '  vec3 p = position;',
       '  float bend = sin(uv.x * 3.14159) * sin(uv.y * 3.14159);',
       '  p.z += bend * uVel * 1.1;',
+      // au clic, une onde part du point touché et la photo vient vers nous
+      '  float hd = distance(uv, uHit);',
+      '  p.z += sin(hd * 26.0 - uPress * 16.0) * exp(-hd * 3.5) * 0.18 * sin(uPress * 3.14159) + uPress * 0.6;',
       '  p.x += sin(uv.y * 6.0 + uTime) * uVel * 0.12;',
       '  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);',
       '}'
@@ -490,7 +545,8 @@
       'uniform float uFog;',
       'uniform vec3 uMist;',
       'uniform vec2 uRes;',
-      'uniform float uNight, uClock;',
+      'uniform float uNight, uClock, uPress;',
+      'uniform vec2 uHit;',
       'varying vec2 vUv;',
       'float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }',
       'float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);',
@@ -506,6 +562,8 @@
       '  float N = smoothstep(nm - 0.05, nm + 0.05, kk);',
       '  float edge = exp(-pow((kk - nm) / 0.07, 2.0)) * step(0.001, uNight) * step(uNight, 0.999);',
       '  uv += (vec2(noise(sp * 9.0 + uClock), noise(sp * 9.0 - uClock + 4.0)) - 0.5) * 0.16 * edge;',
+      '  vec2 hv = uv - uHit; float hl = length(hv);',
+      '  uv += hv / max(hl, 0.001) * sin(hl * 40.0 - uPress * 22.0) * 0.012 * sin(uPress * 3.14159) * exp(-hl * 3.0);',
       '  float s = clamp(abs(uVel), 0.0, 1.0) * 0.012;',
       '  vec4 c = texture2D(uTex, uv);',
       '  float r = texture2D(uTex, uv + vec2(s, 0.0)).r;',
@@ -531,7 +589,7 @@
     var planes = PROJECTS.map(function (p, i) {
       var mat = new T.ShaderMaterial({
         vertexShader: vert, fragmentShader: frag, transparent: true, depthWrite: false,
-        uniforms: { uTex: { value: null }, uVel: { value: 0 }, uTime: { value: 0 }, uAlpha: { value: 0 }, uReady: { value: 0 }, uFog: { value: 1 }, uMist: { value: mistCol }, uRes: { value: resV }, uNight: { value: 0 }, uClock: { value: 0 } }
+        uniforms: { uTex: { value: null }, uVel: { value: 0 }, uTime: { value: 0 }, uAlpha: { value: 0 }, uReady: { value: 0 }, uFog: { value: 1 }, uMist: { value: mistCol }, uRes: { value: resV }, uNight: { value: 0 }, uClock: { value: 0 }, uPress: { value: 0 }, uHit: { value: new T.Vector2(0.5, 0.5) } }
       });
       var m = new T.Mesh(geo, mat);
       m.userData = { i: i, ang: i * 2.39996 + 0.6, ar: (p.w && p.h) ? p.w / p.h : 1.3, ready: 0 };
@@ -615,8 +673,8 @@
     var prog = 0, smooth = 0, vel = 0, lastTitle = -1;
     var head = $('.tunnel__head'), hint = $('.tunnel__hint');
     // compteurs : les projets de 2026 et les années depuis 2017 montent avec le défilement
-    var stats = $('#tunnelStats'), statProj = $('#statProj'), statYears = $('#statYears');
-    var YEARS = Math.max(1, new Date().getFullYear() - 2017), lastP = -1, lastY = -1;
+    var stats = $('#tunnelStats'), statProj = $('#statProj'), statYears = $('#statYears'), statBriefs = $('#statBriefs');
+    var YEARS = Math.max(1, new Date().getFullYear() - 2017), lastP = -1, lastY = -1, lastB = -1;
     function progress() {
       var r = section.getBoundingClientRect();
       var span = r.height - window.innerHeight;
@@ -678,6 +736,8 @@
       var np = Math.round(32 * ks), ny = Math.round(YEARS * ks);
       if (np !== lastP) { lastP = np; statProj.textContent = '+' + np; }
       if (ny !== lastY) { lastY = ny; statYears.textContent = ny; }
+      var nb = Math.round(1000 * ks / 10) * 10;
+      if (nb !== lastB) { lastB = nb; statBriefs.textContent = nb + (nb >= 1000 ? '+' : ''); }
       hint.style.opacity = Math.max(0, 1 - smooth * 6).toFixed(3);
       var show = nearest >= 0 && best < GAP * 1.4 && smooth > 0.02 ? nearest : -1;
       if (show !== lastTitle) {
@@ -696,6 +756,13 @@
 
     // un projet se clique seul : on vise l'image sous le doigt ou le curseur
     var ray = new T.Raycaster(), ndc = new T.Vector2();
+    function pickHit(x, y) {
+      var r = canvas.getBoundingClientRect();
+      ndc.set((x - r.left) / r.width * 2 - 1, -((y - r.top) / r.height) * 2 + 1);
+      ray.setFromCamera(ndc, camera);
+      var hits = ray.intersectObjects(planes.filter(function (m) { return m.visible && m.material.uniforms.uAlpha.value > 0.3; }), false);
+      return hits[0] || null;
+    }
     function pick(x, y) {
       var r = canvas.getBoundingClientRect();
       ndc.set((x - r.left) / r.width * 2 - 1, -((y - r.top) / r.height) * 2 + 1);
@@ -717,8 +784,15 @@
     });
     canvas.addEventListener('pointerleave', function () { $('#cursor').classList.remove('is-hit'); });
     canvas.addEventListener('click', function (e) {
-      var m = pick(e.clientX, e.clientY);
-      if (m) openViewer(m.userData.i, screenRect(m));
+      var hit = pickHit(e.clientX, e.clientY);
+      if (!hit) return;
+      var m = hit.object, u = m.material.uniforms;
+      if (hit.uv) u.uHit.value.copy(hit.uv);
+      var from = screenRect(m), at = { x: e.clientX, y: e.clientY };
+      if (window.gsap && !reduce) {
+        gsap.fromTo(u.uPress, { value: 0 }, { value: 1, duration: 0.9, ease: 'power2.out', onComplete: function () { u.uPress.value = 0; } });
+        setTimeout(function () { openViewer(m.userData.i, screenRect(m), at); }, 260);
+      } else openViewer(m.userData.i, from, at);
     });
   }
 
@@ -738,18 +812,31 @@
     vImg.alt = p.title || '';
     vCap.textContent = p.title || '';
   }
-  function openViewer(i, rect) {
+  var vFrom = null, vAt0 = null;
+  function openViewer(i, rect, at) {
     if (!PROJECTS.length) return;
     showProject(i);
+    vFrom = rect; vAt0 = at || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     viewer.classList.add('is-open');
     viewer.setAttribute('aria-hidden', 'false');
     document.body.classList.add('is-locked');
-    if (window.gsap) {
-      var W = window.innerWidth, Hh = window.innerHeight;
-      var from = rect ? 'inset(' + clamp(rect.t, 0, Hh) + 'px ' + clamp(W - rect.r, 0, W) + 'px ' + clamp(Hh - rect.b, 0, Hh) + 'px ' + clamp(rect.l, 0, W) + 'px)' : 'inset(50% 50% 50% 50%)';
-      gsap.fromTo(viewer, { clipPath: from }, { clipPath: 'inset(0px 0px 0px 0px)', duration: 1, ease: 'expo.inOut' });
-      gsap.fromTo(vImg, { scale: 1.15, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.1, ease: 'expo.out', delay: 0.25 });
-    }
+    if (!window.gsap || reduce) return;
+    var c = 'circle(0px at ' + vAt0.x + 'px ' + vAt0.y + 'px)';
+    var big = Math.hypot(window.innerWidth, window.innerHeight);
+    gsap.fromTo(viewer, { clipPath: c }, { clipPath: 'circle(' + big + 'px at ' + vAt0.x + 'px ' + vAt0.y + 'px)', duration: 1.1, ease: 'expo.inOut' });
+    gsap.set($$('.viewer__btn, .viewer__cap'), { opacity: 0 });
+    var land = function () {
+      var to = vImg.getBoundingClientRect();
+      if (rect && to.width) {
+        var sx = (rect.r - rect.l) / to.width, sy = (rect.b - rect.t) / to.height, s1 = Math.max(0.05, Math.min(sx, sy));
+        gsap.fromTo(vImg, {
+          x: (rect.l + rect.r) / 2 - (to.left + to.width / 2), y: (rect.t + rect.b) / 2 - (to.top + to.height / 2),
+          scale: s1, opacity: 1, filter: 'blur(6px)'
+        }, { x: 0, y: 0, scale: 1, filter: 'blur(0px)', duration: 1.25, ease: 'expo.inOut' });
+      } else gsap.fromTo(vImg, { scale: 1.12, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.1, ease: 'expo.out' });
+      gsap.to($$('.viewer__btn, .viewer__cap'), { opacity: 1, duration: 0.8, delay: 0.8, stagger: 0.06 });
+    };
+    if (vImg.complete && vImg.naturalWidth) land(); else vImg.onload = function () { vImg.onload = null; land(); };
   }
   function closeViewer() {
     if (!viewer.classList.contains('is-open')) return;
@@ -758,9 +845,13 @@
       viewer.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('is-locked');
       viewer.style.clipPath = '';
+      if (window.gsap) gsap.set(vImg, { clearProps: 'transform,filter,opacity' });
     };
-    if (window.gsap) gsap.to(viewer, { clipPath: 'inset(50% 0% 50% 0%)', duration: 0.7, ease: 'expo.inOut', onComplete: end });
-    else end();
+    if (!window.gsap || reduce) return end();
+    var at = vAt0 || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    gsap.to($$('.viewer__btn, .viewer__cap'), { opacity: 0, duration: 0.25 });
+    gsap.to(vImg, { scale: 0.86, opacity: 0, filter: 'blur(8px)', duration: 0.6, ease: 'power3.in' });
+    gsap.to(viewer, { clipPath: 'circle(0px at ' + at.x + 'px ' + at.y + 'px)', duration: 0.9, ease: 'expo.inOut', delay: 0.15, onComplete: end });
   }
   function stepViewer(d) {
     if (window.gsap) {
@@ -827,7 +918,7 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeTheatre(); });
     function paint() {
       requestAnimationFrame(paint);
-      if (!visible) return;
+      if (!visible) { if (reelCover) { reelCover = false; toneState = ''; tone(); } return; }
       var r = sec.getBoundingClientRect();
       var vh = window.innerHeight, vw = window.innerWidth;
       var p = clamp(-r.top / Math.max(1, r.height - vh), 0, 1);
@@ -841,6 +932,8 @@
       video.style.transform = 'scale(' + (1.18 - 0.18 * e).toFixed(4) + ')';
       line.style.opacity = clamp((p - 0.55) / 0.15, 0, 1).toFixed(3);
       label.style.opacity = (1 - e).toFixed(3);
+      var rc = e > 0.9 && r.top <= 1 && r.bottom >= vh - 1;
+      if (rc !== reelCover) { reelCover = rc; toneState = ''; tone(); }
     }
     paint();
   })();

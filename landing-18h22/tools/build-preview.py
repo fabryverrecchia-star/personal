@@ -28,7 +28,7 @@ body = re.search(r'<body[^>]*>(.*?)</body>', html, re.S).group(1)
 # pas de fichiers externes : on retire liens locaux et scripts, on les remet inline
 head = re.sub(r'\s*<link rel="(icon|preload|stylesheet)" href="assets/[^>]*>', '', head)
 head = re.sub(r'\s*<meta (charset|name="viewport")[^>]*>', '', head)
-body = re.sub(r'\s*<script src="assets/[^"]+"></script>', '', body)
+body = re.sub(r'\s*<script( defer)? src="assets/[^"]+"></script>', '', body)
 
 page = (head.strip() + '\n<style>\n' + css + '\n</style>\n' + body.strip() +
         '\n<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>\n'
