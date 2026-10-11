@@ -1,18 +1,4 @@
 @font-face {
-  font-family: 'Bodoni Moda';
-  src: url('../fonts/BodoniModa-opsz.woff2') format('woff2');
-  font-weight: 400 900;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Bodoni Moda';
-  src: url('../fonts/BodoniModa-opsz-Italic.woff2') format('woff2');
-  font-weight: 400 900;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
   font-family: 'Hanken Grotesk';
   src: url('../fonts/HankenGrotesk-400.woff2') format('woff2');
   font-weight: 400;
@@ -34,7 +20,7 @@
   --ink-soft: #55648a;
   --ink-faint: rgba(34, 54, 95, 0.16);
   --alert: #a2432f;
-  --display: 'Bodoni Moda', 'Didot', 'Times New Roman', serif;
+  --display: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
   --label: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -63,7 +49,7 @@ button:focus-visible, input:focus-visible, .drop:focus-within { outline: 1px sol
   justify-self: start; border: 1px solid var(--ink); background: var(--ink); color: var(--bg);
   border-radius: 999px; padding: 12px 26px; cursor: pointer;
 }
-.err { margin: 0; color: var(--alert); font-style: italic; }
+.err { margin: 0; color: var(--alert);  }
 
 /* Barre */
 .bar {
@@ -75,7 +61,7 @@ button:focus-visible, input:focus-visible, .drop:focus-within { outline: 1px sol
   backdrop-filter: blur(8px);
 }
 .bar img { width: 44px; }
-.bar h1 { margin: 0; font-weight: 300; font-style: italic; font-size: 30px; line-height: 1; }
+.bar h1 { margin: 0; font-weight: 300;  font-size: 30px; line-height: 1; }
 .bar sup { font-family: var(--label); font-style: normal; font-size: 10px; letter-spacing: 0.14em; color: var(--ink-soft); }
 .bar nav { margin-left: auto; display: flex; gap: 18px; align-items: center; }
 .bar a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink-faint); padding-bottom: 2px; }
@@ -92,7 +78,7 @@ button:focus-visible, input:focus-visible, .drop:focus-within { outline: 1px sol
 }
 .drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .drop.is-over { background: #fff; border-color: var(--ink); }
-.drop__title { font-style: italic; font-size: 28px; }
+.drop__title {  font-size: 28px; }
 .drop__hint { color: var(--ink-soft); letter-spacing: 0.08em; text-transform: none; font-size: 12px; }
 .queue { display: grid; gap: 6px; }
 .queue:empty { display: none; }
@@ -160,7 +146,7 @@ button:focus-visible, input:focus-visible, .drop:focus-within { outline: 1px sol
 
 /* Réglages de l'animation */
 .settings { display: grid; gap: 18px; padding: 22px 20px 20px; background: var(--paper); }
-.settings h2 { margin: 0; font-weight: 300; font-style: italic; font-size: 28px; }
+.settings h2 { margin: 0; font-weight: 300;  font-size: 28px; }
 .settings__grid { display: grid; gap: 22px 36px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 .range { display: grid; gap: 8px; }
 .range > span { display: flex; justify-content: space-between; gap: 12px; font-family: var(--label); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }

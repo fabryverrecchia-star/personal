@@ -125,9 +125,6 @@
     guides.forEach(prepDraw);
     strokes.forEach(prepDraw);
 
-    var letters = $$('.word__ink > *');
-    gsap.set('.word__ink', { '--m': 100 });
-    gsap.set(letters, { yPercent: 18, opacity: 0, filter: 'blur(6px)' });
     gsap.set('.nodes circle', { scale: 0 });
 
     var tl = gsap.timeline({ defaults: { ease: 'power2.inOut' }, onComplete: done });
@@ -143,9 +140,7 @@
       .to('.fill path', { opacity: 1, duration: 1.0, ease: 'power1.out' }, 3.5)
       .to('.strokes', { opacity: 0, duration: 1.0, ease: 'power1.out' }, 3.6)
       // 4. « 18h22 » sort à la plume, de gauche à droite
-      .to('.word__ink', { '--m': 0, duration: 1.9, ease: 'power2.inOut' }, 3.8)
-      .to(letters, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 1.3, stagger: 0.14, ease: 'expo.out' }, 3.85)
-      .to({}, { duration: 0.5 });
+      .to({}, { duration: 0.4 });
 
     if (params.has('skip') || reduce) tl.progress(1);
     return tl;
@@ -408,10 +403,15 @@
 
   // Zones à laisser libres : logo, menu, accroche, crédit (le grand nom, lui, peut passer dessous)
   function uiRects(pad) {
-    return ['#logo', '.menu', '#tagline', '#credit'].map(function (s) {
+    var list = ['#logo', '.menu', '#tagline', '#credit', '#time'].map(function (s) {
       var b = $(s).getBoundingClientRect();
       return { x: b.left - pad, y: b.top - pad, w: b.width + pad * 2, h: b.height + pad * 2 };
     });
+    // le cadran : un carré inscrit un peu plus large que le cercle
+    var c = dial();
+    var k = c.r * 0.9 + pad;
+    list.push({ x: c.x - k, y: c.y - k, w: k * 2, h: k * 2 });
+    return list;
   }
 
   function overlap(a, b) {
@@ -447,16 +447,27 @@
     var live = items;
     var best = null, bestScore = -Infinity;
     for (var attempt = 0; attempt < 4; attempt++) {
+      var c = dial();
+      var reach = Math.hypot(W, H) / 2;
       for (var n = 0; n < 90; n++) {
-        var r = { x: rand(edge, Math.max(edge, W - w - edge)), y: rand(top, Math.max(top, H - h - bottom - 24)), w: w, h: h };
-        var score = 500;
+        // on cherche d'abord sous l'aiguille des secondes, puis on élargit l'éventail
+        var spread = n < 45 ? 22 + attempt * 10 : 180;
+        var ang = (secAngle + rand(-spread, spread)) * Math.PI / 180;
+        var dist = rand(c.r + Math.max(w, h) * 0.6, reach);
+        var cx = c.x + Math.sin(ang) * dist, cy = c.y - Math.cos(ang) * dist;
+        var r = {
+          x: Math.max(edge, Math.min(W - w - edge, cx - w / 2)),
+          y: Math.max(top, Math.min(H - h - bottom - 24, cy - h / 2)),
+          w: w, h: h
+        };
+        var score = 500 - (n < 45 ? 0 : 40);
         live.forEach(function (it) { score = Math.min(score, gap(r, it) - pad); });
         var o = 0;
         L.forEach(function (z) { o += overlap(r, z); });
         if (o > 0) score -= 10000 + o;
         if (score > bestScore) { bestScore = score; best = r; }
       }
-      if (bestScore > -10000) break;
+      if (bestScore >= 0 || (attempt === 3 && bestScore > -10000)) break;
       // pas de place libre : on réduit un peu l'image et on recommence
       w *= 0.82; h *= 0.82;
     }
@@ -628,6 +639,13 @@
     cursor.classList.toggle('is-eye', ready && !galleryOpen && !contactOpen && !overUI);
     cursor.classList.toggle('is-ui', overUI);
 
+    if (ready) {
+      // l'aiguille des secondes fait un tour en douze apparitions
+      secAngle = (secAngle + dt * 360 / (Math.max(6, SET.every * 12) * 1000)) % 360;
+      setHand(hSec, secAngle);
+    }
+    if (!reduce) clockEl.style.transform = 'translate3d(' + (nx * 6).toFixed(2) + 'px,' + (ny * 6).toFixed(2) + 'px,0)';
+
     if (gl) gl.draw(items, t);
     requestAnimationFrame(frame);
   }
@@ -637,7 +655,6 @@
      Redimensionnement
      ------------------------------------------------------------------------ */
   window.addEventListener('resize', function () {
-    fitGiant();
     var W0 = W, H0 = H;
     W = window.innerWidth;
     H = window.innerHeight;
@@ -654,33 +671,54 @@
   /* ------------------------------------------------------------------------
      Départ
      ------------------------------------------------------------------------ */
-  /* Le grand nom occupe toute la largeur de l'écran */
-  var giantInk = $('.giant__ink');
-  function fitGiant() {
-    giantInk.style.fontSize = '100px';
-    var w = giantInk.getBoundingClientRect().width;
-    var avail = $('#giant').getBoundingClientRect().width;
-    giantInk.style.fontSize = (100 * avail / w).toFixed(2) + 'px';
+  /* Cadran */
+  var clockEl = $('#clock');
+  var hHour = $('#hHour'), hMin = $('#hMin'), hSec = $('#hSec');
+  var secAngle = 0;
+  var ticks = $('#ticks');
+  for (var tk = 0; tk < 60; tk++) {
+    var big = tk % 5 === 0;
+    var ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    ln.setAttribute('x1', 0); ln.setAttribute('x2', 0);
+    ln.setAttribute('y1', -100); ln.setAttribute('y2', big ? -92 : -96.5);
+    ln.setAttribute('transform', 'rotate(' + tk * 6 + ')');
+    if (big) ln.setAttribute('class', 'is-hour');
+    ticks.appendChild(ln);
   }
-  fitGiant();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitGiant);
+  function dial() {
+    var b = clockEl.getBoundingClientRect();
+    var s = b.width / 220; // unités du viewBox → pixels
+    return { x: b.left + b.width / 2, y: b.top + b.height / 2, r: 100 * s };
+  }
+  function setHand(el, deg) { el.setAttribute('transform', 'rotate(' + deg.toFixed(2) + ')'); }
+  setHand(hHour, 0); setHand(hMin, 0); setHand(hSec, 0);
 
-  /* Fin de l'intro : le picto devient le logo, « 18h22 » descend et s'étire au pied de l'écran */
+  /* Fin de l'intro : le picto rejoint le logo, le cadran se trace,
+     les aiguilles tournent et se calent sur 18h22 */
   function settle(done) {
-    fitGiant();
     var instant = params.has('skip') || reduce;
-    var mark = $('#mark'), word = $('#word');
+    var mark = $('#mark');
     var mr = mark.getBoundingClientRect();
     var pad = 20 / 458.46, inner = 418.46 / 458.46;
     var lr = $('#logo').getBoundingClientRect();
     var ms = lr.width / (mr.width * inner);
-    var hr = word.getBoundingClientRect();
-    var wr = $('.word__ink').getBoundingClientRect();
-    var gr = giantInk.getBoundingClientRect();
-    var ws = gr.width / wr.width;
+    var ring = $('.clock__ring');
+    var ringLen = 2 * Math.PI * 100;
+    ring.style.strokeDasharray = ringLen;
+    ring.style.strokeDashoffset = ringLen;
+    var clock = { m: 0 };                       // minutes écoulées depuis minuit
+    var target = 18 * 60 + 22;
+    var hh = $('#hh'), mm = $('#mm');
+    function paint() {
+      var m = clock.m;
+      setHand(hMin, m * 6);
+      setHand(hHour, m * 0.5);
+      hh.textContent = String(Math.floor(m / 60) % 24).padStart(2, '0');
+      mm.textContent = String(Math.floor(m % 60)).padStart(2, '0');
+    }
+    paint();
     var tl = gsap.timeline({
       onComplete: function () {
-        document.body.classList.add('is-ready');
         gsap.set('#lockup', { autoAlpha: 0 });
         done();
       }
@@ -688,12 +726,16 @@
     tl.to(mark, {
       x: lr.left - mr.left - mr.width * pad * ms,
       y: lr.top - mr.top - mr.height * (20 / 317.09) * ms,
-      scale: ms, duration: 1.5, ease: 'expo.inOut'
-    }, 0).to(word, {
-      x: gr.left - hr.left - (wr.left - hr.left) * ws,
-      y: gr.top - hr.top - (wr.top - hr.top) * ws,
-      scale: ws, duration: 1.6, ease: 'expo.inOut'
-    }, 0.05);
+      scale: ms, duration: 1.4, ease: 'expo.inOut'
+    }, 0)
+      .add(function () { document.body.classList.add('is-ready'); }, 0.9)
+      .to(clockEl, { autoAlpha: 1, duration: 0.6 }, 0.5)
+      .to(ring, { strokeDashoffset: 0, duration: 1.6, ease: 'power3.inOut' }, 0.5)
+      .fromTo('#ticks line', { opacity: 0 }, { opacity: 1, duration: 0.4, stagger: { each: 0.012 } }, 0.9)
+      .to('.clock__hour, .clock__min, .clock__pin, #time', { autoAlpha: 1, duration: 0.6 }, 1.3)
+      // les aiguilles filent de minuit à 18h22, puis ralentissent comme une montre qu'on règle
+      .to(clock, { m: target, duration: 2.8, ease: 'expo.inOut', onUpdate: paint }, 1.4)
+      .to(hSec, { autoAlpha: 1, duration: 0.8 }, 3.9);
     if (instant) tl.progress(1);
   }
 
