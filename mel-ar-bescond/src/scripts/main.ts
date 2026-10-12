@@ -54,34 +54,14 @@ document.addEventListener('click', (e) => {
 });
 
 /* ───────────── Menu mobile ───────────── */
-const menu = $('[data-menu]')!;
-const menuBtn = $('[data-menu-toggle]')!;
-let menuOpen = false;
-const menuTl = gsap
-  .timeline({ paused: true })
-  .set(menu, { visibility: 'visible' })
-  .to(menu, { clipPath: 'inset(0 0 0% 0)', duration: 1, ease: 'expo.inOut' })
-  .from('.menu__txt', { yPercent: 110, stagger: 0.06, duration: 1, ease: 'expo.out' }, 0.45)
-  .from('.menu__foot', { opacity: 0, duration: 0.6 }, 0.7);
+// ouverture / fermeture gérées par le petit script autonome de Base.astro (window.__mabMenu) ;
+// ici on bloque seulement le défilement doux pendant que le menu est ouvert
+const isMenuOpen = () => document.documentElement.classList.contains('menu-open');
 function closeMenu() {
-  if (!menuOpen) return;
-  menuOpen = false;
-  document.documentElement.classList.remove('menu-open');
-  menuBtn.setAttribute('aria-expanded', 'false');
-  menu.setAttribute('aria-hidden', 'true');
-  menuTl.timeScale(1.5).reverse();
-  lock(false);
+  const w = window as unknown as { __mabMenu?: (open: boolean) => void };
+  if (isMenuOpen()) w.__mabMenu?.(false);
 }
-menuBtn.addEventListener('click', (e) => {
-  e.preventDefault();
-  if (menuOpen) return closeMenu();
-  menuOpen = true;
-  document.documentElement.classList.add('menu-open');
-  menuBtn.setAttribute('aria-expanded', 'true');
-  menu.setAttribute('aria-hidden', 'false');
-  menuTl.timeScale(1).play();
-  lock(true);
-});
+window.addEventListener('mab:menu', (e) => lock((e as CustomEvent<boolean>).detail));
 
 /* ───────────── En-tête ───────────── */
 const header = $('[data-header]')!;
@@ -95,7 +75,7 @@ const header = $('[data-header]')!;
       header.classList.toggle('is-scrolled', y > 40);
       // sur mobile, l'en-tête (Menu, Ma demande) reste toujours visible ; sur ordinateur il s'efface en descendant
       const canHide = window.innerWidth > 960;
-      header.classList.toggle('is-hidden', canHide && y > lastY + 2 && y > window.innerHeight && !menuOpen);
+      header.classList.toggle('is-hidden', canHide && y > lastY + 2 && y > window.innerHeight && !isMenuOpen());
       if (y < lastY - 2) header.classList.remove('is-hidden');
       lastY = y;
     },

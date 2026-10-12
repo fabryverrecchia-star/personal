@@ -34,6 +34,37 @@ const { title = `${site.name} — ${site.tagline}`, description = site.descripti
     </script>
   </head>
   <body>
+    <script is:inline>
+      // Menu mobile autonome : il fonctionne même si le script principal du site tarde ou plante.
+      (function () {
+        var html = document.documentElement;
+        function setMenu(open) {
+          html.classList.toggle('menu-open', open);
+          var b = document.querySelector('[data-menu-toggle]');
+          var m = document.getElementById('menu');
+          if (b) b.setAttribute('aria-expanded', open ? 'true' : 'false');
+          if (m) m.setAttribute('aria-hidden', open ? 'false' : 'true');
+          document.body.style.overflow = open ? 'hidden' : '';
+          try {
+            window.dispatchEvent(new CustomEvent('mab:menu', { detail: open }));
+          } catch (e) {}
+        }
+        window.__mabMenu = setMenu;
+        document.addEventListener('click', function (e) {
+          var t = e.target;
+          if (!t || !t.closest) return;
+          if (t.closest('[data-menu-toggle]')) {
+            e.preventDefault();
+            setMenu(!html.classList.contains('menu-open'));
+          } else if (t.closest('[data-menu-link]') && html.classList.contains('menu-open')) {
+            setMenu(false);
+          }
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && html.classList.contains('menu-open')) setMenu(false);
+        });
+      })();
+    </script>
     <slot />
     <div class="grain" aria-hidden="true"></div>
   </body>
