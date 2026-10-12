@@ -1,30 +1,28 @@
 ---
-// La mer toute proche : vidéo des vagues sur le sable, sans effet au défilement.
-import { getImage } from 'astro:assets';
-import { photo } from '../lib/photos';
-const poster = await getImage({ src: photo('mer-poster'), width: 900, format: 'webp' });
+// La mer toute proche : la vague arrive quand on descend, repart quand on remonte.
+// Séquence d'images (public/frames/mer/) dessinée sur un canvas au rythme du défilement :
+// fluide sur mobile, et indépendante de la lecture automatique des vidéos.
+const FRAMES = 99;
 ---
 
-<section class="mer" id="mer" data-theme="dark">
-  <div class="wrap mer__grid">
-    <figure class="mer__media">
-      <video class="mer__video" data-autoplay poster={poster.src} muted loop playsinline preload="metadata" aria-label="Vagues sur le sable, sur la côte des Côtes-d’Armor">
-        <source src="videos/mer.mp4" type="video/mp4" />
-        <source src="videos/mer.webm" type="video/webm" />
-      </video>
-    </figure>
+<section class="mer" id="mer" data-theme="dark" data-mer data-frames={FRAMES}>
+  <div class="mer__pin" data-mer-pin>
+    <div class="wrap mer__grid">
+      <figure class="mer__media" aria-label="Vague sur le sable, sur la côte des Côtes-d’Armor">
+        <img class="mer__still" src="frames/mer/001.webp" alt="" width="540" height="960" />
+        <canvas class="mer__canvas" data-mer-canvas aria-hidden="true"></canvas>
+        <span class="mer__progress" aria-hidden="true"><i data-mer-bar></i></span>
+      </figure>
 
-    <div class="mer__text">
-      <p class="label mer__kicker" data-reveal>Entre terre et mer</p>
-      <h2 class="h2" data-split>Tout près de la <em>Côte de Granit Rose</em></h2>
-      <p class="lead mer__lead" data-reveal>
-        De Louargat, la mer n’est jamais loin : une quarantaine de kilomètres séparent nos ruches des rochers roses de
-        Ploumanac’h. Un pays où le bocage descend doucement vers la Manche.
-      </p>
-      <p class="mer__body" data-reveal>
-        Un pays de vent doux et de lumière changeante, qui donne à chaque saison ses floraisons et à chaque miel son
-        caractère.
-      </p>
+      <div class="mer__text">
+        <p class="label mer__kicker">Entre terre et mer</p>
+        <h2 class="h2">Tout près de la <em>Côte de Granit Rose</em></h2>
+        <p class="lead mer__lead">
+          De Louargat, la mer n’est jamais loin : une quarantaine de kilomètres séparent nos ruches des rochers roses de
+          Ploumanac’h.
+        </p>
+        <p class="mer__body">Un pays où le bocage descend doucement vers la Manche.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -33,30 +31,55 @@ const poster = await getImage({ src: photo('mer-poster'), width: 900, format: 'w
   .mer {
     background: var(--night);
     color: var(--ivory);
-    padding-block: clamp(100px, 13vw, 200px);
+  }
+  .mer__pin {
+    height: 100svh;
+    display: flex;
+    align-items: center;
+    padding-block: calc(70px + env(safe-area-inset-top, 0px)) 24px;
   }
   .mer__grid {
     display: grid;
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1fr);
     gap: clamp(40px, 7vw, 120px);
     align-items: center;
   }
   .mer__media {
     position: relative;
-    aspect-ratio: 9 / 14;
-    max-height: 86svh;
+    height: min(82svh, 860px);
+    aspect-ratio: 9 / 16;
+    justify-self: center;
+    max-width: 100%;
     overflow: hidden;
     background: #0d0a07;
   }
-  .mer__video {
+  .mer__still,
+  .mer__canvas {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
+  .mer__progress {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    height: 1px;
+    background: rgb(247 243 236 / 0.25);
+  }
+  .mer__progress i {
+    position: absolute;
+    inset: 0;
+    background: var(--ivory);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
   .mer__text {
     display: grid;
-    gap: 1.8rem;
-    max-width: 36rem;
+    gap: 1.6rem;
+    max-width: 34rem;
   }
   .mer__kicker {
     color: color-mix(in srgb, var(--ivory) 55%, transparent);
@@ -72,11 +95,29 @@ const poster = await getImage({ src: photo('mer-poster'), width: 900, format: 'w
   }
 
   @media (max-width: 800px) {
+    .mer__pin {
+      align-items: flex-start;
+    }
     .mer__grid {
       grid-template-columns: 1fr;
+      gap: 20px;
     }
     .mer__media {
-      aspect-ratio: 4 / 5;
+      height: 56svh;
+      width: 100%;
+      aspect-ratio: auto;
+    }
+    .mer__text {
+      gap: 0.8rem;
+    }
+    .mer__text .h2 {
+      font-size: 1.9rem;
+    }
+    .mer__lead {
+      font-size: 1.05rem;
+    }
+    .mer__body {
+      display: none;
     }
   }
 </style>

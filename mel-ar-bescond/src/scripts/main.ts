@@ -114,7 +114,8 @@ const splits = $$('[data-split]').map((el) => SplitText.create(el, { type: 'line
 /* ───────────── Images WebGL ───────────── */
 const gl = (() => {
   try {
-    return initGL();
+    // WebGL sur ordinateur seulement : sur téléphone, images et vidéos natives (fluidité, lecture fiable sur iPhone)
+    return finePointer ? initGL() : null;
   } catch (err) {
     console.error('[mel-ar-bescond] webgl', err);
     return null;
@@ -131,7 +132,7 @@ const heroGL = gl?.get(heroFrame);
 const heroLines = $$('.hero__line > span');
 gsap.set(heroLines, { yPercent: 110 });
 gsap.set('[data-hero-fade], [data-hero-nav]', { opacity: 0, y: 16 });
-if (!heroGL) gsap.set('[data-hero-frame] img', { scale: 1.12 });
+if (!heroGL) gsap.set('[data-hero-frame] [data-slide]', { scale: 1.12 });
 
 function heroIntro() {
   const tl = gsap
@@ -139,7 +140,7 @@ function heroIntro() {
     .to(heroLines, { yPercent: 0, duration: 1.8, stagger: 0.12, ease: 'expo.out' }, 0.5)
     .to('[data-hero-fade], [data-hero-nav]', { opacity: 1, y: 0, duration: 1.4, stagger: 0.08, ease: 'expo.out' }, 1);
   if (heroGL) tl.to(heroGL, { reveal: 1, duration: 2.6, ease: 'power2.out' }, 0);
-  else tl.to('[data-hero-frame] img', { scale: 1, duration: 2.6, ease: 'silk' }, 0);
+  else tl.to('[data-hero-frame] [data-slide]', { scale: 1, duration: 2.6, ease: 'silk' }, 0);
   return tl;
 }
 
@@ -147,7 +148,7 @@ function heroIntro() {
 const SLIDE_TIME = 6;
 function startSlides() {
   if (!heroFrame) return;
-  const imgs = $$('img', heroFrame);
+  const imgs = $$('[data-slide]', heroFrame);
   const dots = $$<HTMLButtonElement>('[data-goto]');
   const bars = dots.map((d) => $('[data-bar]', d)!);
   const n = imgs.length;
@@ -177,7 +178,21 @@ function startSlides() {
       s.next = to;
       gsap.fromTo(s, { p: 0 }, { p: 1, duration: 1.9, ease: 'power2.inOut', onComplete: () => ((s.index = to), (s.p = 0), done()) });
     } else {
-      gsap.to(imgs[to], { opacity: 1, duration: 1.4, ease: 'power2.inOut', onComplete: () => (imgs.forEach((im, k) => k !== to && gsap.set(im, { opacity: 0 })), done()) });
+      // sans WebGL : la nouvelle image monte en rideau par-dessus l'ancienne, avec un léger dézoom
+      const prev = imgs[i];
+      gsap.set(imgs[to], { zIndex: 2, opacity: 1 });
+      gsap.set(prev, { zIndex: 1 });
+      gsap.fromTo(imgs[to], { clipPath: 'inset(100% 0% 0% 0%)', scale: 1.14 }, {
+        clipPath: 'inset(0% 0% 0% 0%)',
+        scale: 1,
+        duration: 1.6,
+        ease: 'expo.inOut',
+        onComplete: () => {
+          imgs.forEach((im, k) => k !== to && gsap.set(im, { opacity: 0, zIndex: 0 }));
+          done();
+        },
+      });
+      gsap.to(prev, { scale: 1.06, duration: 1.6, ease: 'expo.inOut' });
     }
     // le titre respire à chaque changement
     gsap.fromTo(heroLines, { yPercent: 0 }, { yPercent: -8, duration: 0.95, ease: 'power2.inOut', yoyo: true, repeat: 1, stagger: 0.06 });
@@ -438,20 +453,115 @@ ScrollTrigger.create({ start: 0, end: 'max', onUpdate: updateDock });
 function films() {
   // lecture seulement quand la vidéo est à l'écran (batterie, données mobiles)
   const vids = $$<HTMLVideoElement>('[data-autoplay]');
+  const onScreen = new Set<HTMLVideoElement>();
+  const tryPlay = (v: HTMLVideoElement) => {
+    v.muted = true;
+    v.play().catch(() => {});
+  };
   const io = new IntersectionObserver(
     (entries) =>
       entries.forEach((en) => {
         const v = en.target as HTMLVideoElement;
-        if (en.isIntersecting && !reduced) v.play().catch(() => {});
-        else v.pause();
+        if (en.isIntersecting) {
+          onScreen.add(v);
+          if (!reduced) tryPlay(v);
+        } else {
+          onScreen.delete(v);
+          v.pause();
+        }
       }),
     { threshold: 0.15 },
   );
   vids.forEach((v) => {
     v.muted = true;
+    v.setAttribute('muted', '');
     io.observe(v);
   });
+  // iPhone en économie d'énergie : la lecture automatique est bloquée jusqu'au premier geste.
+  // On relance alors les vidéos visibles au premier toucher / clic.
+  const unlock = () => onScreen.forEach((v) => v.paused && tryPlay(v));
+  ['touchend', 'click', 'keydown'].forEach((t) => document.addEventListener(t, unlock, { passive: true }));
+}
 
+/* ───────────── La mer : la vague suit le défilement ───────────── */
+function mer() {
+  const sec = $('[data-mer]');
+  if (!sec) return;
+  const n = Number(sec.dataset.frames) || 1;
+  const canvas = $<HTMLCanvasElement>('[data-mer-canvas]', sec)!;
+  const ctx = canvas.getContext('2d')!;
+  const bar = $('[data-mer-bar]', sec);
+  const frames: (HTMLImageElement | null)[] = new Array(n).fill(null);
+  const src = (i: number) => `frames/mer/${String(i + 1).padStart(3, '0')}.webp`;
+  let current = 0;
+
+  const size = () => {
+    const r = canvas.getBoundingClientRect();
+    const dpr = Math.min(devicePixelRatio, 2);
+    canvas.width = Math.round(r.width * dpr);
+    canvas.height = Math.round(r.height * dpr);
+    draw(current);
+  };
+  // image la plus proche déjà chargée
+  const nearest = (i: number) => {
+    for (let d = 0; d < n; d++) {
+      if (frames[i - d]) return frames[i - d];
+      if (frames[i + d]) return frames[i + d];
+    }
+    return null;
+  };
+  const draw = (i: number) => {
+    const im = nearest(i);
+    if (!im || !canvas.width) return;
+    const cw = canvas.width, ch = canvas.height;
+    const s = Math.max(cw / im.naturalWidth, ch / im.naturalHeight);
+    const w = im.naturalWidth * s, h = im.naturalHeight * s;
+    ctx.drawImage(im, (cw - w) / 2, (ch - h) / 2, w, h);
+  };
+
+  // chargement à l'approche de la section : une image sur huit d'abord, puis le reste
+  let started = false;
+  const load = () => {
+    if (started) return;
+    started = true;
+    const order: number[] = [];
+    for (let step = 8; step >= 1; step = Math.floor(step / 2)) for (let i = 0; i < n; i += step) if (!order.includes(i)) order.push(i);
+    let k = 0;
+    const next = () => {
+      if (k >= order.length) return;
+      const i = order[k++];
+      const im = new Image();
+      im.decoding = 'async';
+      im.onload = () => {
+        frames[i] = im;
+        if (Math.abs(i - current) < 6) draw(current);
+        next();
+      };
+      im.onerror = next;
+      im.src = src(i);
+    };
+    for (let c = 0; c < 4; c++) next();
+  };
+  new IntersectionObserver((e) => e[0].isIntersecting && load(), { rootMargin: '150% 0px' }).observe(sec);
+  addEventListener('resize', size);
+  size();
+
+  ScrollTrigger.create({
+    trigger: $('[data-mer-pin]', sec),
+    start: 'top top',
+    end: () => `+=${innerHeight * 1.6}`,
+    pin: true,
+    scrub: true,
+    invalidateOnRefresh: true,
+    onUpdate: (st) => {
+      const i = Math.round(st.progress * (n - 1));
+      if (bar) bar.style.transform = `scaleX(${st.progress})`;
+      if (i !== current) {
+        current = i;
+        draw(i);
+      }
+    },
+  });
 }
 
 /* ───────────── Démarrage ───────────── */
@@ -459,6 +569,7 @@ safe('révélations', reveals);
 safe('saisons', seasons);
 safe('commande', commande);
 safe('vidéos', films);
+safe('mer', mer);
 
 // le préloader démarre tout de suite et suit lui-même le chargement
 safe('préloader', () => {

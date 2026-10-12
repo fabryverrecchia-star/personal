@@ -50,6 +50,9 @@ writeFileSync(join(siteDir, 'index.html'), html);
 // vidéos : fichiers à côté de la page (chemins relatifs « videos/… »), trop lourdes pour être intégrées
 rmSync(join(siteDir, 'videos'), { recursive: true, force: true });
 cpSync(join(dist, 'videos'), join(siteDir, 'videos'), { recursive: true });
+// images de la vague (section mer), chargées à l'approche de la section
+rmSync(join(siteDir, 'frames'), { recursive: true, force: true });
+cpSync(join(dist, 'frames'), join(siteDir, 'frames'), { recursive: true });
 
 // 2. version artefact : le squelette <html><head><body> est ajouté à la publication ;
 //    on garde charset et viewport, indispensables sur téléphone

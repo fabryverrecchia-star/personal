@@ -9,7 +9,7 @@ Astro + GSAP (ScrollTrigger, SplitText) + Lenis + OGL (images en WebGL). Directi
 npm install
 npm run dev            # http://localhost:4321
 npm run build          # site statique dans dist/
-npm run preview:file   # site prêt à mettre en ligne : artifact/mel-ar-bescond-site/ (index.html + videos/)
+npm run preview:file   # site prêt à mettre en ligne : artifact/mel-ar-bescond-site/ (index.html + videos/ + frames/)
                        # et artifact/mel-ar-bescond.html (version artefact)
 ```
 
@@ -18,15 +18,15 @@ npm run preview:file   # site prêt à mettre en ligne : artifact/mel-ar-bescond
 | Section | Mouvement |
 | --- | --- |
 | Ouverture | sur fond blanc, le monogramme NF se compose au rythme du chargement (contour tracé, puis rempli d’encre), « Mel ar Bescond » apparaît dessous, puis le rideau se lève sur le site |
-| Hero | 3 photos du shooting et la vidéo du miel qui coule (slide 2), en plein écran (WebGL, transition liquide, léger suivi de la souris), grand titre révélé ligne par ligne, navigation par barres de progression ; au défilement la photo se resserre en cadre |
+| Hero | la vidéo du rucher (slide 1) et 3 photos du shooting, en plein écran (WebGL, transition liquide, léger suivi de la souris), grand titre révélé ligne par ligne, navigation par barres de progression ; au défilement la photo se resserre en cadre |
 | Promesse | les mots s’éclairent au fil de la lecture |
 | La maison | photos en WebGL : révélation organique, parallaxe, courbure au défilement, ondulation au survol |
-| Entre terre et mer | vidéo des vagues sur le sable (sans effet au défilement), la Côte de Granit Rose toute proche |
+| Entre terre et mer | la vague arrive quand on descend et repart quand on remonte (séquence d’images pilotée par le défilement, `public/frames/mer/`), la Côte de Granit Rose toute proche |
 | La récolte | deux saisons en très grand ; au survol, une photo suit le curseur |
 | Commander | une ligne par miel, une case par contenance ; le panier se compose avec les photos des pots |
 | Le terroir, pied de page | vidéo des apiculteurs dans la fumée, faits du lieu-dit, grand logo |
 
-Toutes les photos (sauf les vignettes du panier) sont redessinées en WebGL par `src/scripts/gl.ts` sur un canvas fixe calé sur les `<figure data-gl>` ; sans WebGL, les images normales s’affichent.
+Sur ordinateur, les photos sont redessinées en WebGL par `src/scripts/gl.ts` sur un canvas fixe calé sur les `<figure data-gl>`. Sur téléphone, pas de WebGL : images et vidéos natives, transitions en rideau (fluidité, lecture fiable sur iPhone).
 
 Défilement doux Lenis à la molette ; au doigt, défilement natif du téléphone. Si l’utilisateur a activé « réduire les animations », Lenis, l’ouverture et les boucles sont désactivés.
 
@@ -51,15 +51,15 @@ Les photos du shooting sont dans `brand/shooting/` et `src/assets/photos/` : `du
 
 | Nom | Emplacement |
 | --- | --- |
-| `duo`, vidéo `miel`, `ruche`, `fleur` | diaporama du hero (dans cet ordre) |
+| vidéo `rucher`, `rayon`, `ruche`, `fleur` | diaporama du hero (dans cet ordre) |
 | `duo` / `texture` | « La maison » (grande / petite photo) |
 | `fleur` / `abeille` | saisons Printemps / Été |
-| `miel-poster`, `mer-poster`, `fumee-poster` | images d’attente des vidéos |
+| `rucher-poster`, `fumee-poster` | images d’attente des vidéos (affichées si le téléphone bloque la lecture automatique) |
 | `pot-seul` (sinon `pot`) | vignette des pots dans le panier |
 
 Astro génère les versions optimisées au build.
 
-Vidéos (`public/videos/`, en MP4 H.264 + WebM VP9, sans son, aucune parallaxe) : `miel` (slide 2 du hero, texture WebGL), `mer` (section « Entre terre et mer ») et `fumee` (bandeau du terroir). Elles ne se lisent que lorsqu’elles sont à l’écran.
+Vidéos (`public/videos/`, MP4 H.264 + WebM VP9, sans son, sans parallaxe) : `rucher` (slide 1 du hero) et `fumee` (bandeau du terroir). Elles ne se lisent qu’à l’écran ; si le téléphone bloque la lecture automatique (iPhone en économie d’énergie), l’image d’attente reste affichée et la vidéo démarre au premier toucher.
 
 ## Identité
 

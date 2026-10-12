@@ -133,9 +133,11 @@ export function initGL() {
   canvas.setAttribute('aria-hidden', 'true');
   document.body.appendChild(canvas);
 
+  // sur téléphone, seul le diaporama du hero passe par le WebGL : le reste reste en images normales (fluidité)
+  const touch = matchMedia('(hover: none)').matches;
   let renderer: Renderer;
   try {
-    renderer = new Renderer({ canvas, alpha: true, premultipliedAlpha: true, antialias: true, dpr: Math.min(devicePixelRatio, matchMedia('(hover: none)').matches ? 1.5 : 2) });
+    renderer = new Renderer({ canvas, alpha: true, premultipliedAlpha: true, antialias: true, dpr: Math.min(devicePixelRatio, touch ? 1.25 : 2) });
     if (!renderer.gl) throw new Error('webgl');
   } catch {
     canvas.remove();
@@ -160,15 +162,29 @@ export function initGL() {
   const state = { vel: 0, time: 0 };
 
   const videoTextures: { tex: Texture; video: HTMLVideoElement }[] = [];
+  // vidéo : on affiche son image d'attente, puis la vidéo elle-même dès qu'elle joue vraiment
+  // (si le téléphone bloque la lecture automatique, l'image d'attente reste, jamais d'écran noir)
   const loadVideo = (video: HTMLVideoElement, onSize: (w: number, h: number) => void) => {
     const tex = new Texture(gl, { generateMipmaps: false, minFilter: gl.LINEAR });
-    const ready = () => {
+    let live = false;
+    if (video.poster) {
+      const im = new Image();
+      im.onload = () => {
+        if (live) return;
+        tex.image = im;
+        onSize(im.naturalWidth, im.naturalHeight);
+      };
+      im.src = video.poster;
+    }
+    const goLive = () => {
+      if (live || video.paused || video.readyState < 2) return;
+      live = true;
       tex.image = video;
       onSize(video.videoWidth || 16, video.videoHeight || 9);
       videoTextures.push({ tex, video });
     };
-    if (video.readyState >= 2) ready();
-    else video.addEventListener('loadeddata', ready, { once: true });
+    video.addEventListener('playing', goLive);
+    video.addEventListener('timeupdate', goLive);
     return tex;
   };
 
@@ -207,7 +223,9 @@ export function initGL() {
       let count = 0;
       const textures = imgs.map((im, i) =>
         (im instanceof HTMLVideoElement ? loadVideo : loadTexture)(im as never, (w, h) => {
+          const first = sizes[i][0] === 1;
           sizes[i] = [w, h];
+          if (!first) return;
           if (++count >= Math.min(2, imgs.length)) item.loaded = true;
         }),
       );
@@ -262,7 +280,9 @@ export function initGL() {
     return item;
   };
 
-  document.querySelectorAll<HTMLElement>('[data-gl], [data-gl-slides]').forEach(add);
+  document.querySelectorAll<HTMLElement>(touch ? '[data-gl-slides]' : '[data-gl], [data-gl-slides]').forEach((el) => {
+    if (add(el)) el.classList.add('is-gl');
+  });
 
   // rendu : on recale chaque plan sur son élément
   const hoverVal = new WeakMap<GLItem, number>();
@@ -270,11 +290,13 @@ export function initGL() {
     state.time += 1 / 60;
     // vidéos : nouvelle image envoyée au GPU tant qu'elles jouent
     for (const v of videoTextures) if (!v.video.paused && v.video.readyState >= 2) v.tex.needsUpdate = true;
+    let any = false;
     for (const it of items) {
       const r = it.el.getBoundingClientRect();
       const visible = it.loaded && r.bottom > -100 && r.top < view[1] + 100 && r.width > 0 && it.alpha > 0.001;
       it.mesh.visible = visible;
       if (!visible) continue;
+      any = true;
       const u = it.mesh.program.uniforms;
       u.uRect.value = [r.left, r.top, r.width, r.height];
       u.uVel.value = state.vel;
@@ -304,8 +326,12 @@ export function initGL() {
         u.uAlpha.value = it.alpha;
       }
     }
+    // rien à l'écran : on n'occupe plus le GPU (une dernière image vide efface le canvas)
+    if (!any && !drawn) return;
     renderer.render({ scene });
+    drawn = any;
   };
+  let drawn = true;
 
   return {
     items,

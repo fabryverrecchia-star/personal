@@ -165,15 +165,14 @@ section {
   height: 100%;
   pointer-events: none;
 }
-html.gl [data-gl] img,
-html.gl [data-gl-slides] img {
+/* les éléments pris en charge par le WebGL (classe is-gl) cachent leur image DOM */
+html.gl .is-gl img {
   visibility: hidden;
 }
-html.gl [data-gl-slides] video {
+html.gl .is-gl video {
   opacity: 0.001 !important;
 }
-html.gl [data-gl],
-html.gl [data-gl-slides] {
+html.gl .is-gl {
   background: transparent !important;
 }
 

@@ -1,10 +1,10 @@
 ---
 import { Image, getImage } from 'astro:assets';
 import { photo } from '../lib/photos';
-const mielPoster = await getImage({ src: photo('miel-poster'), width: 1280, format: 'webp' });
+const rucherPoster = await getImage({ src: photo('rucher-poster'), width: 1600, format: 'webp' });
 const slides = [
-  { img: photo('duo', 'apiculteurs'), cap: 'Nathalie & Frédéric', alt: 'Nathalie et Frédéric Baltzer auprès de leurs ruches' },
-  { video: 'miel', poster: mielPoster.src, cap: 'Le miel', alt: 'Le miel coule lentement du rayon' },
+  { video: 'rucher', poster: rucherPoster.src, cap: 'Au rucher', alt: 'Visite d’une ruche au rucher de Coat ar Bescond' },
+  { img: photo('rayon', 'tamis'), cap: 'Le rayon', alt: 'Rayon de miel dans son miel' },
   { img: photo('ruche', 'filet'), cap: 'Au cœur de la ruche', alt: 'Abeilles sur les cadres de la ruche' },
   { img: photo('fleur', 'cuillere'), cap: 'Les floraisons', alt: 'Abeille sur une fleur de prunier' },
 ];
@@ -74,6 +74,7 @@ const slides = [
     --inset: 0px;
     position: absolute;
     inset: var(--inset);
+    z-index: 0;
     overflow: hidden;
   }
   .hero__frame :global(img),
@@ -92,7 +93,8 @@ const slides = [
   .hero__shade {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgb(18 14 10 / 0.7), rgb(18 14 10 / 0.05) 55%, rgb(18 14 10 / 0.3));
+    z-index: 1;
+    background: linear-gradient(to top, rgb(18 14 10 / 0.78) 0%, rgb(18 14 10 / 0.45) 38%, rgb(18 14 10 / 0.12) 62%, rgb(18 14 10 / 0.38));
     pointer-events: none;
   }
   :global(html.gl) .hero__shade {
