@@ -93,7 +93,9 @@ const header = $('[data-header]')!;
     onUpdate: (self) => {
       const y = self.scroll();
       header.classList.toggle('is-scrolled', y > 40);
-      header.classList.toggle('is-hidden', y > lastY + 2 && y > window.innerHeight && !menuOpen);
+      // sur mobile, l'en-tête (Menu, Ma demande) reste toujours visible ; sur ordinateur il s'efface en descendant
+      const canHide = window.innerWidth > 960;
+      header.classList.toggle('is-hidden', canHide && y > lastY + 2 && y > window.innerHeight && !menuOpen);
       if (y < lastY - 2) header.classList.remove('is-hidden');
       lastY = y;
     },

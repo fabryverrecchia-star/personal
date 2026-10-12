@@ -37,6 +37,7 @@ const poster = await getImage({ src: photo('fumee-poster'), width: 1280, format:
   }
   .terroir__band {
     position: relative;
+    height: 78vh;
     height: 78svh;
     overflow: hidden;
     margin-bottom: clamp(80px, 10vw, 160px);
@@ -44,7 +45,10 @@ const poster = await getImage({ src: photo('fumee-poster'), width: 1280, format:
   }
   .terroir__video {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -92,6 +96,7 @@ const poster = await getImage({ src: photo('fumee-poster'), width: 1280, format:
       gap: 0.8rem;
     }
     .terroir__band {
+      height: 56vh;
       height: 56svh;
     }
   }

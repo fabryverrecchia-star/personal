@@ -13,6 +13,8 @@ export const site = {
   // Au tout premier envoi, FormSubmit écrit à l'adresse ci-dessus pour faire activer le formulaire (un clic).
   formEndpoint: 'https://formsubmit.co/ajax/frederic.baltzer@gmail.com',
   phone: '',
+  // réseaux sociaux (adresse complète, ex. 'https://www.instagram.com/melarbescond') — affichés dans « Nous suivre »
   instagram: '',
+  facebook: '',
   harvest: 2026,
 };

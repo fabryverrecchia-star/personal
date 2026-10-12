@@ -159,7 +159,10 @@ section {
 /* Images WebGL : le canvas fixe redessine les <figure data-gl> */
 .gl-canvas {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 40;
   width: 100%;
   height: 100%;
@@ -179,7 +182,10 @@ html.gl .is-gl {
 /* Grain photographique, très léger */
 .grain {
   position: fixed;
-  inset: -50%;
+  top: -50%;
+  right: -50%;
+  bottom: -50%;
+  left: -50%;
   z-index: 90;
   pointer-events: none;
   opacity: 0.06;
@@ -218,7 +224,10 @@ html.gl .is-gl {
 .cta__line::after {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background: currentColor;
   transform: translateX(-101%);
   transition: transform 0.7s var(--ease);
@@ -254,7 +263,10 @@ html.gl .is-gl {
 .btn::before {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: -1;
   background: var(--gold);
   transform: scaleY(0);
@@ -290,7 +302,10 @@ html.gl .is-gl {
 @media (hover: none) {
   .grain {
     animation: none;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
   }
 }
 

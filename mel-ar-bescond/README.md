@@ -24,7 +24,8 @@ npm run preview:file   # site prêt à mettre en ligne : artifact/mel-ar-bescond
 | Entre terre et mer | la vague arrive quand on descend et repart quand on remonte (séquence d’images pilotée par le défilement, `public/frames/mer/`), la Côte de Granit Rose toute proche |
 | La récolte | deux saisons en très grand ; au survol, une photo suit le curseur |
 | Commander | une ligne par miel, une case par contenance ; le panier se compose avec les photos des pots |
-| Le terroir, pied de page | vidéo des apiculteurs dans la fumée, faits du lieu-dit, grand logo |
+| Le terroir | vidéo des apiculteurs dans la fumée, faits du lieu-dit |
+| Nous suivre, pied de page | vidéo du miel qui dégouline du rayon, liens réseaux (`instagram`, `facebook` dans `src/site.config.ts`) et « Nous écrire », grand logo |
 
 Sur ordinateur, les photos sont redessinées en WebGL par `src/scripts/gl.ts` sur un canvas fixe calé sur les `<figure data-gl>`. Sur téléphone, pas de WebGL : images et vidéos natives, transitions en rideau (fluidité, lecture fiable sur iPhone).
 
@@ -54,12 +55,12 @@ Les photos du shooting sont dans `brand/shooting/` et `src/assets/photos/` : `du
 | vidéo `rucher`, `rayon`, `ruche`, `fleur` | diaporama du hero (dans cet ordre) |
 | `duo` / `texture` | « La maison » (grande / petite photo) |
 | `fleur` / `abeille` | saisons Printemps / Été |
-| `rucher-poster`, `fumee-poster` | images d’attente des vidéos (affichées si le téléphone bloque la lecture automatique) |
+| `rucher-poster`, `fumee-poster`, `miel-poster` | images d’attente des vidéos (affichées si le téléphone bloque la lecture automatique) |
 | `pot-seul` (sinon `pot`) | vignette des pots dans le panier |
 
 Astro génère les versions optimisées au build.
 
-Vidéos (`public/videos/`, MP4 H.264 + WebM VP9, sans son, sans parallaxe) : `rucher` (slide 1 du hero) et `fumee` (bandeau du terroir). Elles ne se lisent qu’à l’écran ; si le téléphone bloque la lecture automatique (iPhone en économie d’énergie), l’image d’attente reste affichée et la vidéo démarre au premier toucher.
+Vidéos (`public/videos/`, MP4 H.264 + WebM VP9, sans son, sans parallaxe) : `rucher` (slide 1 du hero), `fumee` (bandeau du terroir) et `miel` (section « Nous suivre »). Elles ne se lisent qu’à l’écran ; si le téléphone bloque la lecture automatique (iPhone en économie d’énergie), l’image d’attente reste affichée et la vidéo démarre au premier toucher.
 
 ## Identité
 

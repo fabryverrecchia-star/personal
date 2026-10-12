@@ -1,0 +1,105 @@
+---
+// Avant le pied de page : le miel qui dégouline du rayon, et « Nous suivre ».
+import { getImage } from 'astro:assets';
+import { photo } from '../lib/photos';
+import { site } from '../site.config';
+const poster = await getImage({ src: photo('miel-poster'), width: 1600, format: 'webp' });
+const networks = [
+  { label: 'Instagram', href: site.instagram },
+  { label: 'Facebook', href: site.facebook },
+].filter((n) => n.href);
+---
+
+<section class="suivre" id="suivre" data-theme="dark" aria-labelledby="suivre-titre">
+  <video class="suivre__video" data-autoplay poster={poster.src} muted loop playsinline preload="metadata" aria-hidden="true">
+    <source src="videos/miel.mp4" type="video/mp4" />
+    <source src="videos/miel.webm" type="video/webm" />
+  </video>
+  <div class="suivre__shade" aria-hidden="true"></div>
+
+  <div class="wrap suivre__content">
+    <p class="label suivre__kicker" data-reveal>Nous suivre</p>
+    <h2 class="h2 suivre__title" id="suivre-titre" data-split>Les nouvelles <em>du rucher</em></h2>
+    <p class="suivre__text" data-reveal>Floraisons, récoltes, dates de retrait : suivez la vie de nos ruches au fil des saisons.</p>
+    <div class="suivre__links" data-reveal>
+      {
+        networks.map((n) => (
+          <a class="btn btn--light" href={n.href} target="_blank" rel="noopener">
+            {n.label}
+          </a>
+        ))
+      }
+      <a class="btn btn--ghost-light" href={`mailto:${site.email}`}>Nous écrire</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .suivre {
+    position: relative;
+    min-height: 80vh;
+    min-height: 80svh;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    background: var(--night);
+    color: var(--ivory);
+  }
+  .suivre__video {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .suivre__shade {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(to top, rgb(18 14 10 / 0.85), rgb(18 14 10 / 0.25) 60%, rgb(18 14 10 / 0.45));
+  }
+  .suivre__content {
+    position: relative;
+    display: grid;
+    gap: 1.4rem;
+    padding-block: clamp(80px, 12vw, 160px) clamp(48px, 7vw, 96px);
+  }
+  .suivre__kicker {
+    color: rgb(247 243 236 / 0.7);
+  }
+  .suivre__title em {
+    color: #e9c98f;
+  }
+  .suivre__text {
+    max-width: 30rem;
+    font-size: 1.2rem;
+    line-height: 1.5;
+    font-weight: 300;
+    color: rgb(247 243 236 / 0.85);
+  }
+  .suivre__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 0.6rem;
+  }
+  .btn--light {
+    background: var(--ivory);
+    color: var(--ink);
+  }
+  .btn--ghost-light {
+    background: transparent;
+    color: var(--ivory);
+    box-shadow: inset 0 0 0 1px rgb(247 243 236 / 0.5);
+  }
+  @media (max-width: 560px) {
+    .suivre__links .btn {
+      flex: 1 1 100%;
+    }
+  }
+</style>

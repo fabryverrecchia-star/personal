@@ -33,6 +33,7 @@ const FRAMES = 99;
     color: var(--ivory);
   }
   .mer__pin {
+    height: 100vh;
     height: 100svh;
     display: flex;
     align-items: center;
@@ -46,7 +47,9 @@ const FRAMES = 99;
   }
   .mer__media {
     position: relative;
+    height: min(82vh, 860px);
     height: min(82svh, 860px);
+    width: calc(min(82vh, 860px) * 9 / 16); /* anciens iPhone sans aspect-ratio */
     aspect-ratio: 9 / 16;
     justify-self: center;
     max-width: 100%;
@@ -56,7 +59,10 @@ const FRAMES = 99;
   .mer__still,
   .mer__canvas {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -71,7 +77,10 @@ const FRAMES = 99;
   }
   .mer__progress i {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     background: var(--ivory);
     transform: scaleX(0);
     transform-origin: left;
@@ -103,6 +112,7 @@ const FRAMES = 99;
       gap: 20px;
     }
     .mer__media {
+      height: 56vh;
       height: 56svh;
       width: 100%;
       aspect-ratio: auto;

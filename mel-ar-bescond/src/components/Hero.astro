@@ -64,6 +64,7 @@ const slides = [
 <style>
   .hero {
     position: relative;
+    height: 100vh;
     height: 100svh;
     min-height: 560px;
     color: var(--ivory);
@@ -73,14 +74,20 @@ const slides = [
   .hero__frame {
     --inset: 0px;
     position: absolute;
-    inset: var(--inset);
+    top: var(--inset);
+    right: var(--inset);
+    bottom: var(--inset);
+    left: var(--inset);
     z-index: 0;
     overflow: hidden;
   }
   .hero__frame :global(img),
   .hero__frame :global(video) {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -92,7 +99,10 @@ const slides = [
   /* voile de lisibilité (sans WebGL ; en WebGL l'assombrissement est dans le shader) */
   .hero__shade {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: 1;
     background: linear-gradient(to top, rgb(18 14 10 / 0.78) 0%, rgb(18 14 10 / 0.45) 38%, rgb(18 14 10 / 0.12) 62%, rgb(18 14 10 / 0.38));
     pointer-events: none;
@@ -183,7 +193,10 @@ const slides = [
   }
   .hero__bar i {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     background: var(--ivory);
     transform: scaleX(0);
     transform-origin: left;
