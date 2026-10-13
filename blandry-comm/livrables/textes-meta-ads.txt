@@ -8,7 +8,7 @@ Objectif : Notoriété > Couverture · Stories et Reels · 2 affichages / 7 jour
 Visuels : meta/c1-story-platrerie.png, c1-story-peinture.png, c1-story-carrelage.png + vidéos peinture-720.mp4 et metier-720.mp4 du site
 Texte principal : Plâtrerie, peinture, carrelage : je réalise tout le chantier, de l’ossature en plaques de plâtre à la dernière couche. Artisan aux Ancizes-Comps, j’interviens dans les Combrailles, à Riom et à Clermont-Ferrand.
 Titre : Benjamin Landry, artisan
-Bouton : En savoir plus → page d’accueil du site
+Bouton : En savoir plus → https://benjaminlandry.fr
 
 ──────── CAMPAGNE 2 · DEMANDES DE DEVIS (BL_C2_DEVIS_FORMULAIRE) ────────
 Objectif : Prospects > Formulaire instantané · Placements Advantage+ · 9 €/jour (270 €/mois)
@@ -42,7 +42,7 @@ Bouton : Obtenir un devis (variante : Appeler, 06 58 38 78 37)
 ──────── FORMULAIRE « DEVIS BENJAMIN LANDRY » ────────
 Introduction : « Visite et devis gratuits » — « Plâtrerie, peinture, carrelage. Benjamin vous rappelle sous 48 heures. »
 Questions : Type de travaux (Plâtrerie et isolation · Peinture · Carrelage · Plusieurs travaux) · Commune du chantier · Délai (Dès que possible · Dans 1 à 3 mois · Plus tard) · Prénom, nom, téléphone, e-mail
-Confidentialité : lien vers la page Mentions légales du site
+Confidentialité : https://benjaminlandry.fr/mentions-legales/
 Message de fin : « Merci. Benjamin vous rappelle sous 48 heures pour convenir d’une visite. » · Bouton : Appeler
 
 ──────── SUIVI ────────

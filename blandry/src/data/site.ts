@@ -21,14 +21,14 @@ export const visuel = (slug: string) =>
   metierFiles[`../assets/metier/${slug}.jpg`]?.default ?? chantierFiles[`../assets/chantiers/${slug}.jpg`]?.default ?? g(slug);
 
 export const site = {
-  url: 'https://18h22.com/blandry', // À COMPLÉTER : domaine définitif
+  url: 'https://benjaminlandry.fr',
   nom: 'Benjamin Landry',
   monogramme: 'BL',
   metier: 'Plâtrerie, peinture et carrelage',
   metierCourt: 'Plaquiste et peintre',
   gerant: 'Benjamin Landry',
   telephone: '06 58 38 78 37',
-  email: 'contact@blandry.fr', // À COMPLÉTER
+  email: 'benjaminlandry10@gmail.com',
   adresse: {
     rue: '59 rue du Boucheix',
     codePostal: '63770',

@@ -1,12 +1,9 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
-// Adresse de publication. Si le site passe sur son propre domaine
-// (ex. https://www.blandry-peinture.fr), mettre ce domaine dans `site`,
-// supprimer `base`, et mettre à jour `url` dans src/data/site.ts.
+// Adresse de publication : le site est servi à la racine de benjaminlandry.fr.
 export default defineConfig({
-  site: 'https://18h22.com',
-  base: '/blandry',
+  site: 'https://benjaminlandry.fr',
   trailingSlash: 'always',
   build: { inlineStylesheets: 'always' },
 });
