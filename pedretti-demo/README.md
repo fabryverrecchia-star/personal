@@ -1,34 +1,36 @@
-# Démo WebGL · Stefano Pedretti
+# Demo WebGL · Stefano Pedretti
 
-Page unique en Three.js : au défilement, des particules composent le logo
-(visage pixel art, « STEFANO PEDRETTI », « COMEDY DIRECTOR & MORE »), puis le
-logo éclate et la caméra traverse un couloir d'images de projets en perspective.
-À la fin, le logo se recompose.
+Pagina unica in Three.js. Scorrendo, migliaia di particelle luminose arrivano a
+vortice dal buio e compongono il logo (volto pixel art, « STEFANO PEDRETTI »,
+« COMEDY DIRECTOR & MORE »). Poi il logo esplode attorno alla camera e si vola
+in un tunnel 3D con i 17 progetti di stefanopedretti.com: le immagini si
+accendono avvicinandosi e si dissolvono in particelle quando le si supera.
+Alla fine il logo si ricompone.
 
-## Lancer
+## Avviare
 
-Les images sont chargées en WebGL, il faut donc un petit serveur local :
+Le immagini sono caricate in WebGL, serve un piccolo server locale:
 
 ```sh
 cd pedretti-demo
 python3 -m http.server 8000
-# puis http://localhost:8000
+# poi http://localhost:8000
 ```
 
-## Remplacer les visuels
+## Sostituire le immagini
 
-Les images de `images/` sont des visuels de remplacement générés par
-`scripts/make-placeholders.py`. Pour mettre les vrais projets :
+Le immagini in `images/` sono visual d'attesa generati da
+`scripts/make-placeholders.py`, uno per progetto e con lo stesso nome del file
+atteso. Per mettere le vere:
 
-1. Déposer les images dans `images/` (format 16:10 conseillé, ~1200 px de large).
-2. Modifier le tableau `PROJECTS` en haut du script de `index.html`
-   (fichier, titre, type, année). Le nombre de projets est libre.
+1. Sostituire ogni file di `images/` con l'immagine del progetto (16:10, ~1200 px).
+2. Titoli e sottotitoli si modificano nella tabella `PROJECTS` in cima allo script di `index.html`.
 
-## Réglages
+## Regolazioni
 
-- `T` dans `index.html` : chronologie du défilement (composition, éclatement,
-  couloir, recomposition), en fraction de la page.
-- `#scroll { height: 900vh }` : longueur totale du défilement.
-- En portrait (mobile), le logo est réorganisé : visage en haut, nom et métier
-  empilés dessous.
-- La souris repousse les particules du logo et met en couleur l'image survolée.
+- `T` in `index.html`: cronologia dello scroll (composizione, esplosione,
+  tunnel, ricomposizione), in frazione della pagina.
+- `#scroll { height: 1600vh }`: lunghezza totale dello scroll.
+- In verticale (mobile) il logo si riorganizza: volto in alto, nome e mestiere sotto.
+- Il mouse respinge le particelle del logo e illumina il progetto sorvolato;
+  la velocità dello scroll allarga il campo visivo e allunga le scie.

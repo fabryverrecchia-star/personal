@@ -59,6 +59,6 @@ for n, (fname, title) in enumerate(PROJECTS):
     img = Image.blend(img, noise, 0.06).filter(ImageFilter.GaussianBlur(0.6))
     d = ImageDraw.Draw(img)
     d.text((40, H - 92), title.upper(), fill=c, font=font(34))
-    d.text((40, H - 46), "VISUEL À VENIR", fill=c, font=font(18))
+    d.text((40, H - 46), "VISUAL IN ARRIVO", fill=c, font=font(18))
     img.save(OUT / fname, quality=80, optimize=True)
     print("ok", fname)
