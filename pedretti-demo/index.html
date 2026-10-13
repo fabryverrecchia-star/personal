@@ -1,0 +1,440 @@
+<title>Stefano Pedretti WebGL</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;800&display=swap">
+<style>
+  /* Une seule scène plein écran : le logo se compose en particules, puis un couloir d'images en perspective. Univers blanc du logo, assumé dans les deux thèmes. */
+  :root {
+    --paper: #fbfbfa;
+    --ink: #121212;
+    --ink-soft: #6d6a66;
+    --skin: #f6c9a8;
+    --brass: #d79b1c;
+    --display: "Jost", "Futura", "Century Gothic", "Avenir Next", sans-serif;
+    color-scheme: light;
+  }
+  html, body { background: var(--paper); color: var(--ink); }
+  body { margin: 0; font-family: var(--display); font-weight: 300; }
+  #gl { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+  #scroll { height: 900vh; position: relative; z-index: 1; pointer-events: none; }
+
+  .hud { position: fixed; z-index: 2; pointer-events: none; transition: opacity .6s ease, transform .6s ease; }
+  .bar { top: env(safe-area-inset-top, 0px); left: 0; right: 0; display: flex; justify-content: space-between; gap: 16px;
+         padding: 20px clamp(16px, 4vw, 48px); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+  .bar b { font-weight: 800; }
+  .bar span:last-child { text-align: right; }
+
+  .hint { left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 36px); transform: translateX(-50%);
+          display: flex; flex-direction: column; align-items: center; gap: 12px;
+          font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--ink-soft); }
+  .hint i { width: 1px; height: 44px; background: linear-gradient(var(--ink), transparent); animation: drip 1.8s ease-in-out infinite; transform-origin: top; }
+  @keyframes drip { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+
+  .caption { left: clamp(16px, 4vw, 48px); bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(24px, 5vh, 56px));
+             max-width: calc(100% - 32px); }
+  .caption .num { font-size: 12px; letter-spacing: .3em; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .caption h2 { margin: 6px 0 4px; font-size: clamp(36px, 7vw, 96px); line-height: .95; font-weight: 800; letter-spacing: -.01em; text-transform: uppercase; text-wrap: balance; }
+  .caption h2 em { font-style: normal; font-weight: 300; }
+  .caption p { margin: 0; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; }
+  .caption p span { color: var(--brass); }
+
+  .progress { left: 0; right: 0; bottom: 0; height: 2px; background: var(--ink); transform-origin: left; transform: scaleX(0); transition: none; }
+  .note { right: clamp(16px, 4vw, 48px); bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); }
+
+  .off { opacity: 0; }
+  .caption.off { transform: translateY(14px); }
+  @media (max-width: 560px) { .note { display: none; } .bar { font-size: 11px; } }
+  @media (prefers-reduced-motion: reduce) { .hint i { animation: none; } }
+</style>
+
+<canvas id="gl" aria-label="Logo de Stefano Pedretti composé de particules, puis galerie de projets en perspective"></canvas>
+<div id="scroll"></div>
+
+<header class="hud bar off" id="bar"><span>Stefano <b>Pedretti</b></span><span>Comedy <b>Director</b> &amp; more</span></header>
+<div class="hud hint" id="hint">Faites défiler<i></i></div>
+<div class="hud caption off" id="caption" aria-live="polite">
+  <div class="num" id="capNum">01 / 08</div>
+  <h2 id="capTitle">Projet 01</h2>
+  <p id="capMeta">Publicité <span>·</span> 2026</p>
+</div>
+<div class="hud note" id="note">Démo · visuels de remplacement</div>
+<div class="hud progress" id="progress"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+/* ---------- Contenu : remplacez images et titres par les vrais projets ---------- */
+const LOGO_SRC = "logo.png";
+const PROJECTS = [
+  { img: "images/projet-01.jpg", title: "Projet 01", kind: "Publicité",     year: "2026" },
+  { img: "images/projet-02.jpg", title: "Projet 02", kind: "Série TV",      year: "2025" },
+  { img: "images/projet-03.jpg", title: "Projet 03", kind: "Court-métrage", year: "2025" },
+  { img: "images/projet-04.jpg", title: "Projet 04", kind: "Clip",          year: "2024" },
+  { img: "images/projet-05.jpg", title: "Projet 05", kind: "Sketch",        year: "2024" },
+  { img: "images/projet-06.jpg", title: "Projet 06", kind: "Web série",     year: "2023" },
+  { img: "images/projet-07.jpg", title: "Projet 07", kind: "Publicité",     year: "2023" },
+  { img: "images/projet-08.jpg", title: "Projet 08", kind: "Long-métrage",  year: "2022" },
+];
+
+/* ---------- Chronologie du défilement (0 → 1) ---------- */
+const T = {
+  assemble: [0.00, 0.26],   // les particules composent le logo
+  explode:  [0.36, 0.48],   // le logo se disperse vers la caméra
+  corridor: [0.40, 0.88],   // travelling dans le couloir d'images
+  regroup:  [0.88, 0.98],   // le logo se recompose à la fin
+};
+
+const BG = new THREE.Color(0xfbfbfa);
+const FOV = 45, CAM_Z = 10;
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const canvas = document.getElementById("gl");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+renderer.setClearColor(BG, 1);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 200);
+camera.position.set(0, 0, CAM_Z);
+
+const clamp01 = (x) => Math.min(1, Math.max(0, x));
+const range = (x, [a, b]) => clamp01((x - a) / (b - a));
+const ease = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+
+/* ---------- Particules du logo ---------- */
+const particleUniforms = {
+  uProgress: { value: 0 }, uExplode: { value: 0 }, uTime: { value: 0 },
+  uPxPerWorld: { value: 40 }, uCamZ: { value: CAM_Z }, uMouse: { value: new THREE.Vector2(99, 99) },
+  uMouseForce: { value: 0 }, uPixelRatio: { value: 1 },
+};
+let logoGroup = new THREE.Group();
+scene.add(logoGroup);
+let logo = { w: 1314, h: 301, step: 2, px: null, geo: null };
+// Zones du logo (en pixels de l'image source) : nom, visage, métier
+const ZONES = { name: [126, 448, 136, 158], face: [558, 752, 18, 268], job: [853, 1166, 136, 176] };
+const zoneOf = (x) => x < 500 ? "name" : x < 800 ? "face" : "job";
+
+function buildParticles(img) {
+  const c = document.createElement("canvas");
+  c.width = img.naturalWidth; c.height = img.naturalHeight;
+  const ctx = c.getContext("2d", { willReadFrequently: true });
+  ctx.drawImage(img, 0, 0);
+  const data = ctx.getImageData(0, 0, c.width, c.height).data;
+  logo.w = c.width; logo.h = c.height;
+
+  // « & MORE » est trop petit pour l'échantillonnage normal : on le prend pixel par pixel.
+  const fine = (x, y) => x > 1060 && y > 158;
+  const pick = (step) => {
+    const out = [];
+    const take = (x, y, st) => {
+      const i = (y * c.width + x) * 4, a = data[i + 3];
+      if (a < 120) return;
+      const r = data[i], g = data[i + 1], b = data[i + 2];
+      if (r > 238 && g > 238 && b > 238) return;       // fond blanc
+      out.push([x, y, r / 255, g / 255, b / 255, st]);
+    };
+    for (let y = 0; y < c.height; y += step) for (let x = 0; x < c.width; x += step) if (!fine(x, y)) take(x, y, step);
+    for (let y = 159; y < c.height; y++) for (let x = 1061; x < c.width; x++) take(x, y, 1);
+    return out;
+  };
+  let step = 2, pts = pick(step);
+  while (pts.length > 70000) pts = pick(++step);
+  logo.step = step;
+
+  const n = pts.length;
+  const pos = new Float32Array(n * 3), size = new Float32Array(n), start = new Float32Array(n * 3), col = new Float32Array(n * 3), rnd = new Float32Array(n * 4);
+  logo.px = pts;
+  for (let k = 0; k < n; k++) {
+    const [x, y, r, g, b] = pts[k];
+    const ang = Math.random() * Math.PI * 2, rad = 5 + Math.pow(Math.random(), .7) * 14;
+    start[k * 3] = Math.cos(ang) * rad;
+    start[k * 3 + 1] = (Math.random() - .5) * 9 * (1 - rad / 26);
+    start[k * 3 + 2] = Math.sin(ang) * rad - 6;
+    col.set([r, g, b], k * 3);
+    rnd.set([Math.random(), Math.random(), Math.random(), Math.random()], k * 4);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute("aSize", new THREE.BufferAttribute(size, 1));
+  geo.setAttribute("aStart", new THREE.BufferAttribute(start, 3));
+  geo.setAttribute("aColor", new THREE.BufferAttribute(col, 3));
+  geo.setAttribute("aRand", new THREE.BufferAttribute(rnd, 4));
+
+  const mat = new THREE.ShaderMaterial({
+    uniforms: particleUniforms, transparent: true, depthWrite: false,
+    vertexShader: `
+      uniform float uProgress, uExplode, uTime, uPxPerWorld, uCamZ, uMouseForce, uPixelRatio;
+      uniform vec2 uMouse;
+      attribute vec3 aStart, aColor; attribute vec4 aRand; attribute float aSize;
+      varying vec3 vColor; varying float vT, vAlpha;
+      vec3 rotY(vec3 p, float a){ float s=sin(a), c=cos(a); return vec3(c*p.x + s*p.z, p.y, -s*p.x + c*p.z); }
+      void main(){
+        vec3 target = position;
+        float delay = aRand.x * .42 + clamp(position.x / 14. + .5, 0., 1.) * .16;
+        float t = clamp((uProgress - delay) / .42, 0., 1.);
+        float e = 1. - pow(1. - t, 4.);
+        vec3 s = rotY(aStart, uTime * .08 + (1. - e) * 2.6 + aRand.y * .4);
+        s += vec3(sin(uTime*1.3 + aRand.x*30.), cos(uTime*1.1 + aRand.y*30.), sin(uTime*.9 + aRand.z*30.)) * .5;
+        vec3 p = mix(s, target, e);
+        p += vec3(sin(uTime*2. + aRand.z*40.), cos(uTime*1.7 + aRand.w*40.), 0.) * .25 * e * (1. - e) * 4.;
+        p.z += sin(uTime * 1.4 + target.x * .9) * .05 * e;
+
+        vec2 d = p.xy - uMouse;
+        float f = exp(-dot(d, d) * 3.) * uMouseForce * e;
+        p.xy += normalize(d + 1e-4) * f * .45;
+        p.z += f * .8;
+
+        float x = clamp((uExplode - aRand.w * .35) / .65, 0., 1.);
+        float x2 = x * x;
+        p += vec3((aRand.yz * 2. - 1.) * vec2(9., 6.), 3. + aRand.x * 16.) * x2;
+
+        vec4 mv = modelViewMatrix * vec4(p, 1.);
+        gl_Position = projectionMatrix * mv;
+        float depth = uCamZ / max(.4, -mv.z);
+        float size = aSize * uPxPerWorld * 1.35 * mix(1.2 + aRand.y * 2.2, 1., e) * depth;
+        gl_PointSize = clamp(size, 1.2 * uPixelRatio, 60. * uPixelRatio);
+        vColor = aColor; vT = e;
+        vAlpha = (1. - x) * mix(.55 + .45 * aRand.z, 1., e);
+      }`,
+    fragmentShader: `
+      varying vec3 vColor; varying float vT, vAlpha;
+      void main(){
+        vec2 q = gl_PointCoord - .5;
+        float round = smoothstep(.5, .3, length(q));
+        float a = mix(round, 1., smoothstep(.9, 1., vT)) * vAlpha;   // ronds en vol, carrés (pixel art) une fois posés
+        if (a < .01) discard;
+        gl_FragColor = vec4(vColor, a);
+      }`,
+  });
+  const pts3 = new THREE.Points(geo, mat);
+  pts3.frustumCulled = false;
+  logoGroup.add(pts3);
+  logo.geo = geo;
+  resize();
+}
+
+/* ---------- Couloir d'images en perspective ---------- */
+const PANEL_W = 4.2, PANEL_H = PANEL_W / 1.6, GAP = 7.5, FIRST_Z = -4;
+const panels = [];
+const loader = new THREE.TextureLoader();
+const panelGeo = new THREE.PlaneGeometry(PANEL_W, PANEL_H, 32, 20);
+const panelVS = `
+  uniform float uVel, uTime, uHover;
+  varying vec2 vUv; varying float vDist;
+  void main(){
+    vUv = uv;
+    vec3 p = position;
+    p.z -= sin(uv.x * 3.14159) * uVel * 1.4;                          // courbure selon la vitesse
+    p.z += sin(uv.x * 6. + uTime * 2.) * sin(uv.y * 3.14159) * .06 * uHover;
+    vec4 mv = modelViewMatrix * vec4(p, 1.);
+    vDist = -mv.z;
+    gl_Position = projectionMatrix * mv;
+  }`;
+const panelFS = `
+  uniform sampler2D uTex; uniform float uVel, uReveal, uHover, uLoaded; uniform vec3 uBg;
+  varying vec2 vUv; varying float vDist;
+  void main(){
+    vec2 uv = (vUv - .5) * (1. - .06 * uHover) + .5;
+    vec2 off = vec2(uVel * .035, 0.);
+    vec3 c = vec3(texture2D(uTex, uv + off).r, texture2D(uTex, uv).g, texture2D(uTex, uv - off).b);
+    c = mix(vec3(.85), c, uLoaded);
+    float g = dot(c, vec3(.299, .587, .114));
+    float sat = smoothstep(19., 7., vDist);
+    c = mix(vec3(g), c, max(sat, uHover));
+    vec2 v = vUv - .5; c *= 1. - dot(v, v) * .35;
+    float fog = smoothstep(9., 34., vDist);
+    c = mix(c, uBg, fog);
+    float a = uReveal * smoothstep(.6, 2.2, vDist);
+    gl_FragColor = vec4(c, a);
+  }`;
+
+PROJECTS.forEach((proj, i) => {
+  const side = i % 2 ? -1 : 1;
+  const u = {
+    uTex: { value: null }, uVel: { value: 0 }, uTime: particleUniforms.uTime, uHover: { value: 0 },
+    uReveal: { value: 0 }, uLoaded: { value: 0 }, uBg: { value: BG },
+  };
+  const mat = new THREE.ShaderMaterial({ uniforms: u, vertexShader: panelVS, fragmentShader: panelFS, transparent: true, depthWrite: false });
+  const mesh = new THREE.Mesh(panelGeo, mat);
+  const jitter = Math.sin(i * 12.9898) * .5;
+  mesh.position.set(side * 2.75, jitter * .9, FIRST_Z - i * GAP);
+  mesh.rotation.y = -side * .5;
+  mesh.userData = { i, u, hover: 0 };
+  mesh.renderOrder = -i;
+  scene.add(mesh);
+  panels.push(mesh);
+  loader.load(proj.img, (tex) => { tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4; u.uTex.value = tex; u.uLoaded.value = 1; });
+});
+const CAM_END = FIRST_Z - (PROJECTS.length - 1) * GAP - 3;
+
+/* ---------- Poussière d'ambiance le long du couloir ---------- */
+{
+  const n = 900, pos = new Float32Array(n * 3);
+  for (let k = 0; k < n; k++) {
+    pos[k * 3] = (Math.random() - .5) * 16;
+    pos[k * 3 + 1] = (Math.random() - .5) * 9;
+    pos[k * 3 + 2] = 6 - Math.random() * (6 - CAM_END + 12);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  var dustMat = new THREE.PointsMaterial({ color: 0x121212, size: .035, transparent: true, opacity: 0, depthWrite: false });
+  scene.add(new THREE.Points(geo, dustMat));
+}
+
+/* ---------- Entrées : défilement, souris ---------- */
+let target = 0, prog = 0, vel = 0;
+const mouse = new THREE.Vector2(0, 0), mouseSmooth = new THREE.Vector2(0, 0);
+let mouseActive = 0;
+function readScroll() {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  target = max > 0 ? scrollY / max : 0;
+}
+addEventListener("scroll", readScroll, { passive: true });
+addEventListener("pointermove", (e) => {
+  mouse.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  mouseActive = 1;
+});
+document.addEventListener("pointerleave", () => { mouseActive = 0; });
+
+const raycaster = new THREE.Raycaster();
+
+function resize() {
+  const w = innerWidth, h = innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
+  renderer.setPixelRatio(dpr);
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  const visH = 2 * CAM_Z * Math.tan(THREE.MathUtils.degToRad(FOV / 2));
+  const visW = visH * camera.aspect;
+  particleUniforms.uPxPerWorld.value = h * dpr / visH;
+  particleUniforms.uPixelRatio.value = dpr;
+  layoutLogo(visW, visH);
+  layoutPanels(visW);
+}
+addEventListener("resize", resize);
+
+// Paysage : le logo tel quel. Portrait : visage en haut, nom et métier empilés dessous.
+function layoutLogo(visW, visH) {
+  if (!logo.geo) return;
+  const pos = logo.geo.attributes.position.array, size = logo.geo.attributes.aSize.array;
+  const place = {};
+  if (visW / visH >= 1.1) {
+    const s = Math.min(12.5, visW * .92) / logo.w;
+    for (const z in ZONES) place[z] = { s, ox: -logo.w / 2, oy: -logo.h / 2, dx: 0, dy: 0 };
+  } else {
+    const Z = ZONES, wOf = (z) => Z[z][1] - Z[z][0], hOf = (z) => Z[z][3] - Z[z][2];
+    const sf = Math.min(visW * .62 / wOf("face"), visH * .42 / hOf("face"));
+    const st = visW * .84 / Math.max(wOf("name"), wOf("job"));
+    const gap = visH * .05;
+    const hf = hOf("face") * sf, hn = hOf("name") * st, hj = hOf("job") * st;
+    let top = (hf + gap + hn + gap * .5 + hj) / 2;
+    const at = (z, sc, h) => { const p = { s: sc, ox: -(Z[z][0] + Z[z][1]) / 2, oy: -Z[z][2], dx: 0, dy: top }; top -= h; return p; };
+    place.face = at("face", sf, hf + gap);
+    place.name = at("name", st, hn + gap * .5);
+    place.job = at("job", st, hj);
+  }
+  logo.px.forEach(([x, y, , , , st], k) => {
+    const p = place[zoneOf(x)];
+    pos[k * 3] = (x + p.ox) * p.s + p.dx;
+    pos[k * 3 + 1] = -(y + p.oy) * p.s + p.dy;
+    pos[k * 3 + 2] = 0;
+    size[k] = st * p.s;
+  });
+  logo.geo.attributes.position.needsUpdate = true;
+  logo.geo.attributes.aSize.needsUpdate = true;
+}
+
+// En portrait, les visuels se resserrent vers l'axe pour rester dans le cadre.
+function layoutPanels(visW) {
+  const portrait = camera.aspect < 1;
+  panels.forEach((m) => {
+    const side = m.userData.i % 2 ? -1 : 1;
+    m.position.x = side * (portrait ? Math.max(.9, visW * .16) : 2.75);
+    m.scale.setScalar(portrait ? .62 : 1);
+  });
+}
+resize();
+
+/* ---------- HUD ---------- */
+const $ = (id) => document.getElementById(id);
+const hud = { bar: $("bar"), hint: $("hint"), cap: $("caption"), num: $("capNum"), title: $("capTitle"), meta: $("capMeta"), prog: $("progress"), note: $("note") };
+let shown = -1;
+function setCaption(i) {
+  if (i === shown) return;
+  shown = i;
+  if (i < 0) { hud.cap.classList.add("off"); return; }
+  const p = PROJECTS[i];
+  hud.cap.classList.add("off");
+  setTimeout(() => {
+    if (shown !== i) return;
+    hud.num.textContent = String(i + 1).padStart(2, "0") + " / " + String(PROJECTS.length).padStart(2, "0");
+    hud.title.textContent = p.title;
+    hud.meta.innerHTML = p.kind + " <span>·</span> " + p.year;
+    hud.cap.classList.remove("off");
+  }, 180);
+}
+
+/* ---------- Boucle ---------- */
+const clock = new THREE.Clock();
+function frame() {
+  const dt = Math.min(clock.getDelta(), .05);
+  const time = clock.elapsedTime;
+  particleUniforms.uTime.value = reduced ? 0 : time;
+
+  const prev = prog;
+  prog += (target - prog) * (1 - Math.pow(.0009, dt));       // défilement lissé
+  vel += ((prog - prev) / Math.max(dt, 1e-3) - vel) * .12;
+  const v = THREE.MathUtils.clamp(vel * 2.2, -1, 1);
+
+  mouseSmooth.lerp(mouse, 1 - Math.pow(.002, dt));
+
+  // Phases
+  const a = ease(range(prog, T.assemble));
+  const ex = range(prog, T.explode), rg = range(prog, T.regroup);
+  const c = range(prog, T.corridor);
+  const camZ = THREE.MathUtils.lerp(CAM_Z, CAM_END, c);
+  particleUniforms.uProgress.value = prog < T.regroup[0] ? a : ease(rg);
+  particleUniforms.uExplode.value = prog < T.regroup[0] ? ex : 0;
+  logoGroup.position.z = prog < T.regroup[0] ? 0 : camZ - CAM_Z;
+
+  camera.position.set(mouseSmooth.x * .35, mouseSmooth.y * .22, camZ);
+  camera.lookAt(mouseSmooth.x * .1, mouseSmooth.y * .05, camZ - 10);
+
+  // Souris dans le plan du logo
+  const visH = 2 * CAM_Z * Math.tan(THREE.MathUtils.degToRad(FOV / 2));
+  particleUniforms.uMouse.value.set(mouseSmooth.x * visH * camera.aspect / 2, mouseSmooth.y * visH / 2);
+  const mf = particleUniforms.uMouseForce;
+  mf.value += ((mouseActive && !reduced ? 1 : 0) - mf.value) * .08;
+
+  // Couloir
+  const reveal = clamp01((prog - .40) / .1) * (1 - clamp01((prog - .87) / .05));
+  dustMat.opacity = reveal * .35;
+  raycaster.setFromCamera(mouseSmooth, camera);
+  const hit = mouseActive ? raycaster.intersectObjects(panels)[0] : null;
+  let active = -1, best = 1e9;
+  panels.forEach((m) => {
+    const u = m.userData.u;
+    u.uReveal.value = reveal;
+    u.uVel.value = v;
+    m.userData.hover += (((hit && hit.object === m) ? 1 : 0) - m.userData.hover) * .1;
+    u.uHover.value = m.userData.hover;
+    const ahead = camZ - m.position.z;
+    if (ahead > 2.5 && ahead < 10 && ahead < best) { best = ahead; active = m.userData.i; }
+  });
+  canvas.style.cursor = hit ? "pointer" : "";
+
+  // HUD
+  hud.hint.classList.toggle("off", prog > .02);
+  hud.bar.classList.toggle("off", !(prog > .42 && prog < .88));
+  hud.note.classList.toggle("off", !(prog > .42 && prog < .88));
+  setCaption(reveal > .5 ? active : -1);
+  hud.prog.style.transform = `scaleX(${prog})`;
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+const img = new Image();
+img.onload = () => buildParticles(img);
+img.src = LOGO_SRC;
+readScroll();
+requestAnimationFrame(frame);
+</script>
