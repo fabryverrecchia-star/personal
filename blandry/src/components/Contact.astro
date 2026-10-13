@@ -44,7 +44,9 @@ const communes = zones.flatMap((z) => z.communes);
       <a href={instagram.url} class="link-u" target="_blank" rel="noopener">Instagram</a>
     </p>
 
-    <form class="form" data-form novalidate>
+    <form class="form" data-form action="/devis.php" method="post" novalidate>
+      <p class="form__hp" aria-hidden="true"><label>Ne pas remplir <input name="site_web" tabindex="-1" autocomplete="off" /></label></p>
+      <input type="hidden" name="t" value="0" data-form-t />
       <div class="field">
         <label for="f-nom" class="label">Nom</label>
         <input id="f-nom" name="nom" autocomplete="name" required />
@@ -52,6 +54,10 @@ const communes = zones.flatMap((z) => z.communes);
       <div class="field">
         <label for="f-tel" class="label">Téléphone</label>
         <input id="f-tel" name="tel" type="tel" autocomplete="tel" inputmode="tel" required />
+      </div>
+      <div class="field field--full">
+        <label for="f-email" class="label">E-mail (facultatif)</label>
+        <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" />
       </div>
       <div class="field field--full">
         <label for="f-commune" class="label">Commune du chantier</label>
@@ -64,7 +70,7 @@ const communes = zones.flatMap((z) => z.communes);
           {
             services.map((s) => (
               <label class="chip">
-                <input type="checkbox" name="travaux" value={s.titre} />
+                <input type="checkbox" name="travaux[]" value={s.titre} />
                 <span>{s.titre}</span>
               </label>
             ))
@@ -75,6 +81,10 @@ const communes = zones.flatMap((z) => z.communes);
         <label for="f-msg" class="label">Votre projet</label>
         <textarea id="f-msg" name="message" rows="3"></textarea>
       </div>
+      <label class="consent field--full">
+        <input type="checkbox" name="consentement" value="1" required />
+        <span>J’accepte que mes données soient utilisées pour être recontacté au sujet de ma demande de devis. Elles ne sont ni enregistrées sur le site ni transmises à des tiers. <a href={u('/politique-de-confidentialite/')} class="link-u">Politique de confidentialité</a></span>
+      </label>
       <div class="form__foot field--full">
         <button type="submit" class="btn btn--solid" data-magnetic>Envoyer la demande</button>
         <p class="form__note label muted" data-form-note role="status">{site.delaiReponse}</p>
@@ -247,5 +257,30 @@ const communes = zones.flatMap((z) => z.communes);
     align-items: center;
     gap: 16px 24px;
     margin-top: 8px;
+  }
+  .form__hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .consent {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    align-items: start;
+    font-size: var(--fs-s);
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .consent input {
+    margin-top: 4px;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--argile);
+  }
+  .consent[aria-invalid='true'] span {
+    color: var(--argile);
   }
 </style>

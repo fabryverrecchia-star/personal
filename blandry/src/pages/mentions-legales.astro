@@ -1,64 +1,64 @@
 ---
 import Base from '../layouts/Base.astro';
+import Legal from '../components/Legal.astro';
 import { site } from '../data/site';
+import { u } from '../lib/url';
+const h = site.hebergeur;
 ---
 
 <Base title={`Mentions légales | ${site.nom}`} description={`Mentions légales du site ${site.nom}, plâtrerie, peinture et carrelage aux Ancizes-Comps.`}>
-  <section class="legal section">
-    <div class="wrap">
-      <h1 class="display legal__t" data-hero-title>
-        <span class="line"><span class="line-inner">Mentions <em>légales</em></span></span>
-      </h1>
-      <div class="legal__body" data-hero-fade>
-        <h2>Éditeur</h2>
-        <p>
-          {site.nom} — {site.metier}<br />
-          {site.formeJuridique}<br />
-          {site.adresse.rue && <>{site.adresse.rue}<br /></>}
-          {site.adresse.codePostal} {site.adresse.ville}, {site.adresse.departement}<br />
-          Téléphone : {site.telephone} · Courriel : {site.email}<br />
-          SIREN : {site.siren} · SIRET (siège) : {site.siret}<br />
-          {site.registre}<br />
-          Responsable de la publication : {site.gerant}
-        </p>
-        <h2>Assurance</h2>
-        <p>{site.assurance}. Attestation fournie sur simple demande et jointe à chaque devis.</p>
-        <h2>Hébergement</h2>
-        <p>À compléter : nom, adresse et téléphone de l’hébergeur du site.</p>
-        <h2>Données personnelles</h2>
-        <p>
-          Le formulaire de contact ouvre votre messagerie : aucune donnée n’est enregistrée par le site.
-          Les informations que vous nous envoyez servent uniquement à établir votre devis. Vous pouvez
-          demander leur suppression à tout moment à l’adresse {site.email}.
-        </p>
-        <h2>Cookies</h2>
-        <p>Ce site n’utilise aucun cookie de suivi.</p>
-      </div>
-    </div>
-  </section>
-</Base>
+  <Legal titre="Mentions" em="légales" maj="13 octobre 2026">
+    <h2>Éditeur du site</h2>
+    <p>
+      {site.nom}, {site.formeJuridique.toLowerCase()} — {site.metier}<br />
+      {site.adresse.rue}, {site.adresse.codePostal} {site.adresse.ville} ({site.adresse.departement})<br />
+      SIREN : {site.siren} · SIRET (siège) : {site.siret}<br />
+      {site.registre}<br />
+      Téléphone : {site.telephone} · Courriel : {site.email}<br />
+      Directeur de la publication : {site.gerant}
+    </p>
 
-<style>
-  .legal {
-    padding-top: 160px;
-  }
-  .legal__t {
-    font-size: var(--fs-xl);
-  }
-  .legal__body {
-    margin-top: 56px;
-    max-width: 64ch;
-    display: grid;
-    gap: 12px;
-  }
-  .legal__body h2 {
-    margin-top: 28px;
-    font-size: var(--fs-xs);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-  .legal__body p {
-    color: var(--muted);
-  }
-</style>
+    <h2>Hébergement</h2>
+    <p>
+      {h.nom}<br />
+      {h.adresse}<br />
+      Téléphone : {h.telephone} · <a href={h.site} class="link-u" rel="noopener">{h.site.replace('https://', '')}</a>
+    </p>
+
+    <h2>Assurance professionnelle</h2>
+    <p>
+      {site.nom} est titulaire d’une assurance responsabilité civile décennale, conformément aux articles 1792 et suivants
+      du Code civil{site.assureur ? <>, souscrite auprès de {site.assureur}</> : null}. Couverture géographique : France
+      métropolitaine. L’attestation d’assurance est jointe à chaque devis et fournie sur simple demande.
+    </p>
+
+    <h2>Médiation de la consommation</h2>
+    <p>
+      Conformément aux articles L.611-1 et suivants du Code de la consommation, en cas de litige non résolu directement
+      avec {site.nom}, le client consommateur peut recourir gratuitement à un médiateur de la consommation
+      {site.mediateur.nom ? <>: {site.mediateur.nom}{site.mediateur.site && <>, <a href={site.mediateur.site} class="link-u" rel="noopener">{site.mediateur.site.replace('https://', '')}</a></>}.</> : <>, dont les coordonnées figurent sur les devis.</>}
+      Le client peut également utiliser la plateforme européenne de règlement en ligne des litiges :
+      <a href="https://ec.europa.eu/consumers/odr" class="link-u" rel="noopener">ec.europa.eu/consumers/odr</a>.
+    </p>
+
+    <h2>Propriété intellectuelle</h2>
+    <p>
+      L’ensemble du site (textes, logo, monogramme, photographies de chantier, mise en page) est la propriété de
+      {site.nom} ou utilisé avec autorisation. Toute reproduction, même partielle, sans accord écrit préalable est interdite.
+      Certaines photographies d’illustration proviennent de banques d’images sous licence.
+    </p>
+
+    <h2>Données personnelles et cookies</h2>
+    <p>
+      Les informations transmises par le formulaire de devis sont traitées dans les conditions décrites dans la
+      <a href={u('/politique-de-confidentialite/')} class="link-u">politique de confidentialité</a>. Le site ne dépose
+      aucun cookie et n’utilise aucun outil de mesure d’audience ni de publicité.
+    </p>
+
+    <h2>Responsabilité</h2>
+    <p>
+      Les informations du site sont fournies à titre indicatif et peuvent évoluer. Les prix, délais et prestations
+      font foi uniquement sur le devis signé.
+    </p>
+  </Legal>
+</Base>

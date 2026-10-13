@@ -911,25 +911,35 @@ function form() {
   const f = $<HTMLFormElement>('[data-form]');
   if (!f) return;
   const note = $('[data-form-note]', f)!;
-  f.addEventListener('submit', (e) => {
+  const btn = $<HTMLButtonElement>('button[type="submit"]', f)!;
+  const t = $<HTMLInputElement>('[data-form-t]', f);
+  if (t) t.value = String(Date.now());
+  if (new URLSearchParams(location.search).get('envoi') === 'erreur') note.textContent = 'L’envoi a échoué : appelez le 06 58 38 78 37.';
+  f.addEventListener('submit', async (e) => {
     e.preventDefault();
     let ok = true;
     $$<HTMLInputElement>('[required]', f).forEach((i) => {
-      const bad = !i.value.trim();
-      i.setAttribute('aria-invalid', String(bad));
+      const bad = i.type === 'checkbox' ? !i.checked : !i.value.trim();
+      (i.type === 'checkbox' ? i.closest('label')! : i).setAttribute('aria-invalid', String(bad));
       if (bad && ok) {
         i.focus();
         ok = false;
       }
     });
-    if (!ok) return void (note.textContent = 'Merci d’indiquer votre nom et votre téléphone.');
-    const data = new FormData(f);
-    const travaux = data.getAll('travaux').join(', ') || 'non précisé';
-    const commune = (data.get('commune') as string) || 'non précisée';
-    const body = [`Nom : ${data.get('nom')}`, `Téléphone : ${data.get('tel')}`, `Commune : ${commune}`, `Travaux : ${travaux}`, '', (data.get('message') as string) || ''].join('\n');
-    const to = $<HTMLAnchorElement>('.contact__mail a')?.href.replace('mailto:', '') ?? '';
-    location.href = `mailto:${to}?subject=${encodeURIComponent(`Demande de devis — ${commune}`)}&body=${encodeURIComponent(body)}`;
-    note.textContent = 'Votre messagerie s’ouvre : il ne reste qu’à envoyer.';
+    if (!ok) return void (note.textContent = 'Merci d’indiquer votre nom, votre téléphone et d’accepter l’utilisation de vos données.');
+    btn.disabled = true;
+    note.textContent = 'Envoi en cours…';
+    try {
+      const r = await fetch(f.action, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } });
+      const res = await r.json().catch(() => ({ ok: false, message: '' }));
+      note.textContent = res.message || (r.ok ? 'Merci, votre demande a bien été envoyée.' : 'L’envoi a échoué : appelez le 06 58 38 78 37.');
+      if (res.ok) f.reset();
+    } catch {
+      note.textContent = 'Connexion impossible : appelez le 06 58 38 78 37.';
+    } finally {
+      btn.disabled = false;
+      if (t) t.value = String(Date.now());
+    }
   });
 }
 

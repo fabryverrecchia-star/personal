@@ -1,0 +1,53 @@
+---
+// Mise en page commune des pages légales (mentions, confidentialité, confirmation)
+interface Props {
+  titre: string;
+  em: string;
+  maj?: string;
+}
+const { titre, em, maj } = Astro.props;
+---
+
+<section class="legal section">
+  <div class="wrap">
+    <h1 class="display legal__t" data-hero-title>
+      <span class="line"><span class="line-inner">{titre} <em>{em}</em></span></span>
+    </h1>
+    <div class="legal__body" data-hero-fade>
+      <slot />
+      {maj && <p class="legal__maj">Dernière mise à jour : {maj}</p>}
+    </div>
+  </div>
+</section>
+
+<style>
+  .legal {
+    padding-top: 160px;
+  }
+  .legal__t {
+    font-size: var(--fs-xl);
+  }
+  .legal__body {
+    margin-top: 56px;
+    max-width: 68ch;
+    display: grid;
+    gap: 12px;
+  }
+  .legal__body :global(h2) {
+    margin-top: 28px;
+    font-size: var(--fs-label, 0.72rem);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .legal__body :global(p) {
+    color: var(--muted);
+  }
+  .legal__body :global(a) {
+    color: var(--fg);
+  }
+  .legal__maj {
+    margin-top: 32px;
+    font-size: var(--fs-s);
+  }
+</style>

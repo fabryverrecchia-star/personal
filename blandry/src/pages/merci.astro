@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+import Legal from '../components/Legal.astro';
+import { site, telHref } from '../data/site';
+import { u } from '../lib/url';
+---
+
+<Base title={`Demande envoyée | ${site.nom}`} description="Votre demande de devis a bien été envoyée." noindex>
+  <Legal titre="Merci," em="c’est envoyé">
+    <p>Votre demande de devis est bien arrivée. Benjamin vous rappelle sous 48 heures pour convenir d’une visite.</p>
+    <p>Pour toute urgence : <a href={telHref} class="link-u">{site.telephone}</a>.</p>
+    <p><a href={u('/')} class="btn" data-magnetic>Retour à l’accueil</a></p>
+  </Legal>
+</Base>

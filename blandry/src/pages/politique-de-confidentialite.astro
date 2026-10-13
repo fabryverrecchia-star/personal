@@ -1,0 +1,59 @@
+---
+import Base from '../layouts/Base.astro';
+import Legal from '../components/Legal.astro';
+import { site } from '../data/site';
+---
+
+<Base title={`Politique de confidentialité | ${site.nom}`} description={`Comment ${site.nom} traite les données personnelles transmises par le formulaire de devis.`}>
+  <Legal titre="Politique de" em="confidentialité" maj="13 octobre 2026">
+    <h2>Responsable du traitement</h2>
+    <p>
+      {site.nom}, {site.formeJuridique.toLowerCase()}, {site.adresse.rue}, {site.adresse.codePostal} {site.adresse.ville}.
+      Contact : {site.email} · {site.telephone}.
+    </p>
+
+    <h2>Données collectées</h2>
+    <p>
+      Par le formulaire de devis : nom, numéro de téléphone, adresse e-mail (facultative), commune du chantier, nature des
+      travaux et description du projet. Seules les informations utiles à l’étude de votre demande sont demandées.
+    </p>
+
+    <h2>Finalité et base légale</h2>
+    <p>
+      Ces données servent uniquement à vous recontacter, organiser la visite et établir votre devis. Le traitement repose
+      sur les mesures précontractuelles prises à votre demande (article 6.1.b du RGPD) et sur votre consentement, exprimé
+      en cochant la case du formulaire.
+    </p>
+
+    <h2>Destinataires</h2>
+    <p>
+      Vos données sont envoyées par e-mail à {site.nom} et ne sont ni enregistrées sur le site, ni vendues, ni transmises
+      à des tiers. Elles transitent par l’hébergeur du site ({site.hebergeur.nom}) et sont reçues dans la messagerie de
+      l’entreprise (Gmail, Google), qui peut les héberger hors de l’Union européenne dans le cadre de garanties
+      contractuelles approuvées par la Commission européenne.
+    </p>
+
+    <h2>Durée de conservation</h2>
+    <p>
+      Trois ans à compter du dernier contact si aucun devis n’est signé. En cas de chantier, les données liées au devis et à
+      la facture sont conservées pendant la durée légale (dix ans pour les pièces comptables et la garantie décennale).
+    </p>
+
+    <h2>Vos droits</h2>
+    <p>
+      Vous disposez d’un droit d’accès, de rectification, d’effacement, de limitation, d’opposition et de portabilité de vos
+      données, ainsi que du droit de retirer votre consentement à tout moment. Pour les exercer, écrivez à {site.email}.
+      Une réponse vous est apportée sous un mois. Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser
+      une réclamation à la CNIL (<a href="https://www.cnil.fr" class="link-u" rel="noopener">cnil.fr</a>).
+    </p>
+
+    <h2>Cookies et mesure d’audience</h2>
+    <p>
+      Le site ne dépose aucun cookie, n’utilise aucun outil de statistiques ni de publicité, et charge ses polices de
+      caractères depuis son propre serveur. Aucune bannière de consentement n’est donc nécessaire.
+    </p>
+
+    <h2>Sécurité</h2>
+    <p>Le site est servi exclusivement en connexion chiffrée (https).</p>
+  </Legal>
+</Base>

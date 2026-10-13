@@ -44,6 +44,16 @@ export const site = {
   // Zone d'intervention : chantiers à 1 h 30 de route maximum du siège
   zoneIntervention: 'jusqu’à 1 h 30 de route autour des Ancizes-Comps',
   assurance: 'Garantie décennale', // À COMPLÉTER : nom de l'assureur
+  // À COMPLÉTER : nom et coordonnées de l'assureur décennale (obligatoire sur les devis et factures)
+  assureur: '',
+  // Médiateur de la consommation (obligatoire pour un professionnel qui travaille pour des particuliers)
+  mediateur: { nom: '', site: '' }, // À COMPLÉTER après adhésion à un médiateur agréé
+  hebergeur: {
+    nom: 'PlanetHoster Inc.',
+    adresse: '4416 Louis-B.-Mayer, Laval (Québec) H7P 0G1, Canada',
+    telephone: '+33 1 76 60 41 43',
+    site: 'https://www.planethoster.com',
+  },
   horaires: 'Du lundi au vendredi, de 8 h à 18 h',
   delaiReponse: 'Réponse sous 48 heures',
   reseaux: { instagram: 'https://www.instagram.com/benjamin_landry_finitions/' } as Record<string, string>,

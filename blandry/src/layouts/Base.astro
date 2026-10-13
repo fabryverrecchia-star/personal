@@ -13,8 +13,9 @@ interface Props {
   description: string;
   schema?: object[];
   theme?: string;
+  noindex?: boolean;
 }
-const { title, description, schema = [], theme = '#f3efe8' } = Astro.props;
+const { title, description, schema = [], theme = '#f3efe8', noindex = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 
 const business = {
@@ -70,6 +71,8 @@ const ld = [business, ...schema];
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+    {noindex && <meta name="robots" content="noindex, follow" />}
     <meta name="geo.region" content="FR-63" />
     <meta name="geo.placename" content={`${site.adresse.ville}, Puy-de-Dôme`} />
     <meta name="geo.position" content={`${site.geo.lat};${site.geo.lng}`} />

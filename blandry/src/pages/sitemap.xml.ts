@@ -3,7 +3,7 @@ import { zones } from '../data/site';
 
 export const GET: APIRoute = ({ site }) => {
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-  const paths = ['/', ...zones.map((z) => `/${z.slug}/`), '/mentions-legales/'];
+  const paths = ['/', ...zones.map((z) => `/${z.slug}/`), '/mentions-legales/', '/politique-de-confidentialite/'];
   const today = new Date().toISOString().slice(0, 10);
   const urls = paths
     .map((p) => {

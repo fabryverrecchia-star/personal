@@ -45,7 +45,7 @@ const annee = new Date().getFullYear();
     <div class="footer__bottom label">
       <span>© {annee} {site.nom}{site.siret && <> · SIRET {site.siret}</>} · {site.assurance}</span>
       <Logo class="footer__mono" />
-      <a href={u('/mentions-legales/')} class="link-u">Mentions légales</a>
+      <span class="footer__legal"><a href={u('/mentions-legales/')} class="link-u">Mentions légales</a> · <a href={u('/politique-de-confidentialite/')} class="link-u">Confidentialité</a></span>
     </div>
   </div>
 </footer>
