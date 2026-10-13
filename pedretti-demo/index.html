@@ -17,7 +17,7 @@
   html, body { background: var(--paper); color: var(--ink); }
   body { margin: 0; font-family: var(--display); font-weight: 300; }
   #gl { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
-  #scroll { height: 900vh; position: relative; z-index: 1; pointer-events: none; }
+  #scroll { height: 1500vh; position: relative; z-index: 1; pointer-events: none; }
 
   .hud { position: fixed; z-index: 2; pointer-events: none; transition: opacity .6s ease, transform .6s ease; }
   .bar { top: env(safe-area-inset-top, 0px); left: 0; right: 0; display: flex; justify-content: space-between; gap: 16px;
@@ -32,12 +32,12 @@
   @keyframes drip { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
 
   .caption { left: clamp(16px, 4vw, 48px); bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(24px, 5vh, 56px));
-             max-width: calc(100% - 32px); }
+             max-width: calc(100% - 32px); background: var(--paper); padding: 12px 18px 14px; box-sizing: border-box; }
   .caption .num { font-size: 12px; letter-spacing: .3em; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-  .caption h2 { margin: 6px 0 4px; font-size: clamp(36px, 7vw, 96px); line-height: .95; font-weight: 800; letter-spacing: -.01em; text-transform: uppercase; text-wrap: balance; }
+  .caption h2 { margin: 6px 0 4px; font-size: clamp(30px, 6vw, 84px); line-height: .95; font-weight: 800; letter-spacing: -.01em; text-transform: uppercase; text-wrap: balance; }
   .caption h2 em { font-style: normal; font-weight: 300; }
   .caption p { margin: 0; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; }
-  .caption p span { color: var(--brass); }
+  .caption p { color: var(--ink-soft); }
 
   .progress { left: 0; right: 0; bottom: 0; height: 2px; background: var(--ink); transform-origin: left; transform: scaleX(0); transition: none; }
   .note { right: clamp(16px, 4vw, 48px); bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); }
@@ -54,11 +54,11 @@
 <header class="hud bar off" id="bar"><span>Stefano <b>Pedretti</b></span><span>Comedy <b>Director</b> &amp; more</span></header>
 <div class="hud hint" id="hint">Faites défiler<i></i></div>
 <div class="hud caption off" id="caption" aria-live="polite">
-  <div class="num" id="capNum">01 / 08</div>
-  <h2 id="capTitle">Projet 01</h2>
-  <p id="capMeta">Publicité <span>·</span> 2026</p>
+  <div class="num" id="capNum">01 / 17</div>
+  <h2 id="capTitle">Intercity Summer</h2>
+  <p id="capMeta">Family</p>
 </div>
-<div class="hud note" id="note">Démo · visuels de remplacement</div>
+<div class="hud note" id="note">Démo · visuels à venir</div>
 <div class="hud progress" id="progress"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
@@ -66,22 +66,32 @@
 /* ---------- Contenu : remplacez images et titres par les vrais projets ---------- */
 const LOGO_SRC = "logo.png";
 const PROJECTS = [
-  { img: "images/projet-01.jpg", title: "Projet 01", kind: "Publicité",     year: "2026" },
-  { img: "images/projet-02.jpg", title: "Projet 02", kind: "Série TV",      year: "2025" },
-  { img: "images/projet-03.jpg", title: "Projet 03", kind: "Court-métrage", year: "2025" },
-  { img: "images/projet-04.jpg", title: "Projet 04", kind: "Clip",          year: "2024" },
-  { img: "images/projet-05.jpg", title: "Projet 05", kind: "Sketch",        year: "2024" },
-  { img: "images/projet-06.jpg", title: "Projet 06", kind: "Web série",     year: "2023" },
-  { img: "images/projet-07.jpg", title: "Projet 07", kind: "Publicité",     year: "2023" },
-  { img: "images/projet-08.jpg", title: "Projet 08", kind: "Long-métrage",  year: "2022" },
+  { img: "images/intercity-family.jpg",    title: "Intercity Summer",        meta: "Family" },
+  { img: "images/intercity-young.jpg",     title: "Intercity Summer",        meta: "Young" },
+  { img: "images/dr-rottamazione.jpg",     title: "DR Rottamazione",         meta: "Spot" },
+  { img: "images/play-your-pasta.jpg",     title: "Play Your Pasta",         meta: "Pasta Garofalo + PlayStation" },
+  { img: "images/todis-lino-banfi.jpg",    title: "Difficile da credere",    meta: "Todis · Lino Banfi · Vaccino" },
+  { img: "images/ardesia.jpg",             title: "Facciamola semplice",     meta: "Ardesia" },
+  { img: "images/postepay-challenge.jpg",  title: "PostePay Challenge",      meta: "4x15" },
+  { img: "images/evo-3.jpg",               title: "Niente da aggiungere",    meta: "EVO 3" },
+  { img: "images/kop-brillapiatti.jpg",    title: "Il Brillapiatti",         meta: "KOP" },
+  { img: "images/roma-wheelchair-rugby.jpg", title: "#FalleGiràSteRuote",    meta: "Roma Wheelchair Rugby" },
+  { img: "images/carola-vannini.jpg",      title: "New Office",              meta: "Carola Vannini Architecture · Vertical shot" },
+  { img: "images/mkers.jpg",               title: "I giochi tornano a Roma", meta: "Mkers Gaming House" },
+  { img: "images/mps-mastercard.jpg",      title: "MPS Mastercard",          meta: "Spot" },
+  { img: "images/showreel-2019.jpg",       title: "Showreel",                meta: "Comedy director · 2019" },
+  { img: "images/eurosport.jpg",           title: "La Grande Box",           meta: "Eurosport" },
+  { img: "images/sara-assicurazioni.jpg",  title: "Sara Assicurazioni",      meta: "Spot 30''" },
+  { img: "images/enel-maglia-rosa.jpg",    title: "La tua maglia rosa",      meta: "Enel Italia · Spot" },
 ];
+// Le tableau est aussi lu par scripts/make-placeholders.py (img + title).
 
 /* ---------- Chronologie du défilement (0 → 1) ---------- */
 const T = {
-  assemble: [0.00, 0.26],   // les particules composent le logo
-  explode:  [0.36, 0.48],   // le logo se disperse vers la caméra
-  corridor: [0.40, 0.88],   // travelling dans le couloir d'images
-  regroup:  [0.88, 0.98],   // le logo se recompose à la fin
+  assemble: [0.00, 0.16],   // les particules composent le logo
+  explode:  [0.22, 0.29],   // le logo se disperse vers la caméra
+  corridor: [0.25, 0.92],   // travelling dans le couloir d'images
+  regroup:  [0.92, 0.99],   // le logo se recompose à la fin
 };
 
 const BG = new THREE.Color(0xfbfbfa);
@@ -212,7 +222,7 @@ function buildParticles(img) {
 }
 
 /* ---------- Couloir d'images en perspective ---------- */
-const PANEL_W = 4.2, PANEL_H = PANEL_W / 1.6, GAP = 7.5, FIRST_Z = -4;
+const PANEL_W = 4.2, PANEL_H = PANEL_W / 1.6, GAP = 6.5, FIRST_Z = -4;
 const panels = [];
 const loader = new THREE.TextureLoader();
 const panelGeo = new THREE.PlaneGeometry(PANEL_W, PANEL_H, 32, 20);
@@ -367,7 +377,7 @@ function setCaption(i) {
     if (shown !== i) return;
     hud.num.textContent = String(i + 1).padStart(2, "0") + " / " + String(PROJECTS.length).padStart(2, "0");
     hud.title.textContent = p.title;
-    hud.meta.innerHTML = p.kind + " <span>·</span> " + p.year;
+    hud.meta.textContent = p.meta || "";
     hud.cap.classList.remove("off");
   }, 180);
 }
@@ -405,7 +415,7 @@ function frame() {
   mf.value += ((mouseActive && !reduced ? 1 : 0) - mf.value) * .08;
 
   // Couloir
-  const reveal = clamp01((prog - .40) / .1) * (1 - clamp01((prog - .87) / .05));
+  const reveal = clamp01((prog - T.corridor[0]) / .06) * (1 - clamp01((prog - T.corridor[1] + .01) / .04));
   dustMat.opacity = reveal * .35;
   raycaster.setFromCamera(mouseSmooth, camera);
   const hit = mouseActive ? raycaster.intersectObjects(panels)[0] : null;
@@ -423,8 +433,9 @@ function frame() {
 
   // HUD
   hud.hint.classList.toggle("off", prog > .02);
-  hud.bar.classList.toggle("off", !(prog > .42 && prog < .88));
-  hud.note.classList.toggle("off", !(prog > .42 && prog < .88));
+  const mid = prog > T.explode[0] + .04 && prog < T.regroup[0];
+  hud.bar.classList.toggle("off", !mid);
+  hud.note.classList.toggle("off", !mid);
   setCaption(reveal > .5 ? active : -1);
   hud.prog.style.transform = `scaleX(${prog})`;
 
