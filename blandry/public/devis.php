@@ -1,13 +1,25 @@
 <?php
 // Formulaire de devis : envoie la demande par e-mail à Benjamin Landry.
 // Aucune donnée n'est enregistrée sur le serveur (seul l'e-mail est envoyé).
-declare(strict_types=1);
 
 const DESTINATAIRE = 'benjaminlandry10@gmail.com';
 const EXPEDITEUR = 'noreply@benjaminlandry.fr';
 
-$json = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
-function fin(bool $ok, string $msg, bool $json): never {
+// Compatible PHP 7.0 et plus (selon la version choisie chez l'hébergeur)
+if (!function_exists('mb_substr')) { function mb_substr($s, $d, $l) { return substr($s, $d, $l); } }
+
+// Diagnostic : https://benjaminlandry.fr/devis.php?diag
+if (isset($_GET['diag'])) {
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "Formulaire benjaminlandry.fr : le script PHP fonctionne.\n"
+        . 'Version PHP : ' . PHP_VERSION . "\n"
+        . 'Fonction mail() : ' . (function_exists('mail') ? 'disponible' : 'DÉSACTIVÉE') . "\n"
+        . 'Connexion https : ' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https' ? 'oui' : 'non') . "\n";
+    exit;
+}
+
+$json = strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false;
+function fin($ok, $msg, $json) {
     if ($json) {
         header('Content-Type: application/json; charset=utf-8');
         http_response_code($ok ? 200 : 400);
@@ -18,8 +30,8 @@ function fin(bool $ok, string $msg, bool $json): never {
     exit;
 }
 // Nettoyage : une ligne, sans caractères de contrôle (évite l'injection d'en-têtes)
-function ligne(string $v, int $max): string {
-    return mb_substr(trim(preg_replace('/[\x00-\x1F\x7F]+/u', ' ', $v)), 0, $max);
+function ligne($v, $max) {
+    return mb_substr(trim(preg_replace('/[\x00-\x1F\x7F]+/u', ' ', (string)$v)), 0, $max);
 }
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') fin(false, 'Méthode non autorisée.', $json);
@@ -30,14 +42,14 @@ $t = (int)($_POST['t'] ?? 0);
 if ($t > 0 && (time() * 1000 - $t) < 3000) fin(false, 'Envoi trop rapide, merci de réessayer.', $json);
 
 // Anti-abus : une demande toutes les 30 secondes par visiteur
-session_start();
+@session_start();
 if (isset($_SESSION['dernier_envoi']) && time() - $_SESSION['dernier_envoi'] < 30) fin(false, 'Merci de patienter quelques secondes avant un nouvel envoi.', $json);
 
 $nom = ligne($_POST['nom'] ?? '', 100);
 $tel = ligne($_POST['tel'] ?? '', 30);
 $email = ligne($_POST['email'] ?? '', 150);
 $commune = ligne($_POST['commune'] ?? '', 100);
-$travaux = array_map(fn($x) => ligne((string)$x, 80), (array)($_POST['travaux'] ?? []));
+$travaux = array_map(function ($x) { return ligne((string)$x, 80); }, (array)($_POST['travaux'] ?? []));
 $message = mb_substr(trim(str_replace("\r", '', (string)($_POST['message'] ?? ''))), 0, 3000);
 $consent = !empty($_POST['consentement']);
 
@@ -62,7 +74,10 @@ $entetes = [
 if ($email !== '') $entetes[] = 'Reply-To: ' . $email;
 $sujet = '=?UTF-8?B?' . base64_encode('Demande de devis — ' . ($commune ?: $nom)) . '?=';
 
-if (!mail(DESTINATAIRE, $sujet, $corps, implode("\r\n", $entetes), '-f' . EXPEDITEUR)) {
+// Certains hébergeurs refusent l'option -f : on réessaie sans
+$envoye = function_exists('mail') && (@mail(DESTINATAIRE, $sujet, $corps, implode("\r\n", $entetes), '-f' . EXPEDITEUR)
+    || @mail(DESTINATAIRE, $sujet, $corps, implode("\r\n", $entetes)));
+if (!$envoye) {
     fin(false, 'L’envoi a échoué. Appelez le 06 58 38 78 37 ou écrivez à ' . DESTINATAIRE . '.', $json);
 }
 $_SESSION['dernier_envoi'] = time();

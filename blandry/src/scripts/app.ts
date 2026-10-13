@@ -932,7 +932,7 @@ function form() {
     try {
       const r = await fetch(f.action, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } });
       const res = await r.json().catch(() => ({ ok: false, message: '' }));
-      note.textContent = res.message || (r.ok ? 'Merci, votre demande a bien été envoyée.' : 'L’envoi a échoué : appelez le 06 58 38 78 37.');
+      note.textContent = res.message || (r.ok ? 'Merci, votre demande a bien été envoyée.' : `L’envoi a échoué (erreur ${r.status}) : appelez le 06 58 38 78 37.`);
       if (res.ok) f.reset();
     } catch {
       note.textContent = 'Connexion impossible : appelez le 06 58 38 78 37.';
