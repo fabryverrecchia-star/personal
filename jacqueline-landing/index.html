@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jacqueline, ouverture le 6 octobre</title>
+<title>Jacqueline, restaurant de Gustave Migdal, Paris 9e</title>
+<meta name="description" content="Jacqueline, première adresse du chef Gustave Migdal, au 23 rue de la Victoire, Paris 9e. Réservation en ligne.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Belleza&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&family=Newsreader:ital,wght@0,400;0,500;1,400&family=Noto+Serif+Display:ital,opsz,wdth,wght@0,6..144,62.5..100,100..900;1,6..144,62.5..100,100..900&display=swap" rel="stylesheet">
@@ -128,15 +129,6 @@
   }
 
   /* ============ STAGE reveal ============ */
-  .stage .visual{
-    opacity:0;
-    transform:translateY(18px);
-    transition:opacity var(--content-fade-dur) ease, transform var(--content-fade-dur) ease;
-  }
-  .stage.is-revealed .visual{
-    opacity:1;
-    transform:translateY(0);
-  }
 
   /* ============ LEFT: editorial / bourgogne panel ============ */
   .panel{
@@ -225,6 +217,7 @@
     text-wrap:balance;
   }
   .hl-rose{ color:var(--rose); }
+  .nowrap{ white-space:nowrap; }
   .hl-or{ color:var(--or); }
 
   .line-mask{
@@ -242,41 +235,6 @@
   }
   .stage.content-revealed .line-inner{
     transform:translateY(0);
-  }
-
-  /* ============ countdown ============ */
-  .countdown{
-    display:flex;
-    gap:clamp(1.2rem,3vw,2.2rem);
-    flex-wrap:wrap;
-    justify-content:center;
-  }
-  .countdown div{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-  }
-  .countdown .num{
-    font-family:'Belleza', serif;
-    font-weight:400;
-    font-variant-numeric:tabular-nums;
-    font-size:clamp(1.9rem,3.4vw,2.6rem);
-    line-height:1;
-    color:var(--ivoire-light);
-  }
-  .countdown .lbl{
-    margin-top:0.5rem;
-    font-size:0.84rem;
-    color:var(--rose);
-    letter-spacing:0.05em;
-  }
-  .countdown .sep{
-    align-self:flex-start;
-    padding-top:.85rem;
-    font-family:'Fraunces', serif;
-    font-size:clamp(1.9rem,3.4vw,2.6rem);
-    color:var(--rose);
-    opacity:0.6;
   }
 
   /* ============ calls to action ============ */
@@ -368,8 +326,7 @@
     outline-offset:6px;
   }
 
-  /* ============ content stagger (countdown / cta / footer) ============ */
-  .panel-main > .countdown,
+  /* ============ content stagger (cta / footer) ============ */
   .panel-main > .cta-group,
   .panel-main > .menu-trigger,
   .panel-foot{
@@ -377,11 +334,9 @@
     transform:translateY(16px);
     transition:opacity var(--content-fade-dur) ease, transform var(--content-fade-dur) ease;
   }
-  .stage.content-revealed .panel-main > .countdown{ transition-delay:calc(var(--content-stagger-step) * 1); }
   .stage.content-revealed .panel-main > .cta-group{ transition-delay:calc(var(--content-stagger-step) * 2); }
   .stage.content-revealed .panel-main > .menu-trigger{ transition-delay:calc(var(--content-stagger-step) * 2.6); }
   .stage.content-revealed .panel-foot{ transition-delay:calc(var(--content-stagger-step) * 3); }
-  .stage.content-revealed .panel-main > .countdown,
   .stage.content-revealed .panel-main > .cta-group,
   .stage.content-revealed .panel-main > .menu-trigger,
   .stage.content-revealed .panel-foot{
@@ -415,42 +370,112 @@
     white-space:nowrap;
   }
 
-  /* ============ RIGHT: ambient visual ============ */
-  .visual{
+  /* ============ ARCHES — the photos, framed like the arch cut into the
+     leather menu cover ============
+     each arch first traces its hairline outline (the same gesture as the
+     picto in the preloader), then the photo rises inside it and settles */
+  .arch{
     position:absolute;
-    right:clamp(1.35rem,4vw,4rem);
-    bottom:clamp(1.75rem,4vh,3.5rem);
-    width:clamp(4.5rem,6vw,6rem);
-    height:clamp(6.9rem,9vw,9.25rem);
-    overflow:visible;
+    top:50%;
+    width:clamp(12rem,18.5vw,22rem);
+    aspect-ratio:100 / 140;
     pointer-events:none;
+    transform:translate3d(var(--px,0px), calc(-50% + var(--oy,0px) + var(--py,0px)), 0);
+    transition:transform 1.2s cubic-bezier(.16,1,.3,1);
   }
-  .visual-monogram{
+  .arch--left{ left:clamp(1.35rem,4vw,4rem); --oy:-3.5vh; }
+  .arch--right{ right:clamp(1.35rem,4vw,4rem); --oy:4.5vh; }
+  .arch-media{
     position:absolute;
-    right:0;
-    bottom:0;
+    inset:0;
+    overflow:hidden;
+    border-radius:999px 999px 3px 3px;
+    background:var(--bourgogne-deep);
+    clip-path:inset(100% 0 0 0 round 999px 999px 3px 3px);
+    transition:clip-path 1.5s cubic-bezier(.83,0,.17,1);
+  }
+  .arch-media img,.arch-media video{
+    position:absolute;
+    inset:0;
     width:100%;
-    overflow:visible; /* same stroke-crop fix as the preloader picto */
+    height:100%;
+    object-fit:cover;
+    transform:scale(1.22) translateY(6%);
+    transition:transform 2.4s cubic-bezier(.16,1,.3,1), opacity 1s ease;
   }
-  .visual-monogram path{
-    fill:var(--ivoire-light);
-    fill-opacity:0;
-    stroke:var(--ivoire-light);
-    stroke-width:4;
-    stroke-dasharray:3200;
-    stroke-dashoffset:3200;
-    animation:mark-loop 7s ease-in-out infinite;
-    animation-play-state:paused;
+  .arch--right .arch-media img{ object-position:34% 50%; }
+  .arch-media video{ opacity:0; }
+  .arch-media video.is-playing{ opacity:1; }
+  .arch-line{
+    position:absolute;
+    inset:-.6rem;
+    width:calc(100% + 1.2rem);
+    height:calc(100% + 1.2rem);
+    overflow:visible;
   }
-  .stage.is-revealed .visual-monogram path{
-    animation-play-state:running;
+  .arch-line path{
+    fill:none;
+    stroke:var(--rose);
+    stroke-width:.4;
+    stroke-dasharray:1;
+    stroke-dashoffset:1;
+    opacity:.75;
+    transition:stroke-dashoffset 1.6s cubic-bezier(.65,0,.35,1);
   }
-  @keyframes mark-loop{
-    0%{ stroke-dashoffset:3200; fill-opacity:0; }
-    40%{ stroke-dashoffset:0; fill-opacity:0; }
-    55%{ stroke-dashoffset:0; fill-opacity:1; }
-    82%{ stroke-dashoffset:0; fill-opacity:1; }
-    100%{ stroke-dashoffset:3200; fill-opacity:0; }
+  .arch-cap{
+    position:absolute;
+    left:0; right:0;
+    top:calc(100% + 1.1rem);
+    text-align:center;
+    font-size:.7rem;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--rose);
+    opacity:0;
+    transform:translateY(8px);
+    transition:opacity 1s ease, transform 1s ease;
+  }
+  .stage.content-revealed .arch-line path{ stroke-dashoffset:0; }
+  .stage.content-revealed .arch-media{ clip-path:inset(0 0 0 0 round 999px 999px 3px 3px); transition-delay:.55s; }
+  .stage.content-revealed .arch-media img,
+  .stage.content-revealed .arch-media video{ transform:none; transition-delay:.55s, 0s; }
+  .stage.content-revealed .arch-cap{ opacity:1; transform:none; transition-delay:1.5s; }
+  .stage.content-revealed .arch--right .arch-line path{ transition-delay:.25s; }
+  .stage.content-revealed .arch--right .arch-media{ transition-delay:.8s; }
+  .stage.content-revealed .arch--right .arch-media img,
+  .stage.content-revealed .arch--right .arch-media video{ transition-delay:.8s, 0s; }
+  .stage.content-revealed .arch--right .arch-cap{ transition-delay:1.75s; }
+  html.js-failed .arch-media{ clip-path:none !important; }
+  html.js-failed .arch-media img{ transform:none !important; }
+  html.js-failed .arch-line path{ stroke-dashoffset:0 !important; }
+  html.js-failed .arch-cap{ opacity:1 !important; transform:none !important; }
+
+  /* the text column narrows a little so the arches have room */
+  @media (min-width: 1101px){
+    .panel-main{ width:min(40rem, 44vw); }
+    .arches{ display:contents; }
+  }
+
+  /* below that, the arches leave the sides and sit side by side under the
+     calls to action, staggered */
+  @media (max-width: 1100px){
+    .arches{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:clamp(1rem,4vw,2rem);
+      width:min(100%, 32rem);
+      margin:.5rem auto 2.5rem;
+    }
+    .arch{
+      position:relative;
+      top:auto; left:auto; right:auto;
+      width:100%;
+      transform:translateY(var(--oy,0px));
+    }
+    .arch--left{ --oy:0px; }
+    .arch--right{ --oy:2.5rem; }
+    .arch-line{ inset:-.4rem; width:calc(100% + .8rem); height:calc(100% + .8rem); }
+    .arch-cap{ top:calc(100% + .8rem); font-size:.62rem; }
   }
 
   /* ============ responsive ============ */
@@ -477,17 +502,8 @@
       font-size:clamp(1.8rem,8vw,2.6rem);
       line-height:1.15;
     }
-    .countdown{
-      width:100%;
-      gap:clamp(.65rem,3vw,1.2rem);
-    }
     .panel-foot{
       max-width:35rem;
-    }
-    /* the corner mark reads fine as a two-column desktop signature, but on
-       a single mobile column it just clutters the empty space — drop it */
-    .visual{
-      display:none;
     }
   }
 
@@ -495,9 +511,6 @@
     .panel{padding-inline:1rem;}
     .cta-group{ flex-direction:column; width:100%; }
     .btn{ width:100%; text-align:center; }
-    .countdown .num{font-size:1.7rem;}
-    .countdown .lbl{font-size:.72rem;}
-    .countdown .sep{font-size:1.55rem;padding-top:.72rem;}
     .panel-foot{
       gap:0.6rem;
     }
@@ -631,7 +644,6 @@
   html.js-failed .preloader{ display:none; }
   html.js-failed .mark,
   html.js-failed .line-inner,
-  html.js-failed .panel-main > .countdown,
   html.js-failed .panel-main > .cta-group,
   html.js-failed .panel-main > .menu-trigger,
   html.js-failed .panel-foot{
@@ -671,18 +683,8 @@
 
     <div class="panel-main">
       <div class="intro">
-        <h1 class="lede" id="txt-heading">Ouverture début d'octobre 2026.</h1>
-        <p class="lede" id="txt-body">Une première adresse signée <span class="hl-rose">Gustave Migdal</span>, au 23 rue de la Victoire, Paris 9e.</p>
-      </div>
-
-      <div class="countdown" aria-label="Compte à rebours avant l'ouverture, le 6 octobre">
-        <div><span class="num" id="cd-days">00</span><span class="lbl">jours</span></div>
-        <span class="sep">:</span>
-        <div><span class="num" id="cd-hours">00</span><span class="lbl">heures</span></div>
-        <span class="sep">:</span>
-        <div><span class="num" id="cd-mins">00</span><span class="lbl">minutes</span></div>
-        <span class="sep">:</span>
-        <div><span class="num" id="cd-secs">00</span><span class="lbl">secondes</span></div>
+        <h1 class="lede" id="txt-heading">Jacqueline vous accueille.</h1>
+        <p class="lede" id="txt-body">Une première adresse signée <span class="hl-rose">Gustave</span> <span class="nowrap"><span class="hl-rose">Migdal</span>,</span> au 23 rue de la Victoire, <span class="nowrap">Paris 9e.</span></p>
       </div>
 
       <div class="cta-group">
@@ -697,17 +699,37 @@
       </a>
     </div>
 
+  <!-- ARCHES: the room and the table -->
+  <div class="arches" aria-hidden="false">
+    <figure class="arch arch--left">
+      <svg class="arch-line" viewBox="0 0 100 140" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M1,139 L1,50 A49,49 0 0 1 99,50 L99,139 Z"/></svg>
+      <div class="arch-media">
+        <picture>
+          <source srcset="assets/salle.webp" type="image/webp">
+          <img src="assets/salle.jpg" alt="La salle de Jacqueline : banquette rose, murs de marbre et de terrazzo, globes de verre au plafond" width="1100" height="1650">
+        </picture>
+      </div>
+      <figcaption class="arch-cap">La salle</figcaption>
+    </figure>
+    <figure class="arch arch--right">
+      <svg class="arch-line" viewBox="0 0 100 140" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M1,139 L1,50 A49,49 0 0 1 99,50 L99,139 Z"/></svg>
+      <div class="arch-media">
+        <picture>
+          <source srcset="assets/table.webp" type="image/webp">
+          <img src="assets/table.jpg" alt="La carte dans sa pochette de cuir au monogramme, sur une table de marbre" width="1100" height="733">
+        </picture>
+        <video id="arch-video" muted loop playsinline autoplay preload="metadata" aria-hidden="true">
+          <source src="assets/jacqueline.mp4" type="video/mp4">
+        </video>
+      </div>
+      <figcaption class="arch-cap">La table</figcaption>
+    </figure>
+  </div>
+
     <div class="panel-foot">
       <address>23 rue de la Victoire, 75009 Paris</address>
       <a href="mailto:contact@jacqueline-restaurant.com" target="_blank" rel="noopener">contact@jacqueline-restaurant.com</a>
     </div>
-  </section>
-
-  <!-- RIGHT: ambient visual -->
-  <section class="visual" aria-hidden="true">
-    <svg class="visual-monogram" viewBox="0 0 307.11 470.75" xmlns="http://www.w3.org/2000/svg">
-      <path d="M306.78,0H49.14s-3.69,19.76-3.69,19.76c-1.92,10.28-1.84,20.36-.34,30.69,2.33,14.84,8.47,28.32,18.17,39.68,5.78,6.77,11.95,12.73,19.3,17.65l18.17,12.16,32.18,19.41c23.49,14.17,46.92,29.12,67.37,47.86-10.42-4.2-20.19-7.7-31.06-9.91-28.95-5.89-58.74-4.85-87.1,3.58-34.14,10.15-62.61,32.44-75.09,66.6-12.96,35.47-7.79,76.02,13.5,107,5.25,7.64,11.41,14.53,18.24,20.65-9.41-3.28-17.5-1.88-17.5-1.88-13.97,2.8-21.76,13.13-20.43,25.87,1.3,12.38,14.33,21.47,26.19,18.12-3.3-4.97-6.11-11.33-6.36-15.6-.23-3.92,4.77-11.44,9.34-12.21,11.83-2,24.57,2.49,33.58,10.09l47.56,40.12c13.29,11.22,27.52,20.18,42.63,27.06,8.02,3.65,16.96,4.98,25.63,3.39,8.26-1.52,17.08-5.75,20.66-16.36,2.01-5.95,1.03-14.96-2.22-19.66-26.28,28.26-84.17-.91-109.13-30.64l-.34-.2c6.14,2,12.39,3.6,18.69,4.79,19.98,3.79,40.24,4.19,60.36,1.26,56.74-8.29,106.06-48.38,113.17-107.61l1.53-26.1.05-237.67c0-10.32,1.63-22.47,9.02-29.11,4.47-4.02,9.99-5.35,15.89-5.78l-.33-3.01ZM188.92,147.37c-10.25-7.24-19.97-13.81-30.76-19.68l-32.47-17.68c-26.92-14.66-59.91-29.43-70.94-60.24-5.78-16.15-4.55-36.62,12.76-41.98,3.73-1.15,7.3-1.76,11.47-1.76h152.67c10.25,0,19.06,2.96,22.73,12.79,1.88,5.05,2.97,10.43,2.97,16.24l.04,192.33c-15.62-32.87-39.08-58.91-68.45-80.03ZM224.06,378.34c-11.94,9.49-25.27,16.3-40.21,20.55-30.01,8.53-64.75,7.69-93.17-4.75-19.16-8.39-35.26-21.97-46.38-39.79-15.53-24.9-20.61-54.83-16.85-83.87,4.64-35.88,24.25-66.47,57.71-80.74,28.54-12.18,62.38-11.89,91.99-3.68,8.68,2.4,16.48,5.59,24.46,9.62,30.03,15.19,52.31,41.42,58.54,75.13,7.35,39.79-3.96,82-36.08,107.54Z"/>
-    </svg>
   </section>
 
 </div>
@@ -921,23 +943,28 @@
   }
 })();
 
-/* ---------- countdown to 6 October 2026, Paris time ---------- */
+/* ---------- arches: the video fades in only once it really plays (until
+   then, and if it is missing, the photo stays); the arches drift a few
+   pixels with the pointer on large screens ---------- */
 (function(){
-  const target = new Date("2026-10-06T19:00:00+02:00").getTime();
-  function tick(){
-    const now = Date.now();
-    let diff = Math.max(0, target - now);
-    const days = Math.floor(diff / 86400000); diff -= days * 86400000;
-    const hours = Math.floor(diff / 3600000); diff -= hours * 3600000;
-    const mins = Math.floor(diff / 60000); diff -= mins * 60000;
-    const secs = Math.floor(diff / 1000);
-    document.getElementById("cd-days").textContent = String(days).padStart(2, "0");
-    document.getElementById("cd-hours").textContent = String(hours).padStart(2, "0");
-    document.getElementById("cd-mins").textContent = String(mins).padStart(2, "0");
-    document.getElementById("cd-secs").textContent = String(secs).padStart(2, "0");
+  "use strict";
+  const video = document.getElementById("arch-video");
+  if(video){
+    video.addEventListener("playing", function(){ video.classList.add("is-playing"); });
+    const p = video.play && video.play();
+    if(p && p.catch) p.catch(function(){});
   }
-  tick();
-  setInterval(tick, 1000);
+  const arches = document.querySelectorAll(".arch");
+  const fine = window.matchMedia("(min-width: 1101px) and (pointer: fine)");
+  window.addEventListener("pointermove", function(e){
+    if(!fine.matches) return;
+    const x = e.clientX / window.innerWidth - .5, y = e.clientY / window.innerHeight - .5;
+    arches.forEach(function(a, n){
+      const k = n === 0 ? 14 : -10;
+      a.style.setProperty("--px", (x * k).toFixed(1) + "px");
+      a.style.setProperty("--py", (y * k).toFixed(1) + "px");
+    });
+  }, { passive:true });
 })();
 
 /* ---------- menu modal ---------- */
