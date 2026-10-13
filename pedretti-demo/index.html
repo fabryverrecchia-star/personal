@@ -1,0 +1,539 @@
+<title>Stefano Pedretti WebGL</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;800&display=swap">
+<style>
+  /* Scena unica a tutto schermo: il logo si compone di particelle luminose nel buio, poi si vola in un tunnel di progetti. Look scuro scelto per entrambi i temi. */
+  :root {
+    --night: #050507;
+    --light: #f3efe8;
+    --light-soft: #9c968e;
+    --skin: #f6c9a8;
+    --brass: #e3a72f;
+    --display: "Jost", "Futura", "Century Gothic", "Avenir Next", sans-serif;
+    color-scheme: dark;
+  }
+  html, body { background: var(--night); color: var(--light); }
+  body { margin: 0; font-family: var(--display); font-weight: 300; }
+  #gl { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+  #scroll { height: 1600vh; position: relative; z-index: 1; pointer-events: none; }
+
+  /* Atmosfera: vignettatura e grana pellicola sopra il WebGL */
+  .vignette, .grain { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+  .vignette { background: radial-gradient(120% 90% at 50% 50%, transparent 55%, color-mix(in srgb, var(--night) 85%, transparent) 100%); }
+  .grain { opacity: .035; mix-blend-mode: screen; background-size: 180px 180px; animation: grain .5s steps(4) infinite; }
+  @keyframes grain { 0% { background-position: 0 0; } 25% { background-position: -60px 40px; } 50% { background-position: 50px -70px; } 75% { background-position: -30px -20px; } }
+
+  .hud { position: fixed; z-index: 2; pointer-events: none; transition: opacity .7s ease, transform .7s ease; }
+  .bar { top: env(safe-area-inset-top, 0px); left: 0; right: 0; display: flex; justify-content: space-between; gap: 16px;
+         padding: 20px clamp(16px, 4vw, 48px); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+  .bar b { font-weight: 800; }
+  .bar span:last-child { text-align: right; }
+
+  .hint { left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 36px); transform: translateX(-50%);
+          display: flex; flex-direction: column; align-items: center; gap: 12px;
+          font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--light-soft); }
+  .hint i { width: 1px; height: 44px; background: linear-gradient(var(--light), transparent); animation: drip 1.8s ease-in-out infinite; transform-origin: top; }
+  @keyframes drip { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+
+  .caption { left: clamp(16px, 4vw, 48px); bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(24px, 5vh, 56px)); max-width: calc(100% - 32px);
+             text-shadow: 0 2px 24px var(--night), 0 0 2px var(--night); }
+  .caption .num { font-size: 12px; letter-spacing: .3em; color: var(--brass); font-variant-numeric: tabular-nums; }
+  .caption h2 { margin: 6px 0 4px; font-size: clamp(30px, 6vw, 84px); line-height: .95; font-weight: 800; letter-spacing: -.01em; text-transform: uppercase; text-wrap: balance; }
+  .caption p { margin: 0; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; color: var(--light-soft); }
+
+  .progress { left: 0; right: 0; bottom: 0; height: 2px; background: var(--brass); transform-origin: left; transform: scaleX(0); transition: none; }
+  .note { right: clamp(16px, 4vw, 48px); bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--light-soft); }
+
+  .off { opacity: 0; }
+  .caption.off { transform: translateY(14px); }
+  @media (max-width: 560px) { .note { display: none; } .bar { font-size: 11px; } }
+  @media (prefers-reduced-motion: reduce) { .hint i, .grain { animation: none; } }
+</style>
+
+<canvas id="gl" aria-label="Il logo di Stefano Pedretti composto da particelle, poi un tunnel di progetti"></canvas>
+<div class="vignette"></div>
+<div class="grain" id="grain"></div>
+<div id="scroll"></div>
+
+<header class="hud bar off" id="bar"><span>Stefano <b>Pedretti</b></span><span>Comedy <b>Director</b> &amp; more</span></header>
+<div class="hud hint" id="hint">Scorri<i></i></div>
+<div class="hud caption off" id="caption" aria-live="polite">
+  <div class="num" id="capNum">01 / 17</div>
+  <h2 id="capTitle">Intercity Summer</h2>
+  <p id="capMeta">Family</p>
+</div>
+<div class="hud note" id="note">Demo · visual in arrivo</div>
+<div class="hud progress" id="progress"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+/* ---------- Contenuti: sostituire immagini e titoli con quelli veri ---------- */
+const LOGO_SRC = "logo.png";
+const PROJECTS = [
+  { img: "images/intercity-family.jpg",    title: "Intercity Summer",        meta: "Family" },
+  { img: "images/intercity-young.jpg",     title: "Intercity Summer",        meta: "Young" },
+  { img: "images/dr-rottamazione.jpg",     title: "DR Rottamazione",         meta: "Spot" },
+  { img: "images/play-your-pasta.jpg",     title: "Play Your Pasta",         meta: "Pasta Garofalo + PlayStation" },
+  { img: "images/todis-lino-banfi.jpg",    title: "Difficile da credere",    meta: "Todis · Lino Banfi · Vaccino" },
+  { img: "images/ardesia.jpg",             title: "Facciamola semplice",     meta: "Ardesia" },
+  { img: "images/postepay-challenge.jpg",  title: "PostePay Challenge",      meta: "4x15" },
+  { img: "images/evo-3.jpg",               title: "Niente da aggiungere",    meta: "EVO 3" },
+  { img: "images/kop-brillapiatti.jpg",    title: "Il Brillapiatti",         meta: "KOP" },
+  { img: "images/roma-wheelchair-rugby.jpg", title: "#FalleGiràSteRuote",    meta: "Roma Wheelchair Rugby" },
+  { img: "images/carola-vannini.jpg",      title: "New Office",              meta: "Carola Vannini Architecture · Vertical shot" },
+  { img: "images/mkers.jpg",               title: "I giochi tornano a Roma", meta: "Mkers Gaming House" },
+  { img: "images/mps-mastercard.jpg",      title: "MPS Mastercard",          meta: "Spot" },
+  { img: "images/showreel-2019.jpg",       title: "Showreel",                meta: "Comedy director · 2019" },
+  { img: "images/eurosport.jpg",           title: "La Grande Box",           meta: "Eurosport" },
+  { img: "images/sara-assicurazioni.jpg",  title: "Sara Assicurazioni",      meta: "Spot 30''" },
+  { img: "images/enel-maglia-rosa.jpg",    title: "La tua maglia rosa",      meta: "Enel Italia · Spot" },
+];
+// La tabella è letta anche da scripts/make-placeholders.py (img + title).
+
+/* ---------- Cronologia dello scroll (0 → 1) ---------- */
+const T = {
+  assemble: [0.00, 0.14],   // le particelle compongono il logo
+  explode:  [0.18, 0.26],   // il logo esplode attorno alla camera
+  corridor: [0.20, 0.92],   // volo nel tunnel dei progetti
+  regroup:  [0.92, 0.99],   // il logo si ricompone alla fine
+};
+
+const BG = new THREE.Color(0x050507);
+const FOV = 45, CAM_Z = 10;
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const canvas = document.getElementById("gl");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
+renderer.setClearColor(BG, 1);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(FOV, 1, 0.05, 220);
+camera.position.set(0, 0, CAM_Z);
+
+const clamp01 = (x) => Math.min(1, Math.max(0, x));
+const range = (x, [a, b]) => clamp01((x - a) / (b - a));
+const ease = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+
+// Sprite morbido condiviso da tutte le particelle: nucleo luminoso + alone.
+const GLOW = `
+  float glow(vec2 pc){ float r = length(pc - .5) * 2.; return exp(-r * r * 5.) * .85 + exp(-r * r * 28.) * .6; }`;
+
+/* ---------- Particelle del logo ---------- */
+const particleUniforms = {
+  uProgress: { value: 0 }, uExplode: { value: 0 }, uTime: { value: 0 },
+  uPxPerWorld: { value: 40 }, uCamZ: { value: CAM_Z }, uMouse: { value: new THREE.Vector2(99, 99) },
+  uMouseForce: { value: 0 }, uPixelRatio: { value: 1 },
+};
+const logoGroup = new THREE.Group();
+scene.add(logoGroup);
+const logo = { w: 1314, h: 301, step: 2, px: null, geo: null };
+// Zone del logo (in pixel dell'immagine sorgente): nome, volto, mestiere
+const ZONES = { name: [126, 448, 136, 158], face: [558, 752, 18, 268], job: [853, 1166, 136, 176] };
+const zoneOf = (x) => x < 500 ? "name" : x < 800 ? "face" : "job";
+
+function buildParticles(img) {
+  const c = document.createElement("canvas");
+  c.width = img.naturalWidth; c.height = img.naturalHeight;
+  const ctx = c.getContext("2d", { willReadFrequently: true });
+  ctx.drawImage(img, 0, 0);
+  const data = ctx.getImageData(0, 0, c.width, c.height).data;
+  logo.w = c.width; logo.h = c.height;
+
+  // « & MORE » è troppo piccolo per il campionamento normale: lo prendiamo più fitto.
+  const fine = (x, y) => x > 1060 && y > 158;
+  const pick = (step) => {
+    const out = [];
+    const take = (x, y, st) => {
+      const i = (y * c.width + x) * 4;
+      if (data[i + 3] < 120) return;
+      let r = data[i] / 255, g = data[i + 1] / 255, b = data[i + 2] / 255;
+      if (r > .93 && g > .93 && b > .93) return;                 // fondo bianco
+      // Sul nero i grigi si invertono (capelli, occhiali, testo diventano luce); i colori restano.
+      if (Math.max(r, g, b) - Math.min(r, g, b) < .12) { const l = 1 - (r + g + b) / 3; r = g = b = l > .8 ? 1 : .3 + l * .35; } else { r *= .8; g *= .8; b *= .8; }   // nero puro → bianco, grigi → grigio medio
+      out.push([x, y, r, g, b, st]);
+    };
+    for (let y = 0; y < c.height; y += step) for (let x = 0; x < c.width; x += step) if (!fine(x, y)) take(x, y, step);
+    for (let y = 159; y < c.height; y++) for (let x = 1061; x < c.width; x++) take(x, y, 1);
+    return out;
+  };
+  let step = 2, pts = pick(step);
+  while (pts.length > 80000) pts = pick(++step);
+  logo.step = step;
+
+  const n = pts.length;
+  const pos = new Float32Array(n * 3), size = new Float32Array(n), start = new Float32Array(n * 3), col = new Float32Array(n * 3), rnd = new Float32Array(n * 4);
+  logo.px = pts;
+  for (let k = 0; k < n; k++) {
+    // Partenza: una nube a spirale che avvolge anche la camera
+    const ang = Math.random() * Math.PI * 2, rad = 2.5 + Math.pow(Math.random(), .6) * 16;
+    start[k * 3] = Math.cos(ang) * rad;
+    start[k * 3 + 1] = Math.sin(ang) * rad * .55 + (Math.random() - .5) * 2;
+    start[k * 3 + 2] = -18 + Math.random() * 26;
+    col.set(pts[k].slice(2, 5), k * 3);
+    rnd.set([Math.random(), Math.random(), Math.random(), Math.random()], k * 4);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute("aSize", new THREE.BufferAttribute(size, 1));
+  geo.setAttribute("aStart", new THREE.BufferAttribute(start, 3));
+  geo.setAttribute("aColor", new THREE.BufferAttribute(col, 3));
+  geo.setAttribute("aRand", new THREE.BufferAttribute(rnd, 4));
+
+  const mat = new THREE.ShaderMaterial({
+    uniforms: particleUniforms, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: `
+      uniform float uProgress, uExplode, uTime, uPxPerWorld, uCamZ, uMouseForce, uPixelRatio;
+      uniform vec2 uMouse;
+      attribute vec3 aStart, aColor; attribute vec4 aRand; attribute float aSize;
+      varying vec3 vColor; varying float vAlpha;
+      vec2 rot(vec2 p, float a){ float s = sin(a), c = cos(a); return vec2(c*p.x - s*p.y, s*p.x + c*p.y); }
+      void main(){
+        float free = step(aRand.w, .1);                      // 10% resta sospeso attorno al logo
+        vec3 target = position + vec3((aRand.yz - .5) * aSize * .8, (aRand.x - .5) * .06);
+        float delay = aRand.x * .45 + clamp(position.x / 14. + .5, 0., 1.) * .15;
+        float t = clamp((uProgress - delay) / .4, 0., 1.) * mix(1., .7, free);
+        float e = 1. - pow(1. - t, 3.);
+
+        // Vortice: le particelle girano attorno all'asse di vista mentre arrivano
+        vec3 s = aStart;
+        s.xy = rot(s.xy, uTime * .12 * (.5 + aRand.y) + (1. - e) * 3.5);
+        vec3 p = mix(s, target, e);
+        float flow = 1. - e;
+        p += vec3(sin(uTime * 1.3 + aRand.x * 40.), cos(uTime * 1.1 + aRand.y * 40.), sin(uTime * .9 + aRand.z * 40.)) * (.004 + flow * .9);
+        // Respiro continuo: anche a logo composto le particelle non stanno mai ferme
+        p += vec3(sin(uTime * 2.1 + target.y * 3. + aRand.z * 6.), cos(uTime * 1.7 + target.x * 2. + aRand.y * 6.), sin(uTime * 1.3 + target.x * .8)) * vec3(.006, .006, .04) * e;
+
+        vec2 d = p.xy - uMouse;
+        float f = exp(-dot(d, d) * 1.6) * uMouseForce * e;
+        p.xy += normalize(d + 1e-4) * f * .9 + rot(d, 1.57) * f * .25;
+        p.z += f * 1.5;
+
+        // Esplosione: il logo si apre a raggiera e scorre attorno alla camera
+        float x = clamp((uExplode - aRand.w * .3) / .7, 0., 1.);
+        float x2 = x * x;
+        vec2 dir = normalize(target.xy + (aRand.yz - .5) * 3.);
+        p.xy += dir * (2. + aRand.y * 9.) * x2;
+        p.z += (4. + aRand.x * 22.) * x2;
+
+        vec4 mv = modelViewMatrix * vec4(p, 1.);
+        gl_Position = projectionMatrix * mv;
+        float depth = uCamZ / max(.3, -mv.z);
+        float sz = aSize * uPxPerWorld * mix(3.2 + aRand.y * 5., 1.9 + aRand.z * .6, e) * depth;
+        gl_PointSize = clamp(sz, 2. * uPixelRatio, 90. * uPixelRatio);
+        float twinkle = .75 + .25 * sin(uTime * 3. + aRand.x * 60.);
+        float shimmer = smoothstep(.96, 1., sin(target.x * .35 - uTime * 1.6)) * .9;   // onda di luce che attraversa il logo
+        vColor = aColor * (twinkle + shimmer * e);
+        vAlpha = (1. - x) * mix(.35 + .4 * aRand.z, .9, e) * mix(1., .55, free) * clamp(-mv.z * .6, 0., 1.);
+      }`,
+    fragmentShader: GLOW + `
+      varying vec3 vColor; varying float vAlpha;
+      void main(){
+        float a = glow(gl_PointCoord) * vAlpha;
+        if (a < .004) discard;
+        gl_FragColor = vec4(vColor * a, 1.);
+      }`,
+  });
+  const points = new THREE.Points(geo, mat);
+  points.frustumCulled = false;
+  logoGroup.add(points);
+  logo.geo = geo;
+  resize();
+}
+
+/* ---------- Tunnel dei progetti ---------- */
+const PANEL_W = 3.8, PANEL_H = PANEL_W / 1.6, GAP = 4.6, FIRST_Z = -2;
+const panels = [];
+const loader = new THREE.TextureLoader();
+const panelGeo = new THREE.PlaneGeometry(PANEL_W, PANEL_H, 40, 25);
+const panelVS = `
+  uniform float uVel, uTime, uHover;
+  varying vec2 vUv; varying float vDist;
+  void main(){
+    vUv = uv;
+    vec3 p = position;
+    p.z -= sin(uv.x * 3.14159) * uVel * 1.6;                       // curvatura con la velocità
+    p.z += sin(uv.x * 6. + uTime * 2.) * sin(uv.y * 3.14159) * .08 * uHover;
+    vec4 mv = modelViewMatrix * vec4(p, 1.);
+    vDist = -mv.z;
+    gl_Position = projectionMatrix * mv;
+  }`;
+const panelFS = `
+  uniform sampler2D uTex; uniform float uVel, uReveal, uHover, uLoaded, uTime; uniform vec3 uBg;
+  varying vec2 vUv; varying float vDist;
+  float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
+    return mix(mix(hash(i), hash(i+vec2(1,0)), f.x), mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), f.x), f.y); }
+  void main(){
+    vec2 uv = (vUv - .5) * (1. - .06 * uHover) + .5;
+    vec2 off = vec2(uVel * .04, 0.);
+    vec3 c = vec3(texture2D(uTex, uv + off).r, texture2D(uTex, uv).g, texture2D(uTex, uv - off).b);
+    c = mix(vec3(.08), c, uLoaded);
+    vec2 v = vUv - .5; c *= 1. - dot(v, v) * .6;
+    // Luce: i progetti si accendono avvicinandosi
+    float lit = smoothstep(26., 6., vDist);
+    c *= .25 + .75 * max(lit, uHover);
+    // Dissolvenza in particelle quando la camera ci passa accanto
+    float n = noise(vUv * vec2(110., 70.)) * .55 + noise(vUv * 9. + uTime * .2) * .45;
+    float thr = smoothstep(4.2, 1.2, vDist);
+    if (n < thr) discard;
+    float edge = 1. - smoothstep(0., .035, n - thr);
+    c += vec3(1., .78, .45) * edge * step(.01, thr) * 1.4;
+    float fog = smoothstep(14., 42., vDist);
+    c = mix(c, uBg, fog);
+    gl_FragColor = vec4(c, uReveal * (1. - fog * .9));
+  }`;
+
+PROJECTS.forEach((proj, i) => {
+  const u = {
+    uTex: { value: null }, uVel: { value: 0 }, uTime: particleUniforms.uTime, uHover: { value: 0 },
+    uReveal: { value: 0 }, uLoaded: { value: 0 }, uBg: { value: BG },
+  };
+  const mat = new THREE.ShaderMaterial({ uniforms: u, vertexShader: panelVS, fragmentShader: panelFS, transparent: true, depthWrite: false, side: THREE.DoubleSide });
+  const mesh = new THREE.Mesh(panelGeo, mat);
+  // Lati alternati, altezza variabile: i progetti restano dritti e leggibili
+  const angle = (i % 2 ? Math.PI : 0) + (i % 2 ? -1 : 1) * [.38, -.3, .12, -.42, .28][i % 5];
+  mesh.userData = { i, u, hover: 0, angle };
+  mesh.position.z = FIRST_Z - i * GAP;
+  mesh.renderOrder = -i;
+  scene.add(mesh);
+  panels.push(mesh);
+  loader.load(proj.img, (tex) => { tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4; u.uTex.value = tex; u.uLoaded.value = 1; });
+});
+const CAM_END = FIRST_Z - (PROJECTS.length - 1) * GAP - 4;
+
+/* ---------- Campo stellare e scie di velocità ---------- */
+const space = { uTime: particleUniforms.uTime, uAlpha: { value: .5 }, uPixelRatio: particleUniforms.uPixelRatio, uStretch: { value: 0 } };
+{
+  const n = 7000, pos = new Float32Array(n * 3), rnd = new Float32Array(n * 2);
+  const len = CAM_Z + 30 - CAM_END;
+  for (let k = 0; k < n; k++) {
+    const a = Math.random() * Math.PI * 2, r = 1.2 + Math.pow(Math.random(), .5) * 16;
+    pos.set([Math.cos(a) * r, Math.sin(a) * r * .7, CAM_Z + 12 - Math.random() * len], k * 3);
+    rnd.set([Math.random(), Math.random()], k * 2);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute("aRand", new THREE.BufferAttribute(rnd, 2));
+  const mat = new THREE.ShaderMaterial({
+    uniforms: space, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: `
+      uniform float uTime, uAlpha, uPixelRatio; attribute vec2 aRand; varying float vA; varying vec3 vC;
+      void main(){
+        vec3 p = position + vec3(sin(uTime * .3 + aRand.x * 20.), cos(uTime * .25 + aRand.y * 20.), 0.) * .15;
+        vec4 mv = modelViewMatrix * vec4(p, 1.);
+        gl_Position = projectionMatrix * mv;
+        float d = -mv.z;
+        gl_PointSize = clamp((1. + aRand.x * 3.) * 9. * uPixelRatio / max(d, .1), .8 * uPixelRatio, 40. * uPixelRatio);
+        vA = uAlpha * (.35 + .65 * (.5 + .5 * sin(uTime * (1. + aRand.y * 3.) + aRand.x * 50.))) * smoothstep(60., 8., d) * smoothstep(0., 1.5, d);
+        vC = mix(vec3(.75, .82, 1.), vec3(1., .82, .62), step(.7, aRand.y));
+      }`,
+    fragmentShader: GLOW + `
+      varying float vA; varying vec3 vC;
+      void main(){ float a = glow(gl_PointCoord) * vA; if (a < .003) discard; gl_FragColor = vec4(vC * a, 1.); }`,
+  });
+  const stars = new THREE.Points(geo, mat);
+  stars.frustumCulled = false;
+  scene.add(stars);
+
+  // Scie: segmenti che si allungano con la velocità dello scroll
+  const m = 700, lp = new Float32Array(m * 6), le = new Float32Array(m * 2);
+  for (let k = 0; k < m; k++) {
+    const a = Math.random() * Math.PI * 2, r = 1.5 + Math.random() * 9, z = CAM_Z + 5 - Math.random() * len;
+    lp.set([Math.cos(a) * r, Math.sin(a) * r * .7, z, Math.cos(a) * r, Math.sin(a) * r * .7, z], k * 6);
+    le.set([0, 1], k * 2);
+  }
+  const lg = new THREE.BufferGeometry();
+  lg.setAttribute("position", new THREE.BufferAttribute(lp, 3));
+  lg.setAttribute("aEnd", new THREE.BufferAttribute(le, 1));
+  const lm = new THREE.ShaderMaterial({
+    uniforms: space, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: `
+      uniform float uStretch; attribute float aEnd; varying float vA;
+      void main(){
+        vec3 p = position; p.z += aEnd * uStretch * 6.;
+        vec4 mv = modelViewMatrix * vec4(p, 1.);
+        gl_Position = projectionMatrix * mv;
+        vA = (1. - aEnd) * min(abs(uStretch), 1.) * smoothstep(40., 4., -mv.z);
+      }`,
+    fragmentShader: `varying float vA; void main(){ gl_FragColor = vec4(vec3(.9, .85, .8) * vA * .8, 1.); }`,
+  });
+  const streaks = new THREE.LineSegments(lg, lm);
+  streaks.frustumCulled = false;
+  scene.add(streaks);
+}
+
+/* ---------- Input: scroll, mouse ---------- */
+let target = 0, prog = 0, vel = 0;
+const mouse = new THREE.Vector2(0, 0), mouseSmooth = new THREE.Vector2(0, 0);
+let mouseActive = 0;
+function readScroll() {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  target = max > 0 ? scrollY / max : 0;
+}
+addEventListener("scroll", readScroll, { passive: true });
+addEventListener("pointermove", (e) => {
+  mouse.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  mouseActive = 1;
+});
+document.addEventListener("pointerleave", () => { mouseActive = 0; });
+
+const raycaster = new THREE.Raycaster();
+let tunnel = { r: 3.1, ry: 2.1, scale: 1 };
+
+function resize() {
+  const w = innerWidth, h = innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
+  renderer.setPixelRatio(dpr);
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  const visH = 2 * CAM_Z * Math.tan(THREE.MathUtils.degToRad(FOV / 2));
+  const visW = visH * camera.aspect;
+  particleUniforms.uPxPerWorld.value = h * dpr / visH;
+  particleUniforms.uPixelRatio.value = dpr;
+  layoutLogo(visW, visH);
+  tunnel = camera.aspect < 1 ? { r: 1.25, ry: 3.2, scale: .62 } : { r: 3.0, ry: 3.4, scale: 1 };
+  panels.forEach((m) => {
+    const a = m.userData.angle;
+    m.position.x = Math.cos(a) * tunnel.r;
+    m.position.y = Math.sin(a) * tunnel.ry;
+    m.scale.setScalar(tunnel.scale);
+    m.lookAt(m.position.x * .2, m.position.y * .4, m.position.z + 5);          // rivolti verso l'asse, inclinati verso chi arriva
+  });
+}
+addEventListener("resize", resize);
+
+// Orizzontale: il logo com'è. Verticale: volto in alto, nome e mestiere impilati sotto.
+function layoutLogo(visW, visH) {
+  if (!logo.geo) return;
+  const pos = logo.geo.attributes.position.array, size = logo.geo.attributes.aSize.array;
+  const place = {};
+  if (visW / visH >= 1.1) {
+    const s = Math.min(12.5, visW * .92) / logo.w;
+    for (const z in ZONES) place[z] = { s, ox: -logo.w / 2, oy: -logo.h / 2, dy: 0 };
+  } else {
+    const Z = ZONES, wOf = (z) => Z[z][1] - Z[z][0], hOf = (z) => Z[z][3] - Z[z][2];
+    const sf = Math.min(visW * .62 / wOf("face"), visH * .42 / hOf("face"));
+    const st = visW * .84 / Math.max(wOf("name"), wOf("job"));
+    const gap = visH * .05;
+    const hf = hOf("face") * sf, hn = hOf("name") * st, hj = hOf("job") * st;
+    let top = (hf + gap + hn + gap * .5 + hj) / 2;
+    const at = (z, sc, h) => { const p = { s: sc, ox: -(Z[z][0] + Z[z][1]) / 2, oy: -Z[z][2], dy: top }; top -= h; return p; };
+    place.face = at("face", sf, hf + gap);
+    place.name = at("name", st, hn + gap * .5);
+    place.job = at("job", st, hj);
+  }
+  logo.px.forEach(([x, y, , , , st], k) => {
+    const p = place[zoneOf(x)];
+    pos[k * 3] = (x + p.ox) * p.s;
+    pos[k * 3 + 1] = -(y + p.oy) * p.s + p.dy;
+    pos[k * 3 + 2] = 0;
+    size[k] = st * p.s;
+  });
+  logo.geo.attributes.position.needsUpdate = true;
+  logo.geo.attributes.aSize.needsUpdate = true;
+}
+resize();
+
+/* ---------- Grana pellicola (generata, nessun file esterno) ---------- */
+{
+  const g = document.createElement("canvas"); g.width = g.height = 180;
+  const gx = g.getContext("2d"), id = gx.createImageData(180, 180);
+  for (let i = 0; i < id.data.length; i += 4) { const v = Math.random() * 255; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; }
+  gx.putImageData(id, 0, 0);
+  document.getElementById("grain").style.backgroundImage = `url(${g.toDataURL()})`;
+}
+
+/* ---------- HUD ---------- */
+const $ = (id) => document.getElementById(id);
+const hud = { bar: $("bar"), hint: $("hint"), cap: $("caption"), num: $("capNum"), title: $("capTitle"), meta: $("capMeta"), prog: $("progress"), note: $("note") };
+let shown = -1;
+function setCaption(i) {
+  if (i === shown) return;
+  shown = i;
+  if (i < 0) { hud.cap.classList.add("off"); return; }
+  const p = PROJECTS[i];
+  hud.cap.classList.add("off");
+  setTimeout(() => {
+    if (shown !== i) return;
+    hud.num.textContent = String(i + 1).padStart(2, "0") + " / " + String(PROJECTS.length).padStart(2, "0");
+    hud.title.textContent = p.title;
+    hud.meta.textContent = p.meta || "";
+    hud.cap.classList.remove("off");
+  }, 180);
+}
+
+/* ---------- Loop ---------- */
+const clock = new THREE.Clock();
+function frame() {
+  const dt = Math.min(clock.getDelta(), .05);
+  const time = clock.elapsedTime;
+  particleUniforms.uTime.value = reduced ? 0 : time;
+
+  const prev = prog;
+  prog += (target - prog) * (1 - Math.pow(.0012, dt));       // scroll smussato
+  vel += ((prog - prev) / Math.max(dt, 1e-3) - vel) * .12;
+  const v = THREE.MathUtils.clamp(vel * 2.4, -1, 1);
+
+  mouseSmooth.lerp(mouse, 1 - Math.pow(.002, dt));
+
+  // Fasi
+  const a = ease(range(prog, T.assemble));
+  const ex = range(prog, T.explode), rg = range(prog, T.regroup);
+  const c = range(prog, T.corridor);
+  const camZ = THREE.MathUtils.lerp(CAM_Z, CAM_END, c);
+  particleUniforms.uProgress.value = prog < T.regroup[0] ? a : ease(rg);
+  particleUniforms.uExplode.value = prog < T.regroup[0] ? ex : 0;
+  logoGroup.position.z = prog < T.regroup[0] ? 0 : camZ - CAM_Z;
+
+  // Camera: parallasse col mouse, rollio che segue la spirale, FOV che si apre in velocità
+  const inTunnel = range(prog, [T.corridor[0] + .03, T.corridor[0] + .1]) * (1 - range(prog, [T.corridor[1] - .03, T.corridor[1] + .02]));
+  const roll = inTunnel * (Math.sin(c * 9.) * .16 + Math.sin(time * .3) * .03) + v * .1;
+  camera.up.set(Math.sin(roll), Math.cos(roll), 0);
+  camera.position.set(mouseSmooth.x * .5, mouseSmooth.y * .3, camZ);
+  camera.lookAt(mouseSmooth.x * .15, mouseSmooth.y * .08, camZ - 10);
+  const fov = FOV + Math.abs(v) * 16 * (reduced ? 0 : 1);
+  if (Math.abs(camera.fov - fov) > .01) { camera.fov = fov; camera.updateProjectionMatrix(); }
+
+  // Mouse nel piano del logo
+  const visH = 2 * CAM_Z * Math.tan(THREE.MathUtils.degToRad(FOV / 2));
+  particleUniforms.uMouse.value.set(mouseSmooth.x * visH * camera.aspect / 2, mouseSmooth.y * visH / 2);
+  const mf = particleUniforms.uMouseForce;
+  mf.value += ((mouseActive && !reduced ? 1 : 0) - mf.value) * .08;
+
+  // Tunnel
+  const reveal = clamp01((prog - T.corridor[0]) / .05) * (1 - clamp01((prog - T.corridor[1] + .01) / .04));
+  space.uAlpha.value = .35 + reveal * .65;
+  space.uStretch.value = v;
+  raycaster.setFromCamera(mouseSmooth, camera);
+  const hit = mouseActive && reveal > .5 ? raycaster.intersectObjects(panels)[0] : null;
+  let active = -1, best = 1e9;
+  panels.forEach((m) => {
+    const u = m.userData.u;
+    u.uReveal.value = reveal;
+    u.uVel.value = v;
+    m.userData.hover += (((hit && hit.object === m) ? 1 : 0) - m.userData.hover) * .1;
+    u.uHover.value = m.userData.hover;
+    const ahead = camZ - m.position.z;
+    if (ahead > 3 && ahead < 9 && ahead < best) { best = ahead; active = m.userData.i; }
+  });
+  canvas.style.cursor = hit ? "pointer" : "";
+
+  // HUD
+  hud.hint.classList.toggle("off", prog > .02);
+  const mid = prog > T.explode[0] + .04 && prog < T.regroup[0];
+  hud.bar.classList.toggle("off", !mid);
+  hud.note.classList.toggle("off", !mid);
+  setCaption(reveal > .5 ? active : -1);
+  hud.prog.style.transform = `scaleX(${prog})`;
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+const img = new Image();
+img.onload = () => buildParticles(img);
+img.src = LOGO_SRC;
+readScroll();
+requestAnimationFrame(frame);
+</script>
