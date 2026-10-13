@@ -422,33 +422,17 @@
     opacity:.75;
     transition:stroke-dashoffset 1.6s cubic-bezier(.65,0,.35,1);
   }
-  .arch-cap{
-    position:absolute;
-    left:0; right:0;
-    top:calc(100% + 1.1rem);
-    text-align:center;
-    font-size:.7rem;
-    letter-spacing:.2em;
-    text-transform:uppercase;
-    color:var(--rose);
-    opacity:0;
-    transform:translateY(8px);
-    transition:opacity 1s ease, transform 1s ease;
-  }
   .stage.content-revealed .arch-line path{ stroke-dashoffset:0; }
   .stage.content-revealed .arch-media{ clip-path:inset(0 0 0 0 round 999px 999px 3px 3px); transition-delay:.55s; }
   .stage.content-revealed .arch-media img,
   .stage.content-revealed .arch-media video{ transform:none; transition-delay:.55s, 0s; }
-  .stage.content-revealed .arch-cap{ opacity:1; transform:none; transition-delay:1.5s; }
   .stage.content-revealed .arch--right .arch-line path{ transition-delay:.25s; }
   .stage.content-revealed .arch--right .arch-media{ transition-delay:.8s; }
   .stage.content-revealed .arch--right .arch-media img,
   .stage.content-revealed .arch--right .arch-media video{ transition-delay:.8s, 0s; }
-  .stage.content-revealed .arch--right .arch-cap{ transition-delay:1.75s; }
   html.js-failed .arch-media{ clip-path:none !important; }
   html.js-failed .arch-media img{ transform:none !important; }
   html.js-failed .arch-line path{ stroke-dashoffset:0 !important; }
-  html.js-failed .arch-cap{ opacity:1 !important; transform:none !important; }
 
   /* the text column narrows a little so the arches have room */
   @media (min-width: 1101px){
@@ -475,9 +459,7 @@
     .arch--left{ --oy:0px; }
     .arch--right{ --oy:2.5rem; }
     .arch-line{ inset:-.4rem; width:calc(100% + .8rem); height:calc(100% + .8rem); }
-    .arch-cap{ top:calc(100% + .8rem); font-size:.62rem; }
-  }
-
+  
   /* ============ responsive ============ */
   @media (max-width: 880px){
     .panel{
@@ -709,7 +691,6 @@
           <img src="assets/salle.jpg" alt="La salle de Jacqueline : banquette rose, murs de marbre et de terrazzo, globes de verre au plafond" width="1100" height="1650">
         </picture>
       </div>
-      <figcaption class="arch-cap">La salle</figcaption>
     </figure>
     <figure class="arch arch--right">
       <svg class="arch-line" viewBox="0 0 100 140" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M1,139 L1,50 A49,49 0 0 1 99,50 L99,139 Z"/></svg>
@@ -722,7 +703,6 @@
           <source src="assets/jacqueline.mp4" type="video/mp4">
         </video>
       </div>
-      <figcaption class="arch-cap">La table</figcaption>
     </figure>
   </div>
 
