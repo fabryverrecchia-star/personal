@@ -75,14 +75,15 @@
     position:relative;
     width:clamp(3.4rem,7vw,4.6rem);
     aspect-ratio:307.11 / 470.75; /* progressive enhancement */
-    /* negative insets: the outline stroke spills past the box, keep it whole */
-    clip-path:inset(-8% -8% -8% -8%);
+    /* negative insets: the outline stroke spills past the box on every
+       side, so the clip leaves room for it instead of cutting it flat */
+    clip-path:inset(-10% -10% -10% -10%);
     transition:clip-path var(--picto-disappear-dur) ease;
   }
   /* once solid, it's masked away from the top down, staying centred —
      no movement, just a curtain of its own colour covering it */
   .preloader.is-disappearing .picto{
-    clip-path:inset(108% -8% -8% -8%);
+    clip-path:inset(110% -10% -10% -10%);
   }
   /* padding-top hack as a fallback height for browsers that don't support
      aspect-ratio (older mobile Safari) — without this the picto's box
@@ -133,7 +134,7 @@
 
   /* ============ LEFT: editorial / bourgogne panel ============ */
   .panel{
-    background:var(--bourgogne);
+    background:transparent;
     color:var(--ivoire-light);
     width:100%;
     min-height:100vh;
@@ -371,107 +372,50 @@
     white-space:nowrap;
   }
 
-  /* ============ FILM — opens full screen, then waits in a corner ============
-     after the preloader the video fades in over the whole screen and plays
-     a few seconds; then it glides into a small window in the corner while
-     the page composes itself, leaving the room to the content. A tap on the
-     window brings it back full screen; a tap or the cross sends it back */
-  .film{
-    --mb:clamp(.9rem, 2vw, 1.5rem);
-    --mw:clamp(10rem, 15vw, 15rem);
-    --mh:calc(var(--mw) * 9 / 16);
-    position:fixed;
-    z-index:150;
-    top:calc(100% - var(--mh) - var(--mb));
-    left:calc(100% - var(--mw) - var(--mb));
-    width:var(--mw);
-    height:var(--mh);
+  /* ============ VIDEO — plainly beside the text ============
+     large screens: the page splits in two, the text on the bourgogne half,
+     the video filling the other half edge to edge. Phones: logo, then the
+     video across the full width, then the text. No frame, no veil; it simply
+     fades in after the preloader */
+  .panel{ position:relative; background:var(--bourgogne); }
+  .media{
+    position:relative;
     overflow:hidden;
-    border-radius:2px;
     background:var(--bourgogne-deep);
-    box-shadow:0 18px 40px -18px rgba(0,0,0,.6);
-    opacity:0;
-    visibility:hidden;
-    transition:
-      top 1.15s cubic-bezier(.65,0,.35,1),
-      left 1.15s cubic-bezier(.65,0,.35,1),
-      width 1.15s cubic-bezier(.65,0,.35,1),
-      height 1.15s cubic-bezier(.65,0,.35,1),
-      border-radius 1.15s ease,
-      box-shadow 1.15s ease,
-      opacity 1.4s ease,
-      visibility 0s 0s;
   }
-  /* portrait screens: a portrait window, and the footer stacks to its left
-     so the window never covers the address or the e-mail */
-  @media (max-aspect-ratio: 1/1){
-    .film{ --mw:clamp(4.75rem, 21vw, 7rem); --mh:calc(var(--mw) * 16 / 9); }
-    .panel-foot{
-      flex-direction:column;
-      align-items:flex-start;
-      gap:.45rem;
-      padding-right:clamp(6.5rem, 27vw, 9rem);
-      min-height:calc(clamp(4.75rem, 21vw, 7rem) * 16 / 9);
-    }
-  }
-  .film.is-on{ opacity:1; visibility:visible; }
-  /* the first appearance happens in place, full screen: only the fade runs */
-  .film.no-move{ transition:opacity 1.4s ease, visibility 0s 0s; }
-  .film.is-full{
-    top:0; left:0;
-    width:100%; height:100%;
-    border-radius:0;
-    box-shadow:none;
-  }
-  .film video{
+  .media video{
     position:absolute;
     inset:0;
     width:100%;
     height:100%;
     object-fit:cover;
-    transform:scale(1.06);
-    transition:transform 6s cubic-bezier(.16,1,.3,1);
-  }
-  .film.is-on video{ transform:none; }
-  .film-open{
-    position:absolute;
-    inset:0;
-    width:100%;
-    border:none;
-    padding:0;
-    background:transparent;
-    cursor:zoom-in;
-  }
-  .film-open:focus-visible{ outline:2px solid var(--ivoire-light); outline-offset:-4px; }
-  .film.is-full .film-open{ cursor:zoom-out; }
-  /* a small sign on the window that it opens */
-  .film-open::after{
-    content:"";
-    position:absolute;
-    right:.45rem; bottom:.45rem;
-    width:.7rem; height:.7rem;
-    border-right:1px solid var(--ivoire-light);
-    border-bottom:1px solid var(--ivoire-light);
-    opacity:.85;
-    transition:opacity .4s ease;
-  }
-  .film.is-full .film-open::after{ opacity:0; }
-  .film-close{
-    position:absolute;
-    top:calc(1rem + env(safe-area-inset-top));
-    right:1rem;
-    width:2.75rem; height:2.75rem;
-    display:flex; align-items:center; justify-content:center;
-    border:none; border-radius:50%;
-    background:rgba(20,13,11,.35);
-    color:var(--ivoire-light);
-    font-size:1.6rem; line-height:1;
-    cursor:pointer;
     opacity:0;
-    pointer-events:none;
-    transition:opacity .4s ease;
+    transform:scale(1.04);
+    transition:opacity 1.6s ease, transform 4s cubic-bezier(.16,1,.3,1);
   }
-  .film.is-opened .film-close{ opacity:1; pointer-events:auto; }
+  .stage.content-revealed .media video.is-playing{ opacity:1; transform:none; }
+
+  @media (min-width: 900px){
+    /* the video half is placed against the stage, not the text panel */
+    .panel{ width:50%; position:static; }
+    .media{
+      position:absolute;
+      top:0; right:0; bottom:0;
+      width:50%;
+    }
+  }
+  @media (max-width: 899px){
+    .panel-top{ order:0; }
+    .media{
+      order:1;
+      width:100vw;
+      margin-inline:calc(50% - 50vw);
+      aspect-ratio:4 / 5;
+      max-height:62svh;
+    }
+    .panel-main{ order:2; }
+    .panel-foot{ order:3; }
+  }
 
   /* ============ responsive ============ */
   @media (max-width: 880px){
@@ -703,6 +647,10 @@
         </svg>
     </div>
 
+    <div class="media" aria-hidden="true">
+      <video id="bg-video" muted loop playsinline autoplay preload="auto"></video>
+    </div>
+
     <div class="panel-main">
       <div class="intro">
         <h1 class="lede" id="txt-heading">Jacqueline vous accueille.</h1>
@@ -727,12 +675,6 @@
     </div>
   </section>
 
-</div>
-
-<div class="film" id="film">
-  <video id="bg-video" muted loop playsinline preload="auto" aria-hidden="true"></video>
-  <button type="button" class="film-open" id="film-open" aria-label="Voir la vidéo en grand"></button>
-  <button type="button" class="film-close" id="film-close" aria-label="Réduire la vidéo">&times;</button>
 </div>
 
 <div class="carte" id="carte" aria-hidden="true">
@@ -1292,7 +1234,7 @@
     setTimeout(function(){ if(preloader.parentNode) preloader.remove(); }, cssMs("--preloader-leave-dur"));
   }
 
-  setTimeout(revealEverything, 16000); // absolute safety net
+  setTimeout(revealEverything, 9000); // absolute safety net
 
   // the loop always plays for at least MIN_DURATION before locking solid,
   // disappearing and handing off to the wordmark — this is the brand's
@@ -1308,11 +1250,7 @@
     preloader.classList.add("is-completing"); // locks the picto solid
     setTimeout(function(){
       preloader.classList.add("is-disappearing"); // masks it away downward
-      setTimeout(function(){
-        // the film opens full screen first, then gives the stage to the page
-        if(window.JacquelineFilm) window.JacquelineFilm.intro(revealEverything);
-        else revealEverything();
-      }, cssMs("--picto-disappear-dur"));
+      setTimeout(revealEverything, cssMs("--picto-disappear-dur"));
     }, cssMs("--picto-fill-dur") + cssMs("--picto-hold-dur"));
   }).catch(revealEverything);
 
@@ -1322,23 +1260,15 @@
   }
 })();
 
-/* ---------- the film ----------
-   intro(done): fades in full screen, waits until the video really plays,
-   lets it run a few seconds, then glides into its corner and calls done()
-   so the page composes. If the phone refuses autoplay, the intro is
-   skipped and the window waits in its corner (a tap plays it) */
+/* ---------- the video ----------
+   a tall cut for portrait screens (phones), a wide cut for landscape ones;
+   it shows only once it really plays, so a refused autoplay simply leaves
+   the bourgogne page */
 (function(){
   "use strict";
-  const film = document.getElementById("film");
   const video = document.getElementById("bg-video");
-  if(!film || !video) return;
-  const openBtn = document.getElementById("film-open");
-  const closeBtn = document.getElementById("film-close");
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const INTRO_MS = reduce ? 1200 : 3600;  // how long it plays full screen
-  const WAIT_MS = 2500;                    // longest wait for playback to start
-
-  const cut = window.matchMedia("(min-aspect-ratio: 1/1)").matches ? "wide" : "tall";
+  if(!video) return;
+  const cut = "tall"; // the video sits in a portrait area on every screen
   [["mp4","video/mp4"],["webm","video/webm"]].forEach(function(s){
     const el = document.createElement("source");
     el.src = "assets/jacqueline-" + cut + "." + s[0];
@@ -1347,67 +1277,21 @@
   });
   video.muted = true; // iOS only autoplays a video it knows is muted
   video.load();
-
+  video.addEventListener("playing", function(){ video.classList.add("is-playing"); });
   function tryPlay(){
     const p = video.play && video.play();
     if(p && p.catch) p.catch(function(){});
   }
-  function toCorner(){
-    film.classList.remove("is-full", "is-opened");
-    document.documentElement.style.overflow = "";
-    openBtn.setAttribute("aria-label", "Voir la vidéo en grand");
-  }
-  function toFull(opened){
-    film.classList.add("is-on", "is-full");
-    if(opened){
-      film.classList.add("is-opened");
-      document.documentElement.style.overflow = "hidden";
-      openBtn.setAttribute("aria-label", "Réduire la vidéo");
-    }
-    tryPlay();
-  }
-
-  let introDone = null;
-  function endIntro(){
-    if(!introDone) return;
-    const done = introDone; introDone = null;
-    toCorner();
-    done();
-  }
-  window.JacquelineFilm = {
-    intro:function(done){
-      introDone = done;
-      // appear full screen in place (no growing from the corner)
-      film.classList.add("no-move", "is-full");
-      void film.offsetWidth;
-      toFull(false);
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){ film.classList.remove("no-move"); }); });
-      let started = false;
-      const giveUp = setTimeout(function(){ if(!started){ film.classList.add("is-on"); endIntro(); } }, WAIT_MS);
-      video.addEventListener("playing", function once(){
-        video.removeEventListener("playing", once);
-        started = true;
-        clearTimeout(giveUp);
-        setTimeout(endIntro, INTRO_MS);
-      });
-    }
-  };
-
-  // a tap during the intro skips it; afterwards a tap toggles full screen
-  openBtn.addEventListener("click", function(){
-    if(introDone){ endIntro(); return; }
-    if(film.classList.contains("is-opened")) toCorner(); else toFull(true);
-  });
-  closeBtn.addEventListener("click", toCorner);
-  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && film.classList.contains("is-opened")) toCorner(); });
-  document.addEventListener("visibilitychange", function(){ if(!document.hidden && video.paused && film.classList.contains("is-on")) tryPlay(); });
-  // phones that refused autoplay: the first touch or scroll starts it
+  tryPlay();
+  // when the phone refuses autoplay (low power mode), start on the first
+  // touch or scroll — a gesture is always allowed to start a muted video
   const gestures = ["touchstart","pointerdown","scroll","keydown"];
   function onGesture(){
     tryPlay();
     if(!video.paused) gestures.forEach(function(ev){ window.removeEventListener(ev, onGesture); });
   }
   gestures.forEach(function(ev){ window.addEventListener(ev, onGesture, { passive:true }); });
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden && video.paused) tryPlay(); });
 })();
 
 /* ---------- la carte: menu & wines ----------
