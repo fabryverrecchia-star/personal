@@ -459,7 +459,8 @@
     .arch--left{ --oy:0px; }
     .arch--right{ --oy:2.5rem; }
     .arch-line{ inset:-.4rem; width:calc(100% + .8rem); height:calc(100% + .8rem); }
-  
+  }
+
   /* ============ responsive ============ */
   @media (max-width: 880px){
     .panel{
@@ -502,122 +503,149 @@
      revealed paragraph doesn't replay its reveal transition */
   .no-anim, .no-anim *{ transition:none !important; }
 
-  /* ============ menu modal — a light, printed-card moment against the
-     dark site; opens like two doors parting from the centre, echoing the
-     mask reveals used everywhere else on the page ============ */
-  .menu-modal{
-    position:fixed;
-    inset:0;
-    z-index:200;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:1.5rem;
-    visibility:hidden;
-    opacity:0;
-    transition:opacity 0.4s ease, visibility 0.4s ease;
-  }
-  .menu-modal.is-open{
-    visibility:visible;
-    opacity:1;
-  }
-  .menu-modal-backdrop{
+  /* ============ LA CARTE — menu & wines, mobile first ============
+     a full-screen sheet on a phone (it slides up from the bottom), a
+     centred card on larger screens; paper background like the printed
+     menu; the header stays, the content scrolls inside */
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  .carte{position:fixed;inset:0;z-index:200;visibility:hidden;pointer-events:none;transition:visibility 0s .7s;}
+  .carte.is-open{visibility:visible;pointer-events:auto;transition:visibility 0s 0s;}
+  .carte-backdrop{position:absolute;inset:0;background:rgba(20,13,11,.62);opacity:0;transition:opacity .5s ease;}
+  .carte.is-open .carte-backdrop{opacity:1;}
+  .carte-sheet{
     position:absolute;
     inset:0;
-    background:rgba(20,13,11,0.78);
-    backdrop-filter:blur(4px);
-    -webkit-backdrop-filter:blur(4px);
-  }
-  .menu-modal-card{
-    position:relative;
-    width:min(100%, 27rem);
-    max-height:calc(100% - 1rem);
-    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
     background:var(--ivoire-light);
-    border-radius:0.5rem;
-    padding:clamp(2.5rem,7vw,3.25rem) clamp(1.75rem,6vw,2.75rem) clamp(2rem,5vw,2.5rem);
-    color:var(--bourgogne-deep);
-    text-align:center;
-    box-shadow:0 40px 80px -20px rgba(0,0,0,0.5);
-    /* closed: a hairline sliver at the centre; open: doors part to reveal
-       the full card — a mask reveal, not a resize, so nothing distorts */
-    clip-path:inset(49.5% 0 49.5% 0);
-    opacity:0;
-    transition:clip-path 0.55s cubic-bezier(.65,0,.35,1), opacity 0.25s ease;
-  }
-  .menu-modal.is-open .menu-modal-card{
-    clip-path:inset(0 0 0 0);
-    opacity:1;
-  }
-  .menu-modal-close{
-    position:absolute;
-    top:0.75rem;
-    right:0.75rem;
-    width:2.25rem;
-    height:2.25rem;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:none;
-    border:none;
-    color:var(--bourgogne-deep);
-    font-size:1.5rem;
-    line-height:1;
-    cursor:pointer;
-    border-radius:50%;
-    transition:background 0.2s ease;
-  }
-  .menu-modal-close:hover,
-  .menu-modal-close:focus-visible{
-    background:rgba(74,22,19,0.08);
-  }
-  .menu-modal-title{
-    font-family:'Belleza', sans-serif;
-    font-weight:400;
-    font-size:clamp(1rem,3.4vw,1.2rem);
-    letter-spacing:0.18em;
-    text-transform:uppercase;
-    color:var(--bourgogne-deep);
-    margin:0 0 0.85rem;
-  }
-  .menu-modal-rule{
-    width:2.5rem;
-    height:1px;
-    background:var(--or);
-    margin:0 auto clamp(1.5rem,4vw,2rem);
-  }
-  .menu-section + .menu-section{
-    margin-top:1.5rem;
-  }
-  .menu-section h3{
-    font-family:'Belleza', sans-serif;
-    font-weight:400;
-    font-size:0.78rem;
-    letter-spacing:0.16em;
-    text-transform:uppercase;
-    color:var(--bourgogne);
-    padding-bottom:0.5rem;
-    margin-bottom:0.6rem;
-    border-bottom:1px solid rgba(74,22,19,0.18);
-  }
-  .menu-line{
-    display:flex;
-    justify-content:space-between;
-    align-items:baseline;
-    gap:1rem;
-    font-family:'Belleza', serif;
-    font-size:1.05rem;
-    padding:0.4rem 0;
-  }
-  .menu-line span:first-child{
     color:var(--noir);
-    text-align:left;
+    transform:translateY(100%);
+    transition:transform .75s cubic-bezier(.16,1,.3,1);
   }
-  .menu-line span:last-child{
-    font-variant-numeric:tabular-nums;
-    color:var(--bourgogne-deep);
-    font-weight:500;
-    white-space:nowrap;
+  .carte.is-open .carte-sheet{transform:none;}
+  .carte-head{
+    flex:none;
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:center;
+    row-gap:.85rem;
+    padding:calc(.9rem + env(safe-area-inset-top)) 1.25rem 0;
+    border-bottom:1px solid rgba(74,22,19,.14);
+  }
+  .carte-title{font-family:'Belleza',sans-serif;font-size:.8rem;letter-spacing:.24em;text-transform:uppercase;color:var(--bourgogne);}
+  .carte-close{
+    width:2.75rem;height:2.75rem;margin-right:-.6rem;
+    display:flex;align-items:center;justify-content:center;
+    background:none;border:none;border-radius:50%;
+    font-size:1.7rem;line-height:1;color:var(--bourgogne-deep);cursor:pointer;
+  }
+  .carte-close:hover,.carte-close:focus-visible{background:rgba(74,22,19,.08);}
+  .carte-tabs{grid-column:1 / -1;display:flex;gap:1.75rem;}
+  .carte-tab{
+    position:relative;
+    padding:.35rem 0 .85rem;
+    background:none;border:none;cursor:pointer;
+    font-family:'Belleza',sans-serif;font-size:1.05rem;letter-spacing:.12em;text-transform:uppercase;
+    color:rgba(36,26,23,.45);
+    transition:color .3s ease;
+  }
+  .carte-tab::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--bourgogne);transform:scaleX(0);transition:transform .45s cubic-bezier(.16,1,.3,1);}
+  .carte-tab[aria-selected="true"]{color:var(--bourgogne-deep);}
+  .carte-tab[aria-selected="true"]::after{transform:scaleX(1);}
+  .carte-tab:focus-visible{outline:2px solid var(--bourgogne);outline-offset:2px;}
+  .carte-body{
+    flex:1;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    padding:1.75rem 1.25rem calc(3rem + env(safe-area-inset-bottom));
+    scroll-padding-top:4rem;
+  }
+  .carte-panel[hidden]{display:none;}
+
+  /* menu */
+  .mn-intro{text-align:center;font-family:'Newsreader',serif;font-style:italic;font-size:1.05rem;color:rgba(36,26,23,.6);margin-bottom:2rem;}
+  .mn-sec{text-align:center;margin-bottom:2.25rem;}
+  .mn-title{font-family:'Belleza',sans-serif;font-weight:400;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--bourgogne);margin-bottom:1rem;}
+  .mn-sub{font-family:'Newsreader',serif;font-style:italic;font-size:.95rem;color:rgba(36,26,23,.6);margin:-.6rem 0 1rem;}
+  .mn-dish + .mn-dish{margin-top:1.15rem;}
+  .mn-name{font-family:'Newsreader',serif;font-size:1.2rem;line-height:1.25;color:var(--noir);}
+  .mn-desc{font-family:'Newsreader',serif;font-style:italic;font-size:.98rem;line-height:1.35;color:rgba(36,26,23,.66);margin-top:.2rem;}
+  .mn-allergens{font-family:'Belleza',sans-serif;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#a77a6d;margin-top:.35rem;}
+  .mn-prices{display:grid;gap:1.75rem;padding:1.75rem 0;margin:1rem 0 1.5rem;border-top:1px solid rgba(74,22,19,.14);border-bottom:1px solid rgba(74,22,19,.14);}
+  .mn-prices .mn-title{text-align:center;}
+  .mn-line{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;font-family:'Newsreader',serif;font-size:1.08rem;padding:.3rem 0;}
+  .mn-line em{font-size:.9rem;color:rgba(36,26,23,.6);}
+  .mn-line span:last-child{font-family:'Belleza',sans-serif;color:var(--bourgogne);white-space:nowrap;}
+  .mn-note{text-align:center;font-family:'Newsreader',serif;font-style:italic;font-size:.88rem;line-height:1.5;color:rgba(36,26,23,.6);}
+  .mn-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:1rem 1.75rem;margin-top:1.75rem;}
+  .carte-link{
+    background:none;border:none;padding:0 0 2px;cursor:pointer;
+    font-family:'Belleza',sans-serif;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--bourgogne);text-decoration:none;border-bottom:1px solid var(--rose);
+  }
+
+  /* wines */
+  .vn-chips{
+    position:sticky;
+    top:-1.75rem;
+    z-index:2;
+    display:flex;
+    gap:.5rem;
+    margin:-1.75rem -1.25rem 1.25rem;
+    padding:.85rem 1.25rem;
+    overflow-x:auto;
+    scrollbar-width:none;
+    background:var(--ivoire-light);
+    border-bottom:1px solid rgba(74,22,19,.08);
+  }
+  .vn-chips::-webkit-scrollbar{display:none;}
+  .vn-chip{
+    flex:none;
+    padding:.5rem .85rem;
+    border:1px solid rgba(74,22,19,.22);
+    border-radius:999px;
+    font-family:'Belleza',sans-serif;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--bourgogne-deep);text-decoration:none;white-space:nowrap;
+    transition:background .3s ease,color .3s ease,border-color .3s ease;
+  }
+  .vn-chip.is-active{background:var(--bourgogne);border-color:var(--bourgogne);color:var(--ivoire-light);}
+  .vn-intro{font-family:'Newsreader',serif;font-style:italic;font-size:.9rem;color:rgba(36,26,23,.55);margin-bottom:1.25rem;}
+  .vn-sec{margin-bottom:2.5rem;}
+  .vn-title{
+    font-family:'Belleza',sans-serif;font-weight:400;font-size:.82rem;letter-spacing:.24em;text-transform:uppercase;color:var(--bourgogne);
+    padding-bottom:.6rem;margin-bottom:.4rem;border-bottom:1px solid rgba(74,22,19,.18);
+  }
+  .vn-reg{font-family:'Newsreader',serif;font-style:italic;font-size:1rem;color:rgba(36,26,23,.6);margin:1.1rem 0 .1rem;}
+  .vn-list{list-style:none;}
+  .vn-item{
+    display:grid;
+    grid-template-columns:1fr auto;
+    column-gap:1rem;
+    padding:.6rem 0;
+    border-bottom:1px dotted rgba(74,22,19,.16);
+  }
+  .vn-name{font-family:'Newsreader',serif;font-size:1.04rem;line-height:1.3;color:var(--noir);}
+  .vn-price{font-family:'Belleza',sans-serif;font-size:1rem;color:var(--bourgogne);font-variant-numeric:tabular-nums;white-space:nowrap;padding-top:.1rem;}
+  .vn-desc{grid-column:1 / -1;font-family:'Newsreader',serif;font-style:italic;font-size:.86rem;line-height:1.35;color:rgba(36,26,23,.6);margin-top:.15rem;}
+
+  /* larger screens: a centred card */
+  @media (min-width: 760px){
+    .carte-sheet{
+      inset:4vh auto 4vh 50%;
+      width:min(44rem, 92vw);
+      border-radius:.5rem;
+      overflow:hidden;
+      box-shadow:0 40px 80px -20px rgba(0,0,0,.5);
+      transform:translate(-50%, 4vh);
+      opacity:0;
+      transition:transform .7s cubic-bezier(.16,1,.3,1), opacity .4s ease;
+    }
+    .carte.is-open .carte-sheet{transform:translate(-50%, 0);opacity:1;}
+    .carte-head{padding:1.25rem 2.25rem 0;}
+    .carte-body{padding:2.25rem 2.25rem 3rem;}
+    .vn-chips{top:-2.25rem;margin:-2.25rem -2.25rem 1.5rem;padding:.9rem 2.25rem;flex-wrap:wrap;}
+    .mn-prices{grid-template-columns:1fr 1fr;gap:2.5rem;}
   }
 
   /* absolute safety net: if the reveal script throws for any reason, this
@@ -671,7 +699,7 @@
 
       <div class="cta-group">
         <a href="https://bookings.zenchef.com/results?rid=388647&pid=1001" class="btn btn--fill" target="_blank" rel="noopener">Réservez dès maintenant</a>
-        <button type="button" class="btn btn--outline" id="menu-trigger" aria-haspopup="dialog" aria-controls="menu-modal">Découvrir les menus</button>
+        <a href="#carte" class="btn btn--outline" data-open-carte="menu" aria-haspopup="dialog" aria-controls="carte">La carte &amp; les vins</a>
       </div>
 
       <a href="https://www.instagram.com/jacqueline_restaurantparis/" class="menu-trigger" target="_blank" rel="noopener">
@@ -715,22 +743,396 @@
 
 </div>
 
-<div class="menu-modal" id="menu-modal" aria-hidden="true">
-  <div class="menu-modal-backdrop" data-menu-close></div>
-  <div class="menu-modal-card" role="dialog" aria-modal="true" aria-labelledby="menu-modal-title">
-    <button type="button" class="menu-modal-close" data-menu-close aria-label="Fermer">&times;</button>
-    <p class="menu-modal-title" id="menu-modal-title">Les Expériences Jacqueline</p>
-    <div class="menu-modal-rule"></div>
-
-    <div class="menu-section">
-      <h3>Déjeuner</h3>
-      <div class="menu-line"><span>Menu 3 séquences</span><span>49&nbsp;€</span></div>
-      <div class="menu-line"><span>Menu 5 séquences</span><span>95&nbsp;€</span></div>
-    </div>
-
-    <div class="menu-section">
-      <h3>Dîner</h3>
-      <div class="menu-line"><span>Menu 5 séquences</span><span>95&nbsp;€</span></div>
+<div class="carte" id="carte" aria-hidden="true">
+  <div class="carte-backdrop" data-carte-close></div>
+  <div class="carte-sheet" role="dialog" aria-modal="true" aria-labelledby="carte-title">
+    <header class="carte-head">
+      <p class="carte-title" id="carte-title">La carte</p>
+      <button type="button" class="carte-close" data-carte-close aria-label="Fermer la carte">&times;</button>
+      <div class="carte-tabs" role="tablist" aria-label="La carte">
+        <button type="button" class="carte-tab" role="tab" id="tab-menu" aria-controls="panel-menu" aria-selected="true" data-tab="menu">Menu</button>
+        <button type="button" class="carte-tab" role="tab" id="tab-vins" aria-controls="panel-vins" aria-selected="false" data-tab="vins" tabindex="-1">Vins</button>
+      </div>
+    </header>
+    <div class="carte-body" id="carte-body">
+      <div class="carte-panel" role="tabpanel" id="panel-menu" aria-labelledby="tab-menu">
+        <p class="mn-intro">Menus en séquences</p>
+        <section class="mn-sec">
+          <h3 class="mn-title">Apéritifs</h3>
+          <div class="mn-dish">
+            <p class="mn-name">Huître Pochée</p>
+            <p class="mn-desc">Lait de Fenouil, Condiment Salicorne et Wasabi</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose · Sulfites · Mollusques</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">Consommé d’Oignon aux Herbes</p>
+            <p class="mn-desc">Crème Crue, Confit d’Oignon et Câpres</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Gluten · Lactose · Soja</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">Moules à la Flamme</p>
+            <p class="mn-desc">Laquage Piment et Emulsion au Saté</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Sulfites · Arachides · Œufs · Mollusques · Soja</p>
+          </div>
+        </section>
+        <section class="mn-sec">
+          <h3 class="mn-title">Séquence iode</h3>
+          <div class="mn-dish">
+            <p class="mn-name">Choux Brûlé</p>
+            <p class="mn-desc">Condiment Nori, Beurre Blanc à la Dulse et Oeufs de Truite</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose · Sulfites</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">Crème d’Algues</p>
+            <p class="mn-desc">Navet Mariné et Coulis à la Capucine</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose</p>
+          </div>
+        </section>
+        <section class="mn-sec">
+          <h3 class="mn-title">Séquence végétale</h3>
+          <p class="mn-sub">Le champignon</p>
+          <div class="mn-dish">
+            <p class="mn-name">Champignon d’Automne</p>
+            <p class="mn-desc">Farce Champignon, Ragoût de Champignon au Café, Sauce Cognac et Châtaigne</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Gluten · Lactose · Soja</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">Emulsion au Champignon et Café</p>
+            <p class="mn-desc">Sobacha Grillé</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose · Soja</p>
+          </div>
+        </section>
+        <section class="mn-sec">
+          <h3 class="mn-title">Séquence corsée</h3>
+          <div class="mn-dish">
+            <p class="mn-name">Seiche</p>
+            <p class="mn-desc">Lard Affiné, Bouillon de Seiche et Kombu Rôti</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Sulfites · Crustacés · Œufs · Soja</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">Boeuf</p>
+            <p class="mn-desc">Coulis de Shiso, Jus Corsé et Haricots Brûlés</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose · Soja</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">“Grattons” de Boeuf</p>
+            <p class="mn-desc">Consommé de Boeuf et Condiment Kimchi</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Sulfites · Soja</p>
+          </div>
+        </section>
+        <section class="mn-sec">
+          <h3 class="mn-title">Séquence fruitée</h3>
+          <div class="mn-dish">
+            <p class="mn-name">Prune cuite en Croûte de Sucre</p>
+            <p class="mn-desc">Condiment ‘Umebushi’, Jus de Prune et Rose Grillée</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Sulfites</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">Sorbet Prune</p>
+            <p class="mn-desc">Crème Aigrelette, et Confit de Prune</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose</p>
+          </div>
+        </section>
+        <section class="mn-sec">
+          <h3 class="mn-title">Séquence gourmande</h3>
+          <div class="mn-dish">
+            <p class="mn-name">Ganache au Chocolat Fumé Tiède</p>
+            <p class="mn-desc">Crémeux Caramel, Miso Blond et Croustillant à l’Epeautre Soufflé et Malt Chocolat</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Gluten · Lactose · Œufs</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">Glace Vanille Grillée</p>
+            <p class="mn-desc">Sirop Malt Chocolat</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Gluten · Lactose · Soja</p>
+          </div>
+        </section>
+        <section class="mn-prices">
+          <div>
+            <h3 class="mn-title">Menus</h3>
+            <p class="mn-line"><span>3 séquences <em>au déjeuner</em></span><span>49&nbsp;€</span></p>
+            <p class="mn-line"><span>5 séquences</span><span>95&nbsp;€</span></p>
+          </div>
+          <div>
+            <h3 class="mn-title">Accords mets &amp; vins</h3>
+            <p class="mn-line"><span>3 séquences</span><span>35&nbsp;€</span></p>
+            <p class="mn-line"><span>5 séquences</span><span>55&nbsp;€</span></p>
+          </div>
+        </section>
+        <p class="mn-note">Allergènes indiqués sous chaque plat. N’hésitez pas à nous signaler toute allergie ou intolérance.<br>Prix nets en euros, toutes taxes comprises, service compris. La maison n’accepte pas les chèques.</p>
+        <p class="mn-actions"><button type="button" class="carte-link" data-tab="vins">Voir la carte des vins</button><a class="carte-link" href="assets/menu-jacqueline.pdf" target="_blank" rel="noopener">Menu en PDF</a></p>
+      </div>
+      <div class="carte-panel" role="tabpanel" id="panel-vins" aria-labelledby="tab-vins" hidden>
+        <nav class="vn-chips" aria-label="Catégories de vins">
+          <a class="vn-chip" href="#vins-champagnes" data-target="vins-champagnes">Champagnes</a>
+          <a class="vn-chip" href="#vins-bulles" data-target="vins-bulles">Bulles</a>
+          <a class="vn-chip" href="#vins-macerations" data-target="vins-macerations">Macérations</a>
+          <a class="vn-chip" href="#vins-roses" data-target="vins-roses">Rosés</a>
+          <a class="vn-chip" href="#vins-blancs" data-target="vins-blancs">Blancs</a>
+          <a class="vn-chip" href="#vins-rouges" data-target="vins-rouges">Rouges</a>
+          <a class="vn-chip" href="#vins-italie" data-target="vins-italie">Italie</a>
+          <a class="vn-chip" href="#vins-californie" data-target="vins-californie">Californie</a>
+          <a class="vn-chip" href="#vins-doux-et-moelleux" data-target="vins-doux-et-moelleux">Doux &amp; moelleux</a>
+          <a class="vn-chip" href="#vins-sans-alcool" data-target="vins-sans-alcool">Sans alcool</a>
+          <a class="vn-chip" href="#vins-cocktail" data-target="vins-cocktail">Cocktail</a>
+        </nav>
+        <p class="vn-intro">Prix en euros, à la bouteille.</p>
+        <section class="vn-sec" id="vins-champagnes">
+          <h3 class="vn-title">Les champagnes</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Bonnaire, “Les Versants Réserve”</span><span class="vn-price">76</span><span class="vn-desc">Extra-Brut. Chardonnay, pinot noir, pinot meunier</span></li>
+            <li class="vn-item"><span class="vn-name">Bonnet-Ponson, “Cuvée Perpétuelle”</span><span class="vn-price">92</span><span class="vn-desc">Non dosée. Pinot noir, chardonnay, pinot meunier, vins de réserve.</span></li>
+            <li class="vn-item"><span class="vn-name">Drappier, “Brut Nature”</span><span class="vn-price">88</span><span class="vn-desc">Non dosé. Blanc de Noirs (pinot noir)</span></li>
+            <li class="vn-item"><span class="vn-name">Drappier, “Blanc de Blancs”</span><span class="vn-price">94</span><span class="vn-desc">Chardonnay, blanc vrai</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-bulles">
+          <h3 class="vn-title">Les bulles</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Mélanie Pfister, “Breit”</span><span class="vn-price">44</span><span class="vn-desc">Extra-Brut Blanc de Blancs. Chardonnay, pinot blanc, pinot auxerrois. AOC Crémant d'Alsace 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Le Fief Noir, “Ô Temps, Suspend ton Vol”</span><span class="vn-price">38</span><span class="vn-desc">Chenin. Anjou Noir. Vin de France</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Plageoles, “Mauzac Nature”</span><span class="vn-price">44</span><span class="vn-desc">Mauzac rose. AOP Gaillac 2022</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-macerations">
+          <h3 class="vn-title">Les macérations</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Mélanie Pfister</span><span class="vn-price">64</span><span class="vn-desc">Macération de gewurztraminer. AOC Alsace 2020</span></li>
+            <li class="vn-item"><span class="vn-name">Les Vignes du Mayne, “Pearl &amp; Button”</span><span class="vn-price">68</span><span class="vn-desc">Chardonnay. Bourgogne blanc 2019</span></li>
+            <li class="vn-item"><span class="vn-name">Jeremy Bricka, “Orange”</span><span class="vn-price">45</span><span class="vn-desc">Chasselas - Isère. Vin de France 2022</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-roses">
+          <h3 class="vn-title">Les rosés</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Domaine de Sulauze, “Pomponette”</span><span class="vn-price">32</span><span class="vn-desc">Grenache, cinsault, syrah, mourvèdre, rolle. AOP Coteaux d'Aix-en-Provence 2025</span></li>
+            <li class="vn-item"><span class="vn-name">Maxime Magnon, “Métisse”</span><span class="vn-price">59</span><span class="vn-desc">Rosé de saignée. Grenache, cinsault, carignan. AOC Corbières 2024</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-blancs">
+          <h3 class="vn-title">Les blancs</h3>
+          <p class="vn-reg">Alsace</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Mélanie Pfister, “Mel”</span><span class="vn-price">59</span><span class="vn-desc">Riesling, muscat, pinot gris, gewurztraminer. AOC Alsace 2024</span></li>
+            <li class="vn-item"><span class="vn-name">Mélanie Pfister, “Engelberg”</span><span class="vn-price">92</span><span class="vn-desc">Grand Cru Riesling. AOC Alsace 2020</span></li>
+          </ul>
+          <p class="vn-reg">Loire</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Hervé Villemade, “Cheverny”</span><span class="vn-price">36</span><span class="vn-desc">Sauvignon, chardonnay. 2025</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Landron, “Amphibolite”</span><span class="vn-price">42</span><span class="vn-desc">Melon de bourgogne. AOC Muscadet Sèvre et Maine 2024</span></li>
+            <li class="vn-item"><span class="vn-name">Terra Vita Vinum, “Terre de 3”</span><span class="vn-price">50</span><span class="vn-desc">Version libre. Chenin. AOC Anjou 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Terra Vita Vinum, “Pavillon”</span><span class="vn-price">105</span><span class="vn-desc">Chenin. AOC Anjou 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Château de Plaisance, “Savennières”</span><span class="vn-price">98</span><span class="vn-desc">Chenin. AOC Savennières 2024</span></li>
+            <li class="vn-item"><span class="vn-name">Belargus, “Quarts”</span><span class="vn-price">165</span><span class="vn-desc">Chenin. AOC Anjou 2021</span></li>
+          </ul>
+          <p class="vn-reg">Bourgogne</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Fanny Sabre, “Bourgogne Blanc”</span><span class="vn-price">64</span><span class="vn-desc">Chardonnay. AOC Bourgogne 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Fanny Sabre, “Beaune les Prévolles”</span><span class="vn-price">112</span><span class="vn-desc">Chardonnay. AOC Beaune 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Fanny Sabre, “Beaune Clos des Renardes”</span><span class="vn-price">108</span><span class="vn-desc">Chardonnay. AOC Beaune 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Fanny Sabre, “Meursault Limozin”</span><span class="vn-price">160</span><span class="vn-desc">Chardonnay. AOC Meursault 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Buisson-Charles, “Bourgogne Aligoté Hors Classe”</span><span class="vn-price">80</span><span class="vn-desc">AOC Bourgogne 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Buisson-Charles, “Pouilly-Fuissé 1er Cru la Maréchaude”</span><span class="vn-price">105</span><span class="vn-desc">AOC Pouilly-Fuissé 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Buisson-Charles, “Meursault Bouches Chères 1er Cru”</span><span class="vn-price">232</span><span class="vn-desc">Chardonnay. AOC Meursault 1er Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Matrot, “Meursault”</span><span class="vn-price">155</span><span class="vn-desc">Chardonnay. AOC Meursault 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Matrot, “Meursault Charmes 1er Cru”</span><span class="vn-price">228</span><span class="vn-desc">Chardonnay. AOC Meursault 1er Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Matrot, “Meursault Blagny 1er Cru”</span><span class="vn-price">228</span><span class="vn-desc">Chardonnay. AOC Meursault 1er Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Matrot, “Meursault Perrières 1er Cru”</span><span class="vn-price">256</span><span class="vn-desc">Chardonnay. AOC Meursault 1er Cru 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Matrot, “Puligny-Montrachet 1er Cru Chalumeaux”</span><span class="vn-price">228</span><span class="vn-desc">Chardonnay. AOC Puligny-Montrachet 1er Cru 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de Montille, “Puligny-Montrachet 1er Cru les Folatières”</span><span class="vn-price">265</span><span class="vn-desc">Chardonnay. AOC Puligny-Montrachet 1er Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de Montille, “Corton-Charlemagne Grand Cru”</span><span class="vn-price">375</span><span class="vn-desc">Chardonnay. AOC Corton Grand Cru 2022</span></li>
+          </ul>
+          <p class="vn-reg">Mâconnais</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Domaine de la Bongran, “Cuvée E.J. Thévenet”</span><span class="vn-price">76</span><span class="vn-desc">AOC Viré-Clessé 2019</span></li>
+            <li class="vn-item"><span class="vn-name">Les Vignes du Mayne, “Mâcon Cruzille au Quin Château”</span><span class="vn-price">68</span><span class="vn-desc">AOC Mâcon Cruzille 2022</span></li>
+          </ul>
+          <p class="vn-reg">Beaujolais</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Mee Godard, “Beaujolais Blanc”</span><span class="vn-price">44</span><span class="vn-desc">Chardonnay. AOC Beaujolais 2023</span></li>
+          </ul>
+          <p class="vn-reg">Jura</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Les Bottes Rouges, “Face B”</span><span class="vn-price">78</span><span class="vn-desc">Savagnin. AOC Côtes-du-Jura. 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de la Borde, “Nature Foudre à Canon”</span><span class="vn-price">84</span><span class="vn-desc">Savagnin. AOC Arbois-Pupillin. 2020</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de la Borde, “Terre de Lias”</span><span class="vn-price">76</span><span class="vn-desc">Chardonnay. AOC Arbois-Pupillin. 2020</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de la Renardière, “Cuvée 1966”</span><span class="vn-price">68</span><span class="vn-desc">Chardonnay. AOC Arbois-Pupillin. 2022</span></li>
+          </ul>
+          <p class="vn-reg">Savoie</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Ludovic Archer, “Giant Step”</span><span class="vn-price">62</span><span class="vn-desc">Jacquère. AOP Savoie Blanc 2024</span></li>
+          </ul>
+          <p class="vn-reg">Rhône</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Domaine des Bruyères, “Les Petites Bêtises”</span><span class="vn-price">38</span><span class="vn-desc">Marsanne, Roussanne. IGP des Collines Rhodaniennes 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine des Bruyères, “Granit”</span><span class="vn-price">38</span><span class="vn-desc">Viognier. IGP des Collines Rhodaniennes 2025</span></li>
+            <li class="vn-item"><span class="vn-name">Georges Vernay, “Condrieu les Chaillées de l'Enfer”</span><span class="vn-price">176</span><span class="vn-desc">Viognier. AOC Condrieu 2022</span></li>
+          </ul>
+          <p class="vn-reg">Provence</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Domaine de Plérimond, “Madame Rêve”</span><span class="vn-price">48</span><span class="vn-desc">Rolle. Vin de France 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de Sulauze, “Galinette”</span><span class="vn-price">36</span><span class="vn-desc">Clairette, grenache blanc, ugni blanc, rolle. AOP Coteaux d'Aix-en-Provence 2024</span></li>
+          </ul>
+          <p class="vn-reg">Languedoc</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Clos Marie, “Manon”</span><span class="vn-price">58</span><span class="vn-desc">Grenache blanc et gris, roussanne, rolle, carignan, clairette, muscat. AOC Languedoc 2023</span></li>
+          </ul>
+          <p class="vn-reg">Roussillon</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Olivier Pithon, “Laïs”</span><span class="vn-price">60</span><span class="vn-desc">Maccabeu, grenache blanc et gris. AOP Côtes-du-Roussillon 2022</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-rouges">
+          <h3 class="vn-title">Les rouges</h3>
+          <p class="vn-reg">Alsace</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Mélanie Pfister, “Weg”</span><span class="vn-price">56</span><span class="vn-desc">Pinot noir. AOC Alsace. 2025</span></li>
+            <li class="vn-item"><span class="vn-name">Mélanie Pfister, “Hüt”</span><span class="vn-price">88</span><span class="vn-desc">Pinot noir. AOC Alsace. 2023</span></li>
+          </ul>
+          <p class="vn-reg">Anjou Noir</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Terra Vita Vinum, “Violettes”</span><span class="vn-price">56</span><span class="vn-desc">Cabernet franc. Vin de France 2023</span></li>
+          </ul>
+          <p class="vn-reg">Centre Loire</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Hervé Villemade, “Cheverny”</span><span class="vn-price">36</span><span class="vn-desc">Pinot noir, gamay 2025</span></li>
+            <li class="vn-item"><span class="vn-name">Hervé Villemade, “Pineau d'Aunis”</span><span class="vn-price">60</span><span class="vn-desc">Vin de France 2023</span></li>
+          </ul>
+          <p class="vn-reg">Côte Roannaise</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Reniteo, “Pourpre”</span><span class="vn-price">36</span><span class="vn-desc">Gamay saint-romain, gamay de bouze. AOC Côte roannaise 2025</span></li>
+            <li class="vn-item"><span class="vn-name">Reniteo, “La Part des Lionnes”</span><span class="vn-price">66</span><span class="vn-desc">Gamay saint-romain. AOC Côte roannaise 2024</span></li>
+          </ul>
+          <p class="vn-reg">Bourgogne</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Aurore Bachelet, “Maranges”</span><span class="vn-price">60</span><span class="vn-desc">Pinot noir. AOC Maranges 2024</span></li>
+            <li class="vn-item"><span class="vn-name">Fanny Sabre, “Pommard”</span><span class="vn-price">125</span><span class="vn-desc">Pinot noir. AOC Pommard 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Fanny Sabre, “Beaune 1er Cru les Chouacheux”</span><span class="vn-price">135</span><span class="vn-desc">Pinot noir. AOC Beaune 1er cru 2019</span></li>
+            <li class="vn-item"><span class="vn-name">Antoine Lienhardt, “Emphase”</span><span class="vn-price">125</span><span class="vn-desc">Pinot noir. AOC Côte de Nuits Villages 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Buisson-Charles, “Beaune 1er Cru les Marconnets”</span><span class="vn-price">135</span><span class="vn-desc">Pinot noir. AOC Beaune 1er cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Buisson-Charles, “Corton Grand Cru”</span><span class="vn-price">230</span><span class="vn-desc">Pinot noir. AOC Corton Grand Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Matrot, “Blagny la Pièce sous le Bois 1er Cru”</span><span class="vn-price">145</span><span class="vn-desc">Pinot noir. AOC Blagny 1er Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Matrot, “Volnay-Santenots 1er Cru”</span><span class="vn-price">145</span><span class="vn-desc">Pinot noir. AOC Volnay 1er Cru 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de Montille, “Volnay 1er Cru les Taillepieds”</span><span class="vn-price">280</span><span class="vn-desc">Pinot noir. AOC Volnay 1er Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Thibault Liger-Belair, “Nuits-Saint-Georges la Charmotte”</span><span class="vn-price">182</span><span class="vn-desc">Pinot noir. AOC Nuits-Saint-Georges 2018</span></li>
+            <li class="vn-item"><span class="vn-name">Méo-Camuzet, “Gevrey-Chambertin”</span><span class="vn-price">195</span><span class="vn-desc">Pinot noir. AOC Gevrey-Chambertin 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Méo-Camuzet, “Clos de Vougeot Grand Cru”</span><span class="vn-price">395</span><span class="vn-desc">Pinot noir. AOC Clos de Vougeot Grand Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Les Vignes du Mayne, “Les Crays”</span><span class="vn-price">86</span><span class="vn-desc">Pinot noir. Bourgogne rouge 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Les Vignes du Mayne, “Auguste”</span><span class="vn-price">112</span><span class="vn-desc">Pinot fin. Bourgogne rouge 2022</span></li>
+          </ul>
+          <p class="vn-reg">Beaujolais</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Thibault Liger-Belair, “Moulin-à-Vent Champ de Cour”</span><span class="vn-price">76</span><span class="vn-desc">Gamay. AOC Moulin-à-Vent 2018</span></li>
+            <li class="vn-item"><span class="vn-name">Mee Godard, “Morgon Côte de Py”</span><span class="vn-price">78</span><span class="vn-desc">Gamay. AOC Morgon 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Thillardon, “Chénas les Belmonts”</span><span class="vn-price">68</span><span class="vn-desc">Gamay. AOC Chénas 2023</span></li>
+          </ul>
+          <p class="vn-reg">Jura</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Les Bottes Rouges, “Boomerang”</span><span class="vn-price">72</span><span class="vn-desc">Ploussard, trousseau. AOC Côtes-du-Jura. 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Les Bottes Rouges, “Tôt Ou Tard”</span><span class="vn-price">82</span><span class="vn-desc">Ploussard. AOC Côtes-du-Jura. 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de la Borde, “Ad Infernum et Salutem”</span><span class="vn-price">72</span><span class="vn-desc">Pinot noir, trousseau. AOC Arbois-Pupillin. 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de la Borde, “Pinotstradamus”</span><span class="vn-price">72</span><span class="vn-desc">Pinot noir. AOC Arbois-Pupillin. 2022</span></li>
+          </ul>
+          <p class="vn-reg">Rhône</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Mas de Libian, “Bout Zan”</span><span class="vn-price">32</span><span class="vn-desc">Grenache, syrah. AOC Côtes-du-Rhône 2024</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine des Bruyères, “Crozes-Hermitage les Croix Vieilles Vignes”</span><span class="vn-price">78</span><span class="vn-desc">Syrah. AOC Crozes-Hermitage 2020</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine des Bruyères, “Saint-Joseph”</span><span class="vn-price">72</span><span class="vn-desc">Syrah. AOC Saint-Joseph 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Alain Voge, “Cornas les Chailles”</span><span class="vn-price">105</span><span class="vn-desc">Syrah. AOC Cornas 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Matthieu Barret, “Cornas Brise Cailloux”</span><span class="vn-price">98</span><span class="vn-desc">Syrah. AOC Cornas 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Matthieu Barret, “Cornas Billes Noires”</span><span class="vn-price">148</span><span class="vn-desc">Syrah. AOC Cornas 2020</span></li>
+            <li class="vn-item"><span class="vn-name">Maison Stephan, “Syrah”</span><span class="vn-price">48</span><span class="vn-desc">Vin de France 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Maison Stephan, “Côte-Rôtie l'Ultime”</span><span class="vn-price">180</span><span class="vn-desc">Syrah. AOC Côte-Rôtie 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Maison Stephan, “Côte-Rôtie So Brune”</span><span class="vn-price">225</span><span class="vn-desc">Syrah. AOC Côte-Rôtie 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Georges Vernay, “Côte-Rôtie Maison Rouge”</span><span class="vn-price">230</span><span class="vn-desc">Syrah. AOC Côte-Rôtie 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Paul Avril, “Petit Vin d'Avril”</span><span class="vn-price">62</span><span class="vn-desc">Grenache, mourvèdre, syrah, cabernet sauvignon, carignan. Vin de France 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Clos des Papes, “Châteauneuf-du-Pape”</span><span class="vn-price">230</span><span class="vn-desc">Grenache, syrah, mourvèdre. AOC Châteauneuf-du-Pape 2016</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de la Biscarelle, “Châteauneuf-du-Pape les Anglaises”</span><span class="vn-price">95</span><span class="vn-desc">Grenache, syrah, mourvèdre. AOC Châteauneuf-du-Pape 2020</span></li>
+          </ul>
+          <p class="vn-reg">Provence</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Plérimond, “Sous le Chai”</span><span class="vn-price">51</span><span class="vn-desc">Syrah. IGP Coteaux du Verdon 2024</span></li>
+          </ul>
+          <p class="vn-reg">Languedoc</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Clos la Barthassade, “Les Gravettes”</span><span class="vn-price">60</span><span class="vn-desc">Grenache noir, cinsault, syrah. AOC Terrasses du Larzac 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Clos la Barthassade, “Mourvèdre du Clos”</span><span class="vn-price">96</span><span class="vn-desc">Mourvèdre. Vin de France 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Pas de l'Escalette, “Petit Pas”</span><span class="vn-price">40</span><span class="vn-desc">Grenache, syrah, carignan. AOC Languedoc 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Pas de l'Escalette, “Ze Cinsault”</span><span class="vn-price">68</span><span class="vn-desc">Cinsault, syrah. IGP Pays d'Hérault 2022</span></li>
+          </ul>
+          <p class="vn-reg">Roussillon</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Olivier Pithon, “Pilou”</span><span class="vn-price">115</span><span class="vn-desc">Carignan. IGP Côtes Catalanes 2021</span></li>
+          </ul>
+          <p class="vn-reg">Bordeaux</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Clos Puy Arnaud, “Les Ormeaux”</span><span class="vn-price">45</span><span class="vn-desc">Merlot, cabernet franc. AOC Castillon Côtes-de-Bordeaux 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Clos Puy Arnaud, “Clos Puy Arnaud”</span><span class="vn-price">88</span><span class="vn-desc">Merlot, cabernet franc, cabernet sauvignon. AOC Castillon Côtes-de-Bordeaux 2020</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-italie">
+          <h3 class="vn-title">Italie</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Foradori, “Fontanasanta (blanc)”</span><span class="vn-price">58</span><span class="vn-desc">Manzoni bianco. Vigneti delle Dolomiti IGT (Trentin-Haut-Adige) 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Foradori, “Nosiola (blanc)”</span><span class="vn-price">85</span><span class="vn-desc">Nosiola. Vigneti delle Dolomiti IGT (Trentin-Haut-Adige) 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Foradori, “Granato”</span><span class="vn-price">165</span><span class="vn-desc">Teroldego. Vigneti delle Dolomiti IGT (Trentin-Haut-Adige) 2019</span></li>
+            <li class="vn-item"><span class="vn-name">Luciano Sandrone, “Barbera d'Alba”</span><span class="vn-price">74</span><span class="vn-desc">Barbera. DOC Barbera d'Alba (Piémont) 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Cascina Fontana, “Barolo”</span><span class="vn-price">185</span><span class="vn-desc">Nebbiolo. DOCG Barolo (Piémont) 2018</span></li>
+            <li class="vn-item"><span class="vn-name">Ampeleia, “Ampeleia”</span><span class="vn-price">72</span><span class="vn-desc">Cabernet franc. IGT Toscana 2019</span></li>
+            <li class="vn-item"><span class="vn-name">Amerighi, “Cortona”</span><span class="vn-price">95</span><span class="vn-desc">Syrah. DOC Cortona (Toscane) 2020</span></li>
+            <li class="vn-item"><span class="vn-name">Azienda Cos, “Cerasuolo di Vittoria”</span><span class="vn-price">76</span><span class="vn-desc">Nero d'avola, frappato. DOCG Cerasuolo di Vittoria (Sicile) 2020</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-californie">
+          <h3 class="vn-title">Californie</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Racines (Maison de Montille), “Santa Rita Hills Chardonnay”</span><span class="vn-price">115</span><span class="vn-desc">2022</span></li>
+            <li class="vn-item"><span class="vn-name">Racines (Maison de Montille), “Sanford &amp; Benedict Vineyards Chardonnay”</span><span class="vn-price">175</span><span class="vn-desc">2022</span></li>
+            <li class="vn-item"><span class="vn-name">Racines (Maison de Montille), “Santa Rita Hills Pinot Noir”</span><span class="vn-price">115</span><span class="vn-desc">2022</span></li>
+            <li class="vn-item"><span class="vn-name">Racines (Maison de Montille), “La Rinconada Vineyards Pinot Noir”</span><span class="vn-price">175</span><span class="vn-desc">2022</span></li>
+            <li class="vn-item"><span class="vn-name">Littorai (Ted Lemon), “Roman Vineyard Anderson Valley”</span><span class="vn-price">220</span><span class="vn-desc">2023</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-doux-et-moelleux">
+          <h3 class="vn-title">Les doux &amp; les moelleux</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Mélanie Pfister, “Dive”</span><span class="vn-price">92</span><span class="vn-desc">Silberberg. Gewurztraminer Vendanges Tardives. AOC Alsace 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Belargus, “Layon”</span><span class="vn-price">85</span><span class="vn-desc">Chenin - Coteaux du Layon 75 cl 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Belargus, “Rouères”</span><span class="vn-price">148</span><span class="vn-desc">Chenin - Quarts-de-Chaume Grand Cru 37,5 cl 2018</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de la Bongran, “Cuvée Levroutée”</span><span class="vn-price">95</span><span class="vn-desc">Chardonnay. AOC Viré-Clessé 2017</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine des Bruyères, “Very Delicious Nectar”</span><span class="vn-price">55</span><span class="vn-desc">Syrah. VDN. Vin de France (Rhône) 50 cl 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Olivier Pithon, “Vitriol”</span><span class="vn-price">55</span><span class="vn-desc">Grenache noir. VDN. IGP Côtes Catalanes 50 cl 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Massa Vecchia, “Passito”</span><span class="vn-price">125</span><span class="vn-desc">Aleatico. Passito di Toscana IGT 38 cl 2016</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-sans-alcool">
+          <h3 class="vn-title">Sans alcool</h3>
+          <p class="vn-reg">Eaux · 75 cl</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Abatilles, “Plate”</span><span class="vn-price">5,5</span><span class="vn-desc">Eau de source des Landes, légère et discrète</span></li>
+            <li class="vn-item"><span class="vn-name">Chateldon, “Pétillante”</span><span class="vn-price">7</span><span class="vn-desc">Eau minérale naturelle gazeuse d'Auvergne, aux bulles fines</span></li>
+          </ul>
+          <p class="vn-reg">Jus Alain Milliat · 20 cl</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Jus de Tomate Rouge</span><span class="vn-price">8</span><span class="vn-desc">Tomates mûries au soleil, pressées sans concentré</span></li>
+            <li class="vn-item"><span class="vn-name">Nectar de Pêche de Vigne</span><span class="vn-price">8</span><span class="vn-desc">Pêches de vigne cueillies à maturité</span></li>
+            <li class="vn-item"><span class="vn-name">Jus de Pomme Rainette</span><span class="vn-price">6,5</span><span class="vn-desc">Pommes rainettes pressées, acidulées et croquantes</span></li>
+          </ul>
+          <p class="vn-reg">Cuvées Substance · verre / bouteille</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Solaris</span><span class="vn-price">10 / 36</span><span class="vn-desc">Thé vert sencha bio · bergamote de Calabre · safran provençal</span></li>
+            <li class="vn-item"><span class="vn-name">Brume</span><span class="vn-price">10 / 36</span><span class="vn-desc">Thé noir lapsang souchong bio · poivre de Timut</span></li>
+            <li class="vn-item"><span class="vn-name">Canopée</span><span class="vn-price">10 / 36</span><span class="vn-desc">Thé vert sencha bio · feuilles de figuier du jardin</span></li>
+            <li class="vn-item"><span class="vn-name">L'Arrieulat</span><span class="vn-price">14 / 48</span><span class="vn-desc">Thé jaune des Pyrénées · cascara de L'Arbre à Café</span></li>
+            <li class="vn-item"><span class="vn-name">Douze</span><span class="vn-price">10 / 36</span><span class="vn-desc">Apéritif infusé à la poire &amp; à l'anis étoilé</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-cocktail">
+          <h3 class="vn-title">Cocktail signature</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">L'Automnale</span><span class="vn-price">16</span><span class="vn-desc">Calvados AOC 6 ans · miel · citron · prune · shiso · Douze</span></li>
+          </ul>
+        </section>
+      </div>
     </div>
   </div>
 </div>
@@ -948,37 +1350,84 @@
   }, { passive:true });
 })();
 
-/* ---------- menu modal ---------- */
+/* ---------- la carte: menu & wines ----------
+   opens on the menu or the wines; #carte, #menu and #vins in the address
+   open it straight away (for a QR code on the table or a link in bio) */
 (function(){
   "use strict";
-  const trigger = document.getElementById("menu-trigger");
-  const modal = document.getElementById("menu-modal");
-  if(!trigger || !modal) return;
-  const closers = modal.querySelectorAll("[data-menu-close]");
+  const sheet = document.getElementById("carte");
+  if(!sheet) return;
+  const body = document.getElementById("carte-body");
+  const tabs = sheet.querySelectorAll(".carte-tab");
+  const panels = { menu:document.getElementById("panel-menu"), vins:document.getElementById("panel-vins") };
+  const chips = sheet.querySelectorAll(".vn-chip");
   let lastFocused = null;
 
-  function openModal(){
+  function show(tab){
+    tabs.forEach(function(b){
+      const on = b.dataset.tab === tab;
+      b.setAttribute("aria-selected", on ? "true" : "false");
+      b.tabIndex = on ? 0 : -1;
+    });
+    Object.keys(panels).forEach(function(k){ panels[k].hidden = k !== tab; });
+    body.scrollTop = 0;
+    history.replaceState(null, "", "#" + (tab === "vins" ? "vins" : "carte"));
+  }
+  function open(tab){
     lastFocused = document.activeElement;
-    modal.classList.add("is-open");
-    modal.removeAttribute("aria-hidden");
-    document.body.style.overflow = "hidden";
-    const closeBtn = modal.querySelector(".menu-modal-close");
-    if(closeBtn) closeBtn.focus();
-    document.addEventListener("keydown", onKeydown);
+    show(tab || "menu");
+    sheet.classList.add("is-open");
+    sheet.setAttribute("aria-hidden", "false");
+    document.documentElement.style.overflow = "hidden";
+    setTimeout(function(){ const t = sheet.querySelector('.carte-tab[aria-selected="true"]'); if(t) t.focus({ preventScroll:true }); }, 60);
   }
-  function closeModal(){
-    modal.classList.remove("is-open");
-    modal.setAttribute("aria-hidden", "true");
-    document.body.style.overflow = "";
-    document.removeEventListener("keydown", onKeydown);
-    if(lastFocused) lastFocused.focus();
-  }
-  function onKeydown(e){
-    if(e.key === "Escape") closeModal();
+  function close(){
+    sheet.classList.remove("is-open");
+    sheet.setAttribute("aria-hidden", "true");
+    document.documentElement.style.overflow = "";
+    history.replaceState(null, "", location.pathname + location.search);
+    if(lastFocused && lastFocused.focus) lastFocused.focus();
   }
 
-  trigger.addEventListener("click", openModal);
-  closers.forEach(function(el){ el.addEventListener("click", closeModal); });
+  document.querySelectorAll("[data-open-carte]").forEach(function(el){
+    el.addEventListener("click", function(e){ e.preventDefault(); open(el.dataset.openCarte); });
+  });
+  sheet.querySelectorAll("[data-carte-close]").forEach(function(el){ el.addEventListener("click", close); });
+  sheet.querySelectorAll("[data-tab]").forEach(function(el){ el.addEventListener("click", function(){ show(el.dataset.tab); }); });
+  sheet.querySelector(".carte-tabs").addEventListener("keydown", function(e){
+    if(e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    const next = sheet.querySelector('.carte-tab[aria-selected="false"]');
+    show(next.dataset.tab); next.focus();
+  });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && sheet.classList.contains("is-open")) close(); });
+
+  // categories: tap to jump, and the current one lights up while scrolling
+  const chipsBar = sheet.querySelector(".vn-chips");
+  chips.forEach(function(c){
+    c.addEventListener("click", function(e){
+      e.preventDefault();
+      const sec = document.getElementById(c.dataset.target);
+      body.scrollTo({ top:sec.offsetTop - chipsBar.offsetHeight - 8, behavior:"smooth" });
+    });
+  });
+  function spy(){
+    if(panels.vins.hidden) return;
+    let current = chips[0];
+    chips.forEach(function(c){
+      const sec = document.getElementById(c.dataset.target);
+      if(sec.offsetTop - chipsBar.offsetHeight - 24 <= body.scrollTop) current = c;
+    });
+    chips.forEach(function(c){ c.classList.toggle("is-active", c === current); });
+    if(current && current.scrollIntoView && chipsBar.scrollWidth > chipsBar.clientWidth){
+      const l = current.offsetLeft - 20;
+      if(l < chipsBar.scrollLeft || l + current.offsetWidth > chipsBar.scrollLeft + chipsBar.clientWidth) chipsBar.scrollTo({ left:l, behavior:"smooth" });
+    }
+  }
+  body.addEventListener("scroll", spy, { passive:true });
+
+  const h = location.hash.replace("#", "");
+  if(h === "carte" || h === "menu") open("menu");
+  else if(h === "vins") open("vins");
 })();
 </script>
 </body>
