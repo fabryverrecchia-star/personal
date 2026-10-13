@@ -440,25 +440,27 @@
     .arches{ display:contents; }
   }
 
-  /* below that, the arches leave the sides and sit side by side under the
-     calls to action, staggered */
+  /* below that, one arch only: the video becomes the opening image, right
+     under the logo and before the text; the photo of the room steps aside */
   @media (max-width: 1100px){
     .arches{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:clamp(1rem,4vw,2rem);
-      width:min(100%, 32rem);
-      margin:.5rem auto 2.5rem;
+      order:1;
+      display:flex;
+      justify-content:center;
+      width:100%;
+      margin:.25rem auto .5rem;
     }
+    .panel-top{ order:0; }
+    .panel-main{ order:2; }
+    .panel-foot{ order:3; }
+    .arch--left{ display:none; }
     .arch{
       position:relative;
       top:auto; left:auto; right:auto;
-      width:100%;
-      transform:translateY(var(--oy,0px));
+      width:min(66vw, 21rem);
+      transform:none;
     }
-    .arch--left{ --oy:0px; }
-    .arch--right{ --oy:2.5rem; }
-    .arch-line{ inset:-.4rem; width:calc(100% + .8rem); height:calc(100% + .8rem); }
+    .arch-line{ inset:-.45rem; width:calc(100% + .9rem); height:calc(100% + .9rem); }
   }
 
   /* ============ responsive ============ */
@@ -728,8 +730,8 @@
           <img src="assets/table.jpg" alt="La carte dans sa pochette de cuir au monogramme, sur une table de marbre" width="1100" height="733">
         </picture>
         <video id="arch-video" muted loop playsinline autoplay preload="metadata" aria-hidden="true">
-          <source src="assets/jacqueline.webm" type="video/webm">
           <source src="assets/jacqueline.mp4" type="video/mp4">
+          <source src="assets/jacqueline.webm" type="video/webm">
         </video>
       </div>
     </figure>
@@ -1333,9 +1335,25 @@
   "use strict";
   const video = document.getElementById("arch-video");
   if(video){
+    video.muted = true; // iOS only autoplays a video it knows is muted
     video.addEventListener("playing", function(){ video.classList.add("is-playing"); });
-    const p = video.play && video.play();
-    if(p && p.catch) p.catch(function(){});
+    function tryPlay(){
+      const p = video.play && video.play();
+      if(p && p.catch) p.catch(function(){});
+    }
+    tryPlay();
+    // when the phone refuses autoplay (low power mode), start on the first
+    // touch or scroll — a gesture is always allowed to start a muted video
+    function onGesture(){
+      if(!video.paused) return cleanup();
+      tryPlay();
+      if(!video.paused) cleanup();
+    }
+    function cleanup(){
+      ["touchstart","pointerdown","scroll","keydown"].forEach(function(ev){ window.removeEventListener(ev, onGesture); });
+    }
+    ["touchstart","pointerdown","scroll","keydown"].forEach(function(ev){ window.addEventListener(ev, onGesture, { passive:true }); });
+    document.addEventListener("visibilitychange", function(){ if(!document.hidden && video.paused) tryPlay(); });
   }
   const arches = document.querySelectorAll(".arch");
   const fine = window.matchMedia("(min-width: 1101px) and (pointer: fine)");
