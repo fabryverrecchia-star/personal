@@ -1074,7 +1074,7 @@
       '<p class="editor__hint" data-ed-hint></p>' +
       '<div class="ed-cover" data-ed-cover></div>' +
       '<input type="file" accept="image/*" data-ed-file hidden>' +
-      '<input type="file" accept="video/mp4,video/quicktime,video/*" data-ed-video hidden></section>' +
+      '<input type="file" accept="video/*,.mp4,.MP4,.mov,.MOV,.m4v" data-ed-video hidden></section>' +
       '<section class="ed-sec" data-sec="text"><h4 class="label ed-sec__title"><i></i>Texte</h4>' +
       '<label class="editor__field"><span class="label">Titre</span><input type="text" name="title" maxlength="140"></label>' +
       '<label class="editor__field"><span class="label">Légende <small data-ed-count></small></span><textarea name="caption" rows="6" maxlength="2200" placeholder="Une ligne par paragraphe"></textarea></label></section>' +
@@ -1864,7 +1864,7 @@
       '<button type="submit" class="label admin-form__go">Enregistrer</button></div>' +
       '<button type="button" class="label editor__delete sedit__delete" data-sedit-delete>Supprimer cette story</button>' +
       '<input type="file" accept="image/*" data-sedit-photo hidden>' +
-      '<input type="file" accept="video/mp4,video/quicktime,video/*" data-sedit-video hidden>' +
+      '<input type="file" accept="video/*,.mp4,.MP4,.mov,.MOV,.m4v" data-sedit-video hidden>' +
       '</form></div>');
     document.body.appendChild(se);
     var seForm = se.querySelector('[data-sedit-form]');
@@ -2317,7 +2317,10 @@
         var f = input.files && input.files[0];
         input.value = '';
         if (!f || !ed) return;
-        if (input === edVideo ? !/^video\//.test(f.type) && !/\.(mp4|mov|m4v)$/i.test(f.name) : !/^image\//.test(f.type)) {
+        var fVid = /^video\//.test(f.type) || /\.(mp4|mov|m4v)$/i.test(f.name);
+        // Carrousel : photo ou vidéo, quel que soit le bouton touché
+        var mixOk = ed.kind === 'post' && ed.slot === 'media';
+        if (input === edVideo ? !fVid : !(/^image\//.test(f.type) || (mixOk && fVid))) {
           toast(input === edVideo ? 'Choisissez une vidéo (MP4 ou MOV).' : 'Choisissez une photo.');
           return;
         }
@@ -2359,6 +2362,8 @@
         ed.slot = t.getAttribute('data-ed-pick');
         ed.index = +t.getAttribute('data-k');
         var input = ed.slot === 'video' || t.hasAttribute('data-vid') ? edVideo : edFile;
+        // Dans un post, la fenêtre de choix propose aussi les vidéos (une vidéo se glisse dans le carrousel)
+        edFile.accept = ed.kind === 'post' && ed.slot === 'media' ? 'image/*,video/*,.mp4,.MP4,.mov,.MOV,.m4v' : 'image/*';
         input.click();
       } else if ((t = e.target.closest('[data-ed-remove]'))) {
         if (ed.busy) return;
