@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Cartes de visite — Benjamin Landry (DA du site)</title>
+<style>
+  /* Cartes 85 × 55 mm + 3 mm de fonds perdus. Zone de sécurité : 3 mm à l’intérieur du format fini.
+     Direction artistique du site : basalte, lin, ocre de Limagne, Bodoni et Hanken Grotesk. */
+  @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-normal.woff2') format('woff2'); font-weight: 400 900; }
+  @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-italic.woff2') format('woff2'); font-weight: 400 900; font-style: italic; }
+  @font-face { font-family: 'Hanken'; src: url('../fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+  :root {
+    --lin: #f3efe8; --ink: #1a1917; --argile: #a8773d; --gris: #4a4640;
+    --serif: 'Bodoni', Didot, Georgia, serif; --sans: 'Hanken', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  @page { margin: 0; }
+  html, body { background: #888; font-family: var(--sans); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { display: flex; flex-wrap: wrap; gap: 20mm; padding: 20mm; }
+  @media print { body { padding: 0; gap: 0; display: block; background: none; } .doc:not(.on), .scene { display: none !important; } }
+  .doc { position: relative; overflow: hidden; flex: none; page-break-after: always; }
+  .mono { display: inline-block; aspect-ratio: 659 / 806; background: currentColor; -webkit-mask: url('../photos/logo-bl.png') center / contain no-repeat; mask: url('../photos/logo-bl.png') center / contain no-repeat; }
+  .lbl { letter-spacing: .22em; text-transform: uppercase; font-weight: 500; }
+
+  .card { width: 91mm; height: 61mm; }
+
+  /* Nuancier : les teintes du site (chaux, Limagne, tuile, Sioule, Puys, Volvic), chacune en trois valeurs */
+  .nuancier { position: absolute; left: 0; right: 0; bottom: 0; height: 12mm; display: grid; grid-template-columns: repeat(6, 1fr); gap: .5mm; background: var(--ink); padding-top: .5mm; }
+  .nuancier i { display: grid; grid-template-rows: 1fr .55fr .55fr; gap: .35mm; }
+  .nuancier i::before, .nuancier i::after, .nuancier i b { content: ''; display: block; background: var(--c); }
+  .nuancier i b { background: color-mix(in srgb, var(--c) 68%, #fbf9f5); grid-row: 2; }
+  .nuancier i::after { background: color-mix(in srgb, var(--c) 42%, #fbf9f5); grid-row: 3; }
+  .nuancier i::before { grid-row: 1; }
+
+  /* ── Recto : monogramme, nom, métiers et nuancier de peintre ── */
+  .card-r { background: var(--ink); color: var(--lin); }
+  .card-r .in { position: absolute; inset: 3mm 3mm 15mm; display: grid; justify-items: center; align-content: center; gap: 2.6mm; text-align: center; }
+  .card-r .mono { height: 15mm; color: var(--lin); margin-bottom: .8mm; }
+  .card-r .nom { font-size: 2.5mm; letter-spacing: .3em; }
+  .card-r .met { text-transform: uppercase; font-size: 1.85mm; letter-spacing: .26em; color: var(--argile); font-weight: 600; }
+  .card-r .met span { color: rgb(243 239 232 / .35); margin: 0 .6mm; }
+
+  /* ── Verso : coordonnées ── */
+  .card-v { background: var(--lin); color: var(--ink); padding: 7.5mm 8mm 10.8mm; display: grid; grid-template-rows: auto 1fr auto; }
+  .card-v .nom { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 5.4mm; text-transform: uppercase; letter-spacing: .02em; }
+  .card-v .met { font-size: 2.1mm; letter-spacing: .18em; text-transform: uppercase; color: var(--argile); margin-top: 1.4mm; font-weight: 600; }
+  .card-v .met span { color: rgb(26 25 23 / .3); }
+  .card-v .tel { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 6.2mm; align-self: center; }
+  .card-v .bas { display: flex; justify-content: space-between; align-items: end; gap: 4mm; font-size: 2.05mm; line-height: 1.5; color: var(--gris); }
+  .card-v .bas b { font-weight: 600; color: var(--ink); }
+  .card-v .bas .mono { height: 9mm; color: var(--ink); flex: none; }
+  .card-v .filet { position: absolute; left: 0; right: 0; bottom: 0; height: 5.2mm; display: grid; grid-template-columns: repeat(6, 1fr); }
+  .card-v .filet i { background: var(--c); }
+
+  /* ── Mise en scène ── */
+  .scene { position: relative; overflow: hidden; flex: none; width: 2000px; height: 1300px; background: radial-gradient(120% 100% at 25% 10%, #ece7df, #d8d0c4 70%, #cdc4b6); }
+  .scene::before { content: ''; position: absolute; inset: 0; opacity: .35; mix-blend-mode: multiply; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .37 0 0 0 0 .33 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .scene .pose { position: absolute; transform-origin: 0 0; }
+  /* Carte rognée au format fini 85 × 55 */
+  .scene .pose { filter: drop-shadow(2px 3px 3px rgb(40 32 24 / .3)) drop-shadow(10px 16px 16px rgb(40 32 24 / .28)); }
+  .scene .trim { width: 85mm; height: 55mm; overflow: hidden; }
+  .scene .trim .card { margin: -3mm; }
+</style>
+</head>
+<body>
+
+<template id="recto">
+  <div class="in">
+    <span class="mono"></span>
+    <p class="nom lbl">Benjamin Landry</p>
+    <p class="met">Plâtrerie<span>·</span>Peinture<span>·</span>Carrelage</p>
+  </div>
+  <div class="nuancier"><i style="--c:#E2DACB"><b></b></i><i style="--c:#C08A3E"><b></b></i><i style="--c:#9B4B34"><b></b></i><i style="--c:#3F5A45"><b></b></i><i style="--c:#8DA3B3"><b></b></i><i style="--c:#56595C"><b></b></i></div>
+</template>
+<template id="verso">
+  <div><p class="nom">Benjamin Landry</p><p class="met">Plâtrerie <span>·</span> Peinture <span>·</span> Carrelage</p></div>
+  <p class="tel">06 58 38 78 37</p>
+  <div class="bas">
+    <p><b>benjaminlandry.fr</b> · benjaminlandry10@gmail.com<br>59 rue du Boucheix, 63770 Les Ancizes-Comps<br>Instagram @benjamin_landry_finitions · SIRET 822 175 519 00021</p>
+    <span class="mono"></span>
+  </div>
+  <div class="filet"><i style="--c:#E2DACB"></i><i style="--c:#C08A3E"></i><i style="--c:#9B4B34"></i><i style="--c:#3F5A45"></i><i style="--c:#8DA3B3"></i><i style="--c:#56595C"></i></div>
+</template>
+
+<section class="doc card card-r" data-doc="carte-visite-recto" data-w="91" data-h="61" data-tpl="recto"></section>
+<section class="doc card card-v" data-doc="carte-visite-verso" data-w="91" data-h="61" data-tpl="verso"></section>
+
+<!-- Mise en scène : recto et verso posés sur le lin -->
+<section class="scene" data-out="mockup-cartes">
+  <div class="pose" style="left:260px;top:250px;transform:rotate(-7deg) scale(1.95)"><div class="trim"><div class="card card-r" data-tpl="recto"></div></div></div>
+  <div class="pose" style="left:1010px;top:470px;transform:rotate(5deg) scale(1.95)"><div class="trim"><div class="card card-v" data-tpl="verso"></div></div></div>
+</section>
+
+<script>
+  document.querySelectorAll('[data-tpl]').forEach((el) => el.append(document.getElementById(el.dataset.tpl).content.cloneNode(true)));
+</script>
+</body>
+</html>
