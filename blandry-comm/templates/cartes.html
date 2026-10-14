@@ -135,10 +135,18 @@
   .v-o.card-r .met { display: grid; gap: 1.5mm; font-size: 2.75mm; letter-spacing: .2em; color: #cf9c58; }
   .v-o.card-r .met::before, .v-o.card-r .met span { display: none; }
   /* SIRET hors colonne, en petit, au pied du verso */
-  .card-v .siret { position: absolute !important; left: 8mm; bottom: 5.6mm; font-size: 1.55mm; letter-spacing: .04em; color: #8a847a; }
+  .card-v .siret { position: absolute !important; left: 8mm; bottom: 6.6mm; font-size: 1.55mm; letter-spacing: .04em; color: #8a847a; }
+
+
+  /* Verso : téléphone et site sur deux lignes, même taille ; coordonnées détachées ; Instagram en gras */
+  .card-v .contact { align-self: center; display: grid; gap: .6mm; }
+  .card-v .contact .tel { font-size: 5.1mm; line-height: 1.1; }
+  .card-v .contact .web { letter-spacing: 0; }
+  .card-v .insta { margin-top: 2mm; font-weight: 700; color: var(--ink); font-size: 2.2mm; letter-spacing: .02em; }
+  .card-v .insta .ig { width: 2.6mm; height: 2.6mm; margin-right: 1.2mm; vertical-align: -.6mm; }
 
   /* ── Verso ── */
-  .card-v { background: var(--lin); color: var(--ink); padding: 7.5mm 8mm 10.8mm; display: grid; grid-template-rows: auto 1fr auto; }
+  .card-v { background: var(--lin); color: var(--ink); padding: 7.5mm 8mm 11.4mm; display: grid; grid-template-rows: auto 1fr auto; }
   .card-v > :not(svg):not(.filet):not(.brush):not(.bg) { position: relative; z-index: 1; }
   .card-v .nom { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 5.4mm; text-transform: uppercase; letter-spacing: .02em; }
   .card-v .met { font-size: 2.1mm; letter-spacing: .18em; text-transform: uppercase; color: var(--argile); margin-top: 1.4mm; font-weight: 600; }
@@ -189,9 +197,10 @@
 </template>
 <template id="verso">
   <div><p class="nom">Benjamin Landry</p><p class="met">Plâtrerie <span>·</span> Peinture <span>·</span> Carrelage</p></div>
-  <p class="tel">06 58 38 78 37</p>
+  <div class="contact"><p class="tel">06 58 38 78 37</p><p class="tel web">benjaminlandry.fr</p></div>
   <div class="bas">
-    <p><b>benjaminlandry.fr</b> · benjaminlandry10@gmail.com<br>59 rue du Boucheix, 63770 Les Ancizes-Comps<br><svg class="ig" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.3"/><circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none"/></svg>@benjamin_landry_finitions</p>
+    <div><p>benjaminlandry10@gmail.com<br>59 rue du Boucheix, 63770 Les Ancizes-Comps</p>
+      <p class="insta"><svg class="ig" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.3"/><circle cx="17.6" cy="6.4" r="1.2" fill="currentColor" stroke="none"/></svg>@benjamin_landry_finitions</p></div>
     <span class="mono"></span>
   </div>
   <p class="siret">SIRET 822 175 519 00021</p>
@@ -260,7 +269,7 @@
       g.append(el('rect', { x: x + .8, y: y + .8 + L * .57 + 1, width: W - 1.6, height: L * .13, fill: mix(c, .42) }));
       s.append(g);
     });
-    s.append(el('circle', { cx: px, cy: py - 3.2, r: .9, fill: '#a8773d' }));
+    s.append(el('circle', { cx: px, cy: py - Math.max(3.2, L * .13), r: .9, fill: '#a8773d' }));
     s.style.zIndex = 1;
     card.prepend(s);
   }
@@ -294,7 +303,7 @@
       c.innerHTML = TEINTES.map((t) => `<i style="--c:${t}"></i>`).join('');
       card.querySelector('.met').before(c);
     }
-    if (card.classList.contains('card-r') && card.classList.contains('v-o')) eventail(card, { px: 79, py: 55, L: 31, W: 8.6, step: 8.6 });
+    if (card.classList.contains('card-r') && card.classList.contains('v-o')) eventail(card, { px: 86.5, py: 60.5, L: 41, W: 10.2, step: 8.4 });  // calé dans le coin, déborde dans la coupe
     if (card.classList.contains('card-r')) ({ a: nuancier, b: pinceau, c: eventail })[v]?.(card);
     else if (v === 'b') pinceau(card, true);
     else if ('ac'.includes(v)) filet(card);
