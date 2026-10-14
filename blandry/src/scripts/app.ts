@@ -286,7 +286,7 @@ function headerTheme() {
   const el = document
     .elementsFromPoint(innerWidth / 2, 40)
     .find((n) => !header.contains(n) && !n.closest('.cursor, .loader, .menu, [data-float]'));
-  header.classList.toggle('is-light', !!el?.closest('.dark, [data-dark-hero]'));
+  header.classList.toggle('is-light', !!el?.closest('.dark, [data-dark-hero], [data-upanel]'));
 }
 function onScroll() {
   const y = scrollY;
@@ -755,7 +755,8 @@ function terre() {
       return () => tl.kill();
     },
     '(max-width: 1023px)': () => {
-      const tl = build({ trigger: stage, start: 'center 55%', end: '+=140%', pin: stage, scrub: 0.8, invalidateOnRefresh: true });
+      // Sans épinglage sur téléphone : l'épinglage fait sauter la page sous Chrome et Opera mobiles
+      const tl = build({ trigger: stage, start: 'top 85%', end: 'bottom 25%', scrub: 0.6, invalidateOnRefresh: true });
       return () => tl.kill();
     },
   });
