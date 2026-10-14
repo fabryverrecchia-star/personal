@@ -6,7 +6,7 @@
 <style>
   /* Cartes 85 × 55 mm + 3 mm de fonds perdus. Zone de sécurité : 3 mm à l’intérieur du format fini.
      Direction artistique du site : basalte, lin, ocre de Limagne, Bodoni et Hanken Grotesk.
-     Trois propositions : A nuancier, B traits de pinceau, C éventail de teintes. */
+     Propositions retenues : 1 lumière (photo), 2 deux tons, 3 sobre. (A nuancier, B pinceau, C éventail : écartées, gardées dans le code.) */
   @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-normal.woff2') format('woff2'); font-weight: 400 900; }
   @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-italic.woff2') format('woff2'); font-weight: 400 900; font-style: italic; }
   @font-face { font-family: 'Hanken'; src: url('../fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
@@ -51,6 +51,28 @@
   .v-c.card-r .mono { height: 13mm; margin: 0; }
   .v-c.card-r .met { display: grid; gap: 1.3mm; margin-top: 2.4mm; }
   .v-c.card-r .met span { display: none; }
+
+
+  /* 1 — Lumière : photo de finition en plein cadre */
+  .v-d.card-r { background: #2a2622 url('../photos/finition.jpg') 62% 50% / cover no-repeat; }
+  .v-d.card-r::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgb(20 18 16 / .78) 0%, rgb(20 18 16 / .45) 48%, rgb(20 18 16 / 0) 75%); }
+  .v-d.card-r .in { inset: 9mm auto 9mm 9mm; justify-items: start; align-content: end; text-align: left; gap: 2mm; }
+  .v-d.card-r .in { grid-template-rows: 1fr auto auto; align-content: stretch; }
+  .v-d.card-r .mono { height: 12mm; margin: 0; align-self: start; }
+  .v-d.card-r .met { color: #d9b783; }
+  .v-d.card-r .met span { color: rgb(243 239 232 / .45); }
+
+  /* 2 — Deux tons : soubassement ocre, ligne nette comme au ruban de masquage */
+  .v-e.card-r { background: linear-gradient(to bottom, var(--lin) 0 58%, #b5834a 58% 100%); color: var(--ink); }
+  .v-e.card-r .in { inset: 3mm; display: block; }
+  .v-e.card-r .mono { position: absolute; left: 50%; top: 11mm; height: 15.5mm; transform: translateX(-50%); color: var(--ink); margin: 0; }
+  .v-e.card-r .nom { position: absolute; left: 0; right: 0; top: 35.6mm; color: var(--lin); }
+  .v-e.card-r .met { position: absolute; left: 0; right: 0; top: 41.5mm; color: var(--ink); }
+  .v-e.card-r .met span { color: rgb(26 25 23 / .4); }
+
+  /* 3 — Sobre : basalte, monogramme, filet ocre */
+  .v-f.card-r .in { inset: 3mm; gap: 2.6mm; }
+  .v-f.card-r .met::before { content: ''; display: block; width: 8mm; height: .25mm; background: var(--argile); margin: 0 auto 2.6mm; }
 
   /* ── Verso ── */
   .card-v { background: var(--lin); color: var(--ink); padding: 7.5mm 8mm 10.8mm; display: grid; grid-template-rows: auto 1fr auto; }
@@ -112,22 +134,22 @@
 </template>
 
 <!-- Fichiers imprimeur : un recto et un verso par proposition -->
-<section class="doc card card-r v-a" data-doc="carte-visite-A-nuancier-recto" data-w="91" data-h="61" data-tpl="recto"></section>
-<section class="doc card card-v v-a" data-doc="carte-visite-A-nuancier-verso" data-w="91" data-h="61" data-tpl="verso"></section>
-<section class="doc card card-r v-b" data-doc="carte-visite-B-pinceau-recto" data-w="91" data-h="61" data-tpl="recto"></section>
-<section class="doc card card-v v-b" data-doc="carte-visite-B-pinceau-verso" data-w="91" data-h="61" data-tpl="verso"></section>
-<section class="doc card card-r v-c" data-doc="carte-visite-C-eventail-recto" data-w="91" data-h="61" data-tpl="recto"></section>
-<section class="doc card card-v v-c" data-doc="carte-visite-C-eventail-verso" data-w="91" data-h="61" data-tpl="verso"></section>
+<section class="doc card card-r v-d" data-doc="carte-visite-1-lumiere-recto" data-w="91" data-h="61" data-tpl="recto"></section>
+<section class="doc card card-v v-d" data-doc="carte-visite-1-lumiere-verso" data-w="91" data-h="61" data-tpl="verso"></section>
+<section class="doc card card-r v-e" data-doc="carte-visite-2-deux-tons-recto" data-w="91" data-h="61" data-tpl="recto"></section>
+<section class="doc card card-v v-e" data-doc="carte-visite-2-deux-tons-verso" data-w="91" data-h="61" data-tpl="verso"></section>
+<section class="doc card card-r v-f" data-doc="carte-visite-3-sobre-recto" data-w="91" data-h="61" data-tpl="recto"></section>
+<section class="doc card card-v v-f" data-doc="carte-visite-3-sobre-verso" data-w="91" data-h="61" data-tpl="verso"></section>
 
 <!-- BAT : une page A4 paysage par proposition (remplie par le script) -->
-<section class="doc bat" data-doc="BAT-carte-visite-A-nuancier" data-w="297" data-h="210" data-bat="a" data-nom="A — Nuancier" data-desc="Bande de six teintes du nuancier du site, chacune en trois valeurs, comme une carte de teintes de peintre."></section>
-<section class="doc bat" data-doc="BAT-carte-visite-B-pinceau" data-w="297" data-h="210" data-bat="b" data-nom="B — Traits de pinceau" data-desc="Six coups de pinceau dans les teintes du site, fibres visibles et bouts secs, qui sortent de la carte."></section>
-<section class="doc bat" data-doc="BAT-carte-visite-C-eventail" data-w="297" data-h="210" data-bat="c" data-nom="C — Éventail de teintes" data-desc="Le nuancier ouvert en éventail, comme dans l’animation du site ; métiers alignés à gauche."></section>
+<section class="doc bat" data-doc="BAT-carte-visite-1-lumiere" data-w="297" data-h="210" data-bat="d" data-nom="1 — Lumière" data-desc="Au recto, une finition réelle en lumière rasante : la qualité du travail parle d’elle-même. Verso clair et lisible."></section>
+<section class="doc bat" data-doc="BAT-carte-visite-2-deux-tons" data-w="297" data-h="210" data-bat="e" data-nom="2 — Deux tons" data-desc="Un mur peint en deux teintes, séparées par une ligne parfaitement nette : le geste du peintre, sans effet."></section>
+<section class="doc bat" data-doc="BAT-carte-visite-3-sobre" data-w="297" data-h="210" data-bat="f" data-nom="3 — Sobre" data-desc="La carte d’origine, avec les trois métiers au recto. Option : monogramme en marquage à chaud cuivre."></section>
 
 <!-- Mises en scène -->
-<section class="scene" data-out="mockup-cartes-A-nuancier" data-scene="a"></section>
-<section class="scene" data-out="mockup-cartes-B-pinceau" data-scene="b"></section>
-<section class="scene" data-out="mockup-cartes-C-eventail" data-scene="c"></section>
+<section class="scene" data-out="mockup-cartes-1-lumiere" data-scene="d"></section>
+<section class="scene" data-out="mockup-cartes-2-deux-tons" data-scene="e"></section>
+<section class="scene" data-out="mockup-cartes-3-sobre" data-scene="f"></section>
 
 <script>
   const TEINTES = ['#E2DACB', '#C08A3E', '#9B4B34', '#3F5A45', '#8DA3B3', '#56595C'];
@@ -195,9 +217,10 @@
   }
   function build(card) {
     card.append(document.getElementById(card.dataset.tpl).content.cloneNode(true));
-    const v = card.classList.contains('v-b') ? 'b' : card.classList.contains('v-c') ? 'c' : 'a';
-    if (card.classList.contains('card-r')) v === 'a' ? nuancier(card) : v === 'b' ? pinceau(card) : eventail(card);
-    else v === 'b' ? pinceau(card, true) : filet(card);
+    const v = (card.className.match(/v-([a-f])/) || [])[1];
+    if (card.classList.contains('card-r')) ({ a: nuancier, b: pinceau, c: eventail })[v]?.(card);
+    else if (v === 'b') pinceau(card, true);
+    else if ('ac'.includes(v)) filet(card);
   }
   const make = (face, v) => { const c = document.createElement('div'); c.className = `card card-${face} v-${v}`; c.dataset.tpl = face === 'r' ? 'recto' : 'verso'; build(c); return c; };
   document.querySelectorAll('.doc.card').forEach(build);
