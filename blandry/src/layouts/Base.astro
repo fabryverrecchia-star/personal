@@ -89,6 +89,34 @@ const ld = [business, ...schema];
     <link rel="icon" href={u('/favicon.png')} type="image/png" />
     <script is:inline>
       document.documentElement.classList.add('js');
+      // Diagnostic sur téléphone : ajouter ?debug à l'adresse
+      if (/[?&]debug/.test(location.search)) {
+        var errs = [];
+        addEventListener('error', function (e) {
+          var t = e.target;
+          errs.push(t && t !== window ? 'Fichier non chargé : ' + (t.src || t.href || t.currentSrc || t.tagName) : 'Erreur JS : ' + e.message + ' (' + (e.filename || '').split('/').pop() + ':' + e.lineno + ')');
+        }, true);
+        addEventListener('unhandledrejection', function (e) { errs.push('Erreur JS : ' + (e.reason && e.reason.message || e.reason)); });
+        addEventListener('securitypolicyviolation', function (e) { errs.push('Bloqué par sécurité : ' + e.blockedURI + ' (' + e.violatedDirective + ')'); });
+        setTimeout(function () {
+          var res = performance.getEntriesByType('resource').map(function (r) { return r.name; });
+          var html = document.documentElement.className;
+          var lines = [
+            'Adresse : ' + location.href,
+            'Connexion sécurisée : ' + (window.isSecureContext ? 'oui' : 'NON') + ' (' + location.protocol + ')',
+            'Scripts du site : ' + (/\bready\b/.test(html) ? 'OK, lancés' : 'NON LANCÉS'),
+            'Fichiers chargés : ' + res.length,
+            'Fichiers en http (non sécurisés) : ' + (res.filter(function (n) { return n.indexOf('http:') === 0; }).join(', ') || 'aucun'),
+            'Fichiers d’autres sites : ' + (res.filter(function (n) { return n.indexOf(location.origin) !== 0; }).join(', ') || 'aucun'),
+            'Navigateur : ' + navigator.userAgent,
+            'Erreurs : ' + (errs.length ? '' : 'aucune'),
+          ].concat(errs);
+          var box = document.createElement('pre');
+          box.textContent = lines.join('\n');
+          box.style.cssText = 'position:fixed;inset:auto 8px 8px 8px;max-height:70vh;overflow:auto;z-index:99999;background:#111;color:#0f0;font:11px/1.45 monospace;padding:12px;white-space:pre-wrap;word-break:break-all;border-radius:6px';
+          document.body.appendChild(box);
+        }, 7000);
+      }
     </script>
     {ld.map((o) => <script type="application/ld+json" set:html={JSON.stringify(o)} />)}
   </head>
