@@ -20,7 +20,9 @@
   .bg { left: -5mm; width: 370mm; }
   .bg.basalte { top: -5mm; height: 226mm; }
   .bg.chaux { top: 215.3mm; height: 208mm; }
-  svg.fan { left: 0; top: 0; width: 358.4mm; height: 412.6mm; }
+  /* Les trois métiers en photo, dans l’ordre de la liste (au-dessus des fentes, y < 133) */
+  .photos { left: 186mm; top: 19mm; width: 62mm; display: grid; gap: 3mm; }
+  .photos img { display: block; width: 100%; height: 36mm; object-fit: cover; border-radius: 1mm; }
   .mono { display: inline-block; aspect-ratio: 659 / 806; background: currentColor; -webkit-mask: url('../photos/logo-bl.png') center / contain no-repeat; mask: url('../photos/logo-bl.png') center / contain no-repeat; }
 
   /* Panneau */
@@ -46,7 +48,11 @@
 <div class="feuille" data-out="presentoir-a-plat">
   <img class="bg basalte" src="../livrables/print/presentoir/badigeon-basalte.png" alt="">
   <img class="bg chaux" src="../livrables/print/presentoir/badigeon-chaux.png" alt="">
-  <svg class="fan" viewBox="0 0 358.4 412.6"></svg>
+  <div class="photos">
+    <img src="../photos/placo-vissage.jpg" alt="" style="object-position:50% 45%">
+    <img src="../photos/finition.jpg" alt="" style="object-position:55% 50%">
+    <img src="../photos/carrelage-sdb.jpg" alt="" style="object-position:50% 60%">
+  </div>
   <div class="panneau">
     <span class="mono"></span>
     <p class="nom">Benjamin Landry</p>
@@ -60,25 +66,6 @@
     <p class="d">06 58 38 78 37</p>
   </div>
 </div>
-<script>
-  // Nuancier en éventail (même dessin que la carte), qui sort de derrière la poche
-  const TEINTES = ['#E2DACB', '#C08A3E', '#9B4B34', '#3F5A45', '#8DA3B3', '#56595C'];
-  const NS = 'http://www.w3.org/2000/svg';
-  const el = (tag, a) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); return e; };
-  const mix = (hex, t) => { const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255], w = [251, 249, 245]; return `rgb(${c.map((v, i) => Math.round(v * t + w[i] * (1 - t))).join(' ')})`; };
-  const s = document.querySelector('svg.fan');
-  const px = 248, py = 141, L = 86, W = 21, step = 7;  // au-dessus des fentes (y 133), déborde un peu dans la coupe à droite
-  TEINTES.slice().reverse().forEach((c, k) => {
-    const i = TEINTES.length - 1 - k, a = -(5 + i * step);
-    const g = el('g', { transform: `rotate(${a} ${px} ${py})` });
-    const x = px - W / 2, y = py - L;
-    g.append(el('rect', { x: x - .6, y: y - .6, width: W + 1.2, height: L + 1.2, rx: 1.8, fill: '#1a1917' }));
-    g.append(el('rect', { x, y, width: W, height: L, rx: 1.4, fill: '#fbf9f5' }));
-    g.append(el('rect', { x: x + 1.9, y: y + 1.9, width: W - 3.8, height: L * .44, fill: c }));
-    g.append(el('rect', { x: x + 1.9, y: y + 1.9 + L * .44 + 1.1, width: W - 3.8, height: L * .13, fill: mix(c, .68) }));
-    g.append(el('rect', { x: x + 1.9, y: y + 1.9 + L * .57 + 2.2, width: W - 3.8, height: L * .13, fill: mix(c, .42) }));
-    s.append(g);
-  });
-</script>
+
 </body>
 </html>
