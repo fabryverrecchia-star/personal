@@ -149,8 +149,6 @@
 
   var scene = window.LouScene || { start: function () {}, burst: function () {} };
   var loader = $("#loader");
-  var crestVines = $(".crest__vines"), crestChurch = $(".crest__church");
-  var heroBits = $$(".hero__pre, .hero__name, .hero__date, .count, .count__today, .scrollhint");
 
   function startReveals() {
     if (!("IntersectionObserver" in window)) { $$("[data-reveal]").forEach(function (el) { el.classList.add("in"); }); return; }
@@ -162,40 +160,17 @@
     $$("[data-reveal]").forEach(function (el) { io.observe(el); });
   }
 
+  // L'ouverture est jouée en CSS (style.css) : ici on ne fait que suivre son minutage.
   function intro() {
-    var g = window.gsap;
     document.body.classList.add("is-loading");
-    if (!g || reduceMotion) {
-      loader.remove();
+    setTimeout(function () { scene.start(); }, 2900);
+    setTimeout(function () {
+      if (loader) loader.remove();
       document.body.classList.remove("is-loading");
-      scene.start();
-      startReveals();
-      return;
-    }
-    g.set(heroBits, { opacity: 0, y: 18 });
-    g.set(crestChurch, { opacity: 0, y: 24, scale: .96 });
-    crestVines.style.setProperty("--grow", "0");
-
-    var tl = g.timeline({ defaults: { ease: "power3.out" } });
-    tl.to(".loader__dove", { x: 0, y: 0, rotation: 0, opacity: 1, duration: 1.5, ease: "power2.out" })
-      .to(".loader__dove", { y: -6, duration: .6, yoyo: true, repeat: 1, ease: "sine.inOut" }, "-=.2")
-      .to(".loader__name", { opacity: 1, letterSpacing: ".22em", duration: 1.1 }, 1.0)
-      .to(".loader__line i", { scaleX: 1, duration: 1.1, ease: "power2.inOut" }, 1.0)
-      .add(function () { scene.start(); }, 2.0)
-      .to(".loader__dove", { x: "45vw", y: "-30vh", rotation: -6, scale: .7, opacity: 0, duration: 1.2, ease: "power2.in" }, 2.1)
-      .to([".loader__name", ".loader__line"], { opacity: 0, y: -10, duration: .6 }, 2.2)
-      .to(loader, { opacity: 0, duration: .8, ease: "power1.out", onComplete: function () {
-        loader.remove();
-        document.body.classList.remove("is-loading");
-      } }, 2.5)
-      .to(crestVines, { "--grow": 1, duration: 2.6, ease: "power2.out" }, 2.6)
-      .to(crestChurch, { opacity: 1, y: 0, scale: 1, duration: 1.6 }, 3.0)
-      .to(heroBits, { opacity: 1, y: 0, duration: 1.2, stagger: .12 }, 3.4)
-      .add(startReveals, 3.6);
+    }, 4100);
+    setTimeout(startReveals, 4300);
   }
-
-  var fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
-  Promise.race([fontsReady, new Promise(function (r) { setTimeout(r, 2000); })]).then(intro);
+  intro();
 
   // le cœur de l'église pivote très légèrement avec le défilement
   var ticking = false;
