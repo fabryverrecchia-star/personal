@@ -29,7 +29,7 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-  function src(path) { return /^(https?:|data:|\/)/.test(path) ? path : BASE + path; }
+  function src(path) { return /^(https?:|data:|blob:|\/)/.test(path) ? path : BASE + path; }
   function el(html) {
     var t = document.createElement('template');
     t.innerHTML = html.trim();
@@ -352,6 +352,8 @@
   // (les inspirations du mois ont les mêmes retours : fbRefresh les repeint quand le panneau change)
   var fbRefresh = function () {};
   var INSPI_ITEMS = [];
+  // Stories programmées (remplies par l'espace de suivi), reprises dans le récapitulatif des retours
+  var STORY_ITEMS = [];
   function feedbackHtml(post) {
     if (!PLAN.feedback) return '';
     return (
@@ -368,7 +370,7 @@
   function guideHtml() {
     if (!PLAN.feedback) return '';
     var steps = [
-      ['#feed', 'Le feed', 'Touchez une publication pour la voir en grand.'],
+      ['#feed', 'Le feed et les stories', 'Touchez une publication ou une story pour la voir en grand.'],
       ['#s1', 'Vos avis', 'Sous chaque publication : « Validé » ou « À revoir », et un commentaire si besoin.'],
       ['#retours', 'L’envoi', 'En bas du planning, envoyez-nous le récapitulatif de vos retours.'],
     ];
@@ -378,6 +380,18 @@
           '<span class="guide__txt"><b>' + st[1] + '</b><small>' + st[2] + '</small></span><span class="guide__go" aria-hidden="true">↓</span></a></li>';
       }).join('') + '</ol>' +
       '<p class="guide__note">Inspiration du mois et Branding : dans la barre en bas de l’écran.</p></nav>';
+  }
+  // Stories : proposées et programmées par l'équipe, vues en plein écran par le client
+  function storiesHtml() {
+    if (!PLAN.suivi) return '';
+    return '<section class="stories" id="stories">' +
+      '<header class="stories__head">' +
+      '<p class="label stories__kicker" data-reveal>Stories · programmation</p>' +
+      '<h2 class="stories__title" data-reveal>Les <em>stories</em></h2>' +
+      '<p class="stories__lead" data-reveal>Touchez une story pour la voir en plein écran, comme sur Instagram, puis validez-la ou commentez-la.</p>' +
+      '</header>' +
+      '<div class="stories__track" data-stories></div>' +
+      '</section>';
   }
   function feedbackFooter() {
     var f = PLAN.feedback;
@@ -460,6 +474,7 @@
       '<nav class="weeknav" aria-label="' + (monthly ? 'Mois' : 'Semaines') + '">' +
       '<a class="label" href="#feed">Feed</a>' +
       weeks.map(function (w, k) { return '<a class="label" href="#s' + (k + 1) + '">' + (monthly ? MOIS_LONGS[firstDate(w).getMonth()] : 'S' + pad(k + 1)) + '</a>'; }).join('') +
+      (PLAN.suivi ? '<a class="label" href="#stories">Stories</a>' : '') +
       (PLAN.feedback ? '<a class="label" href="#retours">Retours</a>' : '') +
       (PLAN.ads ? '<a class="label" href="#ads">Sponsorisé</a>' : '') +
       (PLAN.suivi ? '<a class="label" href="#passages">' + (PLAN.suivi.passages === false ? 'Calendrier' : 'Passages') + '</a><a class="label" href="#missions">Missions</a>' : '') +
@@ -509,7 +524,8 @@
       '</div>' +
       (live.length ? '<p class="label" style="margin-top:14px;opacity:.7">Voilés : publications déjà en ligne</p>' : '') +
       '</section>' +
-      weeksHtml;
+      weeksHtml +
+      storiesHtml();
 
     html += adsHtml();
     html += feedbackFooter();
@@ -827,6 +843,17 @@
         if (d.note && d.note.trim()) lines.push('« ' + d.note.trim() + ' »');
         lines.push('');
       });
+      // Stories programmées
+      if (STORY_ITEMS.length) {
+        lines.push('Stories', '');
+        STORY_ITEMS.forEach(function (st) {
+          var d = data['story-' + st.id] || {};
+          lines.push('Story · ' + st.when + (st.caption ? ' · ' + st.caption.split('\n')[0].slice(0, 60) : ''));
+          lines.push('→ ' + (d.status === 'ok' ? 'Validé' : d.status === 'revoir' ? 'À revoir' : 'Sans avis'));
+          if (d.note && d.note.trim()) lines.push('« ' + d.note.trim() + ' »');
+          lines.push('');
+        });
+      }
       // Inspirations du mois : seulement celles qui ont un avis ou un commentaire
       var ins = INSPI_ITEMS.filter(function (it) { var d = data['inspi-' + it.id]; return d && (d.status || (d.note && d.note.trim())); });
       if (ins.length) {
@@ -886,6 +913,7 @@
     planning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3.5" y="5" width="17" height="15" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>',
     redaction: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 20l1-4.5L16 4.5l3.5 3.5-11 11z"/><path d="M13.5 7l3.5 3.5"/></svg>',
     autre: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>',
+    story: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 9v6M9 12h6"/></svg>',
     ads: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 10v4h3l7 4.5v-13L7 10z"/><path d="M17.5 9.5a3.5 3.5 0 0 1 0 5M7 14l1.5 5h2.5L10 14.6"/></svg>',
     image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><circle cx="9" cy="10" r="1.8"/><path d="M4 17.5l5-4.5 4 3.5 3-2.5 4.5 3.5"/></svg>',
     spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9-1.9 5.1-1.9-5.1-5.1-1.9 5.1-1.9z"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>',
@@ -990,6 +1018,7 @@
       (pubs ? '' : '<button type="button" class="team-fab__item" role="menuitem" data-goto="passages">' + SICONS.planning + '<span><b>Rendez-vous</b><small class="label">Calendrier des passages</small></span></button>') +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="contenus">' + SICONS.image + '<span><b>Publications</b><small class="label">Date, visuel, texte · ajouter, supprimer</small></span></button>' +
       (PLAN.ads ? '<button type="button" class="team-fab__item" role="menuitem" data-goto="ads">' + SICONS.ads + '<span><b>Sponsorisé</b><small class="label">Dépensé, budget, campagnes</small></span></button>' : '') +
+      '<button type="button" class="team-fab__item" role="menuitem" data-goto="stories">' + SICONS.story + '<span><b>Stories</b><small class="label">Proposer, programmer, prévisualiser</small></span></button>' +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="missions">' + SICONS.redaction + '<span><b>Tâches</b><small class="label">Missions en cours</small></span></button>' +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="inspi">' + SICONS.spark + '<span><b>Inspiration</b><small class="label">Reels et carrousels du mois</small></span></button>' +
       '<button type="button" class="team-fab__item team-fab__quit" role="menuitem" data-fab-quit>' + SICONS.close + '<span><b>Fermer l’espace équipe</b></span></button>' +
@@ -1394,6 +1423,7 @@
       paintVisits();
       paintTasks();
       paintInspi();
+      paintStories();
       document.querySelector('[data-suivi-mode]').textContent = admin && mode === 'local'
         ? 'Aperçu : les modifications restent sur cet appareil'
         : '';
@@ -1623,6 +1653,363 @@
           var first = (state.inspirations || [])[0];
           if (mode === 'api' && first && !first.thumb) toast('Lien ajouté. Instagram n’a pas donné l’image : le lecteur Instagram est affiché à la place.');
         });
+    });
+
+    /* Stories : l'équipe les propose et les programme (jour, heure), le client les voit en plein écran et les valide */
+    var storiesEl = document.querySelector('[data-stories]');
+    var IG = String((PLAN.client || {}).instagram || '').replace(/^@/, '');
+    var INITIALS = String((PLAN.client || {}).name || '').split(/\s+/).filter(Boolean).slice(0, 3).map(function (w) { return w.charAt(0).toUpperCase(); }).join('');
+    var SOUND_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>';
+    var SOUND_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M16 10l5 5M21 10l-5 5"/></svg>';
+    function storyWhen(s, long) {
+      if (!s.date) return 'Date à définir' + (s.time ? ' · ' + s.time : '');
+      var d = parseDate(s.date);
+      return (long ? JOURS_LONGS[d.getDay()] : JOURS[d.getDay()] + '.') + ' ' + d.getDate() + ' ' + MOIS[d.getMonth()] + (s.time ? ' · ' + s.time : '');
+    }
+    function storyList() {
+      var E = state.edits || {};
+      return Object.keys(E).filter(function (k) { return E[k] && E[k].added === 'story'; }).map(function (k) {
+        var e = E[k], vid = e.format === 'reel' && e.video ? e.video : '';
+        var s = { id: k, date: e.date || '', time: e.time || '', caption: e.caption || '', video: vid, image: vid ? e.poster || '' : list(e.media)[0] || '' };
+        s.when = storyWhen(s, true);
+        return s;
+      }).sort(function (a, b) {
+        if (a.date !== b.date) return !a.date ? 1 : !b.date ? -1 : a.date < b.date ? -1 : 1;
+        return timeVal(a.time) - timeVal(b.time);
+      });
+    }
+    function storyGet(id) { return storyList().filter(function (s) { return s.id === id; })[0] || null; }
+    function storyMedia(s, cls) {
+      if (s.video) return '<video class="' + cls + '" src="' + esc(src(s.video)) + '#t=0.3"' + (s.image ? ' poster="' + esc(src(s.image)) + '"' : '') + ' muted playsinline preload="metadata"></video>';
+      if (s.image) return '<img class="' + cls + '" src="' + esc(src(s.image)) + '" alt="" loading="lazy" decoding="async">';
+      return '<span class="' + cls + ' story-soon label">Visuel à venir</span>';
+    }
+    var storySig = '';
+    function paintStories() {
+      if (!storiesEl) return;
+      var items = storyList();
+      STORY_ITEMS = items;
+      var sig = JSON.stringify(items) + admin;
+      if (sig === storySig) return;
+      storySig = sig;
+      storiesEl.innerHTML = items.map(function (s, k) {
+        return '<button type="button" class="story-card" id="story-' + esc(s.id) + '" data-story-open="' + k + '" aria-label="Voir la story du ' + esc(s.when) + '">' +
+          '<span class="story-card__frame">' + storyMedia(s, 'story-card__media') +
+          (s.video ? '<span class="story-card__play">' + ICONS.play + '</span>' : '') + '</span>' +
+          '<span class="label story-card__when">' + esc(storyWhen(s)) + '</span>' +
+          '<span hidden data-fb="story-' + esc(s.id) + '"></span>' +
+          '</button>';
+      }).join('') +
+        '<button type="button" class="story-card story-card--add" data-story-add><span class="story-card__frame"><span class="story-card__plus">+</span><span class="label">Ajouter une story</span></span><span class="label story-card__when">Espace équipe</span></button>' +
+        (items.length ? '' : '<p class="stories__empty">Les stories du mois arrivent bientôt.</p>');
+      fbRefresh(storiesEl);
+    }
+
+    // Visionneuse plein écran, comme sur Instagram : barres de progression, toucher à gauche / à droite, maintenir pour mettre en pause
+    var sv = el('<div class="sview" data-sview aria-hidden="true" role="dialog" aria-modal="true" aria-label="Story">' +
+      '<div class="sview__stage" data-sview-stage>' +
+      '<div class="sview__media" data-sview-media></div>' +
+      '<div class="sview__shade"></div>' +
+      '<div class="sview__bars" data-sview-bars></div>' +
+      '<header class="sview__head"><i class="sview__avatar">' + esc(INITIALS || '18') + '</i>' +
+      '<span class="sview__who"><b>' + esc(IG || (PLAN.client || {}).name || '') + '</b><small data-sview-when></small></span>' +
+      '<button type="button" class="sview__btn" data-sview-sound aria-label="Son" hidden></button>' +
+      '<button type="button" class="sview__btn" data-sview-close aria-label="Fermer">' + SICONS.close + '</button></header>' +
+      '<p class="sview__text" data-sview-text hidden></p>' +
+      '</div>' +
+      '<div class="sview__foot" data-sview-foot></div>' +
+      '</div>');
+    document.body.appendChild(sv);
+    var svStage = sv.querySelector('[data-sview-stage]');
+    var svItems = [], svK = 0, svRaf = 0, svStart = 0, svDone = 0, svVid = null, svHold = false, svFoot = false, svMuted = false, svDown = 0;
+    var SV_DUR = 6000;
+    function svSound() {
+      var b = sv.querySelector('[data-sview-sound]');
+      b.hidden = !svVid;
+      b.innerHTML = svMuted ? SOUND_OFF : SOUND_ON;
+      b.setAttribute('aria-label', svMuted ? 'Activer le son' : 'Couper le son');
+    }
+    function svOpen(k) {
+      svItems = storyList();
+      if (!svItems.length) return;
+      sv.querySelector('[data-sview-bars]').innerHTML = svItems.map(function () { return '<i><b></b></i>'; }).join('');
+      sv.classList.add('is-open');
+      sv.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('is-locked');
+      svShow(k || 0);
+    }
+    function svClose() {
+      cancelAnimationFrame(svRaf);
+      if (svVid) svVid.pause();
+      svVid = null;
+      sv.classList.remove('is-open');
+      sv.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('is-locked');
+      sv.querySelector('[data-sview-media]').innerHTML = '';
+      if (document.activeElement && sv.contains(document.activeElement)) document.activeElement.blur();
+    }
+    function svShow(k) {
+      if (k >= svItems.length) return svClose();
+      svK = Math.max(0, k);
+      var s = svItems[svK];
+      sv.querySelectorAll('[data-sview-bars] b').forEach(function (b, j) { b.style.transform = 'scaleX(' + (j < svK ? 1 : 0) + ')'; });
+      sv.querySelector('[data-sview-when]').textContent = 'Programmée · ' + storyWhen(s);
+      var m = sv.querySelector('[data-sview-media]');
+      if (svVid) svVid.pause();
+      m.innerHTML = s.video
+        ? '<video src="' + esc(src(s.video)) + '"' + (s.image ? ' poster="' + esc(src(s.image)) + '"' : '') + ' playsinline preload="auto"></video>'
+        : s.image ? '<img src="' + esc(src(s.image)) + '" alt="">' : '<span class="sview__soon label">Visuel à venir</span>';
+      var t = sv.querySelector('[data-sview-text]');
+      t.textContent = s.caption;
+      t.hidden = !s.caption;
+      var foot = sv.querySelector('[data-sview-foot]');
+      foot.innerHTML = feedbackHtml({ _id: 'story-' + s.id }).replace(' data-reveal', '') +
+        '<button type="button" class="label sview__edit" data-sview-edit>' + SICONS.edit + 'Modifier cette story</button>';
+      fbRefresh(foot);
+      svVid = m.querySelector('video');
+      svDone = 0; svStart = performance.now(); svFoot = false;
+      if (svVid) {
+        var v = svVid;
+        v.muted = svMuted;
+        v.addEventListener('error', function () { if (svVid === v) { svVid = null; svStart = performance.now(); svSound(); } });
+        var p = v.play();
+        // Lecture avec le son refusée par le navigateur : on relance sans le son
+        if (p && p.catch) p.catch(function () { if (svVid !== v) return; v.muted = svMuted = true; svSound(); v.play().catch(function () {}); });
+      }
+      svSound();
+      cancelAnimationFrame(svRaf);
+      svRaf = requestAnimationFrame(svTick);
+    }
+    function svPaused() {
+      var a = document.activeElement;
+      return svHold || svFoot || !!(a && a.tagName === 'TEXTAREA' && sv.contains(a));
+    }
+    function svTick(now) {
+      if (!sv.classList.contains('is-open')) return;
+      var p, pause = svPaused();
+      if (svVid) {
+        if (pause && !svVid.paused) svVid.pause();
+        else if (!pause && svVid.paused && !svVid.ended) svVid.play().catch(function () {});
+        p = svVid.ended ? 1 : svVid.duration ? svVid.currentTime / svVid.duration : 0;
+      } else {
+        if (pause) svStart = now - svDone; else svDone = now - svStart;
+        p = svDone / SV_DUR;
+      }
+      var bar = sv.querySelectorAll('[data-sview-bars] b')[svK];
+      if (bar) bar.style.transform = 'scaleX(' + Math.min(1, p) + ')';
+      if (p >= 1) { svShow(svK + 1); return; }
+      svRaf = requestAnimationFrame(svTick);
+    }
+    svStage.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('button')) return;
+      svDown = performance.now();
+      svHold = true;
+    });
+    svStage.addEventListener('pointerup', function (e) {
+      if (!svHold) return;
+      svHold = false;
+      if (performance.now() - svDown > 350) return;
+      var r = svStage.getBoundingClientRect();
+      svShow(e.clientX - r.left < r.width * 0.33 ? svK - 1 : svK + 1);
+    });
+    svStage.addEventListener('pointercancel', function () { svHold = false; });
+    svStage.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    // Le client donne son avis : la story attend
+    sv.querySelector('[data-sview-foot]').addEventListener('pointerdown', function () { svFoot = true; });
+    sv.addEventListener('click', function (e) {
+      if (e.target.closest('[data-sview-close]')) svClose();
+      else if (e.target.closest('[data-sview-sound]')) {
+        svMuted = !svMuted;
+        if (svVid) { svVid.muted = svMuted; svVid.play().catch(function () {}); }
+        svSound();
+      } else if (e.target.closest('[data-sview-edit]')) {
+        var id = svItems[svK] && svItems[svK].id;
+        svClose();
+        if (id) askCode(function () { storyEdit(id); });
+      }
+    });
+
+    // Fiche d'une story (espace équipe) : visuel, jour, heure, texte prévu
+    var se = el('<div class="inspi sedit" data-sedit aria-hidden="true" role="dialog" aria-modal="true" aria-label="Programmer une story">' +
+      '<div class="inspi__backdrop" data-sedit-close></div>' +
+      '<form class="inspi__panel sedit__panel" data-sedit-form autocomplete="off" novalidate>' +
+      '<header class="inspi__head"><div><p class="label inspi__kicker">Story</p><h3 class="inspi__title">Programmer</h3></div>' +
+      '<button type="button" class="inspi__close" data-sedit-close aria-label="Fermer">' + SICONS.close + '</button></header>' +
+      '<div class="sedit__body">' +
+      '<div class="sedit__media" data-sedit-media></div>' +
+      '<div class="sedit__fields">' +
+      '<p class="label editor__label">Visuel</p>' +
+      '<div class="sedit__pick"><button type="button" class="label admin-form__cancel" data-sedit-pick="photo">' + SICONS.photo + 'Photo</button>' +
+      '<button type="button" class="label admin-form__cancel" data-sedit-pick="video">' + SICONS.video + 'Vidéo</button></div>' +
+      '<label class="editor__field"><span class="label">Jour</span><input type="date" name="date"></label>' +
+      '<label class="editor__field"><span class="label">Heure</span><input type="text" name="time" maxlength="12" placeholder="12h00"></label>' +
+      '</div></div>' +
+      '<label class="editor__field sedit__text"><span class="label">Texte, sticker ou lien prévu</span>' +
+      '<textarea name="caption" rows="3" maxlength="600" placeholder="Ex. sondage « Brunch ou dîner ? », lien vers la réservation"></textarea></label>' +
+      '<p class="editor__hint">Format vertical 9:16 (1080 × 1920). Photo JPG ou PNG, vidéo MP4 ou MOV.</p>' +
+      '<div class="sedit__actions">' +
+      '<button type="button" class="label admin-form__cancel" data-sedit-preview>Prévisualiser</button>' +
+      '<button type="submit" class="label admin-form__go">Enregistrer</button></div>' +
+      '<button type="button" class="label editor__delete sedit__delete" data-sedit-delete>Supprimer cette story</button>' +
+      '<input type="file" accept="image/*" data-sedit-photo hidden>' +
+      '<input type="file" accept="video/mp4,video/quicktime,video/*" data-sedit-video hidden>' +
+      '</form></div>');
+    document.body.appendChild(se);
+    var seForm = se.querySelector('[data-sedit-form]');
+    var seId = null, seBusy = '';
+    function sePaint() {
+      var s = seId && storyGet(seId);
+      if (!s) return;
+      se.querySelector('[data-sedit-media]').innerHTML = storyMedia(s, 'sedit__img') +
+        (seBusy ? '<span class="ed-busy label" data-sedit-busy>' + seBusy + '</span>' : '');
+    }
+    function storyEdit(id) {
+      var s = storyGet(id);
+      if (!s) return;
+      seId = id;
+      seBusy = '';
+      seForm.elements.date.value = s.date;
+      seForm.elements.time.value = s.time;
+      seForm.elements.caption.value = s.caption;
+      sePaint();
+      se.classList.add('is-open');
+      se.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('is-locked');
+      seForm.scrollTop = 0;
+    }
+    function seClose() {
+      if (seBusy) { toast('Envoi en cours, patientez.'); return false; }
+      se.classList.remove('is-open');
+      se.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('is-locked');
+      seId = null;
+      return true;
+    }
+    function seValues() {
+      var f = seForm.elements;
+      return { date: f.date.value || null, time: f.time.value.trim() || null, caption: f.caption.value.trim() || null };
+    }
+    function storyAdd() {
+      var id = 'st-' + Date.now().toString(36);
+      send({ action: 'edit', kind: 'edits', id: id, item: { added: 'story', date: iso(today()), time: '12h00' } })
+        .then(function (ok) { if (ok) storyEdit(id); });
+    }
+    function storySave() {
+      var id = seId;
+      if (!id) return Promise.resolve(false);
+      return send({ action: 'edit', kind: 'edits', id: id, item: seValues() });
+    }
+    function storyUpload(file, isVideo) {
+      var id = seId;
+      if (!id || seBusy) return;
+      // Le visuel change de nature : l'ancien est retiré (et supprimé de l'hébergement)
+      var after = isVideo ? { format: 'reel', media: null, poster: null } : { format: 'photo', video: null, poster: null };
+      seBusy = isVideo ? 'Envoi de la vidéo…' : 'Envoi de la photo…';
+      sePaint();
+      var done = function () { seBusy = ''; if (seId === id) sePaint(); };
+      var fail = function (m) { done(); if (m !== 'code') toast(m || 'Envoi impossible. Réessayez.'); };
+      if (mode === 'local') {
+        var keep = function (url) {
+          var it = JSON.parse(JSON.stringify(after));
+          if (isVideo) it.video = url; else it.media = [url];
+          return send({ action: 'edit', kind: 'edits', id: id, item: it }).then(done);
+        };
+        if (isVideo) { toast('Aperçu : la vidéo n’est gardée que pendant cette visite.'); return keep(URL.createObjectURL(file)); }
+        return prepImage(file, 1280, 0.8).then(function (b) {
+          var r = new FileReader();
+          r.onload = function () { keep(r.result); };
+          r.onerror = function () { fail(); };
+          r.readAsDataURL(b);
+        });
+      }
+      var ready = isVideo ? Promise.resolve(file) : prepImage(file, 2048, 0.86);
+      return ready.then(function (blob) {
+        return new Promise(function (res, rej) {
+          var fd = new FormData();
+          fd.append('p64', pack({ action: 'upload', kind: 'edits', id: id, slot: isVideo ? 'video' : 'media', index: 0, base: [] }));
+          fd.append('code', code);
+          fd.append('file', blob, isVideo ? (file.name || 'video.mp4') : 'photo.jpg');
+          var x = new XMLHttpRequest();
+          x.open('POST', API + '?t=' + Date.now());
+          x.upload.onprogress = function (ev) {
+            if (!ev.lengthComputable) return;
+            seBusy = (isVideo ? 'Envoi de la vidéo… ' : 'Envoi de la photo… ') + Math.round(ev.loaded / ev.total * 100) + ' %';
+            var b = se.querySelector('[data-sedit-busy]');
+            if (b) b.textContent = seBusy;
+          };
+          x.onload = function () {
+            var d = null;
+            try { d = JSON.parse(x.responseText); } catch (er) {}
+            if (x.status === 403 && d && d.error === 'code') { setAdmin(false, true); return rej('code'); }
+            if (x.status >= 200 && x.status < 300 && valid(d)) return res(d);
+            rej(errMsg(d && d.error, d) || 'Envoi impossible (' + x.status + '). Réessayez.');
+          };
+          x.onerror = function () { rej('Connexion impossible. Réessayez.'); };
+          x.send(fd);
+        });
+      }).then(function (d) {
+        state = d;
+        paint();
+        return send({ action: 'edit', kind: 'edits', id: id, item: after });
+      }).then(function () {
+        done();
+        toast(isVideo ? 'Vidéo enregistrée.' : 'Photo enregistrée.');
+      }, fail);
+    }
+    se.addEventListener('click', function (e) {
+      var t;
+      if (e.target.closest('[data-sedit-close]')) seClose();
+      else if ((t = e.target.closest('[data-sedit-pick]'))) {
+        if (seBusy) return;
+        se.querySelector(t.getAttribute('data-sedit-pick') === 'video' ? '[data-sedit-video]' : '[data-sedit-photo]').click();
+      } else if (e.target.closest('[data-sedit-preview]')) {
+        if (seBusy) { toast('Envoi en cours, patientez.'); return; }
+        var id = seId;
+        storySave().then(function (ok) {
+          if (!ok || !seClose()) return;
+          var k = storyList().map(function (s) { return s.id; }).indexOf(id);
+          svOpen(Math.max(0, k));
+        });
+      } else if (e.target.closest('[data-sedit-delete]')) {
+        var del = seId;
+        sheet({
+          kicker: 'Story',
+          title: 'Supprimer cette story ?',
+          ok: 'Supprimer',
+          danger: true,
+          submit: function () {
+            return send({ action: 'reset', kind: 'edits', id: del }).then(function (ok) {
+              if (ok) { seBusy = ''; seClose(); toast('Story supprimée.'); }
+              return true;
+            });
+          },
+        });
+      }
+    });
+    ['photo', 'video'].forEach(function (k) {
+      var input = se.querySelector('[data-sedit-' + k + ']');
+      input.addEventListener('change', function () {
+        var f = input.files && input.files[0];
+        input.value = '';
+        if (f) storyUpload(f, k === 'video');
+      });
+    });
+    seForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (seBusy) { toast('Envoi en cours, patientez.'); return; }
+      storySave().then(function (ok) { if (ok && seClose()) toast('Story programmée.'); });
+    });
+    if (storiesEl) storiesEl.addEventListener('click', function (e) {
+      var t;
+      if (e.target.closest('[data-story-add]')) askCode(storyAdd);
+      else if ((t = e.target.closest('[data-story-open]'))) svOpen(+t.getAttribute('data-story-open'));
+    });
+    document.addEventListener('keydown', function (e) {
+      if (sv.classList.contains('is-open')) {
+        if (e.key === 'Escape') svClose();
+        else if (e.key === 'ArrowRight') svShow(svK + 1);
+        else if (e.key === 'ArrowLeft') svShow(svK - 1);
+      } else if (e.key === 'Escape' && se.classList.contains('is-open') && !sheetEl.classList.contains('is-open')) seClose();
     });
 
     /* Photos et légendes : chaque post et chaque campagne sponsorisée (espace équipe) */
@@ -2167,7 +2554,11 @@
         menu(false);
         askCode(function () {
           if (kind === 'inspi') inspi(true);
-          else if (kind === 'contenus') {
+          else if (kind === 'stories') {
+            var sto = document.getElementById('stories');
+            if (sto) window.scrollTo({ top: sto.getBoundingClientRect().top + window.pageYOffset - 70, behavior: 'smooth' });
+            toast('Touchez « Ajouter une story », ou une story pour la modifier.');
+          } else if (kind === 'contenus') {
             var first = document.querySelector('.week');
             if (first) first.scrollIntoView({ behavior: 'smooth', block: 'start' });
             toast('Touchez « Modifier la publication » sous un post.');
@@ -2225,7 +2616,7 @@
     load().then(function () {
       // Hébergement lent : le planning s'est affiché avant les données ; s'il y a des ajouts, retraits ou dates, on recharge une fois
       var E = state.edits || {};
-      var moved = Object.keys(E).some(function (k) { var e = E[k] || {}; return e.added || e.deleted || e.date || e.start || e.end; });
+      var moved = Object.keys(E).some(function (k) { var e = E[k] || {}; return e.added !== 'story' && (e.added || e.deleted || e.date || e.start || e.end); });
       if (!STRUCT_OK && moved && !(QUICK && QUICK.retry)) { relaunch({ retry: true, admin: admin }); return; }
       if (code && mode === 'api') setAdmin(true);
       if (QUICK) {
@@ -2261,8 +2652,9 @@
     var fab = document.querySelector('[data-fab]');
     var items = [
       '<a class="dock__item" href="#feed" data-dock="feed">' + SICONS.image + '<span>Planning</span></a>',
+      document.getElementById('stories') ? '<a class="dock__item" href="#stories" data-dock="stories">' + SICONS.story + '<span>Stories</span></a>' : '',
       PLAN.feedback ? '<a class="dock__item" href="#retours" data-dock="retours">' + SICONS.meeting + '<span>Retours</span><i class="dock__badge" data-dock-count hidden></i></a>' : '',
-      inspiBtn ? '<button type="button" class="dock__item" data-dock-inspi>' + SICONS.spark + '<span>Inspiration</span></button>' : '',
+      inspiBtn ? '<button type="button" class="dock__item" data-dock-inspi>' + SICONS.spark + '<span>Inspi</span></button>' : '',
       brandBtn ? '<button type="button" class="dock__item" data-dock-brand>' + SICONS.photo + '<span>Branding</span></button>' : '',
       fab ? '<button type="button" class="dock__item dock__item--team" data-dock-team aria-label="Espace équipe">' + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="9" cy="9" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="16.5" cy="8" r="2.4"/><path d="M15.5 13.2c2.6-.3 4.6 1.3 5 4.3"/></svg>' + '<span>Équipe</span><i class="dock__dot"></i></button>' : '',
     ].join('');
@@ -2292,13 +2684,13 @@
       else if (e.target.closest('[data-dock-team]')) { e.stopPropagation(); fab.querySelector('[data-fab-toggle]').click(); }
     });
     // L'onglet de la partie visible est allumé
-    var marks = [['feed', document.getElementById('feed')], ['retours', document.getElementById('retours')]];
+    var marks = [['feed', document.getElementById('feed')], ['stories', document.getElementById('stories')], ['retours', document.getElementById('retours')]];
     function here() {
       var y = window.innerHeight * 0.45, on = '';
-      marks.forEach(function (m) {
-        if (!m[1]) return;
-        var r = m[1].getBoundingClientRect();
-        if (m[0] === 'feed' ? r.top < y && (!marks[1][1] || marks[1][1].getBoundingClientRect().top > y) : r.top < y && r.bottom > -40) on = m[0];
+      var ms = marks.filter(function (m) { return m[1]; });
+      ms.forEach(function (m, k) {
+        var r = m[1].getBoundingClientRect(), next = ms[k + 1];
+        if (r.top < y && (next ? next[1].getBoundingClientRect().top > y : r.bottom > -40)) on = m[0];
       });
       dock.querySelectorAll('[data-dock]').forEach(function (a) { a.classList.toggle('is-here', a.getAttribute('data-dock') === on); });
     }

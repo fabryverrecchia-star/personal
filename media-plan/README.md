@@ -13,13 +13,17 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur (en ligne : 
 - Commentaires sous chaque post : gardés sur le téléphone du client, envoyés en un récapitulatif (WhatsApp).
   Un post « À revoir » passe en noir et blanc transparent avec une croix, sur le post et dans le feed.
 - Bouton « Inspiration du mois » : reels et carrousels Instagram ajoutés par l'équipe.
+- Stories (après le planning du mois, onglet « Stories » en haut et dans la barre du bas) : vignettes verticales triées par jour et heure.
+  Toucher une story l'ouvre en plein écran comme sur Instagram (barres de progression, toucher à droite / à gauche, maintenir pour la pause,
+  texte prévu par-dessus), avec Validé / À revoir et un commentaire en dessous. Une story « À revoir » passe en noir et blanc avec une croix.
+  Les avis sur les stories partent dans le même récapitulatif WhatsApp.
 - Bouton « Branding » (au-dessus) : playlists Spotify de la marque, typographie, visuels de démo et liens Dropbox des banques d'images.
   Tout se règle dans `plan.js`, rubrique `branding` (`playlists`, `fonts`, `visuals`, `links`).
 
 ## Espace équipe (code riviera-9655)
 
 Bouton flottant « Espace équipe » en bas à droite, puis le code (une fois par appareil, majuscules ou minuscules indifférentes).
-Menu : Rendez-vous (calendrier des passages), Publications, Tâches, Inspiration.
+Menu : Rendez-vous (calendrier des passages), Publications, Stories, Tâches, Inspiration.
 - Formulaire « Modifier » en parties numérotées : date, visuel, texte.
 - Équipe : Fabrizio (couleurs 18H22), Jade (couleurs La Petite Maison).
 - Planning : en mode équipe, « Ajouter une publication » (fin du mois) crée le post et ouvre son formulaire. Changer une date, ajouter ou supprimer recharge la page (sans l'ouverture 18H22)
@@ -35,6 +39,10 @@ Menu : Rendez-vous (calendrier des passages), Publications, Tâches, Inspiration
     La couverture est l'image affichée dans le feed et sur le post avant lecture.
   - Titre et légende (un paragraphe par ligne).
   - « Revenir à l'original » efface les modifications et les fichiers envoyés. « Supprimer » (deux touchers) retire du planning.
+- Stories : « Ajouter une story » (au bout de la rangée des stories) ouvre la fiche « Programmer » : photo ou vidéo (9:16),
+  jour, heure, et le texte, sticker ou lien prévu. « Prévisualiser » enregistre puis montre la story en plein écran ;
+  « Modifier cette story » dans la visionneuse rouvre la fiche ; « Supprimer cette story » l'efface avec ses fichiers.
+  Les stories sont gardées dans `data/suivi.json` (rubrique `edits`, `added: "story"`) et leurs fichiers dans `uploads/`.
 - Rendez-vous : jours de passage (calendrier et liste), à ajouter, modifier ou supprimer.
 - Tâche : missions en cours, publiées par Fabrizio ou Jade (crayon pour modifier, croix pour supprimer, toucher l'état pour avancer).
 - Inspiration : ouvrir directement `…/?inspi`, coller un lien Instagram (reel, carrousel ou post). Le site récupère l'image, le compte

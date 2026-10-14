@@ -12,7 +12,7 @@
  *        { action: "delete", kind: "missions"|"passages"|"inspirations", id }
  *        { action: "refresh", kind: "inspirations" }  → récupère le contenu Instagram manquant
  *        { action: "edit",   kind: "edits", id, item: { title, caption, media, poster, video, format, date, time, budget, spent, status, start, end,
- *                                                  objective, audience, cta, added: "post"|"ad", deleted: true } }
+ *                                                  objective, audience, cta, added: "post"|"ad"|"story", deleted: true } }
  *                            (format : "reel" pour passer un post photo en vidéo, "photo" pour l'inverse)
  *                            (une valeur null rétablit celle du planning)
  *        { action: "reset",  kind: "edits", id }      → revient au post ou à la campagne d'origine
@@ -258,7 +258,7 @@ if ($kind === 'edits') {
       elseif ($k === 'status' && in_array($v, $AD_STATUS, true)) $e[$k] = $v;
       elseif ($k === 'format' && in_array($v, ['reel', 'photo'], true)) $e[$k] = $v;
       // Publication ou campagne ajoutée depuis l'espace équipe, ou retirée du planning
-      elseif ($k === 'added' && in_array($v, ['post', 'ad'], true)) $e[$k] = $v;
+      elseif ($k === 'added' && in_array($v, ['post', 'ad', 'story'], true)) $e[$k] = $v;
       elseif ($k === 'deleted' && $v === true) $e[$k] = true;
       elseif ($k === 'date' && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $v)) $e[$k] = $v;
       elseif ($k === 'time') { $t = clean($v, 12); if ($t !== '') $e[$k] = $t; else unset($e[$k]); }
