@@ -18,7 +18,7 @@ window.PLAN = {
   title: 'Media planning',
   period: 'Octobre 2026',
   intro:
-    'De Nice à Paris. Un mois pour installer l’univers avant l’ouverture : la <em>Méditerranée</em>, les matières, l’automne, et une date qui approche.',
+    '7 rue du Boccador, Paris 8. Ici, le feed tel qu’il est aujourd’hui, les <em>prochaines publications</em>, et vos retours avant chaque mise en ligne.',
 
   // Couleurs du site : crème, terracotta, texte presque noir. Bascule en fondu après l'ouverture 18H22.
   theme: {

@@ -364,6 +364,21 @@
       '</div>'
     );
   }
+  // Mode d'emploi pour le client, en trois étapes cliquables
+  function guideHtml() {
+    if (!PLAN.feedback) return '';
+    var steps = [
+      ['#feed', 'Le feed', 'Touchez une publication pour la voir en grand.'],
+      ['#s1', 'Vos avis', 'Sous chaque publication : « Validé » ou « À revoir », et un commentaire si besoin.'],
+      ['#retours', 'L’envoi', 'En bas du planning, envoyez-nous le récapitulatif de vos retours.'],
+    ];
+    return '<nav class="guide" data-reveal aria-label="Mode d’emploi"><p class="label guide__kicker">Mode d’emploi</p><ol class="guide__steps">' +
+      steps.map(function (st, i) {
+        return '<li><a class="guide__step" href="' + st[0] + '"><span class="guide__num">' + (i + 1) + '</span>' +
+          '<span class="guide__txt"><b>' + st[1] + '</b><small>' + st[2] + '</small></span><span class="guide__go" aria-hidden="true">↓</span></a></li>';
+      }).join('') + '</ol>' +
+      '<p class="guide__note">Inspiration du mois et Branding : dans la barre en bas de l’écran.</p></nav>';
+  }
   function feedbackFooter() {
     var f = PLAN.feedback;
     if (!f) return '';
@@ -371,7 +386,7 @@
     if (f.whatsapp !== undefined) ways.push('<button type="button" class="label fb-send__btn" data-fb-send="whatsapp">Envoyer sur WhatsApp</button>');
     if (f.email !== undefined) ways.push('<button type="button" class="label fb-send__btn" data-fb-send="email">Envoyer par e-mail</button>');
     return (
-      '<section class="fb-send" data-reveal>' +
+      '<section class="fb-send" id="retours" data-reveal>' +
       '<p class="label fb-send__kicker">Vos retours</p>' +
       '<p class="fb-send__text">Validez ou commentez chaque publication, puis envoyez-nous le récapitulatif.</p>' +
       '<p class="label fb-send__count" data-fb-count></p>' +
@@ -430,6 +445,7 @@
       '<span>' + ICONS.carousel.replace('<svg', '<svg width="13" height="13"') + 'Carrousel</span>' +
       '<span>' + ICONS.reel.replace('<svg', '<svg width="13" height="13"') + 'Reel</span>' +
       '</div>' +
+      guideHtml() +
       '</section>';
 
     if (PLAN.theme || c.badge) {
@@ -444,6 +460,7 @@
       '<nav class="weeknav" aria-label="' + (monthly ? 'Mois' : 'Semaines') + '">' +
       '<a class="label" href="#feed">Feed</a>' +
       weeks.map(function (w, k) { return '<a class="label" href="#s' + (k + 1) + '">' + (monthly ? MOIS_LONGS[firstDate(w).getMonth()] : 'S' + pad(k + 1)) + '</a>'; }).join('') +
+      (PLAN.feedback ? '<a class="label" href="#retours">Retours</a>' : '') +
       (PLAN.ads ? '<a class="label" href="#ads">Sponsorisé</a>' : '') +
       (PLAN.suivi ? '<a class="label" href="#passages">' + (PLAN.suivi.passages === false ? 'Calendrier' : 'Passages') + '</a><a class="label" href="#missions">Missions</a>' : '') +
       '</nav>';
@@ -2236,6 +2253,59 @@
     });
   }
 
+  // Barre du bas : un seul repère fixe sur téléphone (Planning, Retours, Inspiration, Branding, Équipe).
+  // Remplace les boutons flottants, qui restent dans la page et sont actionnés par la barre.
+  function initDock() {
+    var inspiBtn = document.querySelector('[data-inspi-open]');
+    var brandBtn = document.querySelector('[data-brand-open]');
+    var fab = document.querySelector('[data-fab]');
+    var items = [
+      '<a class="dock__item" href="#feed" data-dock="feed">' + SICONS.image + '<span>Planning</span></a>',
+      PLAN.feedback ? '<a class="dock__item" href="#retours" data-dock="retours">' + SICONS.meeting + '<span>Retours</span><i class="dock__badge" data-dock-count hidden></i></a>' : '',
+      inspiBtn ? '<button type="button" class="dock__item" data-dock-inspi>' + SICONS.spark + '<span>Inspiration</span></button>' : '',
+      brandBtn ? '<button type="button" class="dock__item" data-dock-brand>' + SICONS.photo + '<span>Branding</span></button>' : '',
+      fab ? '<button type="button" class="dock__item dock__item--team" data-dock-team aria-label="Espace équipe">' + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="9" cy="9" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="16.5" cy="8" r="2.4"/><path d="M15.5 13.2c2.6-.3 4.6 1.3 5 4.3"/></svg>' + '<span>Équipe</span><i class="dock__dot"></i></button>' : '',
+    ].join('');
+    var dock = el('<nav class="dock" aria-label="Navigation">' + items + '</nav>');
+    document.body.appendChild(dock);
+    document.body.classList.add('has-dock');
+    // Inspiration : seulement s'il y en a (même règle que le bouton flottant)
+    function sync() {
+      var i = dock.querySelector('[data-dock-inspi]');
+      if (i && inspiBtn) i.hidden = inspiBtn.hidden;
+      var t = dock.querySelector('[data-dock-team]');
+      if (t && fab) t.classList.toggle('is-on', fab.classList.contains('is-on'));
+      var c = document.querySelector('[data-fb-count]'), b = dock.querySelector('[data-dock-count]');
+      if (c && b) { var n = parseInt(c.textContent, 10) || 0; b.textContent = n; b.hidden = !n; }
+    }
+    sync();
+    if (window.MutationObserver) {
+      var mo = new MutationObserver(sync);
+      if (inspiBtn) mo.observe(inspiBtn, { attributes: true, attributeFilter: ['hidden'] });
+      if (fab) mo.observe(fab, { attributes: true, attributeFilter: ['class'] });
+      var c = document.querySelector('[data-fb-count]');
+      if (c) mo.observe(c, { childList: true, characterData: true, subtree: true });
+    }
+    dock.addEventListener('click', function (e) {
+      if (e.target.closest('[data-dock-inspi]')) inspiBtn.click();
+      else if (e.target.closest('[data-dock-brand]')) brandBtn.click();
+      else if (e.target.closest('[data-dock-team]')) { e.stopPropagation(); fab.querySelector('[data-fab-toggle]').click(); }
+    });
+    // L'onglet de la partie visible est allumé
+    var marks = [['feed', document.getElementById('feed')], ['retours', document.getElementById('retours')]];
+    function here() {
+      var y = window.innerHeight * 0.45, on = '';
+      marks.forEach(function (m) {
+        if (!m[1]) return;
+        var r = m[1].getBoundingClientRect();
+        if (m[0] === 'feed' ? r.top < y && (!marks[1][1] || marks[1][1].getBoundingClientRect().top > y) : r.top < y && r.bottom > -40) on = m[0];
+      });
+      dock.querySelectorAll('[data-dock]').forEach(function (a) { a.classList.toggle('is-here', a.getAttribute('data-dock') === on); });
+    }
+    window.addEventListener('scroll', here, { passive: true });
+    here();
+  }
+
   // Branding : bouton flottant et panneau (playlists Spotify, typographie, visuels de démo, banques d'images)
   function initBrandkit() {
     var b = PLAN.branding;
@@ -2855,6 +2925,7 @@
   initSuivi();
   initInlineVideos();
   initViewer();
+  initDock();
   initScroll();
   preload();
   }
