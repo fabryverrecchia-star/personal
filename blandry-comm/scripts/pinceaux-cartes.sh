@@ -1,8 +1,8 @@
 #!/bin/sh
-# Génère les coups de pinceau des cartes (91 × 61 mm, fonds perdus compris)
-cd "$(dirname "$0")/.." && O=livrables/print/pinceau
-python3 scripts/pinceau.py $O/p1-recto.png 91 61 '#A8773D' 5 '[{"path":[[-3,34],[28,31],[58,36],[84,32]],"width":13.5,"bristles":800}]' &
-python3 scripts/pinceau.py $O/p2-recto.png 91 61 '#ECE6DA' 8 '[{"path":[[-3,27],[24,24],[50,29],[74,25]],"width":21,"bristles":1100}]' &
-python3 scripts/pinceau.py $O/p3-recto.png 91 61 '#2A2724' 12 '[{"path":[[-3,42],[30,39],[60,44],[90,39]],"width":17,"bristles":1000}]' &
-python3 scripts/pinceau.py $O/verso.png 91 61 '#A8773D' 21 '[{"path":[[5,31],[22,29.6],[42,31.8],[61,30]],"width":9.5,"bristles":600}]' &
+# Textures et gestes des cartes (91 × 61 mm, fonds perdus compris)
+cd "$(dirname "$0")/.." && O=livrables/print/pinceau && mkdir -p $O
+python3 scripts/pinceau.py badigeon $O/badigeon-basalte.png 91 61 '#24211E' 6 55 0.03 0.012 &
+python3 scripts/pinceau.py badigeon $O/badigeon-chaux.png 91 61 '#EDE7DC' 15 55 0.03 0.012 &
+python3 scripts/pinceau.py badigeon $O/badigeon-verso.png 91 61 '#F1ECE3' 23 50 0.016 0.007 &
+python3 scripts/pinceau.py $O/geste-ocre.png 91 61 '#A8773D' 9 '[{"path":[[-4,57],[24,55],[54,46],[89,32]],"width":8.5,"bristles":700,"taper":0.6,"dry":0.7}]' &
 wait

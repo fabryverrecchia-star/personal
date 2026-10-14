@@ -6,7 +6,7 @@
 <style>
   /* Cartes 85 × 55 mm + 3 mm de fonds perdus. Zone de sécurité : 3 mm à l’intérieur du format fini.
      Direction artistique du site : basalte, lin, ocre de Limagne, Bodoni et Hanken Grotesk.
-     Propositions actuelles : pinceau réaliste (1 ocre, 2 blanc de chaux, 3 trait de basalte). Écartées, gardées dans le code : A nuancier, B pinceau vectoriel, C éventail, D photo, E deux tons, F sobre. */
+     Propositions actuelles : badigeon (1 le geste, 2 basalte, 3 chaux). Écartées, gardées dans le code : A nuancier, B pinceau vectoriel, C éventail, D photo, E deux tons, F sobre, G-H-I traits de pinceau. */
   @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-normal.woff2') format('woff2'); font-weight: 400 900; }
   @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-italic.woff2') format('woff2'); font-weight: 400 900; font-style: italic; }
   @font-face { font-family: 'Hanken'; src: url('../fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
@@ -98,9 +98,27 @@
   /* Verso : le téléphone sur un coup de pinceau ocre */
   .v-g.card-v .tel, .v-h.card-v .tel, .v-i.card-v .tel { padding-left: 1mm; }
 
+
+  /* Badigeon : la carte est un mur peint à la brosse (textures de scripts/pinceau.py) */
+  .card img.bg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  .v-j.card-r .in, .v-k.card-r .in, .v-l.card-r .in { z-index: 2; }
+  /* 1 — Le geste : un seul coup de pinceau ocre qui se relève */
+  .v-j.card-r .in { inset: 9.5mm auto auto 9.5mm; justify-items: start; align-content: start; text-align: left; gap: 0; }
+  .v-j.card-r .mono { height: 12.5mm; margin: 0 0 5mm; }
+  .v-j.card-r .nom { font-size: 2.55mm; }
+  .v-j.card-r .met { margin-top: 2.2mm; }
+  /* 2 et 3 — Badigeon basalte / chaux : composition centrée, filet ocre */
+  .v-k.card-r .in, .v-l.card-r .in { inset: 3mm; gap: 2.6mm; }
+  .v-k.card-r .mono, .v-l.card-r .mono { height: 16mm; margin-bottom: 1.4mm; }
+  .v-k.card-r .met::before, .v-l.card-r .met::before { content: ''; display: block; width: 8mm; height: .25mm; background: var(--argile); margin: 0 auto 2.6mm; }
+  .v-l.card-r { color: var(--ink); }
+  .v-l.card-r .mono { color: var(--ink); }
+  .v-l.card-r .met { color: #96692f; }
+  .v-l.card-r .met span { color: rgb(26 25 23 / .35); }
+
   /* ── Verso ── */
   .card-v { background: var(--lin); color: var(--ink); padding: 7.5mm 8mm 10.8mm; display: grid; grid-template-rows: auto 1fr auto; }
-  .card-v > :not(svg):not(.filet):not(.brush) { position: relative; z-index: 1; }
+  .card-v > :not(svg):not(.filet):not(.brush):not(.bg) { position: relative; z-index: 1; }
   .card-v .nom { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 5.4mm; text-transform: uppercase; letter-spacing: .02em; }
   .card-v .met { font-size: 2.1mm; letter-spacing: .18em; text-transform: uppercase; color: var(--argile); margin-top: 1.4mm; font-weight: 600; }
   .card-v .met span { color: rgb(26 25 23 / .3); }
@@ -158,22 +176,22 @@
 </template>
 
 <!-- Fichiers imprimeur : un recto et un verso par proposition -->
-<section class="doc card card-r v-g" data-doc="carte-visite-1-pinceau-ocre-recto" data-w="91" data-h="61" data-tpl="recto"></section>
-<section class="doc card card-v v-g" data-doc="carte-visite-1-pinceau-ocre-verso" data-w="91" data-h="61" data-tpl="verso"></section>
-<section class="doc card card-r v-h" data-doc="carte-visite-2-blanc-de-chaux-recto" data-w="91" data-h="61" data-tpl="recto"></section>
-<section class="doc card card-v v-h" data-doc="carte-visite-2-blanc-de-chaux-verso" data-w="91" data-h="61" data-tpl="verso"></section>
-<section class="doc card card-r v-i" data-doc="carte-visite-3-trait-basalte-recto" data-w="91" data-h="61" data-tpl="recto"></section>
-<section class="doc card card-v v-i" data-doc="carte-visite-3-trait-basalte-verso" data-w="91" data-h="61" data-tpl="verso"></section>
+<section class="doc card card-r v-j" data-doc="carte-visite-1-le-geste-recto" data-w="91" data-h="61" data-tpl="recto"></section>
+<section class="doc card card-v v-j" data-doc="carte-visite-1-le-geste-verso" data-w="91" data-h="61" data-tpl="verso"></section>
+<section class="doc card card-r v-k" data-doc="carte-visite-2-badigeon-basalte-recto" data-w="91" data-h="61" data-tpl="recto"></section>
+<section class="doc card card-v v-k" data-doc="carte-visite-2-badigeon-basalte-verso" data-w="91" data-h="61" data-tpl="verso"></section>
+<section class="doc card card-r v-l" data-doc="carte-visite-3-badigeon-chaux-recto" data-w="91" data-h="61" data-tpl="recto"></section>
+<section class="doc card card-v v-l" data-doc="carte-visite-3-badigeon-chaux-verso" data-w="91" data-h="61" data-tpl="verso"></section>
 
 <!-- BAT : une page A4 paysage par proposition (remplie par le script) -->
-<section class="doc bat" data-doc="BAT-carte-visite-1-pinceau-ocre" data-w="297" data-h="210" data-bat="g" data-nom="1 — Pinceau ocre" data-desc="Un coup de pinceau ocre, fibres et brosse sèche visibles ; le nom posé dans la peinture. Au verso, le téléphone sur un trait ocre."></section>
-<section class="doc bat" data-doc="BAT-carte-visite-2-blanc-de-chaux" data-w="297" data-h="210" data-bat="h" data-nom="2 — Blanc de chaux" data-desc="Une large passe de blanc sur le basalte, le monogramme dans la peinture fraîche. Au verso, le téléphone sur un trait ocre."></section>
-<section class="doc bat" data-doc="BAT-carte-visite-3-trait-basalte" data-w="297" data-h="210" data-bat="i" data-nom="3 — Trait de basalte" data-desc="Fond lin, un trait de pinceau sombre qui porte le nom et les métiers. Au verso, le téléphone sur un trait ocre."></section>
+<section class="doc bat" data-doc="BAT-carte-visite-1-le-geste" data-w="297" data-h="210" data-bat="j" data-nom="1 — Le geste" data-desc="Un mur basalte peint à la brosse, traversé d’un seul coup de pinceau ocre qui se relève. Verso : badigeon clair, typographie seule."></section>
+<section class="doc bat" data-doc="BAT-carte-visite-2-badigeon-basalte" data-w="297" data-h="210" data-bat="k" data-nom="2 — Badigeon basalte" data-desc="La carte comme un mur sombre passé à la brosse croisée, monogramme au centre. Verso : badigeon clair, typographie seule."></section>
+<section class="doc bat" data-doc="BAT-carte-visite-3-badigeon-chaux" data-w="297" data-h="210" data-bat="l" data-nom="3 — Badigeon de chaux" data-desc="La même idée en clair : un badigeon de chaux ton sur ton, monogramme à l’encre. Verso : badigeon clair, typographie seule."></section>
 
 <!-- Mises en scène -->
-<section class="scene" data-out="mockup-cartes-1-pinceau-ocre" data-scene="g"></section>
-<section class="scene" data-out="mockup-cartes-2-blanc-de-chaux" data-scene="h"></section>
-<section class="scene" data-out="mockup-cartes-3-trait-basalte" data-scene="i"></section>
+<section class="scene" data-out="mockup-cartes-1-le-geste" data-scene="j"></section>
+<section class="scene" data-out="mockup-cartes-2-badigeon-basalte" data-scene="k"></section>
+<section class="scene" data-out="mockup-cartes-3-badigeon-chaux" data-scene="l"></section>
 
 <script>
   const TEINTES = ['#E2DACB', '#C08A3E', '#9B4B34', '#3F5A45', '#8DA3B3', '#56595C'];
@@ -241,7 +259,15 @@
   }
   function build(card) {
     card.append(document.getElementById(card.dataset.tpl).content.cloneNode(true));
-    const v = (card.className.match(/v-([a-i])/) || [])[1];
+    const v = (card.className.match(/v-([a-l])/) || [])[1];
+    // Badigeon : textures de fond, et le geste ocre pour la proposition 1
+    if ('jkl'.includes(v)) {
+      const add = (f, cls) => { const i = document.createElement('img'); i.className = cls; i.alt = ''; i.src = `../livrables/print/pinceau/${f}.png`; card.prepend(i); };
+      if (card.classList.contains('card-r')) {
+        if (v === 'j') add('geste-ocre', 'bg');
+        add(v === 'l' ? 'badigeon-chaux' : 'badigeon-basalte', 'bg');
+      } else add('badigeon-verso', 'bg');
+    }
     // Pinceau réaliste : recto propre à chaque proposition, verso commun
     if ('ghi'.includes(v)) {
       const img = document.createElement('img'); img.className = 'brush'; img.alt = '';
