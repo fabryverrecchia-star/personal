@@ -25,7 +25,8 @@ function fin($ok, $msg, $json) {
         http_response_code($ok ? 200 : 400);
         echo json_encode(['ok' => $ok, 'message' => $msg], JSON_UNESCAPED_UNICODE);
     } else {
-        header('Location: ' . ($ok ? '/merci/' : '/?envoi=erreur#contact'), true, 303);
+        $base = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+        header('Location: ' . $base . ($ok ? '/merci/' : '/?envoi=erreur#contact'), true, 303);
     }
     exit;
 }

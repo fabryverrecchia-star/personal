@@ -44,7 +44,7 @@ const communes = zones.flatMap((z) => z.communes);
       <a href={instagram.url} class="link-u" target="_blank" rel="noopener">Instagram</a>
     </p>
 
-    <form class="form" data-form action="/devis.php" method="post" novalidate>
+    <form class="form" data-form action={u('/devis.php')} method="post" novalidate>
       <p class="form__hp" aria-hidden="true"><label>Ne pas remplir <input name="site_web" tabindex="-1" autocomplete="off" /></label></p>
       <input type="hidden" name="t" value="0" data-form-t />
       <div class="field">
