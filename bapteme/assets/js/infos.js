@@ -8,14 +8,14 @@ window.LOU = {
   date: "2026-10-31",                       // AAAA-MM-JJ
 
   ceremonie: {
-    heure: "",                              // ex. "10h30"
-    lieu: "",                               // ex. "Église Saint-Amable"
-    adresse: "",                            // ex. "Rue Saint-Amable, 63200 Riom"
+    heure: "11h",                           // ex. "10h30"
+    lieu: "Église de la Nativité-de-Saint-Jean-Baptiste",
+    adresse: "63780 Saint-Georges-de-Mons",
     note: ""                                // ex. "Merci d'arriver quelques minutes en avance"
   },
 
   repas: {
-    heure: "",                              // ex. "12h30"
+    heure: "12h30 – 13h",                   // ex. "12h30"
     lieu: "Augustine Bistronomie 1890",
     adresse: "1 Place des Martyrs de la Résistance, 63200 Riom",
     note: "Un repas convivial pour prolonger la fête, tous ensemble."
