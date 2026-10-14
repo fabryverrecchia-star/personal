@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Présentoir de cartes — Benjamin Landry</title>
+<style>
+  /* Gabarit Pixartprinting « Pocket Display A5 » : page 358,4 × 412,6 mm, coordonnées en mm depuis le coin haut gauche.
+     Panneau A5 : x 103,7 → 254,2, y 5,4 → 215,3 (visible au-dessus de la poche jusqu’à y ≈ 140).
+     Façade de la poche : x 125 → 233, y 339,3 → 407,3 (texte dans le même sens que le panneau).
+     Fond perdu 5 mm. Texte ≥ 12 pt (4,23 mm). */
+  @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-normal.woff2') format('woff2'); font-weight: 400 900; }
+  @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-italic.woff2') format('woff2'); font-weight: 400 900; font-style: italic; }
+  @font-face { font-family: 'Hanken'; src: url('../fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+  :root { --lin: #f3efe8; --ink: #1a1917; --argile: #a8773d; --ocre: #cf9c58; --serif: 'Bodoni', Didot, Georgia, serif; --sans: 'Hanken', Arial, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  @page { margin: 0; size: 358.4mm 412.6mm; }
+  html, body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: var(--sans); }
+  .feuille { position: relative; width: 358.4mm; height: 412.6mm; overflow: hidden; }
+  .feuille > * { position: absolute; }
+  .bg { left: -5mm; width: 370mm; }
+  .bg.basalte { top: -5mm; height: 226mm; }
+  .bg.chaux { top: 215.3mm; height: 208mm; }
+  svg.fan { left: 0; top: 0; width: 358.4mm; height: 412.6mm; }
+  .mono { display: inline-block; aspect-ratio: 659 / 806; background: currentColor; -webkit-mask: url('../photos/logo-bl.png') center / contain no-repeat; mask: url('../photos/logo-bl.png') center / contain no-repeat; }
+
+  /* Panneau */
+  .panneau { left: 117mm; top: 17mm; width: 125mm; color: var(--lin); }
+  .panneau .mono { height: 27mm; display: block; margin-bottom: 11mm; }
+  .panneau .nom { font-size: 5.3mm; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; margin-bottom: 4.5mm; }
+  .panneau .met { font-size: 5.2mm; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--ocre); line-height: 1.55; }
+  .panneau .tel { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 8.2mm; margin-top: 9mm; line-height: 1.1; }
+  .panneau .web { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 6.2mm; line-height: 1.2; }
+
+  /* Façade de la poche */
+  .facade { left: 125mm; top: 339.3mm; width: 108.2mm; height: 68mm; display: grid; place-content: center; justify-items: center; text-align: center; gap: 2.4mm; color: var(--ink); }
+  .facade .k { font-size: 4.4mm; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; }
+  .facade .t { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-style: italic; font-size: 9.5mm; line-height: 1; }
+  .facade .d { font-size: 4.3mm; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: #96692f; }
+
+  /* Monogramme : images déjà colorées (un masque CSS laisse un filet autour du logo dans le PDF) */
+  .mono { -webkit-mask: none !important; mask: none !important; background: url('../photos/logo-bl-lin.png') center / contain no-repeat !important; }
+  .card-v .mono, .v-e.card-r .mono, .v-h.card-r .mono, .v-i.card-r .mono, .v-l.card-r .mono { background-image: url('../photos/logo-bl-encre.png') !important; }
+</style>
+</head>
+<body>
+<div class="feuille" data-out="presentoir-a-plat">
+  <img class="bg basalte" src="../livrables/print/presentoir/badigeon-basalte.png" alt="">
+  <img class="bg chaux" src="../livrables/print/presentoir/badigeon-chaux.png" alt="">
+  <svg class="fan" viewBox="0 0 358.4 412.6"></svg>
+  <div class="panneau">
+    <span class="mono"></span>
+    <p class="nom">Benjamin Landry</p>
+    <p class="met">Plâtrerie<br>Peinture<br>Carrelage</p>
+    <p class="tel">06 58 38 78 37</p>
+    <p class="web">benjaminlandry.fr</p>
+  </div>
+  <div class="facade">
+    <p class="k">Servez-vous</p>
+    <p class="t">Devis gratuit</p>
+    <p class="d">06 58 38 78 37</p>
+  </div>
+</div>
+<script>
+  // Nuancier en éventail (même dessin que la carte), qui sort de derrière la poche
+  const TEINTES = ['#E2DACB', '#C08A3E', '#9B4B34', '#3F5A45', '#8DA3B3', '#56595C'];
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, a) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const mix = (hex, t) => { const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255], w = [251, 249, 245]; return `rgb(${c.map((v, i) => Math.round(v * t + w[i] * (1 - t))).join(' ')})`; };
+  const s = document.querySelector('svg.fan');
+  const px = 248, py = 141, L = 86, W = 21, step = 7;  // au-dessus des fentes (y 133), déborde un peu dans la coupe à droite
+  TEINTES.slice().reverse().forEach((c, k) => {
+    const i = TEINTES.length - 1 - k, a = -(5 + i * step);
+    const g = el('g', { transform: `rotate(${a} ${px} ${py})` });
+    const x = px - W / 2, y = py - L;
+    g.append(el('rect', { x: x - .6, y: y - .6, width: W + 1.2, height: L + 1.2, rx: 1.8, fill: '#1a1917' }));
+    g.append(el('rect', { x, y, width: W, height: L, rx: 1.4, fill: '#fbf9f5' }));
+    g.append(el('rect', { x: x + 1.9, y: y + 1.9, width: W - 3.8, height: L * .44, fill: c }));
+    g.append(el('rect', { x: x + 1.9, y: y + 1.9 + L * .44 + 1.1, width: W - 3.8, height: L * .13, fill: mix(c, .68) }));
+    g.append(el('rect', { x: x + 1.9, y: y + 1.9 + L * .57 + 2.2, width: W - 3.8, height: L * .13, fill: mix(c, .42) }));
+    s.append(g);
+  });
+</script>
+</body>
+</html>

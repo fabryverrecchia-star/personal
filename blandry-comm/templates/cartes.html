@@ -184,6 +184,10 @@
   .scene .pose { position: absolute; transform-origin: 0 0; filter: drop-shadow(2px 3px 3px rgb(40 32 24 / .3)) drop-shadow(10px 16px 16px rgb(40 32 24 / .28)); }
   .scene .trim { width: 85mm; height: 55mm; overflow: hidden; }
   .scene .trim .card { margin: -3mm; }
+
+  /* Monogramme : images déjà colorées (un masque CSS laisse un filet autour du logo dans le PDF) */
+  .mono { -webkit-mask: none !important; mask: none !important; background: url('../photos/logo-bl-lin.png') center / contain no-repeat !important; }
+  .card-v .mono, .v-e.card-r .mono, .v-h.card-r .mono, .v-i.card-r .mono, .v-l.card-r .mono { background-image: url('../photos/logo-bl-encre.png') !important; }
 </style>
 </head>
 <body>

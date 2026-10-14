@@ -93,7 +93,7 @@ def render(out, w_mm, h_mm, color, seed, strokes, light=(-0.6, -0.8)):
 def hexrgb(c):
     return np.array([int(c[i:i + 2], 16) for i in (1, 3, 5)], np.float32) / 255
 
-def wash(out, w_mm, h_mm, base, seed, n=70, spread=0.06, px=20, relief=0.014):
+def wash(out, w_mm, h_mm, base, seed, n=70, spread=0.06, px=20, relief=0.014, scale=1.0):
     """Badigeon à la chaux : passes croisées, chacune un peu plus claire ou plus foncée."""
     global PX
     PX = px
@@ -103,18 +103,26 @@ def wash(out, w_mm, h_mm, base, seed, n=70, spread=0.06, px=20, relief=0.014):
     img = np.ones((H, W, 3), np.float32) * b
     hsum = np.zeros((H, W), np.float32)
     for i in range(n):
-        c = np.zeros((H, W), np.float32); hh = np.zeros((H, W), np.float32)
         ang = rng.choice([-1, 1]) * rng.uniform(25, 55) * math.pi / 180  # geste en X du badigeon
-        L = rng.uniform(25, 60); cx, cy = rng.uniform(-5, w_mm + 5), rng.uniform(-5, h_mm + 5)
+        L = rng.uniform(25, 60) * scale; cx, cy = rng.uniform(-5, w_mm + 5), rng.uniform(-5, h_mm + 5)
         dx, dy = math.cos(ang) * L / 2, math.sin(ang) * L / 2
-        bend = rng.normal(0, 4)
+        bend = rng.normal(0, 4) * scale
         path = [(cx - dx, cy - dy), (cx - dx / 3 - dy * bend / L, cy - dy / 3 + dx * bend / L), (cx + dx / 3 - dy * bend / L, cy + dy / 3 + dx * bend / L), (cx + dx, cy + dy)]
-        stroke(c, hh, path, rng.uniform(9, 16), rng, 260, (0.5, 1.1), 0.9, 0.5)
-        a = np.asarray(Image.fromarray(np.clip(c * 255, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(3.5)), np.float32) / 255
+        wd = rng.uniform(9, 16) * scale
+        # toile locale autour du trait (rapide même sur un grand format)
+        m = wd + 6
+        x0 = max(0, int((min(q[0] for q in path) - m) * PX)); x1 = min(W, int((max(q[0] for q in path) + m) * PX))
+        y0 = max(0, int((min(q[1] for q in path) - m) * PX)); y1 = min(H, int((max(q[1] for q in path) + m) * PX))
+        if x1 <= x0 or y1 <= y0:
+            continue
+        c = np.zeros((y1 - y0, x1 - x0), np.float32); hh = np.zeros_like(c)
+        stroke(c, hh, [(q[0] - x0 / PX, q[1] - y0 / PX) for q in path], wd, rng, 260, (0.5, 1.1), 0.9, 0.5)
+        a = np.asarray(Image.fromarray(np.clip(c * 255, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(3.5 * PX / 20)), np.float32) / 255
         a = np.clip(a * 1.3, 0, 1) ** 1.2 * rng.uniform(0.3, 0.6)
         tint = b + rng.normal(0, spread) + rng.normal(0, spread * 0.08, 3)  # écart absolu : marche aussi sur fond sombre
-        img = img * (1 - a[..., None]) + np.clip(tint, 0, 1)[None, None, :] * a[..., None]
-        hsum += hh
+        reg = img[y0:y1, x0:x1]
+        img[y0:y1, x0:x1] = reg * (1 - a[..., None]) + np.clip(tint, 0, 1)[None, None, :] * a[..., None]
+        hsum[y0:y1, x0:x1] += hh
     hm = np.asarray(Image.fromarray(np.clip(hsum * 25, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.6)), np.float32) / 255
     gy, gx = np.gradient(hm)
     shade = np.clip(-(gx * -0.6 + gy * -0.8) * 2, -relief, relief)
