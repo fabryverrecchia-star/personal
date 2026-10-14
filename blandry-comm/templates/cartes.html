@@ -127,6 +127,16 @@
   /* Icône Instagram au verso */
   .ig { width: 2.2mm; height: 2.2mm; vertical-align: -.45mm; margin-right: .7mm; }
 
+
+  /* Retenue : badigeon basalte + nuancier en éventail, textes à gauche bien en évidence */
+  .v-o.card-r .in { inset: 9.5mm auto 9mm 9.5mm; display: grid; grid-template-rows: 1fr auto auto; justify-items: start; align-content: stretch; text-align: left; gap: 0; }
+  .v-o.card-r .mono { height: 13.5mm; margin: 0; align-self: start; }
+  .v-o.card-r .nom { font-size: 3mm; font-weight: 600; letter-spacing: .2em; margin-bottom: 2.6mm; }
+  .v-o.card-r .met { display: grid; gap: 1.5mm; font-size: 2.75mm; letter-spacing: .2em; color: #cf9c58; }
+  .v-o.card-r .met::before, .v-o.card-r .met span { display: none; }
+  /* SIRET hors colonne, en petit, au pied du verso */
+  .card-v .siret { position: absolute !important; left: 8mm; bottom: 5.6mm; font-size: 1.55mm; letter-spacing: .04em; color: #8a847a; }
+
   /* ── Verso ── */
   .card-v { background: var(--lin); color: var(--ink); padding: 7.5mm 8mm 10.8mm; display: grid; grid-template-rows: auto 1fr auto; }
   .card-v > :not(svg):not(.filet):not(.brush):not(.bg) { position: relative; z-index: 1; }
@@ -181,24 +191,21 @@
   <div><p class="nom">Benjamin Landry</p><p class="met">Plâtrerie <span>·</span> Peinture <span>·</span> Carrelage</p></div>
   <p class="tel">06 58 38 78 37</p>
   <div class="bas">
-    <p><b>benjaminlandry.fr</b> · benjaminlandry10@gmail.com<br>59 rue du Boucheix, 63770 Les Ancizes-Comps<br><svg class="ig" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.3"/><circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none"/></svg>@benjamin_landry_finitions · SIRET 822 175 519 00021</p>
+    <p><b>benjaminlandry.fr</b> · benjaminlandry10@gmail.com<br>59 rue du Boucheix, 63770 Les Ancizes-Comps<br><svg class="ig" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.3"/><circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none"/></svg>@benjamin_landry_finitions</p>
     <span class="mono"></span>
   </div>
+  <p class="siret">SIRET 822 175 519 00021</p>
 </template>
 
-<!-- Fichiers imprimeur : badigeon basalte, avec ou sans nuancier -->
-<section class="doc card card-r v-k v-m" data-doc="carte-visite-badigeon-nuancier-recto" data-w="91" data-h="61" data-tpl="recto"></section>
-<section class="doc card card-v v-k v-m" data-doc="carte-visite-badigeon-nuancier-verso" data-w="91" data-h="61" data-tpl="verso"></section>
-<section class="doc card card-r v-k" data-doc="carte-visite-badigeon-filet-recto" data-w="91" data-h="61" data-tpl="recto"></section>
-<section class="doc card card-v v-k" data-doc="carte-visite-badigeon-filet-verso" data-w="91" data-h="61" data-tpl="verso"></section>
+<!-- Fichiers imprimeur : badigeon basalte et nuancier en éventail -->
+<section class="doc card card-r v-k v-o" data-doc="carte-visite-badigeon-eventail-recto" data-w="91" data-h="61" data-tpl="recto"></section>
+<section class="doc card card-v v-k v-o" data-doc="carte-visite-badigeon-eventail-verso" data-w="91" data-h="61" data-tpl="verso"></section>
 
-<!-- BAT : une page A4 paysage par version (remplie par le script) -->
-<section class="doc bat" data-doc="BAT-carte-visite-badigeon-nuancier" data-w="297" data-h="210" data-bat="k v-m" data-nom="Badigeon — avec nuancier" data-desc="Mur basalte passé à la brosse, monogramme au centre, métiers en grand ; une rangée de six teintes du nuancier sépare le nom des métiers. Verso : badigeon clair, icône Instagram."></section>
-<section class="doc bat" data-doc="BAT-carte-visite-badigeon-filet" data-w="297" data-h="210" data-bat="k" data-nom="Badigeon — avec filet ocre" data-desc="Même carte, avec un simple filet ocre à la place du nuancier. Verso : badigeon clair, icône Instagram."></section>
+<!-- BAT (rempli par le script) -->
+<section class="doc bat" data-doc="BAT-carte-visite-badigeon-eventail" data-w="297" data-h="210" data-bat="k v-o" data-nom="Badigeon — nuancier en éventail" data-desc="Mur basalte passé à la brosse, nuancier ouvert en éventail ; nom et métiers en évidence à gauche. Verso : badigeon clair, icône Instagram, SIRET en pied de carte."></section>
 
-<!-- Mises en scène -->
-<section class="scene" data-out="mockup-cartes-badigeon-nuancier" data-scene="k v-m"></section>
-<section class="scene" data-out="mockup-cartes-badigeon-filet" data-scene="k"></section>
+<!-- Mise en scène -->
+<section class="scene" data-out="mockup-carte-badigeon-eventail" data-scene="k v-o"></section>
 
 <script>
   const TEINTES = ['#E2DACB', '#C08A3E', '#9B4B34', '#3F5A45', '#8DA3B3', '#56595C'];
@@ -240,10 +247,10 @@
     s.append(g); card.prepend(s);
   }
   // Éventail : six cartes de teintes pivotant autour d’un même axe
-  function eventail(card) {
-    const s = svg('deco'), px = 77, py = 54, L = 35, W = 9.4;
+  function eventail(card, o = {}) {
+    const s = svg('deco'), px = o.px ?? 77, py = o.py ?? 54, L = o.L ?? 35, W = o.W ?? 9.4, step = o.step ?? 10.5;
     TEINTES.slice().reverse().forEach((c, k) => {
-      const i = TEINTES.length - 1 - k, a = -(5 + i * 10.5);
+      const i = TEINTES.length - 1 - k, a = -(5 + i * step);
       const g = el('g', { transform: `rotate(${a} ${px} ${py})` });
       const x = px - W / 2, y = py - L;
       g.append(el('rect', { x: x - .3, y: y - .3, width: W + .6, height: L + .6, rx: .8, fill: '#1a1917' }));
@@ -254,6 +261,7 @@
       s.append(g);
     });
     s.append(el('circle', { cx: px, cy: py - 3.2, r: .9, fill: '#a8773d' }));
+    s.style.zIndex = 1;
     card.prepend(s);
   }
   function nuancier(card) {
@@ -286,6 +294,7 @@
       c.innerHTML = TEINTES.map((t) => `<i style="--c:${t}"></i>`).join('');
       card.querySelector('.met').before(c);
     }
+    if (card.classList.contains('card-r') && card.classList.contains('v-o')) eventail(card, { px: 79, py: 55, L: 31, W: 8.6, step: 8.6 });
     if (card.classList.contains('card-r')) ({ a: nuancier, b: pinceau, c: eventail })[v]?.(card);
     else if (v === 'b') pinceau(card, true);
     else if ('ac'.includes(v)) filet(card);
