@@ -1,0 +1,34 @@
+<?php
+/*
+ * Baptême de Lou — réglages du serveur.
+ * Edit this file after uploading the site to your server.
+ */
+return [
+    // Where messages, photos and videos are stored. Ideally a folder OUTSIDE
+    // the public web root, ex. /home/vous/bapteme-storage.. The default
+    // "storage" folder next to the site is protected by .htaccess (Apache).
+    'storage_dir' => dirname(__DIR__) . '/storage',
+
+    // Largest single file a guest may upload (MB). Keep in sync with MAX_BYTES in assets/js/app.js.
+    'max_file_mb' => 2048,
+
+    // Mot de passe de l'espace privé admin.php — écrivez-le entre les guillemets.
+    // Password for admin.php (espace privé des parents). While empty, admin.php stays locked.
+    'admin_password' => '',
+
+    // (Advanced, optional) a hash instead of the plain password above:
+    //   php -r 'echo password_hash("your-password", PASSWORD_DEFAULT), "\n";'
+    'admin_password_hash' => '',
+
+    // Show everything guests share in the gallery on the page (true), or keep it
+    // private for you in admin.php only (false). You can hide or delete
+    // single photos, videos and voice notes from admin.php at any time.
+    'public_gallery' => true,
+
+    // Optional: receive an e-mail for every guestbook message (uses PHP mail()). Leave '' to disable.
+    'notify_email' => '',
+
+    // Anti-spam limits per visitor (per hour).
+    'max_messages_per_hour' => 12,
+    'max_chunks_per_hour'   => 6000,   // 6000 × 4 MB ≈ 24 GB — generous for a phone full of videos
+];
