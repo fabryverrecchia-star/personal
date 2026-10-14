@@ -17,7 +17,7 @@
   var gl = null;
   try {
     gl = canvas.getContext("webgl", {
-      antialias: false, alpha: false, depth: false, stencil: false,
+      antialias: false, alpha: true, depth: false, stencil: false,
       premultipliedAlpha: true, powerPreference: "low-power", preserveDrawingBuffer: false
     });
   } catch (e) { gl = null; }
@@ -283,9 +283,17 @@
     if (isMobile && Math.abs(window.innerWidth - lastWidth) < 2) return;   // barre d'adresse mobile
     lastWidth = window.innerWidth;
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(resize, 120);
+    resizeTimer = setTimeout(requestResize, 120);
   }, { passive: true });
-  window.addEventListener("orientationchange", function () { setTimeout(resize, 250); });
+  window.addEventListener("orientationchange", function () { setTimeout(requestResize, 250); });
+
+  // Changer la taille du canvas l'efface : on le fait toujours juste avant de redessiner,
+  // jamais après (sinon une image vide s'affiche = flash).
+  var needResize = false;
+  function requestResize() {
+    needResize = true;
+    if (!running) { resize(); render(performance.now()); needResize = false; }
+  }
 
   /* ───────────── Interaction ───────────── */
 
@@ -319,10 +327,12 @@
   var speed = reduceMotion ? 0.35 : 1;
   var time = 0, lastFrame = performance.now(), frameNo = 0;
   var baseDt = 1, slowFrames = 0, fastFrames = 0;
+  var startedAt = Infinity, lastQualityChange = 0;
 
   function ease(rate, dt) { return 1 - Math.exp(-rate * dt); }
 
   function render(now) {
+    if (needResize) { needResize = false; resize(); }
     var dt = Math.min(0.05, Math.max(0.001, (now - lastFrame) / 1000));
     lastFrame = now;
     time += dt * speed;
@@ -393,10 +403,14 @@
     gl.disableVertexAttribArray(aSeed);
 
     // résolution adaptative, relative à la fréquence propre de l'écran
+    // (ignorée pendant les 5 premières secondes : le chargement de la page ralentit
+    // tout le monde, ce n'est pas le signe d'un téléphone lent ; un seul palier, pas de va-et-vient)
+    if (now - startedAt < 5000) return;
     baseDt = Math.min(baseDt * 1.002, dt);
-    if (dt > baseDt * 1.7) { slowFrames++; fastFrames = 0; } else { fastFrames++; slowFrames = Math.max(0, slowFrames - 1); }
-    if (slowFrames > 40 && quality > 0.6) { quality -= 0.15; slowFrames = 0; resize(); }
-    else if (fastFrames > 900 && quality < 1) { quality = Math.min(1, quality + 0.1); fastFrames = 0; resize(); }
+    if (dt > baseDt * 1.7) { slowFrames++; fastFrames = 0; } else { fastFrames = Math.min(fastFrames + 1, 1e6); slowFrames = Math.max(0, slowFrames - 1); }
+    if (slowFrames > 90 && quality > 0.7 && now - lastQualityChange > 8000) {
+      quality = 0.7; slowFrames = 0; lastQualityChange = now; needResize = true;
+    }
   }
 
   function loop(now) {
@@ -424,6 +438,7 @@
   api.ready = true;
   api.start = function () {
     api.started = true;
+    startedAt = performance.now();
     revealTarget = 1;
     canvas.classList.add("is-on");
     play();
