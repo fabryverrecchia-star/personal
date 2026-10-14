@@ -189,9 +189,10 @@ if ($kind === 'edits' && $action === 'upload') {
   if (!$f || $f['error'] === UPLOAD_ERR_INI_SIZE || $f['error'] === UPLOAD_ERR_FORM_SIZE) out(['error' => 'too_big', 'max' => upload_max()], 413);
   if ($f['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'])) out(['error' => 'upload'], 400);
   $ext = '';
-  if ($slot === 'video') {
-    // MP4 / MOV : la boîte « ftyp » est au début du fichier
-    $head = (string) @file_get_contents($f['tmp_name'], false, null, 0, 16);
+  // MP4 / MOV : la boîte « ftyp » est au début du fichier
+  $head = (string) @file_get_contents($f['tmp_name'], false, null, 0, 16);
+  // Une vidéo peut aussi être glissée dans un carrousel (slot media)
+  if ($slot === 'video' || ($slot === 'media' && substr($head, 4, 4) === 'ftyp')) {
     if (substr($head, 4, 4) === 'ftyp') $ext = substr($head, 8, 2) === 'qt' ? 'mov' : 'mp4';
     if ($f['size'] > 300 * 1048576) out(['error' => 'too_big', 'max' => '300 Mo'], 413);
   } else {

@@ -319,6 +319,12 @@
                 : '<img src="' + esc(src(m.poster)) + '" alt="" loading="lazy" decoding="async">') +
               '<span class="label slide__tag">' + ICONS.play + (m.video ? 'Vidéo' : 'Vidéo à venir') + '</span></div>';
           }
+          // Vidéo glissée dans le carrousel : recadrée au format des photos, lue en boucle sans le son
+          if (isVidPath(m)) {
+            return '<div class="slide slide--video" data-k="' + k + '">' +
+              '<video muted loop playsinline preload="metadata" src="' + esc(vidSrc(m)) + '#t=0.1" data-autoplay data-video="' + esc(vidSrc(m)) + '"></video>' +
+              '<span class="label slide__tag">' + ICONS.play + 'Vidéo</span></div>';
+          }
           return '<img src="' + esc(src(m)) + '" alt="" loading="lazy" decoding="async" data-k="' + k + '">';
         }).join('') +
         '</div><span class="label carousel__count"><b>1</b>/' + imgs.length + '</span></div></div>' +
@@ -548,7 +554,9 @@
     var n = list(p.options).length;
     var icon = n > 1 ? '<span class="label grid__options">' + LETTRES.slice(0, n).split('').join(' / ') + '</span>'
       : (p.type || 'post') === 'post' ? '' : '<span class="grid__icon">' + ICONS[p.type] + '</span>';
-    return '<img src="' + esc(src(img)) + '" alt="" loading="lazy" decoding="async">' + icon +
+    return (isVidPath(img)
+      ? '<video src="' + esc(vidSrc(img)) + '#t=0.1" muted playsinline preload="metadata"></video>'
+      : '<img src="' + esc(src(img)) + '" alt="" loading="lazy" decoding="async">') + icon +
       '<span class="label grid__day">' + JOURS[p._date.getDay()] + ' ' + pad(p._date.getDate()) + '</span>';
   }
 
@@ -737,16 +745,20 @@
       v.media = undefined;
       v.options = undefined;
     } else if (orig === 'reel' || (e.media && e.media.length)) {
-      v.media = photos.length > 1 ? photos : photos[0];
+      var multi = photos.length > 1 || photos.some(isVidPath);
+      v.media = multi ? photos : photos[0];
       v.options = undefined;
       v.poster = v.video = undefined;
-      v.type = photos.length > 1 ? 'carousel' : 'post';
+      v.type = multi ? 'carousel' : 'post';
     }
     if (e.title != null) v.title = e.title;
     if (e.caption != null) v.caption = String(e.caption).split(/\n+/).filter(Boolean);
     return v;
   }
   function firstPath(m) { return m && typeof m === 'object' ? m.poster : m; }
+  // Slide vidéo d'un carrousel envoyée par l'équipe : chemin .mp4 / .mov (ou vidéo gardée sur l'appareil en aperçu : blob…#v)
+  function isVidPath(m) { return typeof m === 'string' && (/\.(mp4|mov|m4v)$/i.test(m) || /^blob:.*#v$/.test(m)); }
+  function vidSrc(m) { return src(String(m).replace(/#v$/, '')); }
   var postSig = {};
   function applyEdits(edits) {
     EDITS = edits && typeof edits === 'object' && !Array.isArray(edits) ? edits : {};
@@ -1247,7 +1259,7 @@
     // Recalculé à chaque modification (date, ajout, retrait, format, titre), depuis le planning et les modifications de l'équipe
     function pubKind(type, e) {
       if (e.format ? e.format === 'reel' : type === 'reel') return 'reel';
-      if (e.media && e.media.length) return e.media.length > 1 ? 'carousel' : 'post';
+      if (e.media && e.media.length) return e.media.length > 1 || e.media.some(isVidPath) ? 'carousel' : 'post';
       return type === 'reel' ? 'post' : type || 'post';
     }
     function pubEvents() {
@@ -2030,10 +2042,12 @@
       return list(v.media).map(edPath);
     }
     function edTile(path, n, slot, k, removable) {
-      return '<figure class="ed-tile">' +
-        '<img src="' + esc(src(path)) + '" alt="">' + (n ? '<figcaption class="label">' + n + '</figcaption>' : '') +
-        '<div class="ed-tile__acts"><button type="button" class="label" data-ed-pick="' + slot + '" data-k="' + k + '">Remplacer</button>' +
-        (removable ? '<button type="button" class="ed-tile__del" data-ed-remove="' + k + '" aria-label="Retirer cette photo">' + SICONS.close + '</button>' : '') +
+      var vid = isVidPath(path);
+      return '<figure class="ed-tile' + (vid ? ' ed-tile--slidevid' : '') + '">' +
+        (vid ? '<video src="' + esc(vidSrc(path)) + '#t=0.3" muted playsinline preload="metadata"></video>' : '<img src="' + esc(src(path)) + '" alt="">') +
+        (n || vid ? '<figcaption class="label">' + (n || '') + (vid ? (n ? ' · ' : '') + 'Vidéo' : '') + '</figcaption>' : '') +
+        '<div class="ed-tile__acts"><button type="button" class="label" data-ed-pick="' + slot + '" data-k="' + k + '"' + (vid ? ' data-vid' : '') + '>Remplacer</button>' +
+        (removable ? '<button type="button" class="ed-tile__del" data-ed-remove="' + k + '" aria-label="Retirer">' + SICONS.close + '</button>' : '') +
         '</div></figure>';
     }
     function edPaintMedia() {
@@ -2073,13 +2087,15 @@
         }
       } else {
         var imgs = edList();
-        label.textContent = ed.kind === 'ad' ? 'Visuel' : imgs.length > 1 ? 'Visuel · carrousel de ' + imgs.length + ' photos' : 'Visuel';
+        var withVid = imgs.some(isVidPath);
+        label.textContent = ed.kind === 'ad' ? 'Visuel' : imgs.length > 1 ? 'Visuel · carrousel de ' + imgs.length + (withVid ? ' photos et vidéos' : ' photos') : 'Visuel';
         edBox.innerHTML = imgs.map(function (m, k) { return edTile(m, imgs.length > 1 ? k + 1 : '', 'media', k, imgs.length > 1); }).join('') +
           (ed.kind === 'post' && imgs.length < 10
-            ? '<button type="button" class="ed-add" data-ed-pick="media" data-k="-1"><span>+</span><small class="label">Ajouter une photo</small></button>' : '');
+            ? '<button type="button" class="ed-add" data-ed-pick="media" data-k="-1"><span>+</span><small class="label">Ajouter une photo</small></button>' +
+              '<button type="button" class="ed-add" data-ed-pick="media" data-k="-1" data-vid><span>+</span><small class="label">Ajouter une vidéo</small></button>' : '');
         hint.textContent = ed.kind === 'ad'
           ? 'Format conseillé 4:5 (1080 × 1350).'
-          : imgs.length > 1 ? 'Remplacez ou retirez une photo ; une photo ajoutée se place à la fin. Format conseillé 4:5.' : 'Format conseillé 4:5 (1080 × 1350). Ajouter une photo en fait un carrousel.';
+          : imgs.length > 1 ? 'Remplacez ou retirez une photo ou une vidéo ; un ajout se place à la fin. Les vidéos sont recadrées au format des photos (4:5).' : 'Format conseillé 4:5 (1080 × 1350). Ajouter une photo ou une vidéo en fait un carrousel ; la vidéo est recadrée au format des photos.';
       }
       if (ed.busy) edBox.insertAdjacentHTML('afterbegin', '<div class="ed-busy label" data-ed-busy>' + ed.busy + '</div>');
       if (window.ScrollTrigger) window.ScrollTrigger.refresh();
@@ -2208,7 +2224,8 @@
     function upload(file) {
       var e = ed, slot = e.slot, k = e.index;
       var base = edList();
-      var isVideo = slot === 'video';
+      // Vidéo de reel, ou vidéo glissée dans un carrousel (slot media)
+      var isVideo = slot === 'video' || /^video\//.test(file.type || '') || /\.(mp4|mov|m4v)$/i.test(file.name || '');
       e.busy = isVideo ? 'Envoi de la vidéo…' : 'Envoi de la photo…';
       edPaintMedia();
       var done = function () { e.busy = ''; if (ed === e) edPaintMedia(); };
@@ -2221,7 +2238,7 @@
           else item[slot] = url;
           return send({ action: 'edit', kind: 'edits', id: e.key, item: item }).then(done);
         };
-        if (isVideo) { toast('Aperçu : la vidéo n’est gardée que pendant cette visite.'); return keep(URL.createObjectURL(file)); }
+        if (isVideo) { toast('Aperçu : la vidéo n’est gardée que pendant cette visite.'); return keep(URL.createObjectURL(file) + (slot === 'media' ? '#v' : '')); }
         return prepImage(file, 1280, 0.8).then(function (b) {
           var r = new FileReader();
           r.onload = function () { keep(r.result); };
@@ -2304,7 +2321,7 @@
           toast(input === edVideo ? 'Choisissez une vidéo (MP4 ou MOV).' : 'Choisissez une photo.');
           return;
         }
-        var key = ed.key, isVid = input === edVideo;
+        var key = ed.key, isVid = input === edVideo && ed.slot === 'video';
         if (isVid) ed.coverT = null;
         Promise.resolve(upload(f)).then(function () { if (isVid) autoCover(key); });
       };
@@ -2341,7 +2358,7 @@
         if (ed.busy) return;
         ed.slot = t.getAttribute('data-ed-pick');
         ed.index = +t.getAttribute('data-k');
-        var input = ed.slot === 'video' ? edVideo : edFile;
+        var input = ed.slot === 'video' || t.hasAttribute('data-vid') ? edVideo : edFile;
         input.click();
       } else if ((t = e.target.closest('[data-ed-remove]'))) {
         if (ed.busy) return;
