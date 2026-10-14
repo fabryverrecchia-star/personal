@@ -5,7 +5,8 @@
 <title>Cartes de visite — Benjamin Landry (DA du site)</title>
 <style>
   /* Cartes 85 × 55 mm + 3 mm de fonds perdus. Zone de sécurité : 3 mm à l’intérieur du format fini.
-     Direction artistique du site : basalte, lin, ocre de Limagne, Bodoni et Hanken Grotesk. */
+     Direction artistique du site : basalte, lin, ocre de Limagne, Bodoni et Hanken Grotesk.
+     Trois propositions : A nuancier, B traits de pinceau, C éventail de teintes. */
   @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-normal.woff2') format('woff2'); font-weight: 400 900; }
   @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-italic.woff2') format('woff2'); font-weight: 400 900; font-style: italic; }
   @font-face { font-family: 'Hanken'; src: url('../fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
@@ -17,14 +18,24 @@
   @page { margin: 0; }
   html, body { background: #888; font-family: var(--sans); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body { display: flex; flex-wrap: wrap; gap: 20mm; padding: 20mm; }
-  @media print { body { padding: 0; gap: 0; display: block; background: none; } .doc:not(.on), .scene { display: none !important; } }
+  @media print { html, body { background: none; } body { padding: 0; gap: 0; display: block; } .doc:not(.on), .scene { display: none !important; } }
   .doc { position: relative; overflow: hidden; flex: none; page-break-after: always; }
   .mono { display: inline-block; aspect-ratio: 659 / 806; background: currentColor; -webkit-mask: url('../photos/logo-bl.png') center / contain no-repeat; mask: url('../photos/logo-bl.png') center / contain no-repeat; }
   .lbl { letter-spacing: .22em; text-transform: uppercase; font-weight: 500; }
 
-  .card { width: 91mm; height: 61mm; }
+  .card { position: relative; overflow: hidden; width: 91mm; height: 61mm; flex: none; }
+  .card svg.deco { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-  /* Nuancier : les teintes du site (chaux, Limagne, tuile, Sioule, Puys, Volvic), chacune en trois valeurs */
+  /* ── Recto commun ── */
+  .card-r { background: var(--ink); color: var(--lin); }
+  .card-r .in { position: absolute; inset: 3mm 3mm 15mm; display: grid; justify-items: center; align-content: center; gap: 2.6mm; text-align: center; z-index: 1; }
+  .card-r .mono { height: 15mm; color: var(--lin); margin-bottom: .8mm; }
+  .card-r .nom { font-size: 2.5mm; letter-spacing: .3em; }
+  .card-r .met { text-transform: uppercase; font-size: 1.85mm; letter-spacing: .26em; color: var(--argile); font-weight: 600; }
+  .card-r .met b { font-weight: 600; }
+  .card-r .met span { color: rgb(243 239 232 / .35); margin: 0 .6mm; }
+
+  /* A — nuancier : six teintes, chacune en trois valeurs */
   .nuancier { position: absolute; left: 0; right: 0; bottom: 0; height: 12mm; display: grid; grid-template-columns: repeat(6, 1fr); gap: .5mm; background: var(--ink); padding-top: .5mm; }
   .nuancier i { display: grid; grid-template-rows: 1fr .55fr .55fr; gap: .35mm; }
   .nuancier i::before, .nuancier i::after, .nuancier i b { content: ''; display: block; background: var(--c); }
@@ -32,16 +43,18 @@
   .nuancier i::after { background: color-mix(in srgb, var(--c) 42%, #fbf9f5); grid-row: 3; }
   .nuancier i::before { grid-row: 1; }
 
-  /* ── Recto : monogramme, nom, métiers et nuancier de peintre ── */
-  .card-r { background: var(--ink); color: var(--lin); }
-  .card-r .in { position: absolute; inset: 3mm 3mm 15mm; display: grid; justify-items: center; align-content: center; gap: 2.6mm; text-align: center; }
-  .card-r .mono { height: 15mm; color: var(--lin); margin-bottom: .8mm; }
-  .card-r .nom { font-size: 2.5mm; letter-spacing: .3em; }
-  .card-r .met { text-transform: uppercase; font-size: 1.85mm; letter-spacing: .26em; color: var(--argile); font-weight: 600; }
-  .card-r .met span { color: rgb(243 239 232 / .35); margin: 0 .6mm; }
+  /* B — traits de pinceau : le texte remonte un peu */
+  .v-b.card-r .in { inset: 3mm 3mm 18mm; }
 
-  /* ── Verso : coordonnées ── */
+  /* C — éventail : texte à gauche, métiers sur trois lignes */
+  .v-c.card-r .in { inset: 9mm auto 9mm 9mm; justify-items: start; align-content: space-between; text-align: left; gap: 0; }
+  .v-c.card-r .mono { height: 13mm; margin: 0; }
+  .v-c.card-r .met { display: grid; gap: 1.3mm; margin-top: 2.4mm; }
+  .v-c.card-r .met span { display: none; }
+
+  /* ── Verso ── */
   .card-v { background: var(--lin); color: var(--ink); padding: 7.5mm 8mm 10.8mm; display: grid; grid-template-rows: auto 1fr auto; }
+  .card-v > :not(svg):not(.filet) { position: relative; z-index: 1; }
   .card-v .nom { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 5.4mm; text-transform: uppercase; letter-spacing: .02em; }
   .card-v .met { font-size: 2.1mm; letter-spacing: .18em; text-transform: uppercase; color: var(--argile); margin-top: 1.4mm; font-weight: 600; }
   .card-v .met span { color: rgb(26 25 23 / .3); }
@@ -52,12 +65,30 @@
   .card-v .filet { position: absolute; left: 0; right: 0; bottom: 0; height: 5.2mm; display: grid; grid-template-columns: repeat(6, 1fr); }
   .card-v .filet i { background: var(--c); }
 
+  /* ── BAT A4 paysage ── */
+  .bat { width: 297mm; height: 210mm; background: #fff; color: #222; padding: 12mm 14mm; display: grid; grid-template-rows: auto 1fr auto; gap: 6mm; font-size: 2.9mm; }
+  .bat header { display: flex; justify-content: space-between; align-items: end; border-bottom: .3mm solid #222; padding-bottom: 3.5mm; }
+  .bat h1 { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-weight: 500; font-size: 8mm; line-height: 1; }
+  .bat h1 em { font-style: italic; color: var(--argile); }
+  .bat header > p { text-align: right; line-height: 1.5; color: #555; }
+  .bat .planche { display: flex; justify-content: center; align-items: center; gap: 22mm; }
+  .bat figure { display: grid; justify-items: center; gap: 4mm; }
+  .bat figcaption { font-size: 2.6mm; letter-spacing: .2em; text-transform: uppercase; color: #555; }
+  .trace { position: relative; padding: 10mm; }
+  .trace .zs { position: absolute; inset: 16mm; border: .2mm dashed #e2007a; z-index: 3; pointer-events: none; }
+  .trace svg.marks { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; z-index: 2; }
+  .bat footer { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 8mm; border-top: .3mm solid #222; padding-top: 4mm; line-height: 1.55; }
+  .bat dl { display: grid; grid-template-columns: auto 1fr; gap: .4mm 4mm; }
+  .bat dt { color: #777; }
+  .bat .leg span { display: inline-block; width: 7mm; vertical-align: middle; margin-right: 2mm; }
+  .bat .sign { border: .3mm solid #222; padding: 3mm; display: grid; grid-template-rows: auto 1fr auto; min-height: 30mm; }
+  .bat .sign b { font-weight: 600; text-transform: uppercase; letter-spacing: .12em; font-size: 2.6mm; }
+  .bat .sign small { color: #777; }
+
   /* ── Mise en scène ── */
   .scene { position: relative; overflow: hidden; flex: none; width: 2000px; height: 1300px; background: radial-gradient(120% 100% at 25% 10%, #ece7df, #d8d0c4 70%, #cdc4b6); }
   .scene::before { content: ''; position: absolute; inset: 0; opacity: .35; mix-blend-mode: multiply; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .37 0 0 0 0 .33 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-  .scene .pose { position: absolute; transform-origin: 0 0; }
-  /* Carte rognée au format fini 85 × 55 */
-  .scene .pose { filter: drop-shadow(2px 3px 3px rgb(40 32 24 / .3)) drop-shadow(10px 16px 16px rgb(40 32 24 / .28)); }
+  .scene .pose { position: absolute; transform-origin: 0 0; filter: drop-shadow(2px 3px 3px rgb(40 32 24 / .3)) drop-shadow(10px 16px 16px rgb(40 32 24 / .28)); }
   .scene .trim { width: 85mm; height: 55mm; overflow: hidden; }
   .scene .trim .card { margin: -3mm; }
 </style>
@@ -68,9 +99,8 @@
   <div class="in">
     <span class="mono"></span>
     <p class="nom lbl">Benjamin Landry</p>
-    <p class="met">Plâtrerie<span>·</span>Peinture<span>·</span>Carrelage</p>
+    <p class="met"><b>Plâtrerie</b><span>·</span><b>Peinture</b><span>·</span><b>Carrelage</b></p>
   </div>
-  <div class="nuancier"><i style="--c:#E2DACB"><b></b></i><i style="--c:#C08A3E"><b></b></i><i style="--c:#9B4B34"><b></b></i><i style="--c:#3F5A45"><b></b></i><i style="--c:#8DA3B3"><b></b></i><i style="--c:#56595C"><b></b></i></div>
 </template>
 <template id="verso">
   <div><p class="nom">Benjamin Landry</p><p class="met">Plâtrerie <span>·</span> Peinture <span>·</span> Carrelage</p></div>
@@ -79,20 +109,143 @@
     <p><b>benjaminlandry.fr</b> · benjaminlandry10@gmail.com<br>59 rue du Boucheix, 63770 Les Ancizes-Comps<br>Instagram @benjamin_landry_finitions · SIRET 822 175 519 00021</p>
     <span class="mono"></span>
   </div>
-  <div class="filet"><i style="--c:#E2DACB"></i><i style="--c:#C08A3E"></i><i style="--c:#9B4B34"></i><i style="--c:#3F5A45"></i><i style="--c:#8DA3B3"></i><i style="--c:#56595C"></i></div>
 </template>
 
-<section class="doc card card-r" data-doc="carte-visite-recto" data-w="91" data-h="61" data-tpl="recto"></section>
-<section class="doc card card-v" data-doc="carte-visite-verso" data-w="91" data-h="61" data-tpl="verso"></section>
+<!-- Fichiers imprimeur : un recto et un verso par proposition -->
+<section class="doc card card-r v-a" data-doc="carte-visite-A-nuancier-recto" data-w="91" data-h="61" data-tpl="recto"></section>
+<section class="doc card card-v v-a" data-doc="carte-visite-A-nuancier-verso" data-w="91" data-h="61" data-tpl="verso"></section>
+<section class="doc card card-r v-b" data-doc="carte-visite-B-pinceau-recto" data-w="91" data-h="61" data-tpl="recto"></section>
+<section class="doc card card-v v-b" data-doc="carte-visite-B-pinceau-verso" data-w="91" data-h="61" data-tpl="verso"></section>
+<section class="doc card card-r v-c" data-doc="carte-visite-C-eventail-recto" data-w="91" data-h="61" data-tpl="recto"></section>
+<section class="doc card card-v v-c" data-doc="carte-visite-C-eventail-verso" data-w="91" data-h="61" data-tpl="verso"></section>
 
-<!-- Mise en scène : recto et verso posés sur le lin -->
-<section class="scene" data-out="mockup-cartes">
-  <div class="pose" style="left:260px;top:250px;transform:rotate(-7deg) scale(1.95)"><div class="trim"><div class="card card-r" data-tpl="recto"></div></div></div>
-  <div class="pose" style="left:1010px;top:470px;transform:rotate(5deg) scale(1.95)"><div class="trim"><div class="card card-v" data-tpl="verso"></div></div></div>
-</section>
+<!-- BAT : une page A4 paysage par proposition (remplie par le script) -->
+<section class="doc bat" data-doc="BAT-carte-visite-A-nuancier" data-w="297" data-h="210" data-bat="a" data-nom="A — Nuancier" data-desc="Bande de six teintes du nuancier du site, chacune en trois valeurs, comme une carte de teintes de peintre."></section>
+<section class="doc bat" data-doc="BAT-carte-visite-B-pinceau" data-w="297" data-h="210" data-bat="b" data-nom="B — Traits de pinceau" data-desc="Six coups de pinceau dans les teintes du site, fibres visibles et bouts secs, qui sortent de la carte."></section>
+<section class="doc bat" data-doc="BAT-carte-visite-C-eventail" data-w="297" data-h="210" data-bat="c" data-nom="C — Éventail de teintes" data-desc="Le nuancier ouvert en éventail, comme dans l’animation du site ; métiers alignés à gauche."></section>
+
+<!-- Mises en scène -->
+<section class="scene" data-out="mockup-cartes-A-nuancier" data-scene="a"></section>
+<section class="scene" data-out="mockup-cartes-B-pinceau" data-scene="b"></section>
+<section class="scene" data-out="mockup-cartes-C-eventail" data-scene="c"></section>
 
 <script>
-  document.querySelectorAll('[data-tpl]').forEach((el) => el.append(document.getElementById(el.dataset.tpl).content.cloneNode(true)));
+  const TEINTES = ['#E2DACB', '#C08A3E', '#9B4B34', '#3F5A45', '#8DA3B3', '#56595C'];
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = (cls, vb = '0 0 91 61') => { const s = document.createElementNS(NS, 'svg'); s.setAttribute('viewBox', vb); s.setAttribute('class', cls); return s; };
+  const el = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+  // Aléatoire reproductible : mêmes traits à chaque rendu
+  const rng = (seed) => () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+  const mix = (hex, t) => { const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255], w = [251, 249, 245]; return `rgb(${c.map((v, i) => Math.round(v * t + w[i] * (1 - t))).join(' ')})`; };
+
+  // Un coup de pinceau : un aplat aux bords irréguliers et des fibres (tout en vecteur)
+  function stroke(g, r, { x0, x1, y, w, tilt, color, bg }) {
+    const fibre = (off, a, b) => { const y0 = y + off, y1 = y + off + tilt, ym = (y0 + y1) / 2 + (r() - .5) * .6; return `M${a} ${y0} Q ${(a + b) / 2} ${ym} ${b} ${y1}`; };
+    const top = [], bot = [];
+    for (let i = 0; i <= 14; i++) {
+      const t = i / 14, x = x0 + (x1 - x0) * t, yy = y + tilt * t, taper = t > .8 ? 1 - (t - .8) * 1.6 : 1;
+      top.push(`${x.toFixed(2)} ${(yy - (w / 2) * taper + (r() - .5) * .3).toFixed(2)}`);
+      bot.unshift(`${x.toFixed(2)} ${(yy + (w / 2) * taper + (r() - .5) * .3).toFixed(2)}`);
+    }
+    g.append(el('path', { d: `M${top.join(' L')} L${bot.join(' L')} Z`, fill: color }));
+    // stries sèches : le fond réapparaît dans la seconde moitié du trait
+    for (let i = 0; i < 7; i++) {
+      const off = (r() - .5) * w * .85, a = x0 + (x1 - x0) * (.45 + r() * .3);
+      g.append(el('path', { d: fibre(off, a, x1 + 2), stroke: bg, 'stroke-width': (.12 + r() * .3).toFixed(2), 'stroke-linecap': 'round', fill: 'none', opacity: (.6 + r() * .4).toFixed(2) }));
+    }
+    for (let i = 0; i < 28; i++) {
+      const off = (r() - .5) * w * 1.05, end = x1 + (r() - .15) * 8 - Math.abs(off) * 1.2;
+      g.append(el('path', { d: fibre(off, x0 + r() * 2, end), stroke: r() < .3 ? mix(color, .72) : color, 'stroke-width': (.15 + r() * .35).toFixed(2), 'stroke-linecap': 'round', fill: 'none', opacity: (.55 + r() * .45).toFixed(2) }));
+    }
+    // reprise plus claire au départ du pinceau
+    g.append(el('path', { d: fibre((r() - .5) * w * .4, x0, x0 + (x1 - x0) * (.3 + r() * .2)), stroke: mix(color, .8), 'stroke-width': (w * .2).toFixed(2), 'stroke-linecap': 'round', fill: 'none', opacity: .45 }));
+  }
+  function pinceau(card, verso) {
+    const s = svg('deco'), r = rng(verso ? 77 : 11), g = el('g', {});
+    TEINTES.forEach((c, i) => {
+      if (verso) stroke(g, r, { x0: -4, x1: 26 + i * 9 + r() * 8, y: 56 + i * 1, w: 1.7, tilt: -.6 + r() * .6, color: c, bg: '#f3efe8' });
+      else stroke(g, r, { x0: -4, x1: [62, 48, 74, 40, 58, 34][i] + r() * 6, y: 44 + i * 2.9, w: 3.3, tilt: -2.2 + r() * 1.6, color: c, bg: '#1a1917' });
+    });
+    s.append(g); card.prepend(s);
+  }
+  // Éventail : six cartes de teintes pivotant autour d’un même axe
+  function eventail(card) {
+    const s = svg('deco'), px = 77, py = 54, L = 35, W = 9.4;
+    TEINTES.slice().reverse().forEach((c, k) => {
+      const i = TEINTES.length - 1 - k, a = -(5 + i * 10.5);
+      const g = el('g', { transform: `rotate(${a} ${px} ${py})` });
+      const x = px - W / 2, y = py - L;
+      g.append(el('rect', { x: x - .3, y: y - .3, width: W + .6, height: L + .6, rx: .8, fill: '#1a1917' }));
+      g.append(el('rect', { x, y, width: W, height: L, rx: .6, fill: '#fbf9f5' }));
+      g.append(el('rect', { x: x + .8, y: y + .8, width: W - 1.6, height: L * .44, fill: c }));
+      g.append(el('rect', { x: x + .8, y: y + .8 + L * .44 + .5, width: W - 1.6, height: L * .13, fill: mix(c, .68) }));
+      g.append(el('rect', { x: x + .8, y: y + .8 + L * .57 + 1, width: W - 1.6, height: L * .13, fill: mix(c, .42) }));
+      s.append(g);
+    });
+    s.append(el('circle', { cx: px, cy: py - 3.2, r: .9, fill: '#a8773d' }));
+    card.prepend(s);
+  }
+  function nuancier(card) {
+    const d = document.createElement('div'); d.className = 'nuancier';
+    d.innerHTML = TEINTES.map((c) => `<i style="--c:${c}"><b></b></i>`).join(''); card.append(d);
+  }
+  function filet(card) {
+    const d = document.createElement('div'); d.className = 'filet';
+    d.innerHTML = TEINTES.map((c) => `<i style="--c:${c}"></i>`).join(''); card.prepend(d);
+  }
+  function build(card) {
+    card.append(document.getElementById(card.dataset.tpl).content.cloneNode(true));
+    const v = card.classList.contains('v-b') ? 'b' : card.classList.contains('v-c') ? 'c' : 'a';
+    if (card.classList.contains('card-r')) v === 'a' ? nuancier(card) : v === 'b' ? pinceau(card) : eventail(card);
+    else v === 'b' ? pinceau(card, true) : filet(card);
+  }
+  const make = (face, v) => { const c = document.createElement('div'); c.className = `card card-${face} v-${v}`; c.dataset.tpl = face === 'r' ? 'recto' : 'verso'; build(c); return c; };
+  document.querySelectorAll('.doc.card').forEach(build);
+
+  // Traits de coupe aux coins du format fini, hors fonds perdus (décalage 3 mm, longueur 6 mm)
+  function trace(card) {
+    const t = document.createElement('div'); t.className = 'trace';
+    const s = svg('marks', '0 0 111 81');
+    const L = 13, R = 98, T = 13, B = 68, o = 3, len = 6, st = { stroke: '#000', 'stroke-width': .15 };
+    for (const [x, sx] of [[L, -1], [R, 1]]) for (const [y, sy] of [[T, -1], [B, 1]]) {
+      s.append(el('line', { x1: x + sx * o, y1: y, x2: x + sx * (o + len), y2: y, ...st }));
+      s.append(el('line', { x1: x, y1: y + sy * o, x2: x, y2: y + sy * (o + len), ...st }));
+    }
+    const zs = document.createElement('div'); zs.className = 'zs';
+    t.append(card, s, zs); return t;
+  }
+  document.querySelectorAll('[data-bat]').forEach((b) => {
+    const v = b.dataset.bat, date = new Date().toLocaleDateString('fr-FR');
+    b.innerHTML = `
+      <header><div><p style="letter-spacing:.2em;text-transform:uppercase;font-size:2.5mm;color:#777;margin-bottom:2mm">Bon à tirer · Cartes de visite</p>
+        <h1>Proposition <em>${b.dataset.nom}</em></h1></div>
+        <p>Benjamin Landry — plâtrerie, peinture, carrelage<br>Échelle 1:1 (imprimer à 100 %, sans ajustement) · ${date}</p></header>
+      <div class="planche"></div>
+      <footer>
+        <div><dl><dt>Format fini</dt><dd>85 × 55 mm, recto verso</dd><dt>Fonds perdus</dt><dd>3 mm de chaque côté (fichier 91 × 61 mm)</dd>
+          <dt>Impression</dt><dd>Quadrichromie recto verso</dd><dt>Papier conseillé</dt><dd>Couché mat 400 g, pelliculage mat toucher doux</dd><dt>Quantité</dt><dd>…………</dd></dl>
+          <p style="margin-top:2.5mm;color:#555">${b.dataset.desc}</p></div>
+        <div class="leg"><p style="margin-bottom:1.5mm"><b>Repères</b> (non imprimés)</p>
+          <p><span style="border-top:.3mm solid #000"></span>Traits de coupe : format fini</p>
+          <p><span style="border-top:.3mm dashed #e2007a"></span>Zone de sécurité : 3 mm à l’intérieur</p>
+          <p><span style="height:2.5mm;background:#ddd"></span>Au-delà des traits : fonds perdus, coupés</p>
+          <p style="margin-top:2mm;color:#555">Vérifier l’orthographe, le téléphone et les adresses avant de signer. Les couleurs à l’écran sont indicatives.</p></div>
+        <div class="sign"><b>Bon pour accord</b><span></span><small>Date, nom et signature</small></div>
+      </footer>`;
+    const pl = b.querySelector('.planche');
+    for (const [face, cap] of [['r', 'Recto'], ['v', 'Verso']]) {
+      const f = document.createElement('figure'); f.append(trace(make(face, v)));
+      const c = document.createElement('figcaption'); c.textContent = cap; f.append(c); pl.append(f);
+    }
+  });
+
+  document.querySelectorAll('[data-scene]').forEach((sc) => {
+    const v = sc.dataset.scene;
+    for (const [face, style] of [['r', 'left:260px;top:250px;transform:rotate(-7deg) scale(1.95)'], ['v', 'left:1010px;top:470px;transform:rotate(5deg) scale(1.95)']]) {
+      const p = document.createElement('div'); p.className = 'pose'; p.style.cssText = style;
+      const t = document.createElement('div'); t.className = 'trim'; t.append(make(face, v)); p.append(t); sc.append(p);
+    }
+  });
 </script>
 </body>
 </html>
