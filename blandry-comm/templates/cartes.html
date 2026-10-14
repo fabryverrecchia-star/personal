@@ -6,7 +6,7 @@
 <style>
   /* Cartes 85 × 55 mm + 3 mm de fonds perdus. Zone de sécurité : 3 mm à l’intérieur du format fini.
      Direction artistique du site : basalte, lin, ocre de Limagne, Bodoni et Hanken Grotesk.
-     Propositions retenues : 1 lumière (photo), 2 deux tons, 3 sobre. (A nuancier, B pinceau, C éventail : écartées, gardées dans le code.) */
+     Propositions actuelles : pinceau réaliste (1 ocre, 2 blanc de chaux, 3 trait de basalte). Écartées, gardées dans le code : A nuancier, B pinceau vectoriel, C éventail, D photo, E deux tons, F sobre. */
   @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-normal.woff2') format('woff2'); font-weight: 400 900; }
   @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-italic.woff2') format('woff2'); font-weight: 400 900; font-style: italic; }
   @font-face { font-family: 'Hanken'; src: url('../fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
@@ -74,9 +74,33 @@
   .v-f.card-r .in { inset: 3mm; gap: 2.6mm; }
   .v-f.card-r .met::before { content: ''; display: block; width: 8mm; height: .25mm; background: var(--argile); margin: 0 auto 2.6mm; }
 
+
+  /* Pinceau réaliste (images générées par scripts/pinceau.py, 610 dpi) */
+  .card img.brush { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  .v-g.card-r .in, .v-h.card-r .in, .v-i.card-r .in { inset: 0; display: block; }
+  .v-g.card-r .in > *, .v-h.card-r .in > *, .v-i.card-r .in > * { position: absolute; left: 0; right: 0; text-align: center; margin: 0; }
+  .v-g.card-r .mono, .v-h.card-r .mono, .v-i.card-r .mono { left: 50%; right: auto; transform: translateX(-50%); }
+  /* 1 — Ocre : nom posé sur le coup de pinceau */
+  .v-g.card-r .mono { top: 9mm; height: 14mm; }
+  .v-g.card-r .nom { top: 32mm; color: var(--ink); font-weight: 600; font-size: 2.7mm; }
+  .v-g.card-r .met { top: 45.5mm; }
+  .v-g.card-r .met span { color: rgb(243 239 232 / .4); }
+  /* 2 — Blanc de chaux : monogramme dans la peinture */
+  .v-h.card-r .mono { top: 18.5mm; height: 15mm; color: var(--ink); }
+  .v-h.card-r .nom { top: 42mm; }
+  .v-h.card-r .met { top: 47.5mm; }
+  /* 3 — Lin : trait de basalte */
+  .v-i.card-r { background: var(--lin); color: var(--ink); }
+  .v-i.card-r .mono { top: 9.5mm; height: 15mm; color: var(--ink); }
+  .v-i.card-r .nom { top: 38.4mm; color: var(--lin); font-weight: 600; font-size: 2.7mm; }
+  .v-i.card-r .met { top: 43.6mm; color: #c99a5c; }
+  .v-i.card-r .met span { color: rgb(243 239 232 / .4); }
+  /* Verso : le téléphone sur un coup de pinceau ocre */
+  .v-g.card-v .tel, .v-h.card-v .tel, .v-i.card-v .tel { padding-left: 1mm; }
+
   /* ── Verso ── */
   .card-v { background: var(--lin); color: var(--ink); padding: 7.5mm 8mm 10.8mm; display: grid; grid-template-rows: auto 1fr auto; }
-  .card-v > :not(svg):not(.filet) { position: relative; z-index: 1; }
+  .card-v > :not(svg):not(.filet):not(.brush) { position: relative; z-index: 1; }
   .card-v .nom { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 5.4mm; text-transform: uppercase; letter-spacing: .02em; }
   .card-v .met { font-size: 2.1mm; letter-spacing: .18em; text-transform: uppercase; color: var(--argile); margin-top: 1.4mm; font-weight: 600; }
   .card-v .met span { color: rgb(26 25 23 / .3); }
@@ -134,22 +158,22 @@
 </template>
 
 <!-- Fichiers imprimeur : un recto et un verso par proposition -->
-<section class="doc card card-r v-d" data-doc="carte-visite-1-lumiere-recto" data-w="91" data-h="61" data-tpl="recto"></section>
-<section class="doc card card-v v-d" data-doc="carte-visite-1-lumiere-verso" data-w="91" data-h="61" data-tpl="verso"></section>
-<section class="doc card card-r v-e" data-doc="carte-visite-2-deux-tons-recto" data-w="91" data-h="61" data-tpl="recto"></section>
-<section class="doc card card-v v-e" data-doc="carte-visite-2-deux-tons-verso" data-w="91" data-h="61" data-tpl="verso"></section>
-<section class="doc card card-r v-f" data-doc="carte-visite-3-sobre-recto" data-w="91" data-h="61" data-tpl="recto"></section>
-<section class="doc card card-v v-f" data-doc="carte-visite-3-sobre-verso" data-w="91" data-h="61" data-tpl="verso"></section>
+<section class="doc card card-r v-g" data-doc="carte-visite-1-pinceau-ocre-recto" data-w="91" data-h="61" data-tpl="recto"></section>
+<section class="doc card card-v v-g" data-doc="carte-visite-1-pinceau-ocre-verso" data-w="91" data-h="61" data-tpl="verso"></section>
+<section class="doc card card-r v-h" data-doc="carte-visite-2-blanc-de-chaux-recto" data-w="91" data-h="61" data-tpl="recto"></section>
+<section class="doc card card-v v-h" data-doc="carte-visite-2-blanc-de-chaux-verso" data-w="91" data-h="61" data-tpl="verso"></section>
+<section class="doc card card-r v-i" data-doc="carte-visite-3-trait-basalte-recto" data-w="91" data-h="61" data-tpl="recto"></section>
+<section class="doc card card-v v-i" data-doc="carte-visite-3-trait-basalte-verso" data-w="91" data-h="61" data-tpl="verso"></section>
 
 <!-- BAT : une page A4 paysage par proposition (remplie par le script) -->
-<section class="doc bat" data-doc="BAT-carte-visite-1-lumiere" data-w="297" data-h="210" data-bat="d" data-nom="1 — Lumière" data-desc="Au recto, une finition réelle en lumière rasante : la qualité du travail parle d’elle-même. Verso clair et lisible."></section>
-<section class="doc bat" data-doc="BAT-carte-visite-2-deux-tons" data-w="297" data-h="210" data-bat="e" data-nom="2 — Deux tons" data-desc="Un mur peint en deux teintes, séparées par une ligne parfaitement nette : le geste du peintre, sans effet."></section>
-<section class="doc bat" data-doc="BAT-carte-visite-3-sobre" data-w="297" data-h="210" data-bat="f" data-nom="3 — Sobre" data-desc="La carte d’origine, avec les trois métiers au recto. Option : monogramme en marquage à chaud cuivre."></section>
+<section class="doc bat" data-doc="BAT-carte-visite-1-pinceau-ocre" data-w="297" data-h="210" data-bat="g" data-nom="1 — Pinceau ocre" data-desc="Un coup de pinceau ocre, fibres et brosse sèche visibles ; le nom posé dans la peinture. Au verso, le téléphone sur un trait ocre."></section>
+<section class="doc bat" data-doc="BAT-carte-visite-2-blanc-de-chaux" data-w="297" data-h="210" data-bat="h" data-nom="2 — Blanc de chaux" data-desc="Une large passe de blanc sur le basalte, le monogramme dans la peinture fraîche. Au verso, le téléphone sur un trait ocre."></section>
+<section class="doc bat" data-doc="BAT-carte-visite-3-trait-basalte" data-w="297" data-h="210" data-bat="i" data-nom="3 — Trait de basalte" data-desc="Fond lin, un trait de pinceau sombre qui porte le nom et les métiers. Au verso, le téléphone sur un trait ocre."></section>
 
 <!-- Mises en scène -->
-<section class="scene" data-out="mockup-cartes-1-lumiere" data-scene="d"></section>
-<section class="scene" data-out="mockup-cartes-2-deux-tons" data-scene="e"></section>
-<section class="scene" data-out="mockup-cartes-3-sobre" data-scene="f"></section>
+<section class="scene" data-out="mockup-cartes-1-pinceau-ocre" data-scene="g"></section>
+<section class="scene" data-out="mockup-cartes-2-blanc-de-chaux" data-scene="h"></section>
+<section class="scene" data-out="mockup-cartes-3-trait-basalte" data-scene="i"></section>
 
 <script>
   const TEINTES = ['#E2DACB', '#C08A3E', '#9B4B34', '#3F5A45', '#8DA3B3', '#56595C'];
@@ -217,7 +241,13 @@
   }
   function build(card) {
     card.append(document.getElementById(card.dataset.tpl).content.cloneNode(true));
-    const v = (card.className.match(/v-([a-f])/) || [])[1];
+    const v = (card.className.match(/v-([a-i])/) || [])[1];
+    // Pinceau réaliste : recto propre à chaque proposition, verso commun
+    if ('ghi'.includes(v)) {
+      const img = document.createElement('img'); img.className = 'brush'; img.alt = '';
+      img.src = card.classList.contains('card-r') ? `../livrables/print/pinceau/p${'ghi'.indexOf(v) + 1}-recto.png` : '../livrables/print/pinceau/verso.png';
+      card.prepend(img);
+    }
     if (card.classList.contains('card-r')) ({ a: nuancier, b: pinceau, c: eventail })[v]?.(card);
     else if (v === 'b') pinceau(card, true);
     else if ('ac'.includes(v)) filet(card);

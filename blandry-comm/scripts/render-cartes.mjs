@@ -24,7 +24,7 @@ const p = await b.newPage({ viewport: { width: 2400, height: 2000 }, deviceScale
 p.on('pageerror', (e) => console.log('ERREUR', e.message));
 await p.goto('http://localhost:4572/templates/cartes.html');
 await p.evaluate(() => document.fonts.ready);
-await p.waitForTimeout(500);
+await p.waitForLoadState('networkidle'); await p.waitForTimeout(800);
 const docs = await p.$$eval('[data-doc]', (a) => a.map((d) => ({ name: d.dataset.doc, w: +d.dataset.w, h: +d.dataset.h })));
 for (const d of docs) {
   const dir = d.name.startsWith('BAT') ? 'bat/' : 'cartes/';
@@ -36,7 +36,7 @@ for (const d of docs) {
 const m = await b.newPage({ viewport: { width: 2200, height: 1800 } });
 await m.goto('http://localhost:4572/templates/cartes.html');
 await m.evaluate(() => document.fonts.ready);
-await m.waitForTimeout(500);
+await m.waitForLoadState('networkidle'); await m.waitForTimeout(800);
 for (const el of await m.$$('[data-out]')) {
   const n = await el.getAttribute('data-out');
   await el.screenshot({ path: out(`cartes/${n}.png`) });
