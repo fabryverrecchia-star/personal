@@ -269,11 +269,13 @@
       '<div class="slot" data-slot="media">' + mediaHtml(post) + '</div>' +
       '<div class="caption" data-reveal data-slot="caption">' + captionHtml(post) + '</div>' +
       '<div class="post__tools"><button type="button" class="label edit-btn" data-edit-post="' + esc(post._key) + '">' + EDIT_ICON + 'Modifier la publication</button>' +
+      '<button type="button" class="label edit-btn share-btn" data-share-post="' + esc(post._key) + '">' + SHARE_ICON + 'Partager le lien</button>' +
       '<span class="slot" data-slot="dl">' + dlHtml(post) + '</span></div>' +
       feedbackHtml(post) + '</div></article>'
     );
   }
 
+  var SHARE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M6 11H5v9h14v-9h-1"/></svg>';
   // Équipe : la vidéo d'un reel se télécharge telle qu'elle a été envoyée
   var DL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19h14"/></svg>';
   function dlHtml(post) {
@@ -2848,6 +2850,59 @@
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && box.classList.contains('is-open') && !document.querySelector('.editor.is-open')) close();
     });
+    // Lien partagé (share.php → ?post=<id>) : la publication s'ouvre à l'arrivée
+    var want = new URLSearchParams(location.search).get('post');
+    if (want) document.addEventListener('mp:ready', function () {
+      var p = allPosts.filter(function (x) { return String(x._key) === want; })[0];
+      var art = p && document.getElementById(p._id);
+      if (art) setTimeout(function () { open(art); }, 250);
+      try {
+        var u = new URL(location.href);
+        u.searchParams.delete('post');
+        history.replaceState(null, '', u.pathname + u.search + u.hash);
+      } catch (er) {}
+    }, { once: true });
+  }
+
+  // Partager une publication : lien vers share.php, dont l'aperçu montre le visuel, le carrousel ou la vidéo
+  function initShare() {
+    function link(key) {
+      var slug = String(window.CLIENT_BASE || '').replace(/^clients\/|\/$/g, '');
+      var dir = location.origin + location.pathname.replace(/[^/]*$/, '');
+      return dir + 'share.php?' + (slug && slug !== 'la-petite-maison' ? 'c=' + encodeURIComponent(slug) + '&' : '') + 'p=' + encodeURIComponent(key);
+    }
+    function note(msg) {
+      var t = document.querySelector('[data-toast]');
+      if (!t) return;
+      t.textContent = msg;
+      t.classList.add('is-on');
+      clearTimeout(note.t);
+      note.t = setTimeout(function () { t.classList.remove('is-on'); }, 3200);
+    }
+    function copy(url) {
+      var ok = function () { note('Lien copié : collez-le dans WhatsApp, un e-mail…'); };
+      if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(url).then(ok, function () { fallback(url); ok(); });
+      fallback(url); ok();
+    }
+    function fallback(url) {
+      var ta = document.createElement('textarea');
+      ta.value = url; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (er) {}
+      ta.remove();
+    }
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-share-post]');
+      if (!b) return;
+      var key = b.getAttribute('data-share-post');
+      var url = link(key);
+      var p = allPosts.filter(function (x) { return String(x._key) === key; })[0];
+      var title = p && p.title ? String(p.title).replace(/<[^>]+>/g, '') : 'Publication';
+      // Téléphone : la feuille de partage du système (WhatsApp, Messages…) ; sinon le lien est copié
+      if (navigator.share && /iPhone|iPad|Android/i.test(navigator.userAgent)) {
+        navigator.share({ title: title, url: url }).catch(function (er) { if (er && er.name !== 'AbortError') copy(url); });
+      } else copy(url);
+    });
   }
 
   // Propositions : le choix met à jour le visuel, le badge et la vignette du feed
@@ -3279,6 +3334,7 @@
       loader.remove();
       document.body.classList.remove('is-loading');
       if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+      document.dispatchEvent(new Event('mp:ready'));
     }
 
     var heroChars = document.querySelectorAll('.hero__title .char');
@@ -3351,6 +3407,7 @@
   initCarousels();
   initOptions();
   initPostSheet();
+  initShare();
   initBrandkit();
   initFeedback();
   initAds();

@@ -47,6 +47,10 @@ Menu : Rendez-vous (calendrier des passages), Publications, Stories, Tâches, In
   jour, heure, et le texte, sticker ou lien prévu. « Prévisualiser » enregistre puis montre la story en plein écran ;
   « Modifier cette story » dans la visionneuse rouvre la fiche ; « Supprimer cette story » l'efface avec ses fichiers.
   Les stories sont gardées dans `data/suivi.json` (rubrique `edits`, `added: "story"`) et leurs fichiers dans `uploads/`.
+- Partager une publication : « Partager le lien » sous chaque post (mode équipe). Sur téléphone, la feuille de partage s'ouvre ;
+  sur ordinateur, le lien est copié. Le lien (`share.php?p=<id>`) montre en aperçu (WhatsApp, iMessage…) le visuel, jusqu'à 3 photos
+  côte à côte pour un carrousel, ou la couverture et la vidéo d'un reel ; il ouvre ensuite le planning sur la publication.
+  L'aperçu lit `data/suivi.json` : il concerne les publications ajoutées ou modifiées depuis l'espace équipe.
 - Rendez-vous : jours de passage (calendrier et liste), à ajouter, modifier ou supprimer.
 - Tâche : missions en cours, publiées par Fabrizio ou Jade (crayon pour modifier, croix pour supprimer, toucher l'état pour avancer).
 - Inspiration : ouvrir directement `…/?inspi`, coller un lien Instagram (reel, carrousel ou post). Le site récupère l'image, le compte
