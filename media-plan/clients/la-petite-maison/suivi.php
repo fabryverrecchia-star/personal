@@ -29,6 +29,9 @@ header('X-Content-Type-Options: nosniff');
 $FILE = __DIR__ . '/data/suivi.json';
 $INSPI_DIR = __DIR__ . '/inspi';
 $UP_DIR = __DIR__ . '/uploads';
+// Morceaux d'un gros fichier en cours d'envoi (dossier data, protégé)
+$PART_DIR = __DIR__ . '/data/parts';
+$VIDEO_MAX = 1024; // Mo, vidéo reconstituée à partir de ses morceaux
 $config = require __DIR__ . '/config.php';
 require __DIR__ . '/insta.php';
 
@@ -110,6 +113,30 @@ if ($action === 'check') {
   out($w ? ['ok' => true] : ['error' => 'storage'], $w ? 200 : 500);
 }
 
+// Gros fichier envoyé en morceaux : la limite d'envoi de l'hébergement s'applique à chaque morceau.
+// Les morceaux sont mis bout à bout dans data/parts/, puis l'envoi final (action upload + part) les utilise.
+if ($action === 'chunk') {
+  $up = isset($in['up']) ? preg_replace('/[^a-z0-9]/', '', strtolower((string) $in['up'])) : '';
+  $off = isset($in['offset']) ? (int) $in['offset'] : -1;
+  $f = isset($_FILES['file']) ? $_FILES['file'] : null;
+  if (strlen($up) < 8 || $off < 0) out(['error' => 'item'], 400);
+  if (!$f || $f['error'] === UPLOAD_ERR_INI_SIZE || $f['error'] === UPLOAD_ERR_FORM_SIZE) out(['error' => 'too_big', 'max' => upload_max()], 413);
+  if ($f['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'])) out(['error' => 'upload'], 400);
+  if (!is_dir($PART_DIR)) @mkdir($PART_DIR, 0755, true);
+  if (!is_dir($PART_DIR) || !is_writable($PART_DIR)) out(['error' => 'storage'], 500);
+  // Envois abandonnés depuis plus d'un jour : effacés
+  foreach (glob($PART_DIR . '/*.part') ?: [] as $old) if (@filemtime($old) < time() - 86400) @unlink($old);
+  $path = $PART_DIR . '/' . $up . '.part';
+  clearstatcache();
+  $size = is_file($path) ? filesize($path) : 0;
+  if ($off === 0 && $size) { @unlink($path); $size = 0; }
+  if ($size !== $off) out(['error' => 'offset', 'size' => $size], 409);
+  if ($off + $f['size'] > $VIDEO_MAX * 1048576) { @unlink($path); out(['error' => 'too_big', 'max' => $VIDEO_MAX . ' Mo'], 413); }
+  if (@file_put_contents($path, file_get_contents($f['tmp_name']), FILE_APPEND | LOCK_EX) === false) out(['error' => 'storage'], 500);
+  clearstatcache();
+  out(['ok' => true, 'size' => filesize($path)]);
+}
+
 $kind = isset($in['kind']) ? $in['kind'] : '';
 if (!in_array($kind, ['missions', 'passages', 'inspirations', 'edits'], true)) out(['error' => 'kind'], 400);
 
@@ -185,28 +212,38 @@ $stored = '';
 if ($kind === 'edits' && $action === 'upload') {
   $slot = isset($in['slot']) ? $in['slot'] : '';
   if (edit_key(isset($in['id']) ? $in['id'] : '') === '' || !in_array($slot, ['media', 'poster', 'video'], true)) out(['error' => 'item'], 400);
-  $f = isset($_FILES['file']) ? $_FILES['file'] : null;
-  if (!$f || $f['error'] === UPLOAD_ERR_INI_SIZE || $f['error'] === UPLOAD_ERR_FORM_SIZE) out(['error' => 'too_big', 'max' => upload_max()], 413);
-  if ($f['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'])) out(['error' => 'upload'], 400);
+  // Fichier reconstitué à partir de ses morceaux, ou envoyé en une fois
+  $part = isset($in['part']) ? preg_replace('/[^a-z0-9]/', '', strtolower((string) $in['part'])) : '';
+  if ($part !== '') {
+    $pp = $PART_DIR . '/' . $part . '.part';
+    if (strlen($part) < 8 || !is_file($pp)) out(['error' => 'upload'], 400);
+    $f = ['error' => UPLOAD_ERR_OK, 'tmp_name' => $pp, 'size' => filesize($pp)];
+  } else {
+    $f = isset($_FILES['file']) ? $_FILES['file'] : null;
+    if (!$f || $f['error'] === UPLOAD_ERR_INI_SIZE || $f['error'] === UPLOAD_ERR_FORM_SIZE) out(['error' => 'too_big', 'max' => upload_max()], 413);
+    if ($f['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'])) out(['error' => 'upload'], 400);
+  }
+  $drop = function () use ($part, $f) { if ($part !== '') @unlink($f['tmp_name']); };
   $ext = '';
   // MP4 / MOV : la boîte « ftyp » est au début du fichier
   $head = (string) @file_get_contents($f['tmp_name'], false, null, 0, 16);
   // Une vidéo peut aussi être glissée dans un carrousel (slot media)
   if ($slot === 'video' || ($slot === 'media' && substr($head, 4, 4) === 'ftyp')) {
     if (substr($head, 4, 4) === 'ftyp') $ext = substr($head, 8, 2) === 'qt' ? 'mov' : 'mp4';
-    if ($f['size'] > 300 * 1048576) out(['error' => 'too_big', 'max' => '300 Mo'], 413);
+    if ($f['size'] > $VIDEO_MAX * 1048576) { $drop(); out(['error' => 'too_big', 'max' => $VIDEO_MAX . ' Mo'], 413); }
   } else {
     $info = @getimagesize($f['tmp_name']);
     $types = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png'];
     if (defined('IMAGETYPE_WEBP')) $types[IMAGETYPE_WEBP] = 'webp';
     if ($info && isset($types[$info[2]])) $ext = $types[$info[2]];
-    if ($f['size'] > 25 * 1048576) out(['error' => 'too_big', 'max' => '25 Mo'], 413);
+    if ($f['size'] > 25 * 1048576) { $drop(); out(['error' => 'too_big', 'max' => '25 Mo'], 413); }
   }
-  if ($ext === '') out(['error' => 'type'], 415);
+  if ($ext === '') { $drop(); out(['error' => 'type'], 415); }
   if (!is_dir($UP_DIR)) @mkdir($UP_DIR, 0755, true);
   if (!is_dir($UP_DIR) || !is_writable($UP_DIR)) out(['error' => 'uploads'], 500);
   $stored = 'uploads/' . strtolower(preg_replace('/[^a-z0-9-]/i', '', $in['id'])) . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
-  if (!move_uploaded_file($f['tmp_name'], __DIR__ . '/' . $stored)) out(['error' => 'uploads'], 500);
+  $moved = $part !== '' ? @rename($f['tmp_name'], __DIR__ . '/' . $stored) : move_uploaded_file($f['tmp_name'], __DIR__ . '/' . $stored);
+  if (!$moved) { $drop(); out(['error' => 'uploads'], 500); }
   @chmod(__DIR__ . '/' . $stored, 0644);
 }
 

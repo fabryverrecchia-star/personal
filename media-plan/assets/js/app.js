@@ -1253,6 +1253,58 @@
         .catch(function (e) { if (e !== 'code') toast(typeof e === 'string' ? e : 'La modification n’a pas pu être enregistrée. Réessayez.'); return false; });
     }
 
+    // Envoi d'un fichier (photo, vidéo). Au-delà de 8 Mo, en morceaux de 8 Mo : la limite d'envoi
+    // de l'hébergement (ex. 128 Mo) s'applique alors à chaque morceau, pas à la vidéo entière
+    var CHUNK = 8 * 1048576;
+    function postForm(fd, onLoaded) {
+      return new Promise(function (res, rej) {
+        var x = new XMLHttpRequest();
+        x.open('POST', API + '?t=' + Date.now());
+        x.upload.onprogress = function (ev) { if (ev.lengthComputable && onLoaded) onLoaded(ev.loaded); };
+        x.onload = function () {
+          var d = null;
+          try { d = JSON.parse(x.responseText); } catch (er) {}
+          if (x.status === 403 && d && d.error === 'code') { setAdmin(false, true); return rej('code'); }
+          if (x.status >= 200 && x.status < 300 && d) return res(d);
+          rej(errMsg(d && d.error, d) || 'Envoi impossible (' + x.status + '). Réessayez.');
+        };
+        x.onerror = function () { rej('Connexion impossible. Réessayez.'); };
+        x.send(fd);
+      });
+    }
+    function sendFile(op, blob, name, onPct) {
+      var total = blob.size || 1;
+      function form(o, part) {
+        var f = new FormData();
+        f.append('p64', pack(o));
+        f.append('code', code);
+        if (part) f.append('file', part, name);
+        return f;
+      }
+      function ok(d) { return valid(d) ? d : Promise.reject('Envoi impossible. Réessayez.'); }
+      if (blob.size <= CHUNK) return postForm(form(op, blob), function (l) { onPct(l / total); }).then(ok);
+      var up = (Date.now().toString(36) + Math.random().toString(36).slice(2)).replace(/[^a-z0-9]/g, '').slice(0, 24);
+      var off = 0;
+      function piece(retry) {
+        var part = blob.slice(off, off + CHUNK);
+        return postForm(form({ action: 'chunk', up: up, offset: off }, part), function (l) { onPct((off + l) / total); })
+          .then(function () { off += part.size; }, function (er) {
+            // Réseau mobile : un morceau raté est renvoyé une fois
+            if (er === 'code' || retry) return Promise.reject(er);
+            return piece(true);
+          });
+      }
+      function next() {
+        if (off >= blob.size) {
+          var o = JSON.parse(JSON.stringify(op));
+          o.part = up;
+          return postForm(form(o)).then(ok);
+        }
+        return piece(false).then(next);
+      }
+      return next();
+    }
+
     /* Calendrier du mois */
     var PUBS = cfg.passages === false;
     // Mode publications : chaque post (date) et chaque campagne sponsorisée (du début à la fin)
@@ -1936,29 +1988,12 @@
       }
       var ready = isVideo ? Promise.resolve(file) : prepImage(file, 2048, 0.86);
       return ready.then(function (blob) {
-        return new Promise(function (res, rej) {
-          var fd = new FormData();
-          fd.append('p64', pack({ action: 'upload', kind: 'edits', id: id, slot: isVideo ? 'video' : 'media', index: 0, base: [] }));
-          fd.append('code', code);
-          fd.append('file', blob, isVideo ? (file.name || 'video.mp4') : 'photo.jpg');
-          var x = new XMLHttpRequest();
-          x.open('POST', API + '?t=' + Date.now());
-          x.upload.onprogress = function (ev) {
-            if (!ev.lengthComputable) return;
-            seBusy = (isVideo ? 'Envoi de la vidéo… ' : 'Envoi de la photo… ') + Math.round(ev.loaded / ev.total * 100) + ' %';
+        return sendFile({ action: 'upload', kind: 'edits', id: id, slot: isVideo ? 'video' : 'media', index: 0, base: [] },
+          blob, isVideo ? (file.name || 'video.mp4') : 'photo.jpg', function (r) {
+            seBusy = (isVideo ? 'Envoi de la vidéo… ' : 'Envoi de la photo… ') + Math.round(r * 100) + ' %';
             var b = se.querySelector('[data-sedit-busy]');
             if (b) b.textContent = seBusy;
-          };
-          x.onload = function () {
-            var d = null;
-            try { d = JSON.parse(x.responseText); } catch (er) {}
-            if (x.status === 403 && d && d.error === 'code') { setAdmin(false, true); return rej('code'); }
-            if (x.status >= 200 && x.status < 300 && valid(d)) return res(d);
-            rej(errMsg(d && d.error, d) || 'Envoi impossible (' + x.status + '). Réessayez.');
-          };
-          x.onerror = function () { rej('Connexion impossible. Réessayez.'); };
-          x.send(fd);
-        });
+          });
       }).then(function (d) {
         state = d;
         paint();
@@ -2248,30 +2283,13 @@
       }
       var ready = isVideo ? Promise.resolve(file) : prepImage(file, 2048, 0.86);
       return ready.then(function (blob) {
-        return new Promise(function (res, rej) {
-          var fd = new FormData();
-          // Le visuel provisoire d'une nouvelle publication (image générée) n'est pas envoyé
-          fd.append('p64', pack({ action: 'upload', kind: 'edits', id: e.key, slot: slot, index: k, base: base.map(function (m) { return /^data:/.test(m) ? '' : m; }) }));
-          fd.append('code', code);
-          fd.append('file', blob, isVideo ? (file.name || 'video.mp4') : 'photo.jpg');
-          var x = new XMLHttpRequest();
-          x.open('POST', API + '?t=' + Date.now());
-          x.upload.onprogress = function (ev) {
-            if (!ev.lengthComputable) return;
+        // Le visuel provisoire d'une nouvelle publication (image générée) n'est pas envoyé
+        return sendFile({ action: 'upload', kind: 'edits', id: e.key, slot: slot, index: k, base: base.map(function (m) { return /^data:/.test(m) ? '' : m; }) },
+          blob, isVideo ? (file.name || 'video.mp4') : 'photo.jpg', function (r) {
             var b = edBox.querySelector('[data-ed-busy]');
-            e.busy = (isVideo ? 'Envoi de la vidéo… ' : 'Envoi de la photo… ') + Math.round(ev.loaded / ev.total * 100) + ' %';
+            e.busy = (isVideo ? 'Envoi de la vidéo… ' : 'Envoi de la photo… ') + Math.round(r * 100) + ' %';
             if (b) b.textContent = e.busy;
-          };
-          x.onload = function () {
-            var d = null;
-            try { d = JSON.parse(x.responseText); } catch (er) {}
-            if (x.status === 403 && d && d.error === 'code') { setAdmin(false, true); return rej('code'); }
-            if (x.status >= 200 && x.status < 300 && valid(d)) return res(d);
-            rej(errMsg(d && d.error, d) || 'Envoi impossible (' + x.status + '). Réessayez.');
-          };
-          x.onerror = function () { rej('Connexion impossible. Réessayez.'); };
-          x.send(fd);
-        });
+          });
       }).then(function (d) {
         state = d;
         paint();

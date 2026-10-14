@@ -34,6 +34,8 @@ Menu : Rendez-vous (calendrier des passages), Publications, Stories, Tâches, In
   - Remplacer, ajouter (le post devient un carrousel) ou retirer des photos. La photo est réduite sur le téléphone avant l'envoi.
   - Carrousel : « Ajouter une vidéo » glisse une vidéo (MP4 ou MOV) parmi les photos ; elle est recadrée au format des photos (4:5)
     et lue en boucle sans le son quand la slide est à l'écran. Une vidéo seule dans un post photo en fait un carrousel.
+  - Grosses vidéos : au-delà de 8 Mo, l'envoi part en morceaux de 8 Mo (reconstitués dans `data/parts/`), ce qui contourne la limite
+    d'envoi de l'hébergement (128 Mo chez 18h22.com). Maximum 1 Go par vidéo.
   - Format : n'importe quel post peut passer en « Vidéo (reel) », et revenir en photo (la vidéo reste gardée).
   - « Télécharger la vidéo » (mode équipe) sous chaque reel qui a une vidéo : le fichier envoyé, tel quel.
   - Reels : vidéo (MP4 ou MOV) et couverture. Après l'envoi, une image du début de la vidéo sert de couverture ;
