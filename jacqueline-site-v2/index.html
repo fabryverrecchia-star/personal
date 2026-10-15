@@ -190,6 +190,13 @@
     transition:clip-path .9s var(--ease-io), visibility 0s .9s;
   }
   .nav-open .nav{clip-path:inset(0 0 0 0);visibility:visible;transition:clip-path .9s var(--ease-io), visibility 0s 0s;}
+  /* the header stays above the overlay, so its button can close it */
+  .nav-open .header{z-index:90;}
+  .menu-btn i{position:relative;transition:border-color .3s ease;}
+  .menu-btn i::before,.menu-btn i::after{content:"";position:absolute;left:0;right:0;top:1px;height:1px;background:currentColor;opacity:0;transition:transform .5s var(--ease-io), opacity .3s ease;}
+  .nav-open .menu-btn i{border-color:transparent;}
+  .nav-open .menu-btn i::before{opacity:1;transform:rotate(45deg);}
+  .nav-open .menu-btn i::after{opacity:1;transform:rotate(-45deg);}
   .nav-open .header{background:transparent !important;color:var(--ivoire-light) !important;box-shadow:none !important;-webkit-backdrop-filter:none;backdrop-filter:none;}
   .nav-open .header .pill--light{background:var(--ivoire-light);color:var(--encre);}
   .nav ul{list-style:none;}
@@ -215,6 +222,17 @@
   .nav-open .nav li:nth-child(3) a{transition-delay:.37s;}
   .nav-open .nav li:nth-child(4) a{transition-delay:.43s;}
   .nav-open .nav li:nth-child(5) a{transition-delay:.49s;}
+  .nav-pic{
+    position:absolute;
+    right:var(--gutter);
+    bottom:calc(2rem + env(safe-area-inset-bottom));
+    width:clamp(2.2rem, 6vw, 3rem);
+    color:var(--rose);
+    opacity:0;
+    transform:translateY(12px);
+    transition:opacity .8s ease, transform .9s var(--ease);
+  }
+  .nav-open .nav-pic{opacity:1;transform:none;transition-delay:.6s;}
   .nav-foot{display:grid;gap:.4rem;opacity:0;transition:opacity .6s ease;color:var(--ivoire);}
   .nav-open .nav-foot{opacity:1;transition-delay:.55s;}
   .nav-foot a{text-decoration:none;}
@@ -253,12 +271,13 @@
   .hero-title h1{
     font-family:'Belleza', sans-serif;
     font-weight:400;
-    font-size:clamp(.95rem, 1.35vw, 1.2rem);
-    letter-spacing:.32em;
+    font-size:clamp(1.25rem, 1.9vw, 1.65rem);
+    letter-spacing:.34em;
+    margin-right:-.34em;
     text-transform:uppercase;
   }
   .hero-title{text-shadow:0 1px 18px rgba(20,13,11,.45);}
-  .hero-title p{margin-top:.6rem;font-style:italic;font-size:clamp(1rem, 1.3vw, 1.15rem);opacity:.9;}
+  .hero-title p{margin-top:.75rem;font-style:italic;font-size:clamp(1.1rem, 1.5vw, 1.35rem);line-height:1.35;opacity:.92;}
   .hero-bar{
     position:absolute;
     z-index:1;
@@ -374,7 +393,36 @@
     width:clamp(15.5rem, 26vw, 24rem);
     scroll-snap-align:start;
   }
-  .seq-card .ph{aspect-ratio:4 / 5;}
+  /* the illustration stands on the paper: its white becomes the page */
+  .seq-card .illu{
+    position:relative;
+    aspect-ratio:4 / 5;
+    display:grid;
+    place-items:center;
+    border-radius:var(--radius);
+    background:#f6f2ea;
+    overflow:hidden;
+  }
+  .seq-card .illu picture{
+    position:absolute;
+    inset:4% 0;
+    display:flex;
+    justify-content:center;
+  }
+  .seq-card .illu img{
+    height:100%;
+    width:auto;
+    max-width:none;
+    mix-blend-mode:multiply;
+    transform:translateY(6%);
+    opacity:0;
+    transition:opacity 1.4s ease, transform 1.8s var(--ease);
+  }
+  .seq-card.is-in .illu img{opacity:1;transform:none;}
+  .seq-card:nth-child(2) .illu img{transition-delay:.12s;}
+  .seq-card:nth-child(3) .illu img{transition-delay:.24s;}
+  .seq-card:nth-child(4) .illu img{transition-delay:.36s;}
+  .seq-card:nth-child(5) .illu img{transition-delay:.48s;}
   .seq-card figcaption{padding-top:1rem;}
   .seq-card .num{color:var(--bourgogne);}
   .seq-card .name{margin-top:.35rem;font-style:italic;font-size:1.3rem;line-height:1.25;}
@@ -386,24 +434,34 @@
     .seq-nav .seq-arrow{display:none;}
   }
 
-  /* ============ MENU & VINS — two cards ============ */
+  /* ============ MENU & VINS — two cards, type only ============ */
   .duo{display:grid;grid-template-columns:1fr 1fr;gap:clamp(.9rem, 1.8vw, 1.6rem);}
   .card{
     position:relative;
-    display:block;
-    aspect-ratio:4 / 5;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+    gap:2rem;
+    min-height:clamp(24rem, 40vw, 32rem);
+    padding:clamp(2rem, 4vw, 3rem) 1.5rem;
     border-radius:var(--radius);
-    overflow:hidden;
-    color:var(--ivoire-light);
+    text-align:center;
     text-decoration:none;
-    background:var(--noir);
+    transition:transform .8s var(--ease);
   }
-  .card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease);}
-  .card:hover img{transform:scale(1.035);}
-  .card::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom, rgba(20,13,11,.45), rgba(20,13,11,0) 30%, rgba(20,13,11,0) 65%, rgba(20,13,11,.45));}
-  .card-title{position:absolute;z-index:1;top:clamp(1.4rem, 3vw, 2.4rem);left:0;right:0;text-align:center;}
-  .card .pill{position:absolute;z-index:1;left:50%;bottom:clamp(1.4rem, 3vw, 2.2rem);transform:translateX(-50%);}
-  @media (max-width: 760px){ .duo{grid-template-columns:1fr;} .card{aspect-ratio:4 / 4.6;} }
+  .card:hover{transform:translateY(-4px);}
+  .card--wine{background:var(--bourgogne);color:var(--ivoire-light);}
+  .card--paper{background:#f6f2ea;color:var(--encre);box-shadow:inset 0 0 0 1px rgba(43,33,30,.08);}
+  .card-pic{width:1.9rem;opacity:.9;}
+  .card-list{list-style:none;display:grid;gap:.55rem;}
+  .card-list li{font-style:italic;font-size:clamp(1.05rem, 1.4vw, 1.2rem);line-height:1.3;}
+  .card--wine .card-list li{color:var(--ivoire);}
+  .card--paper .card-list li{color:var(--gris);}
+  .card .pill{margin-top:.5rem;}
+  .card--wine .pill{background:var(--ivoire-light);color:var(--encre);}
+  .card--paper .pill{background:var(--encre);color:var(--ivoire-light);}
+  @media (max-width: 760px){ .duo{grid-template-columns:1fr;} .card{min-height:22rem;} }
 
   /* ============ LE CHEF ============ */
   .chef-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(2.5rem, 7vw, 7rem);align-items:center;}
@@ -417,7 +475,6 @@
   .film-box{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--noir);aspect-ratio:16 / 9;}
   .film-box video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;}
   .film-box video.is-playing{opacity:1;}
-  .film-box .label{position:absolute;left:1.2rem;bottom:1rem;color:var(--ivoire-light);opacity:.85;}
   @media (max-aspect-ratio: 1/1){ .film-box{aspect-ratio:4 / 5;} }
 
   /* ============ LA MAISON ============ */
@@ -612,6 +669,9 @@
     .mn-prices{grid-template-columns:1fr 1fr;gap:2.5rem;}
   }
 
+  .carte-pic{position:absolute;left:50%;top:calc(1rem + env(safe-area-inset-top));transform:translateX(-50%);width:1.35rem;color:var(--bourgogne);}
+  .carte-head{position:relative;}
+  @media (min-width: 760px){ .carte-pic{top:1.2rem;} }
 
   /* safety net: if the script fails, show the page */
   html.js-failed{overflow:auto;}
@@ -661,6 +721,7 @@
     <li><a href="#chef">Le chef <span>04</span></a></li>
     <li><a href="#infos">Infos &amp; réservation <span>05</span></a></li>
   </ul>
+  <svg class="nav-pic" viewBox="0 0 307.11 470.75" aria-hidden="true"><use href="#monogram" fill="currentColor"/></svg>
   <div class="nav-foot label">
     <span>23 rue de la Victoire, 75009 Paris</span>
     <a href="mailto:contact@jacqueline-restaurant.com">contact@jacqueline-restaurant.com</a>
@@ -679,7 +740,7 @@
     </picture>
     <div class="hero-title">
       <h1>Jacqueline</h1>
-      <p>par Gustave Migdal · Paris 9<sup>e</sup></p>
+      <p>par Gustave Migdal<br>23 rue de la Victoire</p>
     </div>
     <nav class="hero-bar label" aria-label="Accès rapide">
       <a class="is-main" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener">Réserver</a>
@@ -703,38 +764,34 @@
     <div class="seq-head">
       <div>
         <span class="label eyebrow">Le fil du repas</span>
-        <h2 class="h2">Six temps, une même main</h2>
+        <h2 class="h2">Cinq séquences, un même fil</h2>
       </div>
       <div class="seq-nav">
         <button type="button" class="seq-arrow" data-dir="-1" aria-label="Séquence précédente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M15 5l-7 7 7 7"/></svg></button>
-        <span class="seq-count label" id="seq-count">01 / 06</span>
+        <span class="seq-count label" id="seq-count">01 / 05</span>
         <button type="button" class="seq-arrow" data-dir="1" aria-label="Séquence suivante"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M9 5l7 7-7 7"/></svg></button>
       </div>
     </div>
     <div class="seq-track" id="seq-track" tabindex="0" aria-label="Faire défiler les séquences">
       <figure class="seq-card">
-        <div class="ph"><picture><source srcset="assets/img/seq-aperitifs.webp" type="image/webp"><img src="assets/img/seq-aperitifs.jpg" alt="Huître pochée" loading="lazy" draggable="false" width="733" height="1100"></picture></div>
-        <figcaption><span class="num label">01</span><p class="name">Apéritifs</p><p class="dish">Huître pochée</p></figcaption>
+        <div class="illu"><picture><source srcset="assets/img/illu-iode.webp" type="image/webp"><img src="assets/img/illu-iode.jpg" alt="Illustration de la séquence iode" loading="lazy" draggable="false" width="472" height="1456"></picture></div>
+        <figcaption><span class="num label">01</span><p class="name">Séquence iode</p><p class="dish">Choux brûlé, crème d’algues</p></figcaption>
       </figure>
       <figure class="seq-card">
-        <div class="ph"><picture><source srcset="assets/img/seq-iode.webp" type="image/webp"><img src="assets/img/seq-iode.jpg" alt="Choux brûlé" loading="lazy" draggable="false" width="693" height="1100"></picture></div>
-        <figcaption><span class="num label">02</span><p class="name">Séquence iode</p><p class="dish">Choux brûlé</p></figcaption>
+        <div class="illu"><picture><source srcset="assets/img/illu-vegetal.webp" type="image/webp"><img src="assets/img/illu-vegetal.jpg" alt="Illustration de la séquence végétale" loading="lazy" draggable="false" width="472" height="1456"></picture></div>
+        <figcaption><span class="num label">02</span><p class="name">Séquence végétale</p><p class="dish">Le champignon</p></figcaption>
       </figure>
       <figure class="seq-card">
-        <div class="ph"><picture><source srcset="assets/img/seq-vegetal.webp" type="image/webp"><img src="assets/img/seq-vegetal.jpg" alt="Champignon d’automne" loading="lazy" draggable="false" width="733" height="1100"></picture></div>
-        <figcaption><span class="num label">03</span><p class="name">Séquence végétale</p><p class="dish">Champignon d’automne</p></figcaption>
+        <div class="illu"><picture><source srcset="assets/img/illu-corse.webp" type="image/webp"><img src="assets/img/illu-corse.jpg" alt="Illustration de la séquence corsée" loading="lazy" draggable="false" width="472" height="1456"></picture></div>
+        <figcaption><span class="num label">03</span><p class="name">Séquence corsée</p><p class="dish">Seiche, boeuf</p></figcaption>
       </figure>
       <figure class="seq-card">
-        <div class="ph"><picture><source srcset="assets/img/seq-corse.webp" type="image/webp"><img src="assets/img/seq-corse.jpg" alt="Boeuf, coulis de shiso" loading="lazy" draggable="false" width="790" height="1100"></picture></div>
-        <figcaption><span class="num label">04</span><p class="name">Séquence corsée</p><p class="dish">Boeuf, coulis de shiso</p></figcaption>
+        <div class="illu"><picture><source srcset="assets/img/illu-fruite.webp" type="image/webp"><img src="assets/img/illu-fruite.jpg" alt="Illustration de la séquence fruitée" loading="lazy" draggable="false" width="472" height="1456"></picture></div>
+        <figcaption><span class="num label">04</span><p class="name">Séquence fruitée</p><p class="dish">La prune</p></figcaption>
       </figure>
       <figure class="seq-card">
-        <div class="ph"><picture><source srcset="assets/img/seq-fruite.webp" type="image/webp"><img src="assets/img/seq-fruite.jpg" alt="Prune cuite en croûte de sucre" loading="lazy" draggable="false" width="797" height="1100"></picture></div>
-        <figcaption><span class="num label">05</span><p class="name">Séquence fruitée</p><p class="dish">Prune cuite en croûte de sucre</p></figcaption>
-      </figure>
-      <figure class="seq-card">
-        <div class="ph"><picture><source srcset="assets/img/seq-gourmand.webp" type="image/webp"><img src="assets/img/seq-gourmand.jpg" alt="Ganache au chocolat fumé" loading="lazy" draggable="false" width="1058" height="1100"></picture></div>
-        <figcaption><span class="num label">06</span><p class="name">Séquence gourmande</p><p class="dish">Ganache au chocolat fumé</p></figcaption>
+        <div class="illu"><picture><source srcset="assets/img/illu-gourmand.webp" type="image/webp"><img src="assets/img/illu-gourmand.jpg" alt="Illustration de la séquence gourmande" loading="lazy" draggable="false" width="472" height="1456"></picture></div>
+        <figcaption><span class="num label">05</span><p class="name">Séquence gourmande</p><p class="dish">Chocolat fumé, vanille grillée</p></figcaption>
       </figure>
     </div>
     <div class="seq-progress" aria-hidden="true"><i id="seq-bar"></i></div>
@@ -743,15 +800,21 @@
   <!-- MENU & VINS -->
   <section class="section" style="padding-top:0">
     <div class="wrap duo">
-      <a class="card" href="#carte" data-open-carte="menu" data-reveal>
-        <picture><source srcset="assets/img/table-menu.webp" type="image/webp"><img src="assets/img/table-menu.jpg" alt="La carte dans sa pochette de cuir, sur une table de marbre" loading="lazy" width="733" height="1100"></picture>
-        <span class="card-title label">Le menu</span>
-        <span class="pill pill--dark label">Voir le menu</span>
+      <a class="card card--wine" href="#carte" data-open-carte="menu" data-reveal>
+        <span class="label">Le menu</span>
+        <ul class="card-list">
+          <li>Apéritifs</li><li>Séquence iode</li><li>Séquence végétale</li><li>Séquence corsée</li><li>Séquence fruitée</li><li>Séquence gourmande</li>
+        </ul>
+        <svg class="card-pic" viewBox="0 0 307.11 470.75" aria-hidden="true"><use href="#monogram" fill="currentColor"/></svg>
+        <span class="pill label">Voir le menu</span>
       </a>
-      <a class="card" href="#vins" data-open-carte="vins" data-reveal>
-        <picture><source srcset="assets/img/table-vins.webp" type="image/webp"><img src="assets/img/table-vins.jpg" alt="Une table dressée, verres et pochette de cuir" loading="lazy" width="733" height="1100"></picture>
-        <span class="card-title label">La carte des vins</span>
-        <span class="pill pill--dark label">Voir les vins</span>
+      <a class="card card--paper" href="#vins" data-open-carte="vins" data-reveal>
+        <span class="label">La carte des vins</span>
+        <ul class="card-list">
+          <li>Champagnes &amp; bulles</li><li>Macérations &amp; rosés</li><li>Blancs</li><li>Rouges</li><li>Italie &amp; Californie</li><li>Doux, sans alcool &amp; cocktail</li>
+        </ul>
+        <svg class="card-pic" viewBox="0 0 307.11 470.75" aria-hidden="true"><use href="#monogram" fill="currentColor"/></svg>
+        <span class="pill label">Voir les vins</span>
       </a>
     </div>
   </section>
@@ -760,7 +823,7 @@
   <section class="section" id="chef" style="padding-top:clamp(2rem,6vw,5rem)">
     <div class="wrap chef-grid">
       <figure class="ph" data-reveal>
-        <picture><source srcset="assets/img/chef.webp" type="image/webp"><img src="assets/img/chef.jpg" alt="Gustave Migdal dans la salle de Jacqueline" loading="lazy" width="1012" height="1400"></picture>
+        <picture><source srcset="assets/img/chef.webp" type="image/webp"><img src="assets/img/chef.jpg" alt="Portrait du chef Gustave Migdal, en veste blanche, bras croisés" loading="lazy" width="1200" height="1535"></picture>
       </figure>
       <div data-reveal>
         <span class="label eyebrow">Le chef</span>
@@ -775,7 +838,6 @@
   <section class="film" aria-label="En cuisine">
     <div class="film-box wrap" data-reveal>
       <video id="film-video" muted loop playsinline preload="none" aria-hidden="true"></video>
-      <span class="label">En cuisine</span>
     </div>
   </section>
 
@@ -783,7 +845,7 @@
   <section class="section">
     <div class="wrap center">
       <span class="label eyebrow" data-reveal>La maison</span>
-      <h2 class="h2" data-reveal>Marbre, terrazzo et lumière douce</h2>
+      <h2 class="h2" data-reveal>Une salle intime, au cœur du 9<sup>e</sup></h2>
       <div class="maison-grid">
         <figure class="ph" data-reveal><picture><source srcset="assets/img/salle-banquette.webp" type="image/webp"><img src="assets/img/salle-banquette.jpg" alt="La banquette rose et les tables de marbre" loading="lazy" width="933" height="1400"></picture></figure>
         <figure class="ph" data-reveal><picture><source srcset="assets/img/facade.webp" type="image/webp"><img src="assets/img/facade.jpg" alt="La façade bordeaux de Jacqueline, rue de la Victoire" loading="lazy" width="933" height="1400"></picture></figure>
@@ -823,7 +885,7 @@
   <div class="carte-backdrop" data-carte-close></div>
   <div class="carte-sheet" role="dialog" aria-modal="true" aria-labelledby="carte-title">
     <header class="carte-head">
-      <p class="carte-title" id="carte-title">La carte</p>
+      <p class="carte-title" id="carte-title">La carte</p><svg class="carte-pic" viewBox="0 0 307.11 470.75" aria-hidden="true"><use href="#monogram" fill="currentColor"/></svg>
       <button type="button" class="carte-close" data-carte-close aria-label="Fermer la carte">&times;</button>
       <div class="carte-tabs" role="tablist" aria-label="La carte">
         <button type="button" class="carte-tab" role="tab" id="tab-menu" aria-controls="panel-menu" aria-selected="true" data-tab="menu">Menu</button>
@@ -1247,11 +1309,15 @@
   const hero = document.getElementById("top");
   const book = document.getElementById("book-bar");
   const infos = document.getElementById("infos");
+  const seqSec = document.getElementById("sequences");
   function onScroll(){
     const y = window.scrollY;
     header.classList.toggle("is-solid", y > hero.offsetHeight - 80);
     const nearEnd = y + window.innerHeight > infos.offsetTop + 120;
-    book.classList.toggle("is-on", y > hero.offsetHeight * .7 && !nearEnd);
+    // keeps out of the way while the sequences are on screen
+    const s = seqSec.getBoundingClientRect();
+    const onSeq = s.top < window.innerHeight * .85 && s.bottom > window.innerHeight * .15;
+    book.classList.toggle("is-on", y > hero.offsetHeight * .7 && !nearEnd && !onSeq);
   }
   window.addEventListener("scroll", onScroll, { passive:true });
   onScroll();
@@ -1262,6 +1328,7 @@
   function setNav(open){
     root.classList.toggle("nav-open", open);
     btn.setAttribute("aria-expanded", open ? "true" : "false");
+    btn.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
     nav.setAttribute("aria-hidden", open ? "false" : "true");
     document.body.style.overflow = open ? "hidden" : "";
   }
@@ -1273,7 +1340,7 @@
   const io = "IntersectionObserver" in window ? new IntersectionObserver(function(entries){
     entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("is-in"); io.unobserve(e.target); } });
   }, { rootMargin:"0px 0px -6% 0px" }) : null;
-  document.querySelectorAll("[data-reveal]").forEach(function(el){ io ? io.observe(el) : el.classList.add("is-in"); });
+  document.querySelectorAll("[data-reveal], .seq-card").forEach(function(el){ io ? io.observe(el) : el.classList.add("is-in"); });
 
   /* ---------- sequences: native horizontal scroll (swipe, trackpad, shift +
      wheel), arrows and mouse drag; the page's vertical scroll is never held ---------- */
