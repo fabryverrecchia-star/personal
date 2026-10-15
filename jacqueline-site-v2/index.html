@@ -36,7 +36,7 @@
     --section:clamp(5.5rem, 13vw, 10rem);
     --ease:cubic-bezier(.16,1,.3,1);
     --ease-io:cubic-bezier(.65,0,.35,1);
-    --radius:10px;
+    --radius:0;
 
     /* preloader timeline, read by the script */
     --picto-loop-dur:2.4s;
@@ -525,7 +525,14 @@
     .book-bar.is-on{transform:none;}
   }
 
+  /* light parallax: the image drifts inside its frame (individual transform
+     properties, so it composes with the reveals and the ink canvas) */
+  .ph > picture{display:block;height:100%;}
+  .ph > picture,.ph > .ink-canvas,.film-box video{translate:0 var(--py,0px);scale:1.12;will-change:translate;}
+  .hero-media{translate:0 var(--py,0px);will-change:translate;}
+
   @media (prefers-reduced-motion: reduce){
+    .ph > picture,.ph > .ink-canvas,.film-box video,.hero-media{translate:none;}
     .js [data-reveal],.hero img,.ph img{transition-duration:.01s !important;}
   }
 
@@ -1353,6 +1360,34 @@
     entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("is-in"); io.unobserve(e.target); } });
   }, { rootMargin:"0px 0px -6% 0px" }) : null;
   document.querySelectorAll("[data-reveal], .seq-card, .ph[data-ink]").forEach(function(el){ io ? io.observe(el) : el.classList.add("is-in"); });
+
+  /* ---------- light parallax inside the frames ---------- */
+  if(!matchMedia("(prefers-reduced-motion: reduce)").matches && io){
+    const frames = new Set(), hero = document.querySelector(".hero"), heroMedia = document.querySelector(".hero-media");
+    let tick = false;
+    const run = function(){
+      tick = false;
+      const vh = innerHeight;
+      frames.forEach(function(el){
+        const r = el.getBoundingClientRect();
+        const p = Math.max(-1, Math.min(1, (r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2)));
+        el.style.setProperty("--py", (-p * r.height * .05).toFixed(1) + "px");
+      });
+      if(heroMedia){
+        const y = Math.min(scrollY, hero.offsetHeight);
+        heroMedia.style.setProperty("--py", (y * .3).toFixed(1) + "px");
+      }
+    };
+    const ask = function(){ if(!tick){ tick = true; requestAnimationFrame(run); } };
+    const pio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ e.isIntersecting ? frames.add(e.target) : frames.delete(e.target); });
+      ask();
+    }, { rootMargin:"10% 0px" });
+    document.querySelectorAll(".ph, .film-box").forEach(function(el){ pio.observe(el); });
+    addEventListener("scroll", ask, { passive:true });
+    addEventListener("resize", ask);
+    run();
+  }
 
   /* ---------- sequences: native horizontal scroll (swipe, trackpad, shift +
      wheel), arrows and mouse drag; the page's vertical scroll is never held ---------- */
