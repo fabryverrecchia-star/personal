@@ -260,28 +260,19 @@
   .is-ready .hero::after{opacity:1;transition-delay:.4s;}
   .is-ready .hero:has(.ink-on)::after{transition-delay:1.1s;}
 
-  /* ============ PHONES: the same ink, drawn by a mask ============
-     no WebGL on a phone: a blot of ink (a small image) grows over the
-     picture; the browser does it on the graphics chip, it stays smooth */
-  @keyframes ink-grow{
-    from{-webkit-mask-size:0% auto;mask-size:0% auto;}
-    to{-webkit-mask-size:440% auto;mask-size:440% auto;}
-  }
-  .lite .hero picture,
-  .lite .ph[data-ink] picture,
-  .lite .seq-card .illu picture{
-    -webkit-mask-image:url(assets/img/ink-mask.png);
-            mask-image:url(assets/img/ink-mask.png);
-    -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
-    -webkit-mask-position:50% 46%; mask-position:50% 46%;
-    -webkit-mask-size:0% auto; mask-size:0% auto;
-  }
-  .lite body.is-ready .hero picture{animation:ink-grow 2.2s cubic-bezier(.3,.55,.25,1) .15s forwards;}
-  .lite .ph[data-ink].is-in picture{animation:ink-grow 1.7s cubic-bezier(.3,.55,.25,1) forwards;}
-  .lite .seq-card.is-in .illu picture{animation:ink-grow 1.8s cubic-bezier(.3,.55,.25,1) .1s forwards;}
-  .lite .mask-done{-webkit-mask-image:none !important;mask-image:none !important;animation:none !important;}
+  /* ============ PHONES: quiet and smooth ============
+     no WebGL and no shaped wipe on a phone: only opacity and movement,
+     which a phone draws at full speed. The room fades in slowly while the
+     picture settles; photos and drawings rise softly into place */
   .lite .hero{background:var(--bourgogne);}
-  .lite .seq-card .illu img{opacity:1;}
+  .lite .hero picture{opacity:0;transition:opacity 1.9s cubic-bezier(.4,0,.2,1) .1s;}
+  .lite body.is-ready .hero picture{opacity:1;}
+  .lite .hero img{transform:scale(1.1);transition:transform 3.4s cubic-bezier(.16,1,.3,1);}
+  .lite body.is-ready .hero img{transform:none;}
+  .lite .ph[data-ink] picture{display:block;height:100%;opacity:0;transform:translateY(18px) scale(1.03);transition:opacity 1.4s ease, transform 1.8s cubic-bezier(.16,1,.3,1);}
+  .lite .ph[data-ink].is-in picture{opacity:1;transform:none;}
+  .lite .seq-card .illu img{opacity:0;transform:translateY(16px);transition:opacity 1.4s ease, transform 1.8s cubic-bezier(.16,1,.3,1);}
+  .lite .seq-card.is-in .illu img{opacity:1;transform:none;}
   .hero img{object-fit:cover;transform:scale(1.08);transition:transform 2.6s var(--ease);}
   .is-ready .hero img{transform:none;}
   .hero::after{
@@ -1362,8 +1353,6 @@
     entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("is-in"); io.unobserve(e.target); } });
   }, { rootMargin:"0px 0px -6% 0px" }) : null;
   document.querySelectorAll("[data-reveal], .seq-card, .ph[data-ink]").forEach(function(el){ io ? io.observe(el) : el.classList.add("is-in"); });
-  // once a mask has done its work it is dropped, so nothing is left to compute
-  document.addEventListener("animationend", function(e){ if(e.animationName === "ink-grow") e.target.classList.add("mask-done"); });
 
   /* ---------- sequences: native horizontal scroll (swipe, trackpad, shift +
      wheel), arrows and mouse drag; the page's vertical scroll is never held ---------- */
