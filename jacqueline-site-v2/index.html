@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="fr" class="is-loading">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Jacqueline, restaurant de Gustave Migdal, Paris 9e</title>
+<meta name="description" content="Jacqueline, une adresse du chef Gustave Migdal, au 23 rue de la Victoire, Paris 9e. Une cuisine en séquences, au déjeuner et au dîner. Réservation en ligne.">
+<meta name="theme-color" content="#6a1f1b">
+<meta property="og:title" content="Jacqueline · Gustave Migdal · Paris 9e">
+<meta property="og:description" content="Une adresse signée Gustave Migdal, au 23 rue de la Victoire, Paris 9e.">
+<meta property="og:image" content="assets/img/hero-salle.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Belleza&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/img/hero-salle.webp" media="(min-width: 761px)">
+<link rel="preload" as="image" href="assets/img/hero-salle-m.webp" media="(max-width: 760px)">
+<script>document.documentElement.classList.add("js");</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Restaurant","name":"Jacqueline","url":"https://jacqueline-restaurant.com/","email":"contact@jacqueline-restaurant.com","servesCuisine":"Française","address":{"@type":"PostalAddress","streetAddress":"23 rue de la Victoire","postalCode":"75009","addressLocality":"Paris","addressCountry":"FR"},"acceptsReservations":"https://bookings.zenchef.com/results?rid=388647&pid=1001","sameAs":["https://www.instagram.com/jacqueline_restaurantparis/"]}
+</script>
+<style>
+  /* ============ TOKENS ============ */
+  :root{
+    --bourgogne:#6a1f1b;
+    --bourgogne-deep:#4a1613;
+    --ivoire:#d9ceb7;
+    --ivoire-light:#f1ece1;
+    --papier:#efe9df;
+    --rose:#c19488;
+    --or:#b6905d;
+    --noir:#241a17;
+    --encre:#2b211e;
+    --gris:rgba(43,33,30,.62);
+
+    --gutter:clamp(1.25rem, 4vw, 3.5rem);
+    --section:clamp(5.5rem, 13vw, 10rem);
+    --ease:cubic-bezier(.16,1,.3,1);
+    --ease-io:cubic-bezier(.65,0,.35,1);
+    --radius:10px;
+
+    /* preloader timeline, read by the script */
+    --picto-loop-dur:3s;
+    --picto-fill-dur:.5s;
+    --picto-hold-dur:.2s;
+    --picto-disappear-dur:.45s;
+    --curtain-dur:1.1s;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;scroll-padding-top:4.5rem;-webkit-text-size-adjust:100%;}
+  html.is-loading{overflow:hidden;}
+  body{
+    background:var(--papier);
+    color:var(--encre);
+    font-family:'Newsreader', Georgia, serif;
+    font-weight:300;
+    font-size:1rem;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,video{display:block;max-width:100%;}
+  a{color:inherit;}
+  button{font:inherit;color:inherit;}
+  ::selection{background:var(--rose);color:var(--bourgogne-deep);}
+
+  /* the one label style of the site: small capitals, wide tracking */
+  .label{
+    font-family:'Belleza', sans-serif;
+    font-weight:400;
+    font-size:.72rem;
+    line-height:1.5;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+  }
+  .wm{display:block;fill:currentColor;}
+
+  /* ============ PRELOADER ============ */
+  .preloader{
+    position:fixed;
+    inset:0;
+    z-index:300;
+    display:grid;
+    place-items:center;
+    background:var(--bourgogne);
+    clip-path:inset(0 0 0 0);
+    transition:clip-path var(--curtain-dur) var(--ease-io);
+  }
+  .preloader.is-leaving{clip-path:inset(0 0 100% 0);pointer-events:none;}
+  .picto{
+    position:relative;
+    width:clamp(3.2rem, 6vw, 4.2rem);
+    aspect-ratio:307.11 / 470.75;
+    /* the outline stroke spills past the box: the clip leaves room for it */
+    clip-path:inset(-10% -10% -10% -10%);
+    transition:clip-path var(--picto-disappear-dur) ease;
+  }
+  .preloader.is-disappearing .picto{clip-path:inset(110% -10% -10% -10%);}
+  .picto svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+  .picto-mark{
+    fill:var(--ivoire-light);
+    fill-opacity:0;
+    stroke:var(--ivoire-light);
+    stroke-width:5;
+    stroke-dasharray:3200;
+    stroke-dashoffset:3200;
+    animation:picto-loop var(--picto-loop-dur) ease-in-out infinite;
+  }
+  .preloader.is-completing .picto-mark{
+    animation:none;
+    stroke-dashoffset:0;
+    fill-opacity:1;
+    transition:stroke-dashoffset var(--picto-fill-dur) ease, fill-opacity var(--picto-fill-dur) ease;
+  }
+  @keyframes picto-loop{0%{stroke-dashoffset:3200;}45%,55%{stroke-dashoffset:0;}100%{stroke-dashoffset:3200;}}
+
+  /* ============ HEADER ============ */
+  .header{
+    position:fixed;
+    top:0; left:0; right:0;
+    z-index:60;
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    align-items:center;
+    gap:1rem;
+    padding:calc(1rem + env(safe-area-inset-top)) var(--gutter) 1rem;
+    color:var(--ivoire-light);
+    transition:background .5s ease, color .5s ease, padding .5s ease, box-shadow .5s ease;
+  }
+  .header.is-solid{
+    background:rgba(239,233,223,.94);
+    -webkit-backdrop-filter:blur(12px);
+    backdrop-filter:blur(12px);
+    color:var(--encre);
+    padding-top:calc(.7rem + env(safe-area-inset-top));
+    padding-bottom:.7rem;
+    box-shadow:0 1px 0 rgba(43,33,30,.08);
+  }
+  .header .logo{justify-self:center;display:block;width:clamp(7rem, 10vw, 8.5rem);text-decoration:none;}
+  .header-left,.header-right{display:flex;align-items:center;gap:clamp(1rem, 2.4vw, 2rem);}
+  .header-right{justify-self:end;}
+  .header a.label{text-decoration:none;opacity:.9;transition:opacity .3s ease;}
+  .header a.label:hover{opacity:1;}
+  .menu-btn{
+    display:inline-flex;align-items:center;gap:.6rem;
+    background:none;border:none;cursor:pointer;
+  }
+  .menu-btn i{display:block;width:1.15rem;height:5px;border-top:1px solid currentColor;border-bottom:1px solid currentColor;}
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    padding:.7rem 1.3rem;
+    border-radius:999px;
+    text-decoration:none;
+    white-space:nowrap;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:background .35s ease, color .35s ease, border-color .35s ease;
+  }
+  .pill--light{background:var(--ivoire-light);color:var(--encre);}
+  .pill--light:hover{background:#fff;}
+  .pill--dark{background:var(--encre);color:var(--ivoire-light);}
+  .pill--dark:hover{background:var(--bourgogne);}
+  .pill--wine{background:var(--bourgogne);color:var(--ivoire-light);}
+  .pill--wine:hover{background:var(--bourgogne-deep);}
+  .header.is-solid .pill--light{background:var(--encre);color:var(--ivoire-light);}
+  .hide-m{}
+  @media (max-width: 760px){
+    .hide-m{display:none !important;}
+    .header{grid-template-columns:auto 1fr auto;}
+    .header .logo{width:6.6rem;}
+    .header .pill{padding:.55rem 1rem;transition:opacity .4s ease;}
+    /* on the hero the booking bar already offers it */
+    .header:not(.is-solid) .pill{opacity:0;pointer-events:none;}
+  }
+
+  /* ============ NAV OVERLAY ============ */
+  .nav{
+    position:fixed;
+    inset:0;
+    z-index:80;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:calc(5.5rem + env(safe-area-inset-top)) var(--gutter) calc(2rem + env(safe-area-inset-bottom));
+    background:var(--bourgogne);
+    color:var(--ivoire-light);
+    clip-path:inset(0 0 100% 0);
+    visibility:hidden;
+    transition:clip-path .9s var(--ease-io), visibility 0s .9s;
+  }
+  .nav-open .nav{clip-path:inset(0 0 0 0);visibility:visible;transition:clip-path .9s var(--ease-io), visibility 0s 0s;}
+  .nav-open .header{background:transparent !important;color:var(--ivoire-light) !important;box-shadow:none !important;-webkit-backdrop-filter:none;backdrop-filter:none;}
+  .nav-open .header .pill--light{background:var(--ivoire-light);color:var(--encre);}
+  .nav ul{list-style:none;}
+  .nav li{overflow:hidden;border-bottom:1px solid rgba(241,236,225,.14);}
+  .nav li a{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    padding:1.05rem 0 .9rem;
+    font-family:'Newsreader', serif;
+    font-style:italic;
+    font-weight:300;
+    font-size:clamp(1.6rem, 6vw, 2.4rem);
+    line-height:1.1;
+    text-decoration:none;
+    transform:translateY(110%);
+    transition:transform .9s var(--ease-io);
+  }
+  .nav li a span{font-family:'Belleza', sans-serif;font-style:normal;font-size:.68rem;letter-spacing:.22em;color:var(--rose);}
+  .nav-open .nav li a{transform:none;}
+  .nav-open .nav li:nth-child(1) a{transition-delay:.25s;}
+  .nav-open .nav li:nth-child(2) a{transition-delay:.31s;}
+  .nav-open .nav li:nth-child(3) a{transition-delay:.37s;}
+  .nav-open .nav li:nth-child(4) a{transition-delay:.43s;}
+  .nav-open .nav li:nth-child(5) a{transition-delay:.49s;}
+  .nav-foot{display:grid;gap:.4rem;opacity:0;transition:opacity .6s ease;color:var(--ivoire);}
+  .nav-open .nav-foot{opacity:1;transition-delay:.55s;}
+  .nav-foot a{text-decoration:none;}
+
+  /* ============ HERO ============ */
+  .hero{
+    position:relative;
+    height:100vh;
+    height:100svh;
+    min-height:34rem;
+    overflow:hidden;
+    background:var(--noir);
+    color:var(--ivoire-light);
+  }
+  .hero picture,.hero img{position:absolute;inset:0;width:100%;height:100%;}
+  .hero img{object-fit:cover;transform:scale(1.08);transition:transform 2.6s var(--ease);}
+  .is-ready .hero img{transform:none;}
+  .hero::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse 46% 26% at 50% 50%, rgba(20,13,11,.32), rgba(20,13,11,0) 100%),
+      linear-gradient(to bottom, rgba(20,13,11,.42), rgba(20,13,11,0) 26%, rgba(20,13,11,0) 58%, rgba(20,13,11,.5));
+  }
+  .hero-title{
+    position:absolute;
+    z-index:1;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:max-content;
+    max-width:calc(100% - 2 * var(--gutter));
+    text-align:center;
+  }
+  .hero-title h1{
+    font-family:'Belleza', sans-serif;
+    font-weight:400;
+    font-size:clamp(.95rem, 1.35vw, 1.2rem);
+    letter-spacing:.32em;
+    text-transform:uppercase;
+  }
+  .hero-title{text-shadow:0 1px 18px rgba(20,13,11,.45);}
+  .hero-title p{margin-top:.6rem;font-style:italic;font-size:clamp(1rem, 1.3vw, 1.15rem);opacity:.9;}
+  .hero-bar{
+    position:absolute;
+    z-index:1;
+    left:50%;
+    bottom:calc(1.6rem + env(safe-area-inset-bottom));
+    transform:translateX(-50%);
+    display:flex;
+    gap:.25rem;
+    padding:.3rem;
+    border-radius:999px;
+    background:rgba(36,26,23,.38);
+    -webkit-backdrop-filter:blur(14px);
+    backdrop-filter:blur(14px);
+    white-space:nowrap;
+  }
+  .hero-bar a,.hero-bar button{
+    padding:.65rem 1.15rem;
+    border-radius:999px;
+    border:none;
+    background:transparent;
+    text-decoration:none;
+    cursor:pointer;
+    transition:background .3s ease;
+  }
+  .hero-bar a:hover,.hero-bar button:hover{background:rgba(241,236,225,.14);}
+  .hero-bar .is-main{background:var(--ivoire-light);color:var(--encre);}
+  .hero-bar .is-main:hover{background:#fff;}
+  .js .hero-title,.js .hero-bar{opacity:0;transition:opacity 1.4s ease .5s, transform 1.4s var(--ease) .5s;}
+  .js .hero-bar{transform:translate(-50%, 14px);}
+  .is-ready .hero-title{opacity:1;}
+  .is-ready .hero-bar{opacity:1;transform:translateX(-50%);}
+  @media (max-width: 520px){
+    .hero-bar{left:var(--gutter);right:var(--gutter);transform:none;justify-content:space-between;}
+    .js .hero-bar{transform:translateY(14px);}
+    .is-ready .hero-bar{transform:none;}
+    .hero-bar a,.hero-bar button{padding:.65rem .8rem;font-size:.62rem;letter-spacing:.16em;}
+  }
+
+  /* ============ COMMON ============ */
+  .section{padding:var(--section) var(--gutter);}
+  .wrap{width:min(100%, 78rem);margin-inline:auto;}
+  .center{text-align:center;}
+  .eyebrow{display:block;color:var(--bourgogne);margin-bottom:1.4rem;}
+  .h2{
+    font-family:'Newsreader', serif;
+    font-weight:300;
+    font-style:italic;
+    font-size:clamp(1.55rem, 2.6vw, 2.2rem);
+    line-height:1.2;
+    letter-spacing:-.005em;
+  }
+  .lead{
+    font-family:'Belleza', sans-serif;
+    font-size:clamp(.74rem, .95vw, .82rem);
+    line-height:2;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    max-width:44rem;
+    margin-inline:auto;
+  }
+  .lead + .lead{margin-top:1.4rem;}
+  .text{font-size:1.05rem;line-height:1.7;color:var(--gris);max-width:32rem;}
+  .monogram{width:2.1rem;margin:2.8rem auto 0;color:var(--encre);}
+  .js [data-reveal]{opacity:0;transform:translateY(22px);transition:opacity 1.2s ease, transform 1.4s var(--ease);}
+  .js [data-reveal].is-in{opacity:1;transform:none;}
+  .ph{position:relative;overflow:hidden;border-radius:var(--radius);background:#d8cfc2;}
+  .ph img{width:100%;height:100%;object-fit:cover;transition:transform 1.6s var(--ease);}
+  .js .ph[data-reveal] img{transform:scale(1.08);}
+  .js .ph[data-reveal].is-in img{transform:none;}
+
+  /* ============ SÉQUENCES — a horizontal strip, the page keeps scrolling ============ */
+  .seq{padding:var(--section) 0;}
+  .seq-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:2rem;
+    padding:0 var(--gutter);
+    margin-bottom:2.2rem;
+  }
+  .seq-head .eyebrow{margin-bottom:.9rem;}
+  .seq-nav{display:flex;align-items:center;gap:.6rem;flex:none;}
+  .seq-count{min-width:3.6rem;text-align:center;color:var(--gris);}
+  .seq-arrow{
+    width:2.75rem;height:2.75rem;
+    display:grid;place-items:center;
+    border-radius:50%;
+    border:1px solid rgba(43,33,30,.25);
+    background:transparent;
+    cursor:pointer;
+    transition:background .3s ease, color .3s ease, border-color .3s ease, opacity .3s ease;
+  }
+  .seq-arrow:hover{background:var(--encre);color:var(--ivoire-light);border-color:var(--encre);}
+  .seq-arrow:disabled{opacity:.3;pointer-events:none;}
+  .seq-arrow svg{width:1rem;height:1rem;}
+  .seq-track{
+    display:flex;
+    gap:clamp(.9rem, 1.6vw, 1.5rem);
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    scroll-snap-type:x mandatory;
+    scroll-padding-inline:var(--gutter);
+    padding:0 var(--gutter) .5rem;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+    cursor:grab;
+  }
+  .seq-track::-webkit-scrollbar{display:none;}
+  .seq-track.is-dragging{cursor:grabbing;scroll-snap-type:none;}
+  .seq-track.is-dragging *{pointer-events:none;}
+  .seq-card{
+    flex:none;
+    width:clamp(15.5rem, 26vw, 24rem);
+    scroll-snap-align:start;
+  }
+  .seq-card .ph{aspect-ratio:4 / 5;}
+  .seq-card figcaption{padding-top:1rem;}
+  .seq-card .num{color:var(--bourgogne);}
+  .seq-card .name{margin-top:.35rem;font-style:italic;font-size:1.3rem;line-height:1.25;}
+  .seq-card .dish{margin-top:.2rem;color:var(--gris);font-size:.98rem;}
+  .seq-progress{height:1px;margin:2.2rem var(--gutter) 0;background:rgba(43,33,30,.12);}
+  .seq-progress i{display:block;height:100%;width:0;background:var(--encre);transition:width .2s linear;}
+  @media (max-width: 760px){
+    .seq-card{width:78vw;}
+    .seq-nav .seq-arrow{display:none;}
+  }
+
+  /* ============ MENU & VINS — two cards ============ */
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:clamp(.9rem, 1.8vw, 1.6rem);}
+  .card{
+    position:relative;
+    display:block;
+    aspect-ratio:4 / 5;
+    border-radius:var(--radius);
+    overflow:hidden;
+    color:var(--ivoire-light);
+    text-decoration:none;
+    background:var(--noir);
+  }
+  .card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease);}
+  .card:hover img{transform:scale(1.035);}
+  .card::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom, rgba(20,13,11,.45), rgba(20,13,11,0) 30%, rgba(20,13,11,0) 65%, rgba(20,13,11,.45));}
+  .card-title{position:absolute;z-index:1;top:clamp(1.4rem, 3vw, 2.4rem);left:0;right:0;text-align:center;}
+  .card .pill{position:absolute;z-index:1;left:50%;bottom:clamp(1.4rem, 3vw, 2.2rem);transform:translateX(-50%);}
+  @media (max-width: 760px){ .duo{grid-template-columns:1fr;} .card{aspect-ratio:4 / 4.6;} }
+
+  /* ============ LE CHEF ============ */
+  .chef-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(2.5rem, 7vw, 7rem);align-items:center;}
+  .chef-grid .ph{aspect-ratio:4 / 5.2;}
+  .chef-name{font-family:'Belleza', sans-serif;font-size:clamp(1.05rem, 1.5vw, 1.3rem);letter-spacing:.3em;text-transform:uppercase;margin-bottom:1.6rem;}
+  .chef-quote{font-style:italic;font-size:clamp(1.3rem, 2vw, 1.7rem);line-height:1.35;margin-bottom:1.4rem;max-width:28rem;}
+  @media (max-width: 860px){ .chef-grid{grid-template-columns:1fr;} .chef-grid .ph{max-width:30rem;} }
+
+  /* ============ FILM ============ */
+  .film{padding:0 var(--gutter);}
+  .film-box{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--noir);aspect-ratio:16 / 9;}
+  .film-box video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;}
+  .film-box video.is-playing{opacity:1;}
+  .film-box .label{position:absolute;left:1.2rem;bottom:1rem;color:var(--ivoire-light);opacity:.85;}
+  @media (max-aspect-ratio: 1/1){ .film-box{aspect-ratio:4 / 5;} }
+
+  /* ============ LA MAISON ============ */
+  .maison-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(.9rem, 1.8vw, 1.6rem);margin-top:3.2rem;}
+  .maison-grid .ph{aspect-ratio:4 / 5;}
+  .maison-grid .ph:nth-child(2){margin-top:clamp(2rem, 8vw, 7rem);}
+  .maison-wide{margin-top:clamp(.9rem, 1.8vw, 1.6rem);}
+  .maison-wide .ph{aspect-ratio:2 / 1;}
+  @media (max-width: 760px){ .maison-wide .ph{aspect-ratio:4 / 3;} }
+
+  /* ============ RÉSERVER ============ */
+  .reserve{background:var(--bourgogne);color:var(--ivoire-light);}
+  .reserve .eyebrow{color:var(--rose);}
+  .reserve .lead{color:var(--ivoire);}
+  .reserve-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:.8rem;margin-top:2.6rem;}
+  .reserve .pill--ghost{border-color:rgba(241,236,225,.4);color:var(--ivoire-light);background:transparent;}
+  .reserve .pill--ghost:hover{border-color:var(--ivoire-light);}
+
+  /* ============ FOOTER ============ */
+  .footer{background:var(--noir);color:var(--ivoire);padding:clamp(3.5rem, 7vw, 5rem) var(--gutter) 0;overflow:hidden;}
+  .foot-cols{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:2rem;}
+  .foot-cols h3{color:rgba(217,206,183,.55);margin-bottom:.9rem;}
+  .foot-cols p,.foot-cols a{font-size:.95rem;line-height:1.7;text-decoration:none;}
+  .foot-cols a{border-bottom:1px solid rgba(217,206,183,.3);}
+  .foot-cols a:hover{border-color:var(--ivoire);}
+  .foot-mark{width:100%;margin-top:clamp(3rem, 8vw, 6rem);color:rgba(241,236,225,.07);transform:translateY(12%);}
+  .foot-legal{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:1.2rem 0 calc(1.2rem + env(safe-area-inset-bottom));border-top:1px solid rgba(217,206,183,.12);color:rgba(217,206,183,.5);position:relative;}
+  @media (max-width: 760px){ .foot-cols{grid-template-columns:1fr 1fr;row-gap:2.2rem;} }
+
+  /* ============ MOBILE BOOKING BAR ============ */
+  .book-bar{display:none;}
+  @media (max-width: 760px){
+    .book-bar{
+      display:flex;
+      position:fixed;
+      left:var(--gutter);right:var(--gutter);
+      bottom:calc(.9rem + env(safe-area-inset-bottom));
+      z-index:50;
+      transform:translateY(calc(100% + 2rem));
+      transition:transform .7s var(--ease);
+    }
+    .book-bar .pill{width:100%;padding:.95rem;box-shadow:0 14px 30px -14px rgba(20,13,11,.6);}
+    .book-bar.is-on{transform:none;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .js [data-reveal],.hero img,.ph img{transition-duration:.01s !important;}
+  }
+
+  /* ============ LA CARTE — menu & wines, mobile first ============
+     a full-screen sheet on a phone (it slides up from the bottom), a
+     centred card on larger screens; paper background like the printed
+     menu; the header stays, the content scrolls inside */
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  .carte{position:fixed;inset:0;z-index:200;visibility:hidden;pointer-events:none;transition:visibility 0s .7s;}
+  .carte.is-open{visibility:visible;pointer-events:auto;transition:visibility 0s 0s;}
+  .carte-backdrop{position:absolute;inset:0;background:rgba(20,13,11,.62);opacity:0;transition:opacity .5s ease;}
+  .carte.is-open .carte-backdrop{opacity:1;}
+  .carte-sheet{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    background:var(--ivoire-light);
+    color:var(--noir);
+    transform:translateY(100%);
+    transition:transform .75s cubic-bezier(.16,1,.3,1);
+  }
+  .carte.is-open .carte-sheet{transform:none;}
+  .carte-head{
+    flex:none;
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:center;
+    row-gap:.85rem;
+    padding:calc(.9rem + env(safe-area-inset-top)) 1.25rem 0;
+    border-bottom:1px solid rgba(74,22,19,.14);
+  }
+  .carte-title{font-family:'Belleza',sans-serif;font-size:.8rem;letter-spacing:.24em;text-transform:uppercase;color:var(--bourgogne);}
+  .carte-close{
+    width:2.75rem;height:2.75rem;margin-right:-.6rem;
+    display:flex;align-items:center;justify-content:center;
+    background:none;border:none;border-radius:50%;
+    font-size:1.7rem;line-height:1;color:var(--bourgogne-deep);cursor:pointer;
+  }
+  .carte-close:hover,.carte-close:focus-visible{background:rgba(74,22,19,.08);}
+  .carte-tabs{grid-column:1 / -1;display:flex;gap:1.75rem;}
+  .carte-tab{
+    position:relative;
+    padding:.35rem 0 .85rem;
+    background:none;border:none;cursor:pointer;
+    font-family:'Belleza',sans-serif;font-size:1.05rem;letter-spacing:.12em;text-transform:uppercase;
+    color:rgba(36,26,23,.45);
+    transition:color .3s ease;
+  }
+  .carte-tab::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--bourgogne);transform:scaleX(0);transition:transform .45s cubic-bezier(.16,1,.3,1);}
+  .carte-tab[aria-selected="true"]{color:var(--bourgogne-deep);}
+  .carte-tab[aria-selected="true"]::after{transform:scaleX(1);}
+  .carte-tab:focus-visible{outline:2px solid var(--bourgogne);outline-offset:2px;}
+  .carte-body{
+    flex:1;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    padding:1.75rem 1.25rem calc(3rem + env(safe-area-inset-bottom));
+    scroll-padding-top:4rem;
+  }
+  .carte-panel[hidden]{display:none;}
+
+  /* menu */
+  .mn-intro{text-align:center;font-family:'Newsreader',serif;font-style:italic;font-size:1.05rem;color:rgba(36,26,23,.6);margin-bottom:2rem;}
+  .mn-sec{text-align:center;margin-bottom:2.25rem;}
+  .mn-title{font-family:'Belleza',sans-serif;font-weight:400;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--bourgogne);margin-bottom:1rem;}
+  .mn-sub{font-family:'Newsreader',serif;font-style:italic;font-size:.95rem;color:rgba(36,26,23,.6);margin:-.6rem 0 1rem;}
+  .mn-dish + .mn-dish{margin-top:1.15rem;}
+  .mn-name{font-family:'Newsreader',serif;font-size:1.2rem;line-height:1.25;color:var(--noir);}
+  .mn-desc{font-family:'Newsreader',serif;font-style:italic;font-size:.98rem;line-height:1.35;color:rgba(36,26,23,.66);margin-top:.2rem;}
+  .mn-allergens{font-family:'Belleza',sans-serif;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#a77a6d;margin-top:.35rem;}
+  .mn-prices{display:grid;gap:1.75rem;padding:1.75rem 0;margin:1rem 0 1.5rem;border-top:1px solid rgba(74,22,19,.14);border-bottom:1px solid rgba(74,22,19,.14);}
+  .mn-prices .mn-title{text-align:center;}
+  .mn-line{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;font-family:'Newsreader',serif;font-size:1.08rem;padding:.3rem 0;}
+  .mn-line em{font-size:.9rem;color:rgba(36,26,23,.6);}
+  .mn-line span:last-child{font-family:'Belleza',sans-serif;color:var(--bourgogne);white-space:nowrap;}
+  .mn-note{text-align:center;font-family:'Newsreader',serif;font-style:italic;font-size:.88rem;line-height:1.5;color:rgba(36,26,23,.6);}
+  .mn-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:1rem 1.75rem;margin-top:1.75rem;}
+  .carte-link{
+    background:none;border:none;padding:0 0 2px;cursor:pointer;
+    font-family:'Belleza',sans-serif;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--bourgogne);text-decoration:none;border-bottom:1px solid var(--rose);
+  }
+
+  /* wines */
+  .vn-chips{
+    position:sticky;
+    top:-1.75rem;
+    z-index:2;
+    display:flex;
+    gap:.5rem;
+    margin:-1.75rem -1.25rem 1.25rem;
+    padding:.85rem 1.25rem;
+    overflow-x:auto;
+    scrollbar-width:none;
+    background:var(--ivoire-light);
+    border-bottom:1px solid rgba(74,22,19,.08);
+  }
+  .vn-chips::-webkit-scrollbar{display:none;}
+  .vn-chip{
+    flex:none;
+    padding:.5rem .85rem;
+    border:1px solid rgba(74,22,19,.22);
+    border-radius:999px;
+    font-family:'Belleza',sans-serif;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--bourgogne-deep);text-decoration:none;white-space:nowrap;
+    transition:background .3s ease,color .3s ease,border-color .3s ease;
+  }
+  .vn-chip.is-active{background:var(--bourgogne);border-color:var(--bourgogne);color:var(--ivoire-light);}
+  .vn-intro{font-family:'Newsreader',serif;font-style:italic;font-size:.9rem;color:rgba(36,26,23,.55);margin-bottom:1.25rem;}
+  .vn-sec{margin-bottom:2.5rem;}
+  .vn-title{
+    font-family:'Belleza',sans-serif;font-weight:400;font-size:.82rem;letter-spacing:.24em;text-transform:uppercase;color:var(--bourgogne);
+    padding-bottom:.6rem;margin-bottom:.4rem;border-bottom:1px solid rgba(74,22,19,.18);
+  }
+  .vn-reg{font-family:'Newsreader',serif;font-style:italic;font-size:1rem;color:rgba(36,26,23,.6);margin:1.1rem 0 .1rem;}
+  .vn-list{list-style:none;}
+  .vn-item{
+    display:grid;
+    grid-template-columns:1fr auto;
+    column-gap:1rem;
+    padding:.6rem 0;
+    border-bottom:1px dotted rgba(74,22,19,.16);
+  }
+  .vn-name{font-family:'Newsreader',serif;font-size:1.04rem;line-height:1.3;color:var(--noir);}
+  .vn-price{font-family:'Belleza',sans-serif;font-size:1rem;color:var(--bourgogne);font-variant-numeric:tabular-nums;white-space:nowrap;padding-top:.1rem;}
+  .vn-desc{grid-column:1 / -1;font-family:'Newsreader',serif;font-style:italic;font-size:.86rem;line-height:1.35;color:rgba(36,26,23,.6);margin-top:.15rem;}
+
+  /* larger screens: a centred card */
+  @media (min-width: 760px){
+    .carte-sheet{
+      inset:4vh auto 4vh 50%;
+      width:min(44rem, 92vw);
+      border-radius:.5rem;
+      overflow:hidden;
+      box-shadow:0 40px 80px -20px rgba(0,0,0,.5);
+      transform:translate(-50%, 4vh);
+      opacity:0;
+      transition:transform .7s cubic-bezier(.16,1,.3,1), opacity .4s ease;
+    }
+    .carte.is-open .carte-sheet{transform:translate(-50%, 0);opacity:1;}
+    .carte-head{padding:1.25rem 2.25rem 0;}
+    .carte-body{padding:2.25rem 2.25rem 3rem;}
+    .vn-chips{top:-2.25rem;margin:-2.25rem -2.25rem 1.5rem;padding:.9rem 2.25rem;flex-wrap:wrap;}
+    .mn-prices{grid-template-columns:1fr 1fr;gap:2.5rem;}
+  }
+
+
+  /* safety net: if the script fails, show the page */
+  html.js-failed{overflow:auto;}
+  html.js-failed .preloader{display:none;}
+  html.js-failed [data-reveal],html.js-failed .hero-title,html.js-failed .hero-bar{opacity:1 !important;transform:none !important;}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="wordmark" viewBox="0 0 2182.14 347.73"><path d="M897.72,345.85c-12.74,3.52-26.39,2-38.29-3.75-16.12-7.78-31.36-17.64-45.68-29.72l-55.85-47.12c-10.58-8.93-25.55-14.19-39.44-11.85-5.37.91-11.24,9.73-10.98,14.34.29,5.02,3.6,12.49,7.47,18.32-13.92,3.93-29.23-6.74-30.76-21.28s7.58-27.09,23.99-30.38c-47.03-42.09-58.56-109.07-27.89-164.99,28.3-51.59,88.18-80.1,150.04-65.7,54.99,12.8,100.13,62.14,103.39,122.32,4.42,81.63-60.68,145.53-146.32,143.82,29.31,34.92,97.3,69.17,128.17,35.99,3.81,5.51,5.54,16.32,2.61,23.08-.96,2.2-7.27,12.72-18.34,16.29-.7.23-1.41.44-2.12.63ZM898.74,195.05c20.61-48.16,12.31-102.52-20.7-141.21-23.98-28.11-57.81-45.27-95.27-41.65-39.23,3.79-70.87,29.83-85.96,66.13-24.18,58.18-1.83,126.3,50.38,161.16,53.95,36.02,125.59,16.21,151.55-44.43Z"/>
+<path d="M1920.5,249.99l-145.19-194.81-9.01-1.46.56,194.24c8.8,5.67,17.19,4.77,25.7,14.84l-59.21,1.07-1.65-6.04,22.99-9.92.06-225.81c-4.32-4.26-11.23-7.66-16.79-9.14l-5.66-1.51c-1.46-.39-1.12-4.93-.8-6.02l33.77-.66,162.61,212.39,2.02-196.86-24.33-13.35,59.62-1.9.29,5.48c.08,1.56-4.62,1.63-6.23,2.42l-16.6,8.16-.08,242.44c-9.36-.96-14.97-5.68-22.07-13.55Z"/>
+<path d="M1384.33,206.52c-9.83,28.01-34.27,46.24-64.32,46.43l-59.45.37c-9.48.06-17.83-8.69-17.82-18l.13-97.2c.01-9.11,8.83-17.24,17.25-17.21l62.19.25c6.4.03,17.52,6.92,20.42,12.12l20.71,37.19-16.03-88.61c-3.76.36-6.04.29-6.08,1.26l-.27,6.59c-.15,3.73-1.92,11.73-3.93,14.78-2.01,3.05-10.03,5.52-14.09,5.52l-62.71.12c-8.64.02-17.52-6.92-17.52-15.92v-61.7c-.01-9.33,8.88-17.23,18.14-17.25l28.96-.07v-.09c40.44.02,38.75,33.47,56.82,38.61l-9.96-48.45h-46.86s-93.11-.03-93.11-.03c-2.46,11.02,14.15,5.25,23.29,16.73v225.67s-17.27,7.99-17.27,7.99c-2.99,1.39-5.21,3.24-5.8,7.8l174.64.11c5.74,0,9.43-5.25,10.42-9.85l10.3-47.79-8.07.6Z"/>
+<path d="M2174.07,206.52c-9.83,28.01-34.27,46.24-64.32,46.43l-59.45.37c-9.48.06-17.83-8.69-17.82-18l.13-97.2c.01-9.11,8.83-17.24,17.25-17.21l62.19.25c6.4.03,17.52,6.92,20.42,12.12l20.71,37.19-16.03-88.61c-3.76.36-6.04.29-6.08,1.26l-.27,6.59c-.15,3.73-1.92,11.73-3.93,14.78-2.01,3.05-10.03,5.52-14.09,5.52l-62.71.12c-8.64.02-17.52-6.92-17.52-15.92v-61.7c-.01-9.33,8.88-17.23,18.14-17.25l28.96-.07v-.09c40.44.02,38.75,33.47,56.82,38.61l-9.96-48.45h-46.86s-93.11-.03-93.11-.03c-2.46,11.02,14.15,5.25,23.29,16.73v225.67s-17.27,7.99-17.27,7.99c-2.99,1.39-5.21,3.24-5.8,7.8l174.64.11c5.74,0,9.43-5.25,10.42-9.85l10.3-47.79-8.07.6Z"/>
+<path d="M347.2,232.95l-21.53-62.71c-.62-1.82-5.45-5.37-6.41-4.28l-4.31,4.88c-10.44,38.21-35.03,71.23-70.31,88.8-13.34,4.39-26.77,6.13-38.57-1.18-23.89-14.81-18.11-43.97-6.39-71.5l65.21-153.19c3.84-9.02,4.24-19.25,4.35-28.46l23.78-.24,77.48,226.12c4.89,14.27,14.52,24.4,29.25,25.74v6.9s-72.37-.92-72.37-.92l-1.07-5.36c-.19-.96,2.93-1.23,4.97-1.44,8.81-.91,20.7-9.27,15.93-23.15ZM303.51,105.97l-18.53-55.61c-.94-2.82-7.37-7.8-9.5-6.16l-7.42,5.71-57.44,137.73c-3.74,17.3-6.57,36.85,8.65,48.48,12.05,9.21,31.44,4.31,43.9-4.08,40.52-27.3,54.87-82.44,40.34-126.06Z"/>
+<path d="M425.51,89.71c-12.28,41.57-4.6,84.56,22.19,117.39,43.79,53.65,128.96,62.11,171.1,13.88,1.3-1.49,3.98-3.94,4.51-2.65l2.6,6.27c-16.13,21.15-36.51,33.01-61.96,39.69-53.84,14.2-110.28-7.49-142.05-51.4-32.47-44.86-34.56-103.88-4.18-151.03C447.19,16.11,501.77-7.94,557.93,2.37c53.7,9.85,92.58,53.96,75.5,77.8-4.26,5.95-13.76,8.61-22.17,7.38-2.15-41.93-31.99-73.12-73.7-76.27-52.19-3.94-96.99,27.47-112.05,78.44Z"/>
+<path d="M1110.74,5.86l61.46-.96-.02,5.5c-.01,3-16.22,2.1-23.71,11.7l-.28,162.38-3.11,28.14c-5.06,45.7-68.45,60.87-118.38,44.71-29.21-9.45-45.74-34.69-45.83-65.96l-.46-169.28c-4.81-4.38-11.39-7.39-17.27-9.48l-6.07-2.16c-1.21-.43,1.05-4.96,1.56-5.37l68.27.35c-.86,12.63-24.21,5.3-24.13,22.39l.74,165.16c.11,25.56,17.86,47.23,41.5,53.68,14.08,3.85,28.73,4.23,42.95,2.22,28.84-4.08,48.99-27.83,49.01-57.31l.11-171.77c-9.58-5.06-15.82-3.61-26.3-13.94Z"/>
+<path d="M1608.4,207.26l8.52-1.56-10.93,49.77c-.57,2.59-4.43,6.58-7.37,8.18l-179.83-.39c7.18-10.31,14.98-9.46,25.88-13.97l.15-229.18-20.98-8.65c-1.4-.58-2.48-4.73-2.53-6.33l69.92.25c1.29,10.65-23.85,8.47-23.85,17.53l-.16,212.17c0,9.86,8.57,18.3,18.02,18.24l59.47-.42c29.09-.2,53.82-17.21,63.7-45.66Z"/>
+<path d="M1.84,189.07c4.18-16.46,19.28-26.14,34.81-27.47,11.41-.98,21.75,4.81,26.84,14.02-15.47,1.9-25.91,7.94-31.83,18.18-6.61,11.43-6.72,24.66-.55,36.82,11.09,21.85,34.95,29.51,59.24,23.95,20.54-4.7,37.88-26.27,38-51.58l.8-175.35c.09-18.66-20.33-10.98-24.83-23.15l71.32-.28c1.56,9.66-25.04,7.88-25.07,18.77l-.48,178.95c-.07,24.89-15.67,45.11-37.86,54.94-24.81,10.99-53.69,10.63-78.09-1.13C8.96,243.59-5.31,217.26,1.84,189.07Z"/>
+<path d="M1704.36,263.54l-68.67-.17c.3-13.88,23.55-2.77,23.54-25.5l-.12-217.65-22.18-9.51-.31-5.48,67.34-.08c.3.31,1.72,5.08.75,5.45l-6.52,2.5-16.39,8,.15,223.93c0,4.53,11.54,9.29,15.78,10.23l5.67,1.26c1.53.34,1.3,4.79.97,6.99Z"/></symbol>
+    <symbol id="monogram" viewBox="0 0 307.11 470.75"><path d="M306.78,0H49.14s-3.69,19.76-3.69,19.76c-1.92,10.28-1.84,20.36-.34,30.69,2.33,14.84,8.47,28.32,18.17,39.68,5.78,6.77,11.95,12.73,19.3,17.65l18.17,12.16,32.18,19.41c23.49,14.17,46.92,29.12,67.37,47.86-10.42-4.2-20.19-7.7-31.06-9.91-28.95-5.89-58.74-4.85-87.1,3.58-34.14,10.15-62.61,32.44-75.09,66.6-12.96,35.47-7.79,76.02,13.5,107,5.25,7.64,11.41,14.53,18.24,20.65-9.41-3.28-17.5-1.88-17.5-1.88-13.97,2.8-21.76,13.13-20.43,25.87,1.3,12.38,14.33,21.47,26.19,18.12-3.3-4.97-6.11-11.33-6.36-15.6-.23-3.92,4.77-11.44,9.34-12.21,11.83-2,24.57,2.49,33.58,10.09l47.56,40.12c13.29,11.22,27.52,20.18,42.63,27.06,8.02,3.65,16.96,4.98,25.63,3.39,8.26-1.52,17.08-5.75,20.66-16.36,2.01-5.95,1.03-14.96-2.22-19.66-26.28,28.26-84.17-.91-109.13-30.64l-.34-.2c6.14,2,12.39,3.6,18.69,4.79,19.98,3.79,40.24,4.19,60.36,1.26,56.74-8.29,106.06-48.38,113.17-107.61l1.53-26.1.05-237.67c0-10.32,1.63-22.47,9.02-29.11,4.47-4.02,9.99-5.35,15.89-5.78l-.33-3.01ZM188.92,147.37c-10.25-7.24-19.97-13.81-30.76-19.68l-32.47-17.68c-26.92-14.66-59.91-29.43-70.94-60.24-5.78-16.15-4.55-36.62,12.76-41.98,3.73-1.15,7.3-1.76,11.47-1.76h152.67c10.25,0,19.06,2.96,22.73,12.79,1.88,5.05,2.97,10.43,2.97,16.24l.04,192.33c-15.62-32.87-39.08-58.91-68.45-80.03ZM224.06,378.34c-11.94,9.49-25.27,16.3-40.21,20.55-30.01,8.53-64.75,7.69-93.17-4.75-19.16-8.39-35.26-21.97-46.38-39.79-15.53-24.9-20.61-54.83-16.85-83.87,4.64-35.88,24.25-66.47,57.71-80.74,28.54-12.18,62.38-11.89,91.99-3.68,8.68,2.4,16.48,5.59,24.46,9.62,30.03,15.19,52.31,41.42,58.54,75.13,7.35,39.79-3.96,82-36.08,107.54Z"/></symbol>
+  </defs>
+</svg>
+
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="picto"><svg viewBox="0 0 307.11 470.75"><path class="picto-mark" d="M306.78,0H49.14s-3.69,19.76-3.69,19.76c-1.92,10.28-1.84,20.36-.34,30.69,2.33,14.84,8.47,28.32,18.17,39.68,5.78,6.77,11.95,12.73,19.3,17.65l18.17,12.16,32.18,19.41c23.49,14.17,46.92,29.12,67.37,47.86-10.42-4.2-20.19-7.7-31.06-9.91-28.95-5.89-58.74-4.85-87.1,3.58-34.14,10.15-62.61,32.44-75.09,66.6-12.96,35.47-7.79,76.02,13.5,107,5.25,7.64,11.41,14.53,18.24,20.65-9.41-3.28-17.5-1.88-17.5-1.88-13.97,2.8-21.76,13.13-20.43,25.87,1.3,12.38,14.33,21.47,26.19,18.12-3.3-4.97-6.11-11.33-6.36-15.6-.23-3.92,4.77-11.44,9.34-12.21,11.83-2,24.57,2.49,33.58,10.09l47.56,40.12c13.29,11.22,27.52,20.18,42.63,27.06,8.02,3.65,16.96,4.98,25.63,3.39,8.26-1.52,17.08-5.75,20.66-16.36,2.01-5.95,1.03-14.96-2.22-19.66-26.28,28.26-84.17-.91-109.13-30.64l-.34-.2c6.14,2,12.39,3.6,18.69,4.79,19.98,3.79,40.24,4.19,60.36,1.26,56.74-8.29,106.06-48.38,113.17-107.61l1.53-26.1.05-237.67c0-10.32,1.63-22.47,9.02-29.11,4.47-4.02,9.99-5.35,15.89-5.78l-.33-3.01ZM188.92,147.37c-10.25-7.24-19.97-13.81-30.76-19.68l-32.47-17.68c-26.92-14.66-59.91-29.43-70.94-60.24-5.78-16.15-4.55-36.62,12.76-41.98,3.73-1.15,7.3-1.76,11.47-1.76h152.67c10.25,0,19.06,2.96,22.73,12.79,1.88,5.05,2.97,10.43,2.97,16.24l.04,192.33c-15.62-32.87-39.08-58.91-68.45-80.03ZM224.06,378.34c-11.94,9.49-25.27,16.3-40.21,20.55-30.01,8.53-64.75,7.69-93.17-4.75-19.16-8.39-35.26-21.97-46.38-39.79-15.53-24.9-20.61-54.83-16.85-83.87,4.64-35.88,24.25-66.47,57.71-80.74,28.54-12.18,62.38-11.89,91.99-3.68,8.68,2.4,16.48,5.59,24.46,9.62,30.03,15.19,52.31,41.42,58.54,75.13,7.35,39.79-3.96,82-36.08,107.54Z"/></svg></div>
+</div>
+
+<header class="header" id="header">
+  <div class="header-left">
+    <button type="button" class="menu-btn label" id="menu-btn" aria-expanded="false" aria-controls="nav"><i aria-hidden="true"></i><span class="hide-m">Menu</span></button>
+    <a class="label hide-m" href="#carte" data-open-carte="menu">La carte</a>
+  </div>
+  <a href="#top" class="logo" aria-label="Jacqueline, retour en haut"><svg class="wm" viewBox="0 0 2182.14 347.73"><use href="#wordmark"/></svg></a>
+  <div class="header-right">
+    <a class="label hide-m" href="https://www.google.com/maps/search/?api=1&query=23+rue+de+la+Victoire+75009+Paris" target="_blank" rel="noopener">23 rue de la Victoire</a>
+    <a class="pill pill--light label" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener">Réserver</a>
+  </div>
+</header>
+
+<nav class="nav" id="nav" aria-label="Navigation" aria-hidden="true">
+  <ul>
+    <li><a href="#maison">La maison <span>01</span></a></li>
+    <li><a href="#sequences">Les séquences <span>02</span></a></li>
+    <li><a href="#carte" data-open-carte="menu">La carte &amp; les vins <span>03</span></a></li>
+    <li><a href="#chef">Le chef <span>04</span></a></li>
+    <li><a href="#infos">Infos &amp; réservation <span>05</span></a></li>
+  </ul>
+  <div class="nav-foot label">
+    <span>23 rue de la Victoire, 75009 Paris</span>
+    <a href="mailto:contact@jacqueline-restaurant.com">contact@jacqueline-restaurant.com</a>
+    <a href="https://www.instagram.com/jacqueline_restaurantparis/" target="_blank" rel="noopener">Instagram</a>
+  </div>
+</nav>
+
+<main>
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <picture>
+      <source media="(max-width: 760px)" srcset="assets/img/hero-salle-m.webp" type="image/webp">
+      <source media="(max-width: 760px)" srcset="assets/img/hero-salle-m.jpg">
+      <source srcset="assets/img/hero-salle.webp" type="image/webp">
+      <img src="assets/img/hero-salle.jpg" alt="La salle de Jacqueline : banquette rose, marbre et terrazzo, globes de verre au plafond" width="2200" height="1467" fetchpriority="high">
+    </picture>
+    <div class="hero-title">
+      <h1>Jacqueline</h1>
+      <p>par Gustave Migdal · Paris 9<sup>e</sup></p>
+    </div>
+    <nav class="hero-bar label" aria-label="Accès rapide">
+      <a class="is-main" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener">Réserver</a>
+      <a href="#carte" data-open-carte="menu">La carte</a>
+      <a href="#vins" data-open-carte="vins">Les vins</a>
+      <a href="#infos">Accès</a>
+    </nav>
+  </section>
+
+  <!-- INTRO -->
+  <section class="section center" id="maison">
+    <div class="wrap">
+      <p class="lead" data-reveal>Une adresse signée Gustave Migdal, au 23 rue de la Victoire.<br>Une cuisine en séquences, qui suit le marché et les saisons.</p>
+      <p class="lead" data-reveal>De l’iode au gourmand, chaque assiette raconte un produit, un geste, un moment.<br>Au déjeuner comme au dîner, dans une salle de marbre et de lumière.</p>
+      <svg class="monogram" viewBox="0 0 307.11 470.75" aria-hidden="true" data-reveal><use href="#monogram" fill="currentColor"/></svg>
+    </div>
+  </section>
+
+  <!-- SÉQUENCES -->
+  <section class="seq" id="sequences" aria-label="Les séquences du menu">
+    <div class="seq-head">
+      <div>
+        <span class="label eyebrow">Le fil du repas</span>
+        <h2 class="h2">Six temps, une même main</h2>
+      </div>
+      <div class="seq-nav">
+        <button type="button" class="seq-arrow" data-dir="-1" aria-label="Séquence précédente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <span class="seq-count label" id="seq-count">01 / 06</span>
+        <button type="button" class="seq-arrow" data-dir="1" aria-label="Séquence suivante"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+    <div class="seq-track" id="seq-track" tabindex="0" aria-label="Faire défiler les séquences">
+      <figure class="seq-card">
+        <div class="ph"><picture><source srcset="assets/img/seq-aperitifs.webp" type="image/webp"><img src="assets/img/seq-aperitifs.jpg" alt="Huître pochée" loading="lazy" draggable="false" width="733" height="1100"></picture></div>
+        <figcaption><span class="num label">01</span><p class="name">Apéritifs</p><p class="dish">Huître pochée</p></figcaption>
+      </figure>
+      <figure class="seq-card">
+        <div class="ph"><picture><source srcset="assets/img/seq-iode.webp" type="image/webp"><img src="assets/img/seq-iode.jpg" alt="Choux brûlé" loading="lazy" draggable="false" width="693" height="1100"></picture></div>
+        <figcaption><span class="num label">02</span><p class="name">Séquence iode</p><p class="dish">Choux brûlé</p></figcaption>
+      </figure>
+      <figure class="seq-card">
+        <div class="ph"><picture><source srcset="assets/img/seq-vegetal.webp" type="image/webp"><img src="assets/img/seq-vegetal.jpg" alt="Champignon d’automne" loading="lazy" draggable="false" width="733" height="1100"></picture></div>
+        <figcaption><span class="num label">03</span><p class="name">Séquence végétale</p><p class="dish">Champignon d’automne</p></figcaption>
+      </figure>
+      <figure class="seq-card">
+        <div class="ph"><picture><source srcset="assets/img/seq-corse.webp" type="image/webp"><img src="assets/img/seq-corse.jpg" alt="Boeuf, coulis de shiso" loading="lazy" draggable="false" width="790" height="1100"></picture></div>
+        <figcaption><span class="num label">04</span><p class="name">Séquence corsée</p><p class="dish">Boeuf, coulis de shiso</p></figcaption>
+      </figure>
+      <figure class="seq-card">
+        <div class="ph"><picture><source srcset="assets/img/seq-fruite.webp" type="image/webp"><img src="assets/img/seq-fruite.jpg" alt="Prune cuite en croûte de sucre" loading="lazy" draggable="false" width="797" height="1100"></picture></div>
+        <figcaption><span class="num label">05</span><p class="name">Séquence fruitée</p><p class="dish">Prune cuite en croûte de sucre</p></figcaption>
+      </figure>
+      <figure class="seq-card">
+        <div class="ph"><picture><source srcset="assets/img/seq-gourmand.webp" type="image/webp"><img src="assets/img/seq-gourmand.jpg" alt="Ganache au chocolat fumé" loading="lazy" draggable="false" width="1058" height="1100"></picture></div>
+        <figcaption><span class="num label">06</span><p class="name">Séquence gourmande</p><p class="dish">Ganache au chocolat fumé</p></figcaption>
+      </figure>
+    </div>
+    <div class="seq-progress" aria-hidden="true"><i id="seq-bar"></i></div>
+  </section>
+
+  <!-- MENU & VINS -->
+  <section class="section" style="padding-top:0">
+    <div class="wrap duo">
+      <a class="card" href="#carte" data-open-carte="menu" data-reveal>
+        <picture><source srcset="assets/img/table-menu.webp" type="image/webp"><img src="assets/img/table-menu.jpg" alt="La carte dans sa pochette de cuir, sur une table de marbre" loading="lazy" width="733" height="1100"></picture>
+        <span class="card-title label">Le menu</span>
+        <span class="pill pill--dark label">Voir le menu</span>
+      </a>
+      <a class="card" href="#vins" data-open-carte="vins" data-reveal>
+        <picture><source srcset="assets/img/table-vins.webp" type="image/webp"><img src="assets/img/table-vins.jpg" alt="Une table dressée, verres et pochette de cuir" loading="lazy" width="733" height="1100"></picture>
+        <span class="card-title label">La carte des vins</span>
+        <span class="pill pill--dark label">Voir les vins</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- LE CHEF -->
+  <section class="section" id="chef" style="padding-top:clamp(2rem,6vw,5rem)">
+    <div class="wrap chef-grid">
+      <figure class="ph" data-reveal>
+        <picture><source srcset="assets/img/chef.webp" type="image/webp"><img src="assets/img/chef.jpg" alt="Gustave Migdal dans la salle de Jacqueline" loading="lazy" width="1012" height="1400"></picture>
+      </figure>
+      <div data-reveal>
+        <span class="label eyebrow">Le chef</span>
+        <p class="chef-name">Gustave Migdal</p>
+        <p class="chef-quote">« Une cuisine précise et sincère, qui laisse parler le produit. »</p>
+        <p class="text">Avec Jacqueline, Gustave Migdal signe son adresse rue de la Victoire : une table intime où chaque séquence raconte un produit, un geste, une saison.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILM -->
+  <section class="film" aria-label="En cuisine">
+    <div class="film-box wrap" data-reveal>
+      <video id="film-video" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <span class="label">En cuisine</span>
+    </div>
+  </section>
+
+  <!-- LA MAISON -->
+  <section class="section">
+    <div class="wrap center">
+      <span class="label eyebrow" data-reveal>La maison</span>
+      <h2 class="h2" data-reveal>Marbre, terrazzo et lumière douce</h2>
+      <div class="maison-grid">
+        <figure class="ph" data-reveal><picture><source srcset="assets/img/salle-banquette.webp" type="image/webp"><img src="assets/img/salle-banquette.jpg" alt="La banquette rose et les tables de marbre" loading="lazy" width="933" height="1400"></picture></figure>
+        <figure class="ph" data-reveal><picture><source srcset="assets/img/facade.webp" type="image/webp"><img src="assets/img/facade.jpg" alt="La façade bordeaux de Jacqueline, rue de la Victoire" loading="lazy" width="933" height="1400"></picture></figure>
+      </div>
+      <div class="maison-wide"><figure class="ph" data-reveal><picture><source srcset="assets/img/salle-large.webp" type="image/webp"><img src="assets/img/salle-large.jpg" alt="Vue d’ensemble de la salle" loading="lazy" width="2200" height="1121"></picture></figure></div>
+    </div>
+  </section>
+
+  <!-- RÉSERVER -->
+  <section class="section reserve center" id="infos">
+    <div class="wrap">
+      <span class="label eyebrow" data-reveal>Réservation</span>
+      <h2 class="h2" data-reveal>Une table chez Jacqueline</h2>
+      <p class="lead" data-reveal style="margin-top:1.6rem">23 rue de la Victoire, 75009 Paris<br>Déjeuner &amp; dîner, sur réservation</p>
+      <div class="reserve-actions" data-reveal>
+        <a class="pill pill--light label" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener">Réserver en ligne</a>
+        <a class="pill pill--ghost label" href="https://www.google.com/maps/search/?api=1&query=23+rue+de+la+Victoire+75009+Paris" target="_blank" rel="noopener">Itinéraire</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="foot-cols">
+    <div><h3 class="label">Adresse</h3><p>23 rue de la Victoire<br>75009 Paris</p></div>
+    <div><h3 class="label">Horaires</h3><p>Déjeuner &amp; dîner<br>sur réservation</p></div>
+    <div><h3 class="label">Contact</h3><p><a href="mailto:contact@jacqueline-restaurant.com">contact@jacqueline-restaurant.com</a></p></div>
+    <div><h3 class="label">Suivre</h3><p><a href="https://www.instagram.com/jacqueline_restaurantparis/" target="_blank" rel="noopener">Instagram</a></p></div>
+  </div>
+  <svg class="foot-mark" viewBox="0 0 2182.14 347.73" aria-hidden="true"><use href="#wordmark" fill="currentColor"/></svg>
+  <div class="foot-legal label"><span>© 2026 Jacqueline</span><span>Photographies : 18H22</span></div>
+</footer>
+
+<div class="book-bar" id="book-bar"><a class="pill pill--wine label" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener">Réserver une table</a></div>
+
+<div class="carte" id="carte" aria-hidden="true">
+  <div class="carte-backdrop" data-carte-close></div>
+  <div class="carte-sheet" role="dialog" aria-modal="true" aria-labelledby="carte-title">
+    <header class="carte-head">
+      <p class="carte-title" id="carte-title">La carte</p>
+      <button type="button" class="carte-close" data-carte-close aria-label="Fermer la carte">&times;</button>
+      <div class="carte-tabs" role="tablist" aria-label="La carte">
+        <button type="button" class="carte-tab" role="tab" id="tab-menu" aria-controls="panel-menu" aria-selected="true" data-tab="menu">Menu</button>
+        <button type="button" class="carte-tab" role="tab" id="tab-vins" aria-controls="panel-vins" aria-selected="false" data-tab="vins" tabindex="-1">Vins</button>
+      </div>
+    </header>
+    <div class="carte-body" id="carte-body">
+      <div class="carte-panel" role="tabpanel" id="panel-menu" aria-labelledby="tab-menu">
+        <p class="mn-intro">Menus en séquences</p>
+        <section class="mn-sec">
+          <h3 class="mn-title">Apéritifs</h3>
+          <div class="mn-dish">
+            <p class="mn-name">Huître Pochée</p>
+            <p class="mn-desc">Lait de Fenouil, Condiment Salicorne et Wasabi</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose · Sulfites · Mollusques</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">Consommé d’Oignon aux Herbes</p>
+            <p class="mn-desc">Crème Crue, Confit d’Oignon et Câpres</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Gluten · Lactose · Soja</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">Moules à la Flamme</p>
+            <p class="mn-desc">Laquage Piment et Emulsion au Saté</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Sulfites · Arachides · Œufs · Mollusques · Soja</p>
+          </div>
+        </section>
+        <section class="mn-sec">
+          <h3 class="mn-title">Séquence iode</h3>
+          <div class="mn-dish">
+            <p class="mn-name">Choux Brûlé</p>
+            <p class="mn-desc">Condiment Nori, Beurre Blanc à la Dulse et Oeufs de Truite</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose · Sulfites</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">Crème d’Algues</p>
+            <p class="mn-desc">Navet Mariné et Coulis à la Capucine</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose</p>
+          </div>
+        </section>
+        <section class="mn-sec">
+          <h3 class="mn-title">Séquence végétale</h3>
+          <p class="mn-sub">Le champignon</p>
+          <div class="mn-dish">
+            <p class="mn-name">Champignon d’Automne</p>
+            <p class="mn-desc">Farce Champignon, Ragoût de Champignon au Café, Sauce Cognac et Châtaigne</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Gluten · Lactose · Soja</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">Emulsion au Champignon et Café</p>
+            <p class="mn-desc">Sobacha Grillé</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose · Soja</p>
+          </div>
+        </section>
+        <section class="mn-sec">
+          <h3 class="mn-title">Séquence corsée</h3>
+          <div class="mn-dish">
+            <p class="mn-name">Seiche</p>
+            <p class="mn-desc">Lard Affiné, Bouillon de Seiche et Kombu Rôti</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Sulfites · Crustacés · Œufs · Soja</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">Boeuf</p>
+            <p class="mn-desc">Coulis de Shiso, Jus Corsé et Haricots Brûlés</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose · Soja</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">“Grattons” de Boeuf</p>
+            <p class="mn-desc">Consommé de Boeuf et Condiment Kimchi</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Sulfites · Soja</p>
+          </div>
+        </section>
+        <section class="mn-sec">
+          <h3 class="mn-title">Séquence fruitée</h3>
+          <div class="mn-dish">
+            <p class="mn-name">Prune cuite en Croûte de Sucre</p>
+            <p class="mn-desc">Condiment ‘Umebushi’, Jus de Prune et Rose Grillée</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Sulfites</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">Sorbet Prune</p>
+            <p class="mn-desc">Crème Aigrelette, et Confit de Prune</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose</p>
+          </div>
+        </section>
+        <section class="mn-sec">
+          <h3 class="mn-title">Séquence gourmande</h3>
+          <div class="mn-dish">
+            <p class="mn-name">Ganache au Chocolat Fumé Tiède</p>
+            <p class="mn-desc">Crémeux Caramel, Miso Blond et Croustillant à l’Epeautre Soufflé et Malt Chocolat</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Gluten · Lactose · Œufs</p>
+          </div>
+          <div class="mn-dish">
+            <p class="mn-name">Glace Vanille Grillée</p>
+            <p class="mn-desc">Sirop Malt Chocolat</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Gluten · Lactose · Soja</p>
+          </div>
+        </section>
+        <section class="mn-prices">
+          <div>
+            <h3 class="mn-title">Menus</h3>
+            <p class="mn-line"><span>3 séquences <em>au déjeuner</em></span><span>49&nbsp;€</span></p>
+            <p class="mn-line"><span>5 séquences</span><span>95&nbsp;€</span></p>
+          </div>
+          <div>
+            <h3 class="mn-title">Accords mets &amp; vins</h3>
+            <p class="mn-line"><span>3 séquences</span><span>35&nbsp;€</span></p>
+            <p class="mn-line"><span>5 séquences</span><span>55&nbsp;€</span></p>
+          </div>
+        </section>
+        <p class="mn-note">Allergènes indiqués sous chaque plat. N’hésitez pas à nous signaler toute allergie ou intolérance.<br>Prix nets en euros, toutes taxes comprises, service compris. La maison n’accepte pas les chèques.</p>
+        <p class="mn-actions"><button type="button" class="carte-link" data-tab="vins">Voir la carte des vins</button><a class="carte-link" href="assets/menu-jacqueline.pdf" target="_blank" rel="noopener">Menu en PDF</a></p>
+      </div>
+      <div class="carte-panel" role="tabpanel" id="panel-vins" aria-labelledby="tab-vins" hidden>
+        <nav class="vn-chips" aria-label="Catégories de vins">
+          <a class="vn-chip" href="#vins-champagnes" data-target="vins-champagnes">Champagnes</a>
+          <a class="vn-chip" href="#vins-bulles" data-target="vins-bulles">Bulles</a>
+          <a class="vn-chip" href="#vins-macerations" data-target="vins-macerations">Macérations</a>
+          <a class="vn-chip" href="#vins-roses" data-target="vins-roses">Rosés</a>
+          <a class="vn-chip" href="#vins-blancs" data-target="vins-blancs">Blancs</a>
+          <a class="vn-chip" href="#vins-rouges" data-target="vins-rouges">Rouges</a>
+          <a class="vn-chip" href="#vins-italie" data-target="vins-italie">Italie</a>
+          <a class="vn-chip" href="#vins-californie" data-target="vins-californie">Californie</a>
+          <a class="vn-chip" href="#vins-doux-et-moelleux" data-target="vins-doux-et-moelleux">Doux &amp; moelleux</a>
+          <a class="vn-chip" href="#vins-sans-alcool" data-target="vins-sans-alcool">Sans alcool</a>
+          <a class="vn-chip" href="#vins-cocktail" data-target="vins-cocktail">Cocktail</a>
+        </nav>
+        <p class="vn-intro">Prix en euros, à la bouteille.</p>
+        <section class="vn-sec" id="vins-champagnes">
+          <h3 class="vn-title">Les champagnes</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Bonnaire, “Les Versants Réserve”</span><span class="vn-price">76</span><span class="vn-desc">Extra-Brut. Chardonnay, pinot noir, pinot meunier</span></li>
+            <li class="vn-item"><span class="vn-name">Bonnet-Ponson, “Cuvée Perpétuelle”</span><span class="vn-price">92</span><span class="vn-desc">Non dosée. Pinot noir, chardonnay, pinot meunier, vins de réserve.</span></li>
+            <li class="vn-item"><span class="vn-name">Drappier, “Brut Nature”</span><span class="vn-price">88</span><span class="vn-desc">Non dosé. Blanc de Noirs (pinot noir)</span></li>
+            <li class="vn-item"><span class="vn-name">Drappier, “Blanc de Blancs”</span><span class="vn-price">94</span><span class="vn-desc">Chardonnay, blanc vrai</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-bulles">
+          <h3 class="vn-title">Les bulles</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Mélanie Pfister, “Breit”</span><span class="vn-price">44</span><span class="vn-desc">Extra-Brut Blanc de Blancs. Chardonnay, pinot blanc, pinot auxerrois. AOC Crémant d'Alsace 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Le Fief Noir, “Ô Temps, Suspend ton Vol”</span><span class="vn-price">38</span><span class="vn-desc">Chenin. Anjou Noir. Vin de France</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Plageoles, “Mauzac Nature”</span><span class="vn-price">44</span><span class="vn-desc">Mauzac rose. AOP Gaillac 2022</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-macerations">
+          <h3 class="vn-title">Les macérations</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Mélanie Pfister</span><span class="vn-price">64</span><span class="vn-desc">Macération de gewurztraminer. AOC Alsace 2020</span></li>
+            <li class="vn-item"><span class="vn-name">Les Vignes du Mayne, “Pearl &amp; Button”</span><span class="vn-price">68</span><span class="vn-desc">Chardonnay. Bourgogne blanc 2019</span></li>
+            <li class="vn-item"><span class="vn-name">Jeremy Bricka, “Orange”</span><span class="vn-price">45</span><span class="vn-desc">Chasselas - Isère. Vin de France 2022</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-roses">
+          <h3 class="vn-title">Les rosés</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Domaine de Sulauze, “Pomponette”</span><span class="vn-price">32</span><span class="vn-desc">Grenache, cinsault, syrah, mourvèdre, rolle. AOP Coteaux d'Aix-en-Provence 2025</span></li>
+            <li class="vn-item"><span class="vn-name">Maxime Magnon, “Métisse”</span><span class="vn-price">59</span><span class="vn-desc">Rosé de saignée. Grenache, cinsault, carignan. AOC Corbières 2024</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-blancs">
+          <h3 class="vn-title">Les blancs</h3>
+          <p class="vn-reg">Alsace</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Mélanie Pfister, “Mel”</span><span class="vn-price">59</span><span class="vn-desc">Riesling, muscat, pinot gris, gewurztraminer. AOC Alsace 2024</span></li>
+            <li class="vn-item"><span class="vn-name">Mélanie Pfister, “Engelberg”</span><span class="vn-price">92</span><span class="vn-desc">Grand Cru Riesling. AOC Alsace 2020</span></li>
+          </ul>
+          <p class="vn-reg">Loire</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Hervé Villemade, “Cheverny”</span><span class="vn-price">36</span><span class="vn-desc">Sauvignon, chardonnay. 2025</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Landron, “Amphibolite”</span><span class="vn-price">42</span><span class="vn-desc">Melon de bourgogne. AOC Muscadet Sèvre et Maine 2024</span></li>
+            <li class="vn-item"><span class="vn-name">Terra Vita Vinum, “Terre de 3”</span><span class="vn-price">50</span><span class="vn-desc">Version libre. Chenin. AOC Anjou 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Terra Vita Vinum, “Pavillon”</span><span class="vn-price">105</span><span class="vn-desc">Chenin. AOC Anjou 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Château de Plaisance, “Savennières”</span><span class="vn-price">98</span><span class="vn-desc">Chenin. AOC Savennières 2024</span></li>
+            <li class="vn-item"><span class="vn-name">Belargus, “Quarts”</span><span class="vn-price">165</span><span class="vn-desc">Chenin. AOC Anjou 2021</span></li>
+          </ul>
+          <p class="vn-reg">Bourgogne</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Fanny Sabre, “Bourgogne Blanc”</span><span class="vn-price">64</span><span class="vn-desc">Chardonnay. AOC Bourgogne 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Fanny Sabre, “Beaune les Prévolles”</span><span class="vn-price">112</span><span class="vn-desc">Chardonnay. AOC Beaune 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Fanny Sabre, “Beaune Clos des Renardes”</span><span class="vn-price">108</span><span class="vn-desc">Chardonnay. AOC Beaune 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Fanny Sabre, “Meursault Limozin”</span><span class="vn-price">160</span><span class="vn-desc">Chardonnay. AOC Meursault 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Buisson-Charles, “Bourgogne Aligoté Hors Classe”</span><span class="vn-price">80</span><span class="vn-desc">AOC Bourgogne 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Buisson-Charles, “Pouilly-Fuissé 1er Cru la Maréchaude”</span><span class="vn-price">105</span><span class="vn-desc">AOC Pouilly-Fuissé 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Buisson-Charles, “Meursault Bouches Chères 1er Cru”</span><span class="vn-price">232</span><span class="vn-desc">Chardonnay. AOC Meursault 1er Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Matrot, “Meursault”</span><span class="vn-price">155</span><span class="vn-desc">Chardonnay. AOC Meursault 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Matrot, “Meursault Charmes 1er Cru”</span><span class="vn-price">228</span><span class="vn-desc">Chardonnay. AOC Meursault 1er Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Matrot, “Meursault Blagny 1er Cru”</span><span class="vn-price">228</span><span class="vn-desc">Chardonnay. AOC Meursault 1er Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Matrot, “Meursault Perrières 1er Cru”</span><span class="vn-price">256</span><span class="vn-desc">Chardonnay. AOC Meursault 1er Cru 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Matrot, “Puligny-Montrachet 1er Cru Chalumeaux”</span><span class="vn-price">228</span><span class="vn-desc">Chardonnay. AOC Puligny-Montrachet 1er Cru 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de Montille, “Puligny-Montrachet 1er Cru les Folatières”</span><span class="vn-price">265</span><span class="vn-desc">Chardonnay. AOC Puligny-Montrachet 1er Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de Montille, “Corton-Charlemagne Grand Cru”</span><span class="vn-price">375</span><span class="vn-desc">Chardonnay. AOC Corton Grand Cru 2022</span></li>
+          </ul>
+          <p class="vn-reg">Mâconnais</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Domaine de la Bongran, “Cuvée E.J. Thévenet”</span><span class="vn-price">76</span><span class="vn-desc">AOC Viré-Clessé 2019</span></li>
+            <li class="vn-item"><span class="vn-name">Les Vignes du Mayne, “Mâcon Cruzille au Quin Château”</span><span class="vn-price">68</span><span class="vn-desc">AOC Mâcon Cruzille 2022</span></li>
+          </ul>
+          <p class="vn-reg">Beaujolais</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Mee Godard, “Beaujolais Blanc”</span><span class="vn-price">44</span><span class="vn-desc">Chardonnay. AOC Beaujolais 2023</span></li>
+          </ul>
+          <p class="vn-reg">Jura</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Les Bottes Rouges, “Face B”</span><span class="vn-price">78</span><span class="vn-desc">Savagnin. AOC Côtes-du-Jura. 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de la Borde, “Nature Foudre à Canon”</span><span class="vn-price">84</span><span class="vn-desc">Savagnin. AOC Arbois-Pupillin. 2020</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de la Borde, “Terre de Lias”</span><span class="vn-price">76</span><span class="vn-desc">Chardonnay. AOC Arbois-Pupillin. 2020</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de la Renardière, “Cuvée 1966”</span><span class="vn-price">68</span><span class="vn-desc">Chardonnay. AOC Arbois-Pupillin. 2022</span></li>
+          </ul>
+          <p class="vn-reg">Savoie</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Ludovic Archer, “Giant Step”</span><span class="vn-price">62</span><span class="vn-desc">Jacquère. AOP Savoie Blanc 2024</span></li>
+          </ul>
+          <p class="vn-reg">Rhône</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Domaine des Bruyères, “Les Petites Bêtises”</span><span class="vn-price">38</span><span class="vn-desc">Marsanne, Roussanne. IGP des Collines Rhodaniennes 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine des Bruyères, “Granit”</span><span class="vn-price">38</span><span class="vn-desc">Viognier. IGP des Collines Rhodaniennes 2025</span></li>
+            <li class="vn-item"><span class="vn-name">Georges Vernay, “Condrieu les Chaillées de l'Enfer”</span><span class="vn-price">176</span><span class="vn-desc">Viognier. AOC Condrieu 2022</span></li>
+          </ul>
+          <p class="vn-reg">Provence</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Domaine de Plérimond, “Madame Rêve”</span><span class="vn-price">48</span><span class="vn-desc">Rolle. Vin de France 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de Sulauze, “Galinette”</span><span class="vn-price">36</span><span class="vn-desc">Clairette, grenache blanc, ugni blanc, rolle. AOP Coteaux d'Aix-en-Provence 2024</span></li>
+          </ul>
+          <p class="vn-reg">Languedoc</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Clos Marie, “Manon”</span><span class="vn-price">58</span><span class="vn-desc">Grenache blanc et gris, roussanne, rolle, carignan, clairette, muscat. AOC Languedoc 2023</span></li>
+          </ul>
+          <p class="vn-reg">Roussillon</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Olivier Pithon, “Laïs”</span><span class="vn-price">60</span><span class="vn-desc">Maccabeu, grenache blanc et gris. AOP Côtes-du-Roussillon 2022</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-rouges">
+          <h3 class="vn-title">Les rouges</h3>
+          <p class="vn-reg">Alsace</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Mélanie Pfister, “Weg”</span><span class="vn-price">56</span><span class="vn-desc">Pinot noir. AOC Alsace. 2025</span></li>
+            <li class="vn-item"><span class="vn-name">Mélanie Pfister, “Hüt”</span><span class="vn-price">88</span><span class="vn-desc">Pinot noir. AOC Alsace. 2023</span></li>
+          </ul>
+          <p class="vn-reg">Anjou Noir</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Terra Vita Vinum, “Violettes”</span><span class="vn-price">56</span><span class="vn-desc">Cabernet franc. Vin de France 2023</span></li>
+          </ul>
+          <p class="vn-reg">Centre Loire</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Hervé Villemade, “Cheverny”</span><span class="vn-price">36</span><span class="vn-desc">Pinot noir, gamay 2025</span></li>
+            <li class="vn-item"><span class="vn-name">Hervé Villemade, “Pineau d'Aunis”</span><span class="vn-price">60</span><span class="vn-desc">Vin de France 2023</span></li>
+          </ul>
+          <p class="vn-reg">Côte Roannaise</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Reniteo, “Pourpre”</span><span class="vn-price">36</span><span class="vn-desc">Gamay saint-romain, gamay de bouze. AOC Côte roannaise 2025</span></li>
+            <li class="vn-item"><span class="vn-name">Reniteo, “La Part des Lionnes”</span><span class="vn-price">66</span><span class="vn-desc">Gamay saint-romain. AOC Côte roannaise 2024</span></li>
+          </ul>
+          <p class="vn-reg">Bourgogne</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Aurore Bachelet, “Maranges”</span><span class="vn-price">60</span><span class="vn-desc">Pinot noir. AOC Maranges 2024</span></li>
+            <li class="vn-item"><span class="vn-name">Fanny Sabre, “Pommard”</span><span class="vn-price">125</span><span class="vn-desc">Pinot noir. AOC Pommard 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Fanny Sabre, “Beaune 1er Cru les Chouacheux”</span><span class="vn-price">135</span><span class="vn-desc">Pinot noir. AOC Beaune 1er cru 2019</span></li>
+            <li class="vn-item"><span class="vn-name">Antoine Lienhardt, “Emphase”</span><span class="vn-price">125</span><span class="vn-desc">Pinot noir. AOC Côte de Nuits Villages 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Buisson-Charles, “Beaune 1er Cru les Marconnets”</span><span class="vn-price">135</span><span class="vn-desc">Pinot noir. AOC Beaune 1er cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Buisson-Charles, “Corton Grand Cru”</span><span class="vn-price">230</span><span class="vn-desc">Pinot noir. AOC Corton Grand Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Matrot, “Blagny la Pièce sous le Bois 1er Cru”</span><span class="vn-price">145</span><span class="vn-desc">Pinot noir. AOC Blagny 1er Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine Matrot, “Volnay-Santenots 1er Cru”</span><span class="vn-price">145</span><span class="vn-desc">Pinot noir. AOC Volnay 1er Cru 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de Montille, “Volnay 1er Cru les Taillepieds”</span><span class="vn-price">280</span><span class="vn-desc">Pinot noir. AOC Volnay 1er Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Thibault Liger-Belair, “Nuits-Saint-Georges la Charmotte”</span><span class="vn-price">182</span><span class="vn-desc">Pinot noir. AOC Nuits-Saint-Georges 2018</span></li>
+            <li class="vn-item"><span class="vn-name">Méo-Camuzet, “Gevrey-Chambertin”</span><span class="vn-price">195</span><span class="vn-desc">Pinot noir. AOC Gevrey-Chambertin 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Méo-Camuzet, “Clos de Vougeot Grand Cru”</span><span class="vn-price">395</span><span class="vn-desc">Pinot noir. AOC Clos de Vougeot Grand Cru 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Les Vignes du Mayne, “Les Crays”</span><span class="vn-price">86</span><span class="vn-desc">Pinot noir. Bourgogne rouge 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Les Vignes du Mayne, “Auguste”</span><span class="vn-price">112</span><span class="vn-desc">Pinot fin. Bourgogne rouge 2022</span></li>
+          </ul>
+          <p class="vn-reg">Beaujolais</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Thibault Liger-Belair, “Moulin-à-Vent Champ de Cour”</span><span class="vn-price">76</span><span class="vn-desc">Gamay. AOC Moulin-à-Vent 2018</span></li>
+            <li class="vn-item"><span class="vn-name">Mee Godard, “Morgon Côte de Py”</span><span class="vn-price">78</span><span class="vn-desc">Gamay. AOC Morgon 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Thillardon, “Chénas les Belmonts”</span><span class="vn-price">68</span><span class="vn-desc">Gamay. AOC Chénas 2023</span></li>
+          </ul>
+          <p class="vn-reg">Jura</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Les Bottes Rouges, “Boomerang”</span><span class="vn-price">72</span><span class="vn-desc">Ploussard, trousseau. AOC Côtes-du-Jura. 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Les Bottes Rouges, “Tôt Ou Tard”</span><span class="vn-price">82</span><span class="vn-desc">Ploussard. AOC Côtes-du-Jura. 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de la Borde, “Ad Infernum et Salutem”</span><span class="vn-price">72</span><span class="vn-desc">Pinot noir, trousseau. AOC Arbois-Pupillin. 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de la Borde, “Pinotstradamus”</span><span class="vn-price">72</span><span class="vn-desc">Pinot noir. AOC Arbois-Pupillin. 2022</span></li>
+          </ul>
+          <p class="vn-reg">Rhône</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Mas de Libian, “Bout Zan”</span><span class="vn-price">32</span><span class="vn-desc">Grenache, syrah. AOC Côtes-du-Rhône 2024</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine des Bruyères, “Crozes-Hermitage les Croix Vieilles Vignes”</span><span class="vn-price">78</span><span class="vn-desc">Syrah. AOC Crozes-Hermitage 2020</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine des Bruyères, “Saint-Joseph”</span><span class="vn-price">72</span><span class="vn-desc">Syrah. AOC Saint-Joseph 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Alain Voge, “Cornas les Chailles”</span><span class="vn-price">105</span><span class="vn-desc">Syrah. AOC Cornas 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Matthieu Barret, “Cornas Brise Cailloux”</span><span class="vn-price">98</span><span class="vn-desc">Syrah. AOC Cornas 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Matthieu Barret, “Cornas Billes Noires”</span><span class="vn-price">148</span><span class="vn-desc">Syrah. AOC Cornas 2020</span></li>
+            <li class="vn-item"><span class="vn-name">Maison Stephan, “Syrah”</span><span class="vn-price">48</span><span class="vn-desc">Vin de France 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Maison Stephan, “Côte-Rôtie l'Ultime”</span><span class="vn-price">180</span><span class="vn-desc">Syrah. AOC Côte-Rôtie 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Maison Stephan, “Côte-Rôtie So Brune”</span><span class="vn-price">225</span><span class="vn-desc">Syrah. AOC Côte-Rôtie 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Georges Vernay, “Côte-Rôtie Maison Rouge”</span><span class="vn-price">230</span><span class="vn-desc">Syrah. AOC Côte-Rôtie 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Paul Avril, “Petit Vin d'Avril”</span><span class="vn-price">62</span><span class="vn-desc">Grenache, mourvèdre, syrah, cabernet sauvignon, carignan. Vin de France 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Clos des Papes, “Châteauneuf-du-Pape”</span><span class="vn-price">230</span><span class="vn-desc">Grenache, syrah, mourvèdre. AOC Châteauneuf-du-Pape 2016</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de la Biscarelle, “Châteauneuf-du-Pape les Anglaises”</span><span class="vn-price">95</span><span class="vn-desc">Grenache, syrah, mourvèdre. AOC Châteauneuf-du-Pape 2020</span></li>
+          </ul>
+          <p class="vn-reg">Provence</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Plérimond, “Sous le Chai”</span><span class="vn-price">51</span><span class="vn-desc">Syrah. IGP Coteaux du Verdon 2024</span></li>
+          </ul>
+          <p class="vn-reg">Languedoc</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Clos la Barthassade, “Les Gravettes”</span><span class="vn-price">60</span><span class="vn-desc">Grenache noir, cinsault, syrah. AOC Terrasses du Larzac 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Clos la Barthassade, “Mourvèdre du Clos”</span><span class="vn-price">96</span><span class="vn-desc">Mourvèdre. Vin de France 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Pas de l'Escalette, “Petit Pas”</span><span class="vn-price">40</span><span class="vn-desc">Grenache, syrah, carignan. AOC Languedoc 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Pas de l'Escalette, “Ze Cinsault”</span><span class="vn-price">68</span><span class="vn-desc">Cinsault, syrah. IGP Pays d'Hérault 2022</span></li>
+          </ul>
+          <p class="vn-reg">Roussillon</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Olivier Pithon, “Pilou”</span><span class="vn-price">115</span><span class="vn-desc">Carignan. IGP Côtes Catalanes 2021</span></li>
+          </ul>
+          <p class="vn-reg">Bordeaux</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Clos Puy Arnaud, “Les Ormeaux”</span><span class="vn-price">45</span><span class="vn-desc">Merlot, cabernet franc. AOC Castillon Côtes-de-Bordeaux 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Clos Puy Arnaud, “Clos Puy Arnaud”</span><span class="vn-price">88</span><span class="vn-desc">Merlot, cabernet franc, cabernet sauvignon. AOC Castillon Côtes-de-Bordeaux 2020</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-italie">
+          <h3 class="vn-title">Italie</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Foradori, “Fontanasanta (blanc)”</span><span class="vn-price">58</span><span class="vn-desc">Manzoni bianco. Vigneti delle Dolomiti IGT (Trentin-Haut-Adige) 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Foradori, “Nosiola (blanc)”</span><span class="vn-price">85</span><span class="vn-desc">Nosiola. Vigneti delle Dolomiti IGT (Trentin-Haut-Adige) 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Foradori, “Granato”</span><span class="vn-price">165</span><span class="vn-desc">Teroldego. Vigneti delle Dolomiti IGT (Trentin-Haut-Adige) 2019</span></li>
+            <li class="vn-item"><span class="vn-name">Luciano Sandrone, “Barbera d'Alba”</span><span class="vn-price">74</span><span class="vn-desc">Barbera. DOC Barbera d'Alba (Piémont) 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Cascina Fontana, “Barolo”</span><span class="vn-price">185</span><span class="vn-desc">Nebbiolo. DOCG Barolo (Piémont) 2018</span></li>
+            <li class="vn-item"><span class="vn-name">Ampeleia, “Ampeleia”</span><span class="vn-price">72</span><span class="vn-desc">Cabernet franc. IGT Toscana 2019</span></li>
+            <li class="vn-item"><span class="vn-name">Amerighi, “Cortona”</span><span class="vn-price">95</span><span class="vn-desc">Syrah. DOC Cortona (Toscane) 2020</span></li>
+            <li class="vn-item"><span class="vn-name">Azienda Cos, “Cerasuolo di Vittoria”</span><span class="vn-price">76</span><span class="vn-desc">Nero d'avola, frappato. DOCG Cerasuolo di Vittoria (Sicile) 2020</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-californie">
+          <h3 class="vn-title">Californie</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Racines (Maison de Montille), “Santa Rita Hills Chardonnay”</span><span class="vn-price">115</span><span class="vn-desc">2022</span></li>
+            <li class="vn-item"><span class="vn-name">Racines (Maison de Montille), “Sanford &amp; Benedict Vineyards Chardonnay”</span><span class="vn-price">175</span><span class="vn-desc">2022</span></li>
+            <li class="vn-item"><span class="vn-name">Racines (Maison de Montille), “Santa Rita Hills Pinot Noir”</span><span class="vn-price">115</span><span class="vn-desc">2022</span></li>
+            <li class="vn-item"><span class="vn-name">Racines (Maison de Montille), “La Rinconada Vineyards Pinot Noir”</span><span class="vn-price">175</span><span class="vn-desc">2022</span></li>
+            <li class="vn-item"><span class="vn-name">Littorai (Ted Lemon), “Roman Vineyard Anderson Valley”</span><span class="vn-price">220</span><span class="vn-desc">2023</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-doux-et-moelleux">
+          <h3 class="vn-title">Les doux &amp; les moelleux</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Mélanie Pfister, “Dive”</span><span class="vn-price">92</span><span class="vn-desc">Silberberg. Gewurztraminer Vendanges Tardives. AOC Alsace 2023</span></li>
+            <li class="vn-item"><span class="vn-name">Belargus, “Layon”</span><span class="vn-price">85</span><span class="vn-desc">Chenin - Coteaux du Layon 75 cl 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Belargus, “Rouères”</span><span class="vn-price">148</span><span class="vn-desc">Chenin - Quarts-de-Chaume Grand Cru 37,5 cl 2018</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine de la Bongran, “Cuvée Levroutée”</span><span class="vn-price">95</span><span class="vn-desc">Chardonnay. AOC Viré-Clessé 2017</span></li>
+            <li class="vn-item"><span class="vn-name">Domaine des Bruyères, “Very Delicious Nectar”</span><span class="vn-price">55</span><span class="vn-desc">Syrah. VDN. Vin de France (Rhône) 50 cl 2021</span></li>
+            <li class="vn-item"><span class="vn-name">Olivier Pithon, “Vitriol”</span><span class="vn-price">55</span><span class="vn-desc">Grenache noir. VDN. IGP Côtes Catalanes 50 cl 2022</span></li>
+            <li class="vn-item"><span class="vn-name">Massa Vecchia, “Passito”</span><span class="vn-price">125</span><span class="vn-desc">Aleatico. Passito di Toscana IGT 38 cl 2016</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-sans-alcool">
+          <h3 class="vn-title">Sans alcool</h3>
+          <p class="vn-reg">Eaux · 75 cl</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Abatilles, “Plate”</span><span class="vn-price">5,5</span><span class="vn-desc">Eau de source des Landes, légère et discrète</span></li>
+            <li class="vn-item"><span class="vn-name">Chateldon, “Pétillante”</span><span class="vn-price">7</span><span class="vn-desc">Eau minérale naturelle gazeuse d'Auvergne, aux bulles fines</span></li>
+          </ul>
+          <p class="vn-reg">Jus Alain Milliat · 20 cl</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Jus de Tomate Rouge</span><span class="vn-price">8</span><span class="vn-desc">Tomates mûries au soleil, pressées sans concentré</span></li>
+            <li class="vn-item"><span class="vn-name">Nectar de Pêche de Vigne</span><span class="vn-price">8</span><span class="vn-desc">Pêches de vigne cueillies à maturité</span></li>
+            <li class="vn-item"><span class="vn-name">Jus de Pomme Rainette</span><span class="vn-price">6,5</span><span class="vn-desc">Pommes rainettes pressées, acidulées et croquantes</span></li>
+          </ul>
+          <p class="vn-reg">Cuvées Substance · verre / bouteille</p>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">Solaris</span><span class="vn-price">10 / 36</span><span class="vn-desc">Thé vert sencha bio · bergamote de Calabre · safran provençal</span></li>
+            <li class="vn-item"><span class="vn-name">Brume</span><span class="vn-price">10 / 36</span><span class="vn-desc">Thé noir lapsang souchong bio · poivre de Timut</span></li>
+            <li class="vn-item"><span class="vn-name">Canopée</span><span class="vn-price">10 / 36</span><span class="vn-desc">Thé vert sencha bio · feuilles de figuier du jardin</span></li>
+            <li class="vn-item"><span class="vn-name">L'Arrieulat</span><span class="vn-price">14 / 48</span><span class="vn-desc">Thé jaune des Pyrénées · cascara de L'Arbre à Café</span></li>
+            <li class="vn-item"><span class="vn-name">Douze</span><span class="vn-price">10 / 36</span><span class="vn-desc">Apéritif infusé à la poire &amp; à l'anis étoilé</span></li>
+          </ul>
+        </section>
+        <section class="vn-sec" id="vins-cocktail">
+          <h3 class="vn-title">Cocktail signature</h3>
+          <ul class="vn-list">
+            <li class="vn-item"><span class="vn-name">L'Automnale</span><span class="vn-price">16</span><span class="vn-desc">Calvados AOC 6 ans · miel · citron · prune · shiso · Douze</span></li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const root = document.documentElement;
+  try{
+  function cssMs(n){ return parseFloat(getComputedStyle(root).getPropertyValue(n)) * 1000 || 0; }
+  function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+  /* ---------- preloader: the picto draws, fills, slips away, the curtain lifts ---------- */
+  const pre = document.getElementById("preloader");
+  let done = false;
+  function reveal(){
+    if(done) return; done = true;
+    pre.classList.add("is-leaving");
+    root.classList.remove("is-loading");
+    setTimeout(function(){ document.body.classList.add("is-ready"); }, cssMs("--curtain-dur") * .35);
+    setTimeout(function(){ pre.remove(); }, cssMs("--curtain-dur") + 100);
+  }
+  setTimeout(reveal, 9000);
+  const loaded = document.readyState === "complete" ? Promise.resolve() : new Promise(function(r){ window.addEventListener("load", r); });
+  const fonts = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+  Promise.all([wait(2600), loaded, fonts]).then(function(){
+    pre.classList.add("is-completing");
+    return wait(cssMs("--picto-fill-dur") + cssMs("--picto-hold-dur"));
+  }).then(function(){
+    pre.classList.add("is-disappearing");
+    return wait(cssMs("--picto-disappear-dur"));
+  }).then(reveal).catch(reveal);
+
+  /* ---------- header turns solid after the hero; mobile booking bar ---------- */
+  const header = document.getElementById("header");
+  const hero = document.getElementById("top");
+  const book = document.getElementById("book-bar");
+  const infos = document.getElementById("infos");
+  function onScroll(){
+    const y = window.scrollY;
+    header.classList.toggle("is-solid", y > hero.offsetHeight - 80);
+    const nearEnd = y + window.innerHeight > infos.offsetTop + 120;
+    book.classList.toggle("is-on", y > hero.offsetHeight * .7 && !nearEnd);
+  }
+  window.addEventListener("scroll", onScroll, { passive:true });
+  onScroll();
+
+  /* ---------- navigation overlay ---------- */
+  const btn = document.getElementById("menu-btn");
+  const nav = document.getElementById("nav");
+  function setNav(open){
+    root.classList.toggle("nav-open", open);
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+    nav.setAttribute("aria-hidden", open ? "false" : "true");
+    document.body.style.overflow = open ? "hidden" : "";
+  }
+  btn.addEventListener("click", function(){ setNav(!root.classList.contains("nav-open")); });
+  nav.querySelectorAll("a").forEach(function(a){ a.addEventListener("click", function(){ setNav(false); }); });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape") setNav(false); });
+
+  /* ---------- reveals ---------- */
+  const io = "IntersectionObserver" in window ? new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("is-in"); io.unobserve(e.target); } });
+  }, { rootMargin:"0px 0px -6% 0px" }) : null;
+  document.querySelectorAll("[data-reveal]").forEach(function(el){ io ? io.observe(el) : el.classList.add("is-in"); });
+
+  /* ---------- sequences: native horizontal scroll (swipe, trackpad, shift +
+     wheel), arrows and mouse drag; the page's vertical scroll is never held ---------- */
+  const track = document.getElementById("seq-track");
+  const cards = track.querySelectorAll(".seq-card");
+  const count = document.getElementById("seq-count");
+  const bar = document.getElementById("seq-bar");
+  const arrows = document.querySelectorAll(".seq-arrow");
+  function step(){ return cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : track.clientWidth; }
+  function update(){
+    const max = track.scrollWidth - track.clientWidth;
+    const p = max > 0 ? track.scrollLeft / max : 0;
+    bar.style.width = (Math.max(.08, p) * 100).toFixed(1) + "%";
+    const i = Math.min(cards.length - 1, Math.round(track.scrollLeft / step()));
+    count.textContent = String(i + 1).padStart(2, "0") + " / " + String(cards.length).padStart(2, "0");
+    arrows[0].disabled = track.scrollLeft < 4;
+    arrows[1].disabled = track.scrollLeft > max - 4;
+  }
+  track.addEventListener("scroll", update, { passive:true });
+  window.addEventListener("resize", update);
+  update();
+  arrows.forEach(function(a){
+    a.addEventListener("click", function(){ track.scrollBy({ left:step() * +a.dataset.dir, behavior:"smooth" }); });
+  });
+  let drag = null;
+  track.addEventListener("pointerdown", function(e){
+    if(e.pointerType !== "mouse") return;
+    drag = { x:e.clientX, left:track.scrollLeft, moved:false };
+  });
+  window.addEventListener("pointermove", function(e){
+    if(!drag) return;
+    const dx = e.clientX - drag.x;
+    if(Math.abs(dx) > 4){ drag.moved = true; track.classList.add("is-dragging"); }
+    track.scrollLeft = drag.left - dx;
+  });
+  window.addEventListener("pointerup", function(){
+    if(!drag) return;
+    const moved = drag.moved; drag = null;
+    track.classList.remove("is-dragging");
+    if(moved){ const s = step(); track.scrollTo({ left:Math.round(track.scrollLeft / s) * s, behavior:"smooth" }); }
+  });
+  track.addEventListener("keydown", function(e){
+    if(e.key === "ArrowRight" || e.key === "ArrowLeft"){
+      e.preventDefault();
+      track.scrollBy({ left:step() * (e.key === "ArrowRight" ? 1 : -1), behavior:"smooth" });
+    }
+  });
+
+  /* ---------- film: loads and plays only when on screen ---------- */
+  const video = document.getElementById("film-video");
+  const cut = window.matchMedia("(max-aspect-ratio: 1/1)").matches ? "tall" : "wide";
+  let loadedFilm = false;
+  function play(){ const p = video.play && video.play(); if(p && p.catch) p.catch(function(){}); }
+  video.muted = true;
+  video.addEventListener("playing", function(){ video.classList.add("is-playing"); });
+  if("IntersectionObserver" in window){
+    new IntersectionObserver(function(entries){
+      if(entries[0].isIntersecting){
+        if(!loadedFilm){
+          loadedFilm = true;
+          [["mp4","video/mp4"],["webm","video/webm"]].forEach(function(s){
+            const el = document.createElement("source");
+            el.src = "assets/jacqueline-" + cut + "." + s[0]; el.type = s[1];
+            video.appendChild(el);
+          });
+          video.load();
+        }
+        play();
+      } else if(loadedFilm) video.pause();
+    }, { rootMargin:"120px 0px" }).observe(video.parentNode);
+  }
+  }catch(err){
+    root.classList.add("js-failed");
+    root.classList.remove("is-loading");
+  }
+})();
+
+/* ---------- la carte: menu & wines ----------
+   opens on the menu or the wines; #carte, #menu and #vins in the address
+   open it straight away (for a QR code on the table or a link in bio) */
+(function(){
+  "use strict";
+  const sheet = document.getElementById("carte");
+  if(!sheet) return;
+  const body = document.getElementById("carte-body");
+  const tabs = sheet.querySelectorAll(".carte-tab");
+  const panels = { menu:document.getElementById("panel-menu"), vins:document.getElementById("panel-vins") };
+  const chips = sheet.querySelectorAll(".vn-chip");
+  let lastFocused = null;
+
+  function show(tab){
+    tabs.forEach(function(b){
+      const on = b.dataset.tab === tab;
+      b.setAttribute("aria-selected", on ? "true" : "false");
+      b.tabIndex = on ? 0 : -1;
+    });
+    Object.keys(panels).forEach(function(k){ panels[k].hidden = k !== tab; });
+    body.scrollTop = 0;
+    history.replaceState(null, "", "#" + (tab === "vins" ? "vins" : "carte"));
+  }
+  function open(tab){
+    lastFocused = document.activeElement;
+    show(tab || "menu");
+    sheet.classList.add("is-open");
+    sheet.setAttribute("aria-hidden", "false");
+    document.documentElement.style.overflow = "hidden";
+    setTimeout(function(){ const t = sheet.querySelector('.carte-tab[aria-selected="true"]'); if(t) t.focus({ preventScroll:true }); }, 60);
+  }
+  function close(){
+    sheet.classList.remove("is-open");
+    sheet.setAttribute("aria-hidden", "true");
+    document.documentElement.style.overflow = "";
+    history.replaceState(null, "", location.pathname + location.search);
+    if(lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+
+  document.querySelectorAll("[data-open-carte]").forEach(function(el){
+    el.addEventListener("click", function(e){ e.preventDefault(); open(el.dataset.openCarte); });
+  });
+  sheet.querySelectorAll("[data-carte-close]").forEach(function(el){ el.addEventListener("click", close); });
+  sheet.querySelectorAll("[data-tab]").forEach(function(el){ el.addEventListener("click", function(){ show(el.dataset.tab); }); });
+  sheet.querySelector(".carte-tabs").addEventListener("keydown", function(e){
+    if(e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    const next = sheet.querySelector('.carte-tab[aria-selected="false"]');
+    show(next.dataset.tab); next.focus();
+  });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && sheet.classList.contains("is-open")) close(); });
+
+  // categories: tap to jump, and the current one lights up while scrolling
+  const chipsBar = sheet.querySelector(".vn-chips");
+  chips.forEach(function(c){
+    c.addEventListener("click", function(e){
+      e.preventDefault();
+      const sec = document.getElementById(c.dataset.target);
+      body.scrollTo({ top:sec.offsetTop - chipsBar.offsetHeight - 8, behavior:"smooth" });
+    });
+  });
+  function spy(){
+    if(panels.vins.hidden) return;
+    let current = chips[0];
+    chips.forEach(function(c){
+      const sec = document.getElementById(c.dataset.target);
+      if(sec.offsetTop - chipsBar.offsetHeight - 24 <= body.scrollTop) current = c;
+    });
+    chips.forEach(function(c){ c.classList.toggle("is-active", c === current); });
+    if(current && current.scrollIntoView && chipsBar.scrollWidth > chipsBar.clientWidth){
+      const l = current.offsetLeft - 20;
+      if(l < chipsBar.scrollLeft || l + current.offsetWidth > chipsBar.scrollLeft + chipsBar.clientWidth) chipsBar.scrollTo({ left:l, behavior:"smooth" });
+    }
+  }
+  body.addEventListener("scroll", spy, { passive:true });
+
+  const h = location.hash.replace("#", "");
+  if(h === "carte" || h === "menu") open("menu");
+  else if(h === "vins") open("vins");
+})();
+</script>
+</body>
+</html>
