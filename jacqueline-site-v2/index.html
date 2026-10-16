@@ -481,6 +481,8 @@
   .seq-track:has(.gal-card){gap:clamp(1rem, 2.4vw, 2rem);}
   .gal-card{flex:none;scroll-snap-align:start;height:min(68vh, 40rem);margin:0;}
   .gal-card img{display:block;}
+  .gal-vid{background:var(--noir);}
+  .gal-vid video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;translate:0 var(--py,0px);scale:1.12;}
   .gal-foot{display:flex;align-items:center;gap:1.5rem;margin:2.2rem var(--gutter) 0;}
   .gal-foot .seq-progress{flex:1;margin:0;}
   @media (max-width: 760px){ .gal-card{height:min(62svh, 30rem);} .gal-foot .seq-nav{display:none;} }
@@ -854,14 +856,17 @@
   <!-- FILM -->
   <section class="seq gal" id="galerie" aria-label="Photographies">
     <div class="seq-track" tabindex="0" aria-label="Faire défiler les photos">
-      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-01.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-01.webp" type="image/webp"><img src="assets/img/galerie-01.jpg" alt="La façade bordeaux de Jacqueline, depuis la rue de la Victoire" loading="lazy" width="1000" height="1500"></picture></figure>
-      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-02.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-02.webp" type="image/webp"><img src="assets/img/galerie-02.jpg" alt="Huître, herbes fraîches" loading="lazy" width="1000" height="1500"></picture></figure>
-      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-03.webp" data-paper="239,233,223" data-once style="aspect-ratio:1134 / 1500"><picture><source srcset="assets/img/galerie-03.webp" type="image/webp"><img src="assets/img/galerie-03.jpg" alt="Assiette du menu, écume et herbes" loading="lazy" width="1134" height="1500"></picture></figure>
-      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-04.webp" data-paper="239,233,223" data-once style="aspect-ratio:1078 / 1500"><picture><source srcset="assets/img/galerie-04.webp" type="image/webp"><img src="assets/img/galerie-04.jpg" alt="Bœuf rassis, sauces vertes et légumes" loading="lazy" width="1078" height="1500"></picture></figure>
-      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-05.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-05.webp" type="image/webp"><img src="assets/img/galerie-05.jpg" alt="Table de marbre et carte bordeaux" loading="lazy" width="1000" height="1500"></picture></figure>
-      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-06.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-06.webp" type="image/webp"><img src="assets/img/galerie-06.jpg" alt="Assiette rouge, fruits et fleurs" loading="lazy" width="1000" height="1500"></picture></figure>
-      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-07.webp" data-paper="239,233,223" data-once style="aspect-ratio:1442 / 1500"><picture><source srcset="assets/img/galerie-07.webp" type="image/webp"><img src="assets/img/galerie-07.jpg" alt="Dessert au chocolat et céréales soufflées" loading="lazy" width="1442" height="1500"></picture></figure>
-      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-08.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-08.webp" type="image/webp"><img src="assets/img/galerie-08.jpg" alt="La salle et ses globes de verre" loading="lazy" width="1000" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-01.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-01.webp" type="image/webp"><img src="assets/img/galerie-01.jpg" alt="La façade bordeaux de Jacqueline, rue de la Victoire" loading="lazy" width="1000" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-02.webp" data-paper="239,233,223" data-once style="aspect-ratio:1177 / 1500"><picture><source srcset="assets/img/galerie-02.webp" type="image/webp"><img src="assets/img/galerie-02.jpg" alt="Huître, herbes fraîches, sur lit de sel" loading="lazy" width="1177" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-03.webp" data-paper="239,233,223" data-once style="aspect-ratio:1164 / 1500"><picture><source srcset="assets/img/galerie-03.webp" type="image/webp"><img src="assets/img/galerie-03.jpg" alt="Huître et céramiques devant le terrazzo" loading="lazy" width="1164" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-04.webp" data-paper="239,233,223" data-once style="aspect-ratio:1134 / 1500"><picture><source srcset="assets/img/galerie-04.webp" type="image/webp"><img src="assets/img/galerie-04.jpg" alt="Assiette du menu, écume et herbes" loading="lazy" width="1134" height="1500"></picture></figure>
+      <figure class="gal-card ph gal-vid" style="aspect-ratio:720 / 1080"><video muted loop playsinline preload="none" poster="assets/img/viande-poster.webp" aria-label="La viande sur le grill, nappée de sauce, puis dressée" data-mp4="assets/video/viande.mp4" data-webm="assets/video/viande.webm"></video></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-06.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-06.webp" type="image/webp"><img src="assets/img/galerie-06.jpg" alt="La carte en cuir sur une table de marbre" loading="lazy" width="1000" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-07.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-07.webp" type="image/webp"><img src="assets/img/galerie-07.jpg" alt="Une assiette posée sur la table" loading="lazy" width="1000" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-08.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-08.webp" type="image/webp"><img src="assets/img/galerie-08.jpg" alt="Assiette rouge, fruits et fleurs" loading="lazy" width="1000" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-09.webp" data-paper="239,233,223" data-once style="aspect-ratio:1104 / 1500"><picture><source srcset="assets/img/galerie-09.webp" type="image/webp"><img src="assets/img/galerie-09.jpg" alt="Le chef verse la sauce à table" loading="lazy" width="1104" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-10.webp" data-paper="239,233,223" data-once style="aspect-ratio:1442 / 1500"><picture><source srcset="assets/img/galerie-10.webp" type="image/webp"><img src="assets/img/galerie-10.jpg" alt="Dessert au chocolat et céréales soufflées" loading="lazy" width="1442" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-11.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-11.webp" type="image/webp"><img src="assets/img/galerie-11.jpg" alt="La salle et ses globes de verre" loading="lazy" width="1000" height="1500"></picture></figure>
     </div>
     <div class="gal-foot">
       <div class="seq-progress" aria-hidden="true"><i></i></div>
@@ -1378,6 +1383,27 @@
     entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("is-in"); io.unobserve(e.target); } });
   }, { rootMargin:"0px 0px -6% 0px" }) : null;
   document.querySelectorAll("[data-reveal], .seq-card, .ph[data-ink]").forEach(function(el){ io ? io.observe(el) : el.classList.add("is-in"); });
+
+  /* ---------- the meat, in a short loop: loads and plays only on screen ---------- */
+  document.querySelectorAll(".gal-vid video").forEach(function(v){
+    let set = false;
+    v.muted = true;
+    function play(){ const p = v.play && v.play(); if(p && p.catch) p.catch(function(){}); }
+    if(!("IntersectionObserver" in window)) return;
+    new IntersectionObserver(function(entries){
+      if(entries[0].isIntersecting){
+        if(!set){
+          set = true;
+          [["mp4","video/mp4"],["webm","video/webm"]].forEach(function(t){
+            const el = document.createElement("source");
+            el.src = v.dataset[t[0]]; el.type = t[1]; v.appendChild(el);
+          });
+          v.load();
+        }
+        play();
+      } else if(set) v.pause();
+    }, { rootMargin:"100px" }).observe(v.parentNode);
+  });
 
   /* ---------- light parallax inside the frames ---------- */
   if(!matchMedia("(prefers-reduced-motion: reduce)").matches && io){
