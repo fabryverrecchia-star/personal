@@ -476,11 +476,12 @@
   @media (max-width: 860px){ .chef-grid{grid-template-columns:1fr;} .chef-grid .ph{max-width:30rem;} }
 
   /* ============ FILM ============ */
-  .film{padding:0 var(--gutter);}
-  .film-box{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--noir);aspect-ratio:16 / 9;}
-  .film-box video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;}
-  .film-box video.is-playing{opacity:1;}
-  @media (max-aspect-ratio: 1/1){ .film-box{aspect-ratio:4 / 5;} }
+  /* photo carousel: same strip as the sequences, on the paper */
+  .gal{background:var(--papier);padding-top:0;}
+  .seq-track:has(.gal-card){gap:clamp(1rem, 2.4vw, 2rem);}
+  .gal-card{flex:none;scroll-snap-align:start;height:min(68vh, 40rem);margin:0;}
+  .gal-card img{display:block;}
+  @media (max-width: 760px){ .gal-card{height:min(62svh, 30rem);} }
 
   /* ============ LA MAISON ============ */
   .maison-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(.9rem, 1.8vw, 1.6rem);margin-top:3.2rem;}
@@ -528,11 +529,11 @@
   /* light parallax: the image drifts inside its frame (individual transform
      properties, so it composes with the reveals and the ink canvas) */
   .ph > picture{display:block;height:100%;}
-  .ph > picture,.ph > .ink-canvas,.film-box video{translate:0 var(--py,0px);scale:1.12;will-change:translate;}
+  .ph > picture,.ph > .ink-canvas{translate:0 var(--py,0px);scale:1.12;will-change:translate;}
   .hero-media{translate:0 var(--py,0px);will-change:translate;}
 
   @media (prefers-reduced-motion: reduce){
-    .ph > picture,.ph > .ink-canvas,.film-box video,.hero-media{translate:none;}
+    .ph > picture,.ph > .ink-canvas,.hero-media{translate:none;}
     .js [data-reveal],.hero img,.ph img{transition-duration:.01s !important;}
   }
 
@@ -749,7 +750,7 @@
       <source media="(max-width: 760px)" srcset="assets/img/hero-salle-m.webp" type="image/webp">
       <source media="(max-width: 760px)" srcset="assets/img/hero-salle-m.jpg">
       <source srcset="assets/img/hero-salle.webp" type="image/webp">
-      <img src="assets/img/hero-salle.jpg" alt="La salle de Jacqueline : banquette rose, marbre et terrazzo, globes de verre au plafond" width="2200" height="1467" fetchpriority="high">
+      <img src="assets/img/hero-salle.jpg" alt="La banquette rose de Jacqueline, sous le marbre et le terrazzo" width="2400" height="1223" fetchpriority="high">
     </picture>
     </div>
     <div class="hero-title">
@@ -849,10 +850,29 @@
   </section>
 
   <!-- FILM -->
-  <section class="film" aria-label="En cuisine">
-    <div class="film-box wrap" data-reveal>
-      <video id="film-video" muted loop playsinline preload="none" aria-hidden="true"></video>
+  <section class="seq gal" id="galerie" aria-label="En images">
+    <div class="seq-head">
+      <div>
+        <span class="label eyebrow">En images</span>
+        <h2 class="h2">De la cuisine à la rue</h2>
+      </div>
+      <div class="seq-nav">
+        <button type="button" class="seq-arrow" data-dir="-1" aria-label="Photo précédente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <span class="seq-count label">01 / 08</span>
+        <button type="button" class="seq-arrow" data-dir="1" aria-label="Photo suivante"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
     </div>
+    <div class="seq-track" tabindex="0" aria-label="Faire défiler les photos">
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-01.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-01.webp" type="image/webp"><img src="assets/img/galerie-01.jpg" alt="La façade bordeaux de Jacqueline, depuis la rue de la Victoire" loading="lazy" width="1000" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-02.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-02.webp" type="image/webp"><img src="assets/img/galerie-02.jpg" alt="Huître, herbes fraîches" loading="lazy" width="1000" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-03.webp" data-paper="239,233,223" data-once style="aspect-ratio:1134 / 1500"><picture><source srcset="assets/img/galerie-03.webp" type="image/webp"><img src="assets/img/galerie-03.jpg" alt="Assiette du menu, écume et herbes" loading="lazy" width="1134" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-04.webp" data-paper="239,233,223" data-once style="aspect-ratio:1078 / 1500"><picture><source srcset="assets/img/galerie-04.webp" type="image/webp"><img src="assets/img/galerie-04.jpg" alt="Bœuf rassis, sauces vertes et légumes" loading="lazy" width="1078" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-05.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-05.webp" type="image/webp"><img src="assets/img/galerie-05.jpg" alt="Table de marbre et carte bordeaux" loading="lazy" width="1000" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-06.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-06.webp" type="image/webp"><img src="assets/img/galerie-06.jpg" alt="Assiette rouge, fruits et fleurs" loading="lazy" width="1000" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-07.webp" data-paper="239,233,223" data-once style="aspect-ratio:1442 / 1500"><picture><source srcset="assets/img/galerie-07.webp" type="image/webp"><img src="assets/img/galerie-07.jpg" alt="Dessert au chocolat et céréales soufflées" loading="lazy" width="1442" height="1500"></picture></figure>
+      <figure class="gal-card ph" data-ink="photo" data-src="assets/img/galerie-08.webp" data-paper="239,233,223" data-once style="aspect-ratio:1000 / 1500"><picture><source srcset="assets/img/galerie-08.webp" type="image/webp"><img src="assets/img/galerie-08.jpg" alt="La salle et ses globes de verre" loading="lazy" width="1000" height="1500"></picture></figure>
+    </div>
+    <div class="seq-progress" aria-hidden="true"><i></i></div>
   </section>
 
   <!-- LA MAISON -->
@@ -864,7 +884,6 @@
         <figure class="ph" data-ink="photo" data-src="assets/img/salle-banquette.webp" data-paper="239,233,223" data-once><picture><source srcset="assets/img/salle-banquette.webp" type="image/webp"><img src="assets/img/salle-banquette.jpg" alt="La banquette rose et les tables de marbre" loading="lazy" width="933" height="1400"></picture></figure>
         <figure class="ph" data-ink="photo" data-src="assets/img/facade.webp" data-paper="239,233,223" data-once><picture><source srcset="assets/img/facade.webp" type="image/webp"><img src="assets/img/facade.jpg" alt="La façade bordeaux de Jacqueline, rue de la Victoire" loading="lazy" width="933" height="1400"></picture></figure>
       </div>
-      <div class="maison-wide"><figure class="ph" data-ink="photo" data-src="assets/img/salle-large.webp" data-paper="239,233,223" data-once><picture><source srcset="assets/img/salle-large.webp" type="image/webp"><img src="assets/img/salle-large.jpg" alt="Vue d’ensemble de la salle" loading="lazy" width="2200" height="1121"></picture></figure></div>
     </div>
   </section>
 
@@ -1328,14 +1347,16 @@
   const hero = document.getElementById("top");
   const book = document.getElementById("book-bar");
   const infos = document.getElementById("infos");
-  const seqSec = document.getElementById("sequences");
+  const strips = Array.prototype.slice.call(document.querySelectorAll(".seq"));
   function onScroll(){
     const y = window.scrollY;
     header.classList.toggle("is-solid", y > hero.offsetHeight - 80);
     const nearEnd = y + window.innerHeight > infos.offsetTop + 120;
-    // keeps out of the way while the sequences are on screen
-    const s = seqSec.getBoundingClientRect();
-    const onSeq = s.top < window.innerHeight * .85 && s.bottom > window.innerHeight * .15;
+    // keeps out of the way while a strip (sequences, photos) is on screen
+    const onSeq = strips.some(function(el){
+      const s = el.getBoundingClientRect();
+      return s.top < window.innerHeight * .85 && s.bottom > window.innerHeight * .15;
+    });
     book.classList.toggle("is-on", y > hero.offsetHeight * .7 && !nearEnd && !onSeq);
   }
   window.addEventListener("scroll", onScroll, { passive:true });
@@ -1383,7 +1404,7 @@
       entries.forEach(function(e){ e.isIntersecting ? frames.add(e.target) : frames.delete(e.target); });
       ask();
     }, { rootMargin:"10% 0px" });
-    document.querySelectorAll(".ph, .film-box").forEach(function(el){ pio.observe(el); });
+    document.querySelectorAll(".ph").forEach(function(el){ pio.observe(el); });
     addEventListener("scroll", ask, { passive:true });
     addEventListener("resize", ask);
     run();
@@ -1391,17 +1412,27 @@
 
   /* ---------- sequences: native horizontal scroll (swipe, trackpad, shift +
      wheel), arrows and mouse drag; the page's vertical scroll is never held ---------- */
-  const track = document.getElementById("seq-track");
-  const cards = track.querySelectorAll(".seq-card");
-  const count = document.getElementById("seq-count");
-  const bar = document.getElementById("seq-bar");
-  const arrows = document.querySelectorAll(".seq-arrow");
-  function step(){ return cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : track.clientWidth; }
+  document.querySelectorAll(".seq").forEach(function(sec){
+  const track = sec.querySelector(".seq-track");
+  const cards = track.children;
+  const count = sec.querySelector(".seq-count");
+  const bar = sec.querySelector(".seq-progress i");
+  const arrows = sec.querySelectorAll(".seq-arrow");
+  // cards may differ in width (photos): work from each card's own position
+  function at(){
+    const x = track.scrollLeft + 4; let i = 0;
+    for(let k = 0; k < cards.length; k++){ if(cards[k].offsetLeft - cards[0].offsetLeft <= x) i = k; }
+    return i;
+  }
+  function go(i){
+    i = Math.max(0, Math.min(cards.length - 1, i));
+    track.scrollTo({ left:cards[i].offsetLeft - cards[0].offsetLeft, behavior:"smooth" });
+  }
   function update(){
     const max = track.scrollWidth - track.clientWidth;
     const p = max > 0 ? track.scrollLeft / max : 0;
     bar.style.width = (Math.max(.08, p) * 100).toFixed(1) + "%";
-    const i = Math.min(cards.length - 1, Math.round(track.scrollLeft / step()));
+    const i = track.scrollLeft > max - 4 ? cards.length - 1 : at();
     count.textContent = String(i + 1).padStart(2, "0") + " / " + String(cards.length).padStart(2, "0");
     arrows[0].disabled = track.scrollLeft < 4;
     arrows[1].disabled = track.scrollLeft > max - 4;
@@ -1410,7 +1441,7 @@
   window.addEventListener("resize", update);
   update();
   arrows.forEach(function(a){
-    a.addEventListener("click", function(){ track.scrollBy({ left:step() * +a.dataset.dir, behavior:"smooth" }); });
+    a.addEventListener("click", function(){ go(at() + +a.dataset.dir); });
   });
   let drag = null;
   track.addEventListener("pointerdown", function(e){
@@ -1427,38 +1458,16 @@
     if(!drag) return;
     const moved = drag.moved; drag = null;
     track.classList.remove("is-dragging");
-    if(moved){ const s = step(); track.scrollTo({ left:Math.round(track.scrollLeft / s) * s, behavior:"smooth" }); }
+    if(moved) go(at() + (track.scrollLeft - cards[at()].offsetLeft + cards[0].offsetLeft > cards[at()].offsetWidth / 2 ? 1 : 0));
   });
   track.addEventListener("keydown", function(e){
     if(e.key === "ArrowRight" || e.key === "ArrowLeft"){
       e.preventDefault();
-      track.scrollBy({ left:step() * (e.key === "ArrowRight" ? 1 : -1), behavior:"smooth" });
+      go(at() + (e.key === "ArrowRight" ? 1 : -1));
     }
   });
+  });
 
-  /* ---------- film: loads and plays only when on screen ---------- */
-  const video = document.getElementById("film-video");
-  const cut = window.matchMedia("(max-aspect-ratio: 1/1)").matches ? "tall" : "wide";
-  let loadedFilm = false;
-  function play(){ const p = video.play && video.play(); if(p && p.catch) p.catch(function(){}); }
-  video.muted = true;
-  video.addEventListener("playing", function(){ video.classList.add("is-playing"); });
-  if("IntersectionObserver" in window){
-    new IntersectionObserver(function(entries){
-      if(entries[0].isIntersecting){
-        if(!loadedFilm){
-          loadedFilm = true;
-          [["mp4","video/mp4"],["webm","video/webm"]].forEach(function(s){
-            const el = document.createElement("source");
-            el.src = "assets/jacqueline-" + cut + "." + s[0]; el.type = s[1];
-            video.appendChild(el);
-          });
-          video.load();
-        }
-        play();
-      } else if(loadedFilm) video.pause();
-    }, { rootMargin:"120px 0px" }).observe(video.parentNode);
-  }
   }catch(err){
     root.classList.add("js-failed");
     root.classList.remove("is-loading");
