@@ -1,11 +1,42 @@
 # Jacqueline, site officiel (v2)
 
-Site one page, statique : envoyer `index.html` et le dossier `assets/` à la racine de l'hébergement.
+Site statique : envoyer **tout le contenu de ce dossier** à la racine de l'hébergement (y compris le fichier caché `.htaccess`).
+
+## Contenu
+
+- `index.html` : le site (une page).
+- `mentions-legales.html`, `confidentialite.html` : pages légales, liées depuis le pied de page.
+- `404.html` : page « introuvable ».
+- `assets/` : images, polices, vidéo, carte PDF.
+- `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest` : icônes (onglet, écran d'accueil iPhone et Android).
+- `robots.txt`, `sitemap.xml` : pour Google.
+- `.htaccess` : redirection HTTPS, page 404, sécurité, cache (hébergeurs Apache : OVH, o2switch, Ionos… ignoré ailleurs).
+
+## Avant la mise en ligne : à compléter
+
+Les champs à remplir apparaissent en bourgogne, entre crochets, dans `mentions-legales.html` et `confidentialite.html` :
+
+1. Raison sociale, forme juridique, capital, SIREN (RCS Paris), n° de TVA, siège social s'il diffère du restaurant.
+2. Téléphone du restaurant.
+3. Directeur de la publication (nom et qualité).
+4. Hébergeur : nom, adresse, téléphone.
+5. Médiateur de la consommation auquel l'établissement adhère (obligatoire pour un professionnel qui reçoit des particuliers).
+6. Auteur des illustrations des séquences.
+
+Le nom de domaine retenu est `jacqueline-restaurant.com` (celui de l'adresse e-mail). S'il change, le remplacer dans `index.html` (balises `canonical`, `og:` et données structurées), `robots.txt`, `sitemap.xml` et les deux pages légales.
+
+## Ce qui est déjà en règle
+
+- Aucun cookie, aucune mesure d'audience, aucun appel à un service tiers au chargement (les polices sont hébergées sur le site) : pas de bandeau cookies à prévoir.
+- Mention loi Évin dans le pied de page et sous la carte des vins.
+- Allergènes et prix nets (TTC, service compris) indiqués sur la carte et dans les mentions légales.
+- Crédits : design et photographies, Fabrizio Verrecchia — Studio_18h22.
+
+## Le site
 
 - Préchargement : le picto se trace, se remplit, puis le rideau bourgogne se lève sur la photo de la salle.
 - Accueil plein écran, barre d'accès rapide (Réserver, La carte, Les vins, Accès).
 - Séquences : bande horizontale (glisser au doigt, trackpad, flèches ou souris). Le défilement vertical de la page n'est jamais bloqué.
 - Le menu et la carte des vins s'ouvrent dans une feuille (liens directs `#carte` et `#vins`).
-- Le chef, un carrousel de photos (façade côté rue, plats, carte, salle) et une courte boucle vidéo de la viande, qui défile à l'horizontale comme les séquences, la maison, réservation, pied de page.
-- Photographies : album « Gustave Migdal ouvre Jacqueline » (18H22), redimensionnées pour le web dans `assets/img/`.
+- Le chef, un carrousel de photos (façade côté rue, plats, carte, salle) et une courte boucle vidéo de la viande, la maison, réservation, pied de page.
 - Textes à valider : citation et bio du chef, horaires (« Déjeuner & dîner, sur réservation »).
