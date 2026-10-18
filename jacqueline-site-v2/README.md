@@ -10,18 +10,17 @@ Site statique : envoyer **tout le contenu de ce dossier** à la racine de l'héb
 - `assets/` : images, polices, vidéo, carte PDF.
 - `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest` : icônes (onglet, écran d'accueil iPhone et Android).
 - `robots.txt`, `sitemap.xml` : pour Google.
-- `.htaccess` : redirection HTTPS, page 404, sécurité, cache (hébergeurs Apache : OVH, o2switch, Ionos… ignoré ailleurs).
+- `.htaccess` : redirection HTTPS, page 404, sécurité, cache (adapté à l'hébergement OVH).
 
 ## Avant la mise en ligne : à compléter
 
 Les champs à remplir apparaissent en bourgogne, entre crochets, dans `mentions-legales.html` et `confidentialite.html` :
 
-1. Raison sociale, forme juridique, capital, SIREN (RCS Paris), n° de TVA, siège social s'il diffère du restaurant.
+1. Capital social, SIREN (RCS Paris) et n° de TVA de la SARL Jacqueline Gustave Migdal (sur le Kbis).
 2. Téléphone du restaurant.
-3. Directeur de la publication (nom et qualité).
-4. Hébergeur : nom, adresse, téléphone.
-5. Médiateur de la consommation auquel l'établissement adhère (obligatoire pour un professionnel qui reçoit des particuliers).
-6. Auteur des illustrations des séquences.
+3. Médiateur de la consommation auquel l'établissement adhère (obligatoire pour un professionnel qui reçoit des particuliers ; le comptable le connaît).
+
+Déjà renseignés : SARL Jacqueline Gustave Migdal, siège 14 rue Charles V, 75004 Paris ; directeurs de la publication Gustave Migdal et Fabrizio Verrecchia ; hébergeur OVH ; design, illustrations et photographies Fabrizio Verrecchia — Studio_18h22.
 
 Le nom de domaine retenu est `jacqueline-restaurant.com` (celui de l'adresse e-mail). S'il change, le remplacer dans `index.html` (balises `canonical`, `og:` et données structurées), `robots.txt`, `sitemap.xml` et les deux pages légales.
 
@@ -30,7 +29,7 @@ Le nom de domaine retenu est `jacqueline-restaurant.com` (celui de l'adresse e-m
 - Aucun cookie, aucune mesure d'audience, aucun appel à un service tiers au chargement (les polices sont hébergées sur le site) : pas de bandeau cookies à prévoir.
 - Mention loi Évin dans le pied de page et sous la carte des vins.
 - Allergènes et prix nets (TTC, service compris) indiqués sur la carte et dans les mentions légales.
-- Crédits : design et photographies, Fabrizio Verrecchia — Studio_18h22.
+- Crédits : design, illustrations et photographies, Fabrizio Verrecchia — Studio_18h22.
 
 ## Le site
 
