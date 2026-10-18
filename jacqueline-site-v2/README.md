@@ -32,7 +32,6 @@ Le nom de domaine retenu est `jacqueline-restaurant.com` (celui de l'adresse e-m
 ## Le site
 
 - Préchargement : le picto se trace, se remplit, puis le rideau bourgogne se lève sur la photo de la salle.
-- Effets WebGL (ordinateur et téléphone) : les photos et les illustrations naissent à l'encre ; au doigt ou à la souris, une goutte d'eau fait fleurir l'aquarelle ; au défilement, la peinture s'étire légèrement puis se repose. Sans WebGL, les images apparaissent en simple fondu.
 - Accueil plein écran, barre d'accès rapide (Réserver, La carte, Les vins, Accès).
 - Séquences : bande horizontale (glisser au doigt, trackpad, flèches ou souris). Le défilement vertical de la page n'est jamais bloqué.
 - Le menu et la carte des vins s'ouvrent dans une feuille (liens directs `#carte` et `#vins`).
