@@ -1453,7 +1453,7 @@
       const el = e.target;
       // the sequences come one at a time: each waits a little after the one before
       if(el.classList.contains("seq-card")){
-        const now = performance.now(), at = Math.max(now, seqSlot + 650);
+        const now = performance.now(), at = Math.max(now, seqSlot + 250);
         seqSlot = at;
         setTimeout(function(){ el.classList.add("is-in"); }, at - now);
       } else el.classList.add("is-in");
@@ -1967,7 +1967,7 @@
         // the sequences come one at a time: each waits a little after the one before
         if(s.mode === "illu"){
           if(!s.revealTarget && !s.pending){
-            const now = performance.now(), at = Math.max(now, slot + 650);
+            const now = performance.now(), at = Math.max(now, slot + 250);
             slot = at;
             s.pending = setTimeout(function(){ s.pending = 0; if(s.visible){ s.revealTarget = 1; s.kick(); } }, at - now);
           }
