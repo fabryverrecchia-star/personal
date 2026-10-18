@@ -12,13 +12,11 @@ Site statique : envoyer **tout le contenu de ce dossier** à la racine de l'héb
 - `robots.txt`, `sitemap.xml` : pour Google.
 - `.htaccess` : redirection HTTPS, page 404, sécurité, cache (adapté à l'hébergement OVH).
 
-## Avant la mise en ligne : à compléter
+## Informations légales
 
-Les champs à remplir apparaissent en bourgogne, entre crochets, dans `mentions-legales.html` et `confidentialite.html` :
+Plus aucun champ à compléter. La médiation est mentionnée sous « Réclamations » (coordonnées du médiateur communiquées sur demande) : dès que la SARL adhère à un médiateur de la consommation, ajouter son nom et son site dans `mentions-legales.html` pour être pleinement en règle.
 
-1. Médiateur de la consommation auquel l'établissement adhère (obligatoire pour un professionnel qui reçoit des particuliers ; le comptable le connaît).
-
-Déjà renseignés : SARL Jacqueline, capital 5 000 €, RCS Paris 106 419 005, TVA FR54106419005, siège 14 rue Charles V, 75004 Paris, gérant Gustave Migdal, téléphone 01 88 61 14 25 ; directeurs de la publication Gustave Migdal et Fabrizio Verrecchia ; hébergeur OVH ; design, illustrations et photographies Fabrizio Verrecchia — Studio_18h22.
+Renseignés : SARL Jacqueline, capital 5 000 €, RCS Paris 106 419 005, TVA FR54106419005, siège 14 rue Charles V, 75004 Paris, gérant Gustave Migdal, téléphone 01 88 61 14 25 ; directeurs de la publication Gustave Migdal et Fabrizio Verrecchia ; hébergeur OVH ; design, illustrations et photographies Fabrizio Verrecchia — Studio_18h22.
 
 Le nom de domaine retenu est `jacqueline-restaurant.com` (celui de l'adresse e-mail). S'il change, le remplacer dans `index.html` (balises `canonical`, `og:` et données structurées), `robots.txt`, `sitemap.xml` et les deux pages légales.
 
