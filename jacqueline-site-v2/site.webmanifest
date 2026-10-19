@@ -2,7 +2,7 @@
   "name": "Jacqueline",
   "short_name": "Jacqueline",
   "lang": "fr",
-  "start_url": "./",
+  "start_url": "/",
   "display": "browser",
   "background_color": "#efe9df",
   "theme_color": "#6a1f1b",

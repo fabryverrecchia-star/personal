@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://jacqueline-restaurant.com/</loc><lastmod>2026-10-16</lastmod><priority>1.0</priority></url>
-  <url><loc>https://jacqueline-restaurant.com/mentions-legales.html</loc><lastmod>2026-10-16</lastmod><priority>0.2</priority></url>
-  <url><loc>https://jacqueline-restaurant.com/confidentialite.html</loc><lastmod>2026-10-16</lastmod><priority>0.2</priority></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://jacqueline-restaurant.com/</loc>
+    <lastmod>2026-10-19</lastmod>
+    <image:image><image:loc>https://jacqueline-restaurant.com/assets/img/hero-salle.jpg</image:loc></image:image>
+    <image:image><image:loc>https://jacqueline-restaurant.com/assets/img/chef.jpg</image:loc></image:image>
+    <image:image><image:loc>https://jacqueline-restaurant.com/assets/img/salle-banquette.jpg</image:loc></image:image>
+    <image:image><image:loc>https://jacqueline-restaurant.com/assets/img/facade.jpg</image:loc></image:image>
+    <image:image><image:loc>https://jacqueline-restaurant.com/assets/img/galerie-01.jpg</image:loc></image:image>
+    <image:image><image:loc>https://jacqueline-restaurant.com/assets/img/galerie-02.jpg</image:loc></image:image>
+    <image:image><image:loc>https://jacqueline-restaurant.com/assets/img/galerie-03.jpg</image:loc></image:image>
+    <image:image><image:loc>https://jacqueline-restaurant.com/assets/img/galerie-04.jpg</image:loc></image:image>
+    <image:image><image:loc>https://jacqueline-restaurant.com/assets/img/galerie-06.jpg</image:loc></image:image>
+    <image:image><image:loc>https://jacqueline-restaurant.com/assets/img/galerie-07.jpg</image:loc></image:image>
+    <image:image><image:loc>https://jacqueline-restaurant.com/assets/img/galerie-08.jpg</image:loc></image:image>
+    <image:image><image:loc>https://jacqueline-restaurant.com/assets/img/galerie-09.jpg</image:loc></image:image>
+    <image:image><image:loc>https://jacqueline-restaurant.com/assets/img/galerie-10.jpg</image:loc></image:image>
+    <image:image><image:loc>https://jacqueline-restaurant.com/assets/img/galerie-11.jpg</image:loc></image:image>
+  </url>
 </urlset>

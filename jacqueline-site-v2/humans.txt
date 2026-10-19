@@ -1,0 +1,11 @@
+/* ÉQUIPE */
+Restaurant : Jacqueline, 23 rue de la Victoire, 75009 Paris
+Chef : Gustave Migdal
+
+/* CRÉDITS */
+Design, illustrations, photographies et développement : Fabrizio Verrecchia — Studio_18h22
+Décoration intérieure : Pierre Gonalons
+
+/* SITE */
+Langue : français
+Standards : HTML5, CSS3
