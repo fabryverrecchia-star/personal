@@ -10,7 +10,8 @@ Site statique : envoyer **tout le contenu de ce dossier** à la racine de l'héb
 - `assets/` : images, polices, vidéo, carte PDF.
 - `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest` : icônes (onglet, écran d'accueil iPhone et Android).
 - `robots.txt`, `sitemap.xml` (avec les photos, pour Google Images) : pour Google.
-- `humans.txt` : crédits (dont la décoration intérieure, Pierre Gonalons), invisibles pour les visiteurs.
+- `humans.txt` : crédits, invisibles pour les visiteurs.
+- Mentions légales : direction artistique intérieure et architecture d’intérieur, Pierre Gonalons (lien vers pierregonalons.com).
 - `.htaccess` : redirection HTTPS, page 404, sécurité, cache (adapté à l'hébergement OVH).
 
 ## Informations légales
