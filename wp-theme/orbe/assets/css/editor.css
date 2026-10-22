@@ -1,0 +1,20 @@
+/* Block editor: same typography as the front end. */
+.editor-styles-wrapper {
+  background: var(--bg, #efede8);
+  color: var(--fg, #121211);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.2rem;
+  line-height: 1.55;
+}
+.editor-styles-wrapper h1,
+.editor-styles-wrapper h2,
+.editor-styles-wrapper h3,
+.editor-styles-wrapper .wp-block-post-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+.editor-styles-wrapper a {
+  color: inherit;
+}

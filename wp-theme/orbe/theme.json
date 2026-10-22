@@ -1,0 +1,40 @@
+{
+	"$schema": "https://schemas.wp.org/wp/6.4/theme.json",
+	"version": 3,
+	"settings": {
+		"appearanceTools": true,
+		"layout": {
+			"contentSize": "760px",
+			"wideSize": "1200px"
+		},
+		"color": {
+			"defaultPalette": false,
+			"defaultGradients": false,
+			"palette": [
+				{ "slug": "background", "name": "Background", "color": "var(--bg, #efede8)" },
+				{ "slug": "foreground", "name": "Foreground", "color": "var(--fg, #121211)" },
+				{ "slug": "accent", "name": "Accent", "color": "var(--accent, #c8553d)" },
+				{ "slug": "muted", "name": "Muted", "color": "#76726b" }
+			]
+		},
+		"typography": {
+			"defaultFontSizes": false,
+			"fluid": true,
+			"fontFamilies": [
+				{ "slug": "display", "name": "Display (Cormorant Garamond)", "fontFamily": "'Cormorant Garamond', Georgia, serif" },
+				{ "slug": "body", "name": "Body (EB Garamond)", "fontFamily": "'EB Garamond', Georgia, serif" },
+				{ "slug": "sans", "name": "Sans (Helvetica Neue)", "fontFamily": "'Helvetica Neue', Helvetica, Arial, sans-serif" }
+			],
+			"fontSizes": [
+				{ "slug": "small", "name": "Small", "size": "1rem" },
+				{ "slug": "medium", "name": "Medium", "size": "1.25rem" },
+				{ "slug": "large", "name": "Large", "size": "2rem", "fluid": { "min": "1.4rem", "max": "2rem" } },
+				{ "slug": "x-large", "name": "Extra large", "size": "5rem", "fluid": { "min": "2.4rem", "max": "5.25rem" } },
+				{ "slug": "huge", "name": "Huge", "size": "10rem", "fluid": { "min": "3.2rem", "max": "10rem" } }
+			]
+		},
+		"spacing": {
+			"units": [ "px", "em", "rem", "vh", "vw", "%" ]
+		}
+	}
+}

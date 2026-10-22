@@ -1,0 +1,17 @@
+{
+  "name": "orbe-theme-build",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Build tooling for the Orbe WordPress theme",
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "package": "node build.mjs && node package.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "three": "0.186.1",
+    "lenis": "1.3.27",
+    "gsap": "3.15.0"
+  }
+}

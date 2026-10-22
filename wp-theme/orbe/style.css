@@ -1,0 +1,17 @@
+/*
+Theme Name: Orbe
+Theme URI: https://example.com/orbe
+Author: Orbe Studio
+Author URI: https://example.com
+Description: Orbe is an immersive portfolio theme for creative agencies and studios. WebGL hero scenes powered by Three.js, a fullscreen navigation with distorted image reveals, a scroll-reactive WebGL project grid, smooth scrolling, custom cursor and page transitions — every effect can be tuned or switched off from the Customizer, with graceful fallbacks when WebGL or motion is unavailable.
+Version: 1.0.0
+Requires at least: 6.4
+Tested up to: 7.1
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: orbe
+Tags: portfolio, blog, one-column, custom-colors, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready, editor-style, theme-options, wide-blocks
+*/
+
+/* Styles live in assets/css/main.css (enqueued by inc/enqueue.php). */
