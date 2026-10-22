@@ -387,7 +387,11 @@
 
     // côté nuit : le tunnel du temps passe en sombre, entrée et sortie en fondu
     var tr = $('#selection').getBoundingClientRect(), fr = $('#chiffres').getBoundingClientRect();
-    night = Math.min(clamp((H * 0.9 - tr.top) / (H * 0.7), 0, 1), clamp((fr.bottom - H * 0.15) / (H * 0.7), 0, 1));
+    // deux nuits : le tunnel, puis l'équipe et les chiffres ; entre les deux, les points forts restent en plein jour
+    var sr2 = $('#atouts').getBoundingClientRect();
+    night = Math.max(
+      Math.min(clamp((H * 0.9 - tr.top) / (H * 0.7), 0, 1), clamp((sr2.top - H * 0.15) / (H * 0.7), 0, 1)),
+      Math.min(clamp((H * 1.5 - sr2.bottom) / (H * 0.5), 0, 1), clamp((fr.bottom - H * 0.15) / (H * 0.7), 0, 1)));
 
     // chiffres clés : chaque ligne monte depuis le bas et compte, l'une après l'autre
     var fp = sectionProgress($('#chiffres'));
