@@ -28,18 +28,25 @@ const layout = [
   { c: 8, s: 3, ar: '4 / 5', y: -5, x: 0 },
   { c: 11, s: 2, ar: '1 / 1', y: 4, x: -1 },
 ];
+
+// Lettres de légende (a) … (z), comme sur une planche
+const letter = (i: number) => String.fromCharCode(97 + (i % 26));
 ---
 
-<section class="work container" data-work data-view="grid" aria-labelledby="work-title">
-  <div class="work__bar">
-    <h2 id="work-title" class="label">Projets sélectionnés ({projects.length})</h2>
-    <div class="work__toggle" role="group" aria-label="Affichage">
-      <button type="button" class="link" data-view-btn="grid" aria-pressed="true">Grille</button>
+<section class="work" data-work data-view="grid" aria-labelledby="work-title">
+  <div class="work__bar container">
+    <h2 id="work-title" class="label">Index — <span class="figures">{projects.length}</span> projets</h2>
+    <p class="work__lede">
+      Une observation de projets récents : identités, sites et expériences. Chaque fragment se lit
+      séparément.
+    </p>
+    <div class="work__toggle label" role="group" aria-label="Affichage">
+      <button type="button" class="link" data-view-btn="grid" aria-pressed="true">Planche</button>
       <button type="button" class="link" data-view-btn="list" aria-pressed="false">Liste</button>
     </div>
   </div>
 
-  <ul class="work__items">
+  <ul class="work__items container">
     {
       projects.map((project, i) => {
         const l = layout[i % layout.length];
@@ -50,82 +57,101 @@ const layout = [
             style={`--c:${l.c};--s:${l.s};--ar:${l.ar};--y:${l.y}vw;--x:${l.x}vw;--i:${i}`}
           >
             <a href={`/work/${project.id}`} class="item__link">
-              <span class="item__index figures">{String(i + 1).padStart(2, '0')}</span>
+              <span class="item__index caption">({letter(i)}).</span>
               <div class="item__media" data-media>
                 <ProjectMedia project={project} eager={i < 3} />
               </div>
-              <span class="item__title">{project.data.title}</span>
+              <span class="item__title label">{project.data.title}</span>
               <span class="item__cat">{project.data.category}</span>
-              <span class="item__year figures">{project.data.year}</span>
+              <span class="item__year label figures">{project.data.year}</span>
             </a>
           </li>
         );
       })
     }
   </ul>
+
+  <!-- Légende de la planche -->
+  <ol class="work__legend container">
+    {
+      projects.map((project, i) => (
+        <li>
+          <a href={`/work/${project.id}`} class="link">
+            <span class="caption">({letter(i)}).</span> {project.data.title.toLowerCase()}
+            <span class="work__legend-cat">— {project.data.category.toLowerCase()}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
 </section>
 
 <style>
   .work {
+    position: relative;
     background: var(--bg);
-    padding-bottom: 6vw;
+    border-top: 1px solid var(--line);
   }
   .work__bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding-block: 1rem;
-    border-bottom: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 1fr minmax(0, 26rem) 1fr;
+    align-items: start;
+    gap: var(--gutter);
+    padding-block: 1.25rem;
+  }
+  .work__lede {
+    font-size: var(--fs-sm);
+    line-height: 1.3;
   }
   .work__toggle {
+    justify-self: end;
     display: flex;
     gap: 1rem;
-    font-size: var(--fs-sm);
   }
   .work__toggle button[aria-pressed='false'] {
     color: var(--muted);
   }
 
-  /* ---------- Grille désordonnée ---------- */
+  /* ---------- Planche désordonnée ---------- */
   .work__items {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--gutter);
     row-gap: 1.5vw;
-    padding-top: 4vw;
+    padding-block: 5vw 8vw;
   }
   .item {
     position: relative;
     grid-column: var(--c) / span var(--s);
     margin-top: var(--y);
     margin-left: var(--x);
-    z-index: calc(1 + var(--i));
+    z-index: calc(2 + var(--i));
   }
   .item:hover {
     z-index: 100;
   }
   .item__link {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 1fr auto auto;
     grid-template-areas:
       'media media media'
-      'index title year';
-    column-gap: 0.6rem;
-    font-size: var(--fs-xs);
+      'title year index';
+    column-gap: 0.75rem;
+    align-items: baseline;
   }
   .item__media {
     grid-area: media;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.45rem;
   }
   .item__media :global(.media) {
     aspect-ratio: var(--ar);
   }
-  .item__index {
-    grid-area: index;
-    color: var(--muted);
-  }
   .item__title {
     grid-area: title;
+  }
+  .item__index {
+    grid-area: index;
+    font-size: var(--fs-xs);
   }
   .item__cat {
     display: none;
@@ -135,11 +161,28 @@ const layout = [
     color: var(--muted);
   }
 
+  /* ---------- Légende ---------- */
+  .work__legend {
+    columns: 4 14rem;
+    column-gap: var(--gutter);
+    padding-block: 1.5rem 3rem;
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-xs);
+    list-style: none;
+  }
+  .work__legend li {
+    break-inside: avoid;
+    padding-block: 0.1rem;
+  }
+  .work__legend-cat {
+    color: var(--muted);
+  }
+
   /* ---------- Liste ---------- */
   [data-view='list'] .work__items {
     grid-template-columns: 1fr;
     gap: 0;
-    padding-top: 0;
+    padding-block: 0 4rem;
   }
   [data-view='list'] .item {
     grid-column: 1 / -1;
@@ -151,7 +194,6 @@ const layout = [
     grid-template-areas: 'index media title cat year';
     align-items: center;
     padding-block: 0.75rem;
-    font-size: var(--fs-lg);
     transition: color 0.4s var(--ease-out);
   }
   [data-view='list'] .item__media {
@@ -160,15 +202,21 @@ const layout = [
   [data-view='list'] .item__media :global(.media) {
     aspect-ratio: 4 / 3;
   }
+  [data-view='list'] .item__title {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: var(--fs-lg);
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+  }
   [data-view='list'] .item__cat {
     display: block;
     grid-area: cat;
+    font-size: var(--fs-sm);
     color: var(--muted);
   }
-  [data-view='list'] .item__index,
-  [data-view='list'] .item__cat,
-  [data-view='list'] .item__year {
-    font-size: var(--fs-sm);
+  [data-view='list'] .work__legend {
+    display: none;
   }
   @media (hover: hover) {
     [data-view='list'] .work__items:hover .item__link {
@@ -180,6 +228,13 @@ const layout = [
   }
 
   @media (max-width: 800px) {
+    .work__bar {
+      grid-template-columns: 1fr auto;
+    }
+    .work__lede {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
     .work__items {
       grid-template-columns: repeat(6, minmax(0, 1fr));
       row-gap: 4vw;
@@ -196,9 +251,8 @@ const layout = [
       grid-column: 2 / span 5;
     }
     [data-view='list'] .item__link {
-      grid-template-columns: 2rem 4rem minmax(0, 1fr) auto;
+      grid-template-columns: 2.5rem 4rem minmax(0, 1fr) auto;
       grid-template-areas: 'index media title year';
-      font-size: var(--fs-base);
     }
     [data-view='list'] .item__cat {
       display: none;

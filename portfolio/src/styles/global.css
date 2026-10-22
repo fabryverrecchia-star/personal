@@ -57,11 +57,16 @@
    Tokens
    ========================================================================== */
 :root {
-  --bg: #efede8;
-  --fg: #121211;
-  --muted: #76726b;
-  --line: rgb(18 18 17 / 0.14);
-  --accent: #121211;
+  /* Palette « papier » inspirée des références : ivoire, olive, sauge, terre cuite */
+  --bg: #e6e2d8; /* papier */
+  --fg: #1c1b17; /* encre */
+  --muted: #6f6b60;
+  --line: rgb(28 27 23 / 0.22); /* filets */
+  --accent: #b1532c; /* terre cuite */
+  --olive: #7b7848;
+  --olive-ink: #1c1b17;
+  --sage: #a3a996;
+  --grain-opacity: 0.11;
 
   --font-body: 'EB Garamond', 'Iowan Old Style', Garamond, Georgia, serif;
   --font-italic: 'Garamond Swash', var(--font-body);
@@ -74,6 +79,7 @@
   --margin: clamp(16px, 2.2vw, 40px);
   --header-h: 64px;
 
+  --font-label: var(--font-name);
   /* Garamond a un petit œil : les tailles sont un cran au-dessus d'une sans-serif */
   --fs-xs: 0.9375rem;
   --fs-sm: 1.0625rem;
@@ -88,21 +94,29 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #111110;
-    --fg: #ecebe6;
-    --muted: #8d8980;
-    --line: rgb(236 235 230 / 0.14);
-    --accent: #ecebe6;
+    --bg: #171714;
+    --fg: #e4dfd3;
+    --muted: #8f8a7d;
+    --line: rgb(228 223 211 / 0.18);
+    --accent: #c86a40;
+    --olive: #45432a;
+    --olive-ink: #e4dfd3;
+    --sage: #3b3f35;
+    --grain-opacity: 0.07;
     color-scheme: dark;
   }
 }
 /* Thème forcé (ex. aperçu dans un artefact) */
 :root[data-theme='dark'] {
-  --bg: #111110;
-  --fg: #ecebe6;
-  --muted: #8d8980;
-  --line: rgb(236 235 230 / 0.14);
-  --accent: #ecebe6;
+  --bg: #171714;
+  --fg: #e4dfd3;
+  --muted: #8f8a7d;
+  --line: rgb(228 223 211 / 0.18);
+  --accent: #c86a40;
+  --olive: #45432a;
+  --olive-ink: #e4dfd3;
+  --sage: #3b3f35;
+  --grain-opacity: 0.07;
   color-scheme: dark;
 }
 
@@ -197,6 +211,10 @@ em {
   font-weight: 400;
 }
 /* Grands titres en Garamond léger */
+.display {
+  font-family: var(--font-display);
+  font-weight: 300;
+}
 .display em {
   font-family: 'Garamond Swash', var(--font-display);
   font-weight: 300;
@@ -217,10 +235,53 @@ em {
   line-height: 1;
 }
 .label {
-  font-size: var(--fs-xs);
-  font-variant-caps: all-small-caps;
-  letter-spacing: 0.08em;
+  font-family: var(--font-label);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  line-height: 1.5;
+  color: var(--fg);
+}
+/* Grands titres en capitales (Cormorant Light) ; les mots en italique restent en bas de casse */
+.caps {
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+}
+.caps em {
+  text-transform: none;
+}
+/* Légendes façon planche : (a). (b). … */
+.caption {
+  font-family: var(--font-italic);
+  font-style: italic;
+  font-size: var(--fs-sm);
   color: var(--muted);
+}
+/* Texte vertical (référence 1) */
+.vertical {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+/* Grain papier, fixe au-dessus de tout */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .grain {
+    filter: invert(1);
+    mix-blend-mode: screen;
+  }
+}
+:root[data-theme='dark'] .grain {
+  filter: invert(1);
+  mix-blend-mode: screen;
 }
 .sr-only {
   position: absolute;

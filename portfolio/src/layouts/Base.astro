@@ -27,8 +27,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta name="theme-color" content="#efede8" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#111110" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#e6e2d8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#171714" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href="/fonts/EBGaramond-Roman.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/EBGaramond-Italic.woff2" as="font" type="font/woff2" crossorigin />
@@ -38,6 +38,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <a href="#main" class="skip sr-only">Aller au contenu</a>
     <Loader />
     <div class="gl" data-gl-root transition:persist="gl" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
     <div class="curtain" data-curtain transition:persist="curtain" aria-hidden="true"></div>
     <Header />
     <main id="main">
@@ -55,12 +56,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     position: fixed;
     inset: 0;
     z-index: 90;
-    background: var(--fg);
+    background: var(--olive);
     transform: scaleY(0);
     transform-origin: bottom;
     pointer-events: none;
   }
-  /* Calques : intro figée (z -1) < fond de la galerie < WebGL (z 1) < légendes / liens (z ≥ 1) */
+  /* Calques : intro figée (z 0) < galerie (positionnée, z auto) < WebGL (z 1) < légendes / liens (z ≥ 2) */
   .gl {
     position: fixed;
     inset: 0;

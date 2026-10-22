@@ -88,6 +88,22 @@ const fragment = /* glsl */ `
   }
 `;
 
+let grain: HTMLCanvasElement | null = null;
+function grainTile() {
+  if (grain) return grain;
+  grain = document.createElement('canvas');
+  grain.width = grain.height = 160;
+  const ctx = grain.getContext('2d')!;
+  const img = ctx.createImageData(160, 160);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const v = Math.random() * 255;
+    img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+    img.data[i + 3] = 34;
+  }
+  ctx.putImageData(img, 0, 0);
+  return grain;
+}
+
 const rectOf = (el: Element): Rect => {
   const r = el.getBoundingClientRect();
   return { x: r.left, y: r.top, w: r.width, h: r.height };
@@ -147,16 +163,34 @@ export class GL {
     canvas.width = 1024;
     canvas.height = 1024;
     const ctx = canvas.getContext('2d')!;
+    const W = canvas.width;
+    const H = canvas.height;
     ctx.fillStyle = el.dataset.glColor || '#bbb';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+    ctx.fillRect(0, 0, W, H);
+    // Lumière douce et vignettage, pour un rendu proche d'un tirage photo
+    const light = ctx.createRadialGradient(W * 0.68, H * 0.28, 0, W * 0.68, H * 0.28, W * 0.9);
+    light.addColorStop(0, 'rgba(255,250,240,0.28)');
+    light.addColorStop(1, 'rgba(255,250,240,0)');
+    ctx.fillStyle = light;
+    ctx.fillRect(0, 0, W, H);
+    const vignette = ctx.createRadialGradient(W / 2, H / 2, W * 0.35, W / 2, H / 2, W * 0.75);
+    vignette.addColorStop(0, 'rgba(20,18,14,0)');
+    vignette.addColorStop(1, 'rgba(20,18,14,0.28)');
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, W, H);
+    // Grain (motif calculé une seule fois, puis répété)
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = ctx.createPattern(grainTile(), 'repeat')!;
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = 'rgba(246,241,231,0.9)';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     // Taille ajustée pour rester lisible même recadré en portrait
-    let size = 120;
+    let size = 96;
     const setFont = () => (ctx.font = `italic 300 ${size}px "Garamond Swash", "Cormorant Garamond", Georgia, serif`);
     setFont();
-    while (ctx.measureText(el.dataset.glTitle || '').width > canvas.width * 0.6 && size > 40) {
+    while (ctx.measureText(el.dataset.glTitle || '').width > canvas.width * 0.5 && size > 40) {
       size -= 4;
       setFont();
     }

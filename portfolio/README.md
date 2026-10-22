@@ -61,5 +61,13 @@ Tout le site repose sur la famille Garamond :
   Les capitales en italique prennent automatiquement les formes ornées d'**Adobe Garamond Italic Alternate** ;
 - **Adobe Garamond Semibold Italic**, chiffres elzéviriens, pour les chiffres (classe `.figures`) ;
 - le fleuron (classe `.ornament`, caractère `1`) comme élément décoratif.
+- **Étiquettes** : petites capitales espacées en Helvetica Neue (classe `.label`) ;
+- **Légendes** façon planche « (a). » en italique (classe `.caption`).
+
+## Direction artistique
+
+Inspirée de planches éditoriales : papier ivoire avec grain, panneaux olive et sauge découpés par des filets,
+grands titres en capitales légères (classe `.caps`), image posée sur le texte, texte vertical, légendes (a). (b).
+Palette dans `src/styles/global.css` : `--bg` papier, `--olive`, `--sage`, `--accent` terre cuite.
 
 Pour modifier les polices : remplacer les fichiers de `brand/fonts/` puis lancer `python3 scripts/build-fonts.py`.

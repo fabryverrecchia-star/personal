@@ -3,65 +3,114 @@ import Base from '../layouts/Base.astro';
 import { site } from '../site.config';
 
 const services = ['Direction artistique', 'Design d’interface', 'Développement créatif', 'Animation & interaction', 'WebGL'];
+// Lettres du prénom dispersées sur le portrait (référence « Honor »)
+const letters = [...site.name.split(' ')[0].toUpperCase()];
+const spots = [
+  [62, 10], [18, 24], [70, 34], [30, 46], [78, 58], [14, 66], [56, 76], [36, 88],
+];
 ---
 
 <Base title="À propos">
   <section class="about container grid">
-    <p class="label about__label" data-reveal>À propos</p>
-    <h1 class="about__title display" data-reveal="lines">
-      Je conçois des expériences web où chaque <em>détail</em> compte — du premier pixel à la dernière <em>transition</em>.
-    </h1>
-    <div class="about__text" data-reveal="lines">
-      <p>
-        Texte de présentation : ton parcours, ta manière de travailler, ce qui te distingue. Deux ou trois
-        paragraphes courts suffisent.
-      </p>
-      <p>
-        Basé·e en {site.location}, disponible pour des collaborations avec des studios, des agences et
-        des marques.
-      </p>
-    </div>
-    <div class="about__services">
-      <p class="label" data-reveal>Services</p>
-      <ul>{services.map((s) => <li data-reveal>{s}</li>)}</ul>
+    <figure class="about__portrait" data-reveal>
+      <div class="about__frame">
+        {
+          letters.map((l, i) => (
+            <span class="about__letter name" style={`left:${spots[i % spots.length][0]}%;top:${spots[i % spots.length][1]}%`}>
+              {l}
+            </span>
+          ))
+        }
+      </div>
+      <figcaption class="caption">(a). portrait — à venir</figcaption>
+    </figure>
+
+    <div class="about__content">
+      <p class="label" data-reveal>À propos</p>
+      <h1 class="about__title display caps" data-reveal="lines">
+        Chaque <em>détail</em> compte — du premier pixel à la dernière <em>transition</em>.
+      </h1>
+      <div class="about__text" data-reveal="lines">
+        <p>
+          Texte de présentation : ton parcours, ta manière de travailler, ce qui te distingue. Deux ou
+          trois paragraphes courts suffisent.
+        </p>
+        <p>
+          Basé en {site.location}, disponible pour des collaborations avec des studios, des agences et des
+          marques.
+        </p>
+      </div>
+      <dl class="about__services">
+        {
+          services.map((s, i) => (
+            <div data-reveal>
+              <dt class="caption">({String.fromCharCode(97 + i)}).</dt>
+              <dd class="label">{s}</dd>
+            </div>
+          ))
+        }
+      </dl>
     </div>
   </section>
 </Base>
 
 <style>
   .about {
-    padding-top: clamp(3rem, 10vh, 8rem);
-    row-gap: clamp(2rem, 6vw, 5rem);
+    padding-block: clamp(2rem, 6vw, 5rem);
+    row-gap: 3rem;
+    align-items: start;
   }
-  .about__label {
-    grid-column: 1 / span 3;
+  .about__portrait {
+    grid-column: 1 / span 5;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .about__frame {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    background:
+      radial-gradient(120% 90% at 70% 30%, rgb(255 255 255 / 0.25), transparent 60%),
+      var(--accent);
+    overflow: hidden;
+  }
+  .about__letter {
+    position: absolute;
+    font-size: clamp(1rem, 2vw, 1.6rem);
+    font-weight: 300;
+    color: #f4efe6;
+    letter-spacing: 0;
+  }
+  .about__portrait figcaption {
+    justify-self: end;
+  }
+  .about__content {
+    grid-column: 7 / -1;
+    display: grid;
+    gap: 2.5rem;
   }
   .about__title {
-    grid-column: 4 / -1;
     font-size: var(--fs-xl);
-    font-family: var(--font-display);
-    font-weight: 300;
-    line-height: 1.02;
-    letter-spacing: -0.015em;
+    line-height: 0.95;
   }
   .about__text {
-    grid-column: 4 / span 5;
     display: grid;
     gap: 1em;
+    max-width: 34rem;
   }
   .about__services {
-    grid-column: 10 / -1;
+    border-top: 1px solid var(--line);
   }
-  .about__services ul {
-    margin-top: 0.75rem;
-  }
-  .about__services li {
-    padding-block: 0.4rem;
+  .about__services > div {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    align-items: baseline;
+    padding-block: 0.55rem;
     border-bottom: 1px solid var(--line);
   }
   @media (max-width: 800px) {
-    .about > * {
-      grid-column: 1 / -1 !important;
+    .about__portrait,
+    .about__content {
+      grid-column: 1 / -1;
     }
   }
 </style>

@@ -2,17 +2,55 @@
 import Base from '../layouts/Base.astro';
 import Rich from '../components/Rich.astro';
 import WorkIndex from '../components/WorkIndex.astro';
+import ProjectMedia from '../components/ProjectMedia.astro';
 import { site } from '../site.config';
 import { getProjects } from '../lib';
 
 const projects = await getProjects();
+const featured = projects[0];
 ---
 
 <Base>
-  <section class="hero container grid">
-    <Rich as="h1" class="hero__title display" text={site.headline} data-reveal="lines" />
-    <p class="hero__intro" data-reveal="lines">{site.intro}</p>
-    <p class="hero__scroll label" data-reveal>(Défiler)</p>
+  <!-- Intro : panneau olive découpé par des filets ; reste figé pendant que la galerie monte -->
+  <section class="hero">
+    <div class="hero__panel">
+      <div class="hero__main">
+        <p class="label hero__kicker" data-reveal>Portfolio — Sélection <span class="figures">2023–2026</span></p>
+        <Rich as="h1" class="hero__title display caps" text={site.headline} data-reveal="lines" />
+
+        <!-- Image posée par-dessus le titre (référence « Ready to see ») -->
+        <a href={`/work/${featured.id}`} class="hero__feature" data-reveal>
+          <ProjectMedia project={featured} gl={false} tint="var(--accent)" eager sizes="25vw" />
+          <span class="caption">(a). {featured.data.title} — <span class="figures">{featured.data.year}</span></span>
+        </a>
+      </div>
+
+      <p class="hero__vertical vertical italic" aria-hidden="true">{site.role}</p>
+
+      <aside class="hero__side">
+        <div>
+          <p class="label hero__side-title">Disciplines</p>
+          <ul class="label hero__list">
+            {site.disciplines.map((d) => <li>{d}</li>)}
+          </ul>
+        </div>
+        <p class="hero__intro" data-reveal="lines">{site.intro}</p>
+        <div class="hero__side-bottom">
+          <ul class="label hero__list">
+            {
+              site.socials.map((s) => (
+                <li>
+                  <a href={s.href} class="link" target="_blank" rel="noopener noreferrer">
+                    {s.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="label">(Défiler)</p>
+        </div>
+      </aside>
+    </div>
   </section>
 
   <WorkIndex projects={projects} />
@@ -23,40 +61,119 @@ const projects = await getProjects();
   .hero {
     position: sticky;
     top: var(--header-h);
-    z-index: -1;
-    min-height: calc(100svh - var(--header-h));
-    align-content: space-between;
-    padding-block: clamp(3rem, 10vh, 8rem) var(--margin);
+    z-index: 0;
+    height: calc(100svh - var(--header-h));
+    padding: var(--margin);
+  }
+  .hero__panel {
+    height: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(13rem, 22%);
+    grid-template-rows: minmax(0, 1fr);
+    overflow: hidden;
+    background: var(--olive);
+    color: var(--olive-ink);
+    --line: color-mix(in srgb, var(--olive-ink) 35%, transparent);
+    border: 1px solid var(--line);
+  }
+  .hero__main {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(1.25rem, 2.5vw, 2.5rem);
+    min-width: 0;
   }
   .hero__title {
-    grid-column: 1 / span 11;
-    font-size: var(--fs-xl);
-    font-family: var(--font-display);
-    font-weight: 300;
-    line-height: 1;
-    letter-spacing: -0.015em;
+    position: relative;
+    z-index: 1;
+    max-width: 16ch;
+    font-size: clamp(2.4rem, 1rem + 5.2vw, 6.5rem);
+    line-height: 0.9;
     text-wrap: balance;
   }
+  .hero__feature {
+    position: absolute;
+    z-index: 2;
+    right: 12%;
+    top: 22%;
+    width: clamp(9rem, 17vw, 17rem);
+    display: grid;
+    gap: 0.5rem;
+  }
+  .hero__feature :global(.media) {
+    aspect-ratio: 3 / 4;
+  }
+  .hero__feature .caption {
+    color: var(--olive-ink);
+    opacity: 0.75;
+  }
+  .hero__vertical {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem 0.9rem;
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    font-size: var(--fs-lg);
+    font-weight: 400;
+  }
+  .hero__side {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: clamp(1.25rem, 2vw, 2rem);
+  }
+  .hero__side-title {
+    margin-bottom: 0.6rem;
+  }
+  .hero__list {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .hero__list,
+  .hero__side .label {
+    color: var(--olive-ink);
+  }
   .hero__intro {
-    grid-column: 7 / span 4;
-    align-self: end;
-    color: var(--muted);
+    font-size: var(--fs-sm);
+    line-height: 1.35;
   }
-  .hero__scroll {
-    grid-column: 12;
-    justify-self: end;
-    align-self: end;
+  .hero__side-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
   }
-  @media (max-width: 800px) {
-    .hero__title,
-    .hero__intro {
-      grid-column: 1 / -1;
+  @media (max-width: 900px) {
+    /* Sur petit écran le panneau dépasse la hauteur de l'écran : il défile normalement */
+    .hero {
+      position: relative;
+      top: 0;
+      height: auto;
+      min-height: calc(100svh - var(--header-h));
     }
-    .hero__intro {
-      margin-top: 3rem;
+    .hero__panel {
+      grid-template-columns: 1fr;
+      min-height: calc(100svh - var(--header-h) - 2 * var(--margin));
     }
-    .hero__scroll {
+    .hero__vertical {
       display: none;
+    }
+    .hero__main {
+      min-height: 60svh;
+    }
+    .hero__feature {
+      right: 1rem;
+      top: 1rem;
+      width: 26%;
+    }
+    .hero__feature .caption {
+      display: none;
+    }
+    .hero__side {
+      border-top: 1px solid var(--line);
     }
   }
 </style>

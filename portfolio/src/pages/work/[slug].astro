@@ -23,12 +23,13 @@ const { Content } = await render(project);
     <div class="project__hero" data-gl-hero-wrap>
       <ProjectMedia project={project} sizes="100vw" eager hover={false} />
       <div class="project__hero-inner container">
-        <a href="/" class="project__close link" data-close>Fermer <span aria-hidden="true">✕</span></a>
-        <h1 class="project__title display" data-reveal="lines">{title}</h1>
+        <a href="/" class="project__close label link" data-close>Fermer <span aria-hidden="true">✕</span></a>
+        <h1 class="project__title display caps" data-reveal="lines">{title}</h1>
       </div>
     </div>
 
     <header class="project__head container grid">
+      <p class="project__lede caption" data-reveal>({category.toLowerCase()}) pour {client}.</p>
       <dl class="project__meta">
         <div data-reveal><dt class="label">Client</dt><dd>{client}</dd></div>
         <div data-reveal><dt class="label">Année</dt><dd class="figures">{year}</dd></div>
@@ -51,7 +52,7 @@ const { Content } = await render(project);
 
     <a href={`/work/${next.id}`} class="project__next container">
       <span class="label">Projet suivant</span>
-      <span class="project__next-title display">{next.data.title} <em>→</em></span>
+      <span class="project__next-title display caps">{next.data.title} <em>→</em></span>
     </a>
   </article>
 </Base>
@@ -83,24 +84,42 @@ const { Content } = await render(project);
   }
   .project__close {
     align-self: flex-end;
-    font-size: var(--fs-sm);
+    color: #fff;
   }
   .project__title {
     font-size: var(--fs-xxl);
     font-family: var(--font-display);
     font-weight: 300;
     line-height: 0.9;
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
   }
   .project__head {
     padding-top: clamp(2rem, 6vw, 5rem);
+    row-gap: 2rem;
   }
+  .project__lede {
+    grid-column: 1 / span 4;
+    font-size: var(--fs-lg);
+  }
+  /* Fiche technique : tableau à filets */
   .project__meta {
-    grid-column: 1 / -1;
+    grid-column: 6 / -1;
+    border-top: 1px solid var(--line);
+  }
+  .project__meta > div {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-    gap: 1rem var(--gutter);
+    grid-template-columns: 8rem 1fr;
+    gap: var(--gutter);
+    align-items: baseline;
+    padding-block: 0.6rem;
+    border-bottom: 1px solid var(--line);
     font-size: var(--fs-sm);
+  }
+  @media (max-width: 800px) {
+    .project__lede,
+    .project__meta {
+      grid-column: 1 / -1;
+    }
   }
   .project__body {
     margin-top: clamp(3rem, 8vw, 7rem);
@@ -129,8 +148,7 @@ const { Content } = await render(project);
     font-family: var(--font-display);
     font-weight: 300;
     font-size: var(--fs-xxl);
-    line-height: 1;
-    letter-spacing: -0.02em;
+    line-height: 0.95;
   }
   @media (max-width: 800px) {
     .prose {

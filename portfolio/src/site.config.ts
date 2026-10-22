@@ -11,6 +11,7 @@ export const site = {
   headline: 'Une esthétique *affinée*, une expérience *sans faille* — conçue avec retenue, construite avec rigueur.',
   intro:
     'J’imagine et je développe des interfaces où le mouvement, la précision et le toucher donnent du sens au contenu.',
+  disciplines: ['Direction artistique', 'Design d’interface', 'Développement créatif', 'WebGL & motion', 'Identité'],
   socials: [
     { label: 'Instagram', href: 'https://instagram.com/' },
     { label: 'LinkedIn', href: 'https://linkedin.com/' },

@@ -8,15 +8,27 @@ interface Props {
   eager?: boolean;
   /** Perspective au survol (désactivée pour le visuel plein écran) */
   hover?: boolean;
+  /** false : visuel HTML simple, sans rendu WebGL */
+  gl?: boolean;
+  /** Couleur de fond forcée (sinon celle du projet) */
+  tint?: string;
 }
-const { project, sizes = '(max-width: 800px) 100vw, 50vw', eager = false, hover = true } = Astro.props;
-const { cover, color, title } = project.data;
+const {
+  project,
+  sizes = '(max-width: 800px) 100vw, 50vw',
+  eager = false,
+  hover = true,
+  gl = true,
+  tint,
+} = Astro.props;
+const { cover, title } = project.data;
+const color = tint ?? project.data.color;
 ---
 
 <div
   class="media"
   style={`--media-color: ${color}`}
-  data-gl
+  data-gl={gl ? '' : undefined}
   data-gl-id={project.id}
   data-gl-color={color}
   data-gl-title={title}
@@ -44,7 +56,10 @@ const { cover, color, title } = project.data;
     overflow: hidden;
     aspect-ratio: 4 / 3;
     container-type: inline-size;
-    background: var(--media-color);
+    background:
+      radial-gradient(90% 80% at 68% 28%, rgb(255 250 240 / 0.28), transparent 70%),
+      radial-gradient(closest-side, transparent 60%, rgb(20 18 14 / 0.22)),
+      var(--media-color);
   }
   .media :global(img) {
     width: 100%;
@@ -58,6 +73,6 @@ const { cover, color, title } = project.data;
     display: grid;
     place-items: center;
     font-size: 9cqi;
-    color: rgb(255 255 255 / 0.85);
+    color: rgb(246 241 231 / 0.9);
   }
 </style>
