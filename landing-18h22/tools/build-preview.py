@@ -18,6 +18,7 @@ css = re.sub(r"url\('\.\./fonts/([^']+)'\)", lambda m: "url('%s')" % data_uri('a
 projects = re.sub(r"src: '([^']+)'", lambda m: "src: '%s', file: '%s'" % (data_uri(m.group(1), 'image/webp'), m.group(1)), read('assets/js/projects.js'))
 app = read('assets/js/app.js')
 site = read('assets/js/site.js')
+site = re.sub(r"'(assets/services/[a-z]+\.webp)'", lambda m: "'%s'" % data_uri(m.group(1), 'image/webp'), site)
 three = read('assets/vendor/three.min.js')
 lenis = read('assets/vendor/lenis.min.js')
 
