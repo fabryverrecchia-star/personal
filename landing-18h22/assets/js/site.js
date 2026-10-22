@@ -141,7 +141,7 @@
      ------------------------------------------------------------------------ */
   var lenis = null;
   if (window.Lenis && !reduce) {
-    lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9, touchMultiplier: 1.4, smoothWheel: true });
+    lenis = new Lenis({ lerp: 0.14, wheelMultiplier: 0.9, touchMultiplier: 1.4, smoothWheel: true });
     (function raf(t) { lenis.raf(t); requestAnimationFrame(raf); })(performance.now());
     // pas de défilement pendant l'intro, l'index ou le contact
     var syncLock = function () {
@@ -333,7 +333,7 @@
       // sur téléphone, une image sur deux suffit à la matière
       // quand une section pleine page la recouvre, la matière se repose ; pendant le tunnel, une image sur trois
       if (flowState.hidden) return;
-      skip = (skip + 1) % (mob && flowState.busy ? 3 : 2);
+      skip = (skip + 1) % (mob ? 3 : 2);
       if (mob && skip) return;
       // si l'appareil peine, on baisse la définition (la matière est floue de toute façon)
       var dt = now - last; last = now;
@@ -557,8 +557,10 @@
      ------------------------------------------------------------------------ */
   // three.js ne se charge qu'à l'approche du tunnel : la page s'ouvre plus vite
   function tunnel() {
+    // sur téléphone : pas de 3D, une liste de projets courte et légère qu'on fait défiler normalement
+    if (!fine || window.innerWidth < 700) return projectList();
     // le tunnel est assez long pour qu'on ait le temps de voir chaque couverture
-    $('#selection').style.height = Math.max(320, COVERS.length * 46 + 60) + 'vh';
+    $('#selection').style.height = Math.max(240, COVERS.length * 24 + 60) + 'vh';
     if (window.THREE) return tunnelInit();
     var sec = $('#selection'), started = false;
     var go = function () {
@@ -573,6 +575,24 @@
       var io = new IntersectionObserver(function (e) { if (e[0].isIntersecting) { io.disconnect(); go(); } }, { rootMargin: '250% 0px' });
       io.observe(sec);
     } else go();
+  }
+  function projectList() {
+    var sec = $('#selection'), box = $('#tunnelFallback');
+    document.documentElement.classList.add('is-plist');
+    // les six premiers ; le reste est dans l'index, juste en dessous
+    box.innerHTML = COVERS.slice(0, 6).map(function (p, i) {
+      return '<figure class="plist__p" data-rv data-i="' + i + '" role="link" tabindex="0">' +
+        '<div class="plist__img"><div class="plist__m"><img src="' + p.src + '" alt="' + esc(p.title || '') + '" loading="lazy" decoding="async"></div></div>' +
+        '<figcaption><span class="plist__t">' + esc(p.title || '') + '</span><span class="plist__s">' + esc([p.service, p.year].filter(Boolean).join(' · ')) + '</span></figcaption></figure>';
+    }).join('');
+    $$('.plist__p', box).forEach(function (el) {
+      teamEls.push(el);
+      el.addEventListener('click', function (e) {
+        var r = el.querySelector('.plist__img').getBoundingClientRect();
+        openViewer(+el.dataset.i, { l: r.left, t: r.top, r: r.right, b: r.bottom }, { x: e.clientX, y: e.clientY });
+      });
+    });
+    onScroll();
   }
   function tunnelInit() {
     var section = $('#selection');
@@ -796,7 +816,7 @@
       if (!inView || document.body.classList.contains('is-case')) return;
       prog = progress();
       var prev = smooth;
-      smooth += (prog - smooth) * 0.085;
+      smooth += (prog - smooth) * 0.12;
       vel += ((smooth - prev) * 60 - vel) * 0.15;
       mouse.sx += (mouse.x - mouse.sx) * 0.05;
       mouse.sy += (mouse.y - mouse.sy) * 0.05;

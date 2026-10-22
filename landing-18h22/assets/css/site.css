@@ -202,7 +202,7 @@ body.is-night .top::before, .top.on-dark::before { background: rgba(5, 14, 16, 0
 .ch > span { display: inline-block; transform-origin: 50% 100%; will-change: transform; }
 
 /* Manifeste : le texte s'allume mot à mot */
-.manifesto { position: relative; height: 230vh; }
+.manifesto { position: relative; height: 150vh; }
 .manifesto__sticky {
   position: sticky;
   top: 0;
@@ -223,7 +223,7 @@ body.is-night .top::before, .top.on-dark::before { background: rgba(5, 14, 16, 0
 .manifesto__text span { opacity: 0.16; transition: opacity 0.25s linear; }
 
 /* Showreel */
-.reel { position: relative; height: 260vh; }
+.reel { position: relative; height: 170vh; }
 .reel__sticky { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 .reel__frame { position: absolute; inset: 0; overflow: hidden; clip-path: inset(30% 29%); background: var(--ink); }
 .reel__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transform-origin: 50% 50%; }
@@ -252,7 +252,7 @@ body.is-night .top::before, .top.on-dark::before { background: rgba(5, 14, 16, 0
 }
 
 /* Tunnel du temps */
-.tunnel { position: relative; height: 340vh; }
+.tunnel { position: relative; height: 240vh; }
 .tunnel__sticky {
   position: sticky;
   top: 0;
@@ -315,7 +315,7 @@ body.is-night .top::before, .top.on-dark::before { background: rgba(5, 14, 16, 0
 .tunnel__fallback figcaption { padding-top: 8px; font-size: 13px; color: var(--ink-soft); }
 
 /* Chiffres clés : plein écran, très grands */
-.figures { position: relative; height: 280vh; }
+.figures { position: relative; height: 170vh; }
 .figures__sticky {
   position: sticky;
   top: 0;
@@ -364,7 +364,7 @@ body.is-night .top::before, .top.on-dark::before { background: rgba(5, 14, 16, 0
 .no-js .fig, .reduce-motion .fig { --k: 1; }
 
 /* Services : volets horizontaux */
-.hs { position: relative; height: 320vh; }
+.hs { position: relative; height: 220vh; }
 .hs__sticky { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 .hs__label { position: absolute; z-index: 2; left: var(--gutter); top: clamp(96px, 14vh, 140px); }
 .hs__track { display: flex; height: 100%; width: max-content; will-change: transform; transform-origin: 50% 50%; }
@@ -401,7 +401,7 @@ body.is-night .top::before, .top.on-dark::before { background: rgba(5, 14, 16, 0
 .hs__bar span { display: block; height: 100%; background: var(--ink); transform: scaleX(0); transform-origin: 0 50%; }
 
 /* Points forts : un visage dans la lumière, les lignes défilent par-dessus */
-.strengths { position: relative; height: 420vh; }
+.strengths { position: relative; height: 230vh; --ink: #1e2042; --ink-soft: rgba(30, 32, 66, 0.6); }
 .strengths__sticky { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 .strengths__bg { position: absolute; inset: 0; background: #ebe1cc; }
 .strengths__bg img { width: 100%; height: 100%; object-fit: cover; object-position: 100% 30%; transform: scale(calc(1.14 - 0.14 * var(--sp, 0))); transform-origin: 78% 40%; will-change: transform; }
@@ -566,7 +566,7 @@ body.is-night .top::before, .top.on-dark::before { background: rgba(5, 14, 16, 0
   .mist__shade { left: 30%; top: 30%; width: 80vw; height: 70vh; filter: blur(28px); }
   .mist__glow { left: 26%; top: 26%; width: 30vw; height: 40vh; filter: blur(24px); }
   .cue { top: calc(46% + 37vw + 20px + 30px); }
-  .tunnel { height: 300vh; }
+  .tunnel { height: 240vh; }
   .ptitle { bottom: 96px; height: 120px; }
   .ptitle__t { font-size: clamp(34px, 10.5vw, 48px); }
   .tunnel__head { top: 96px; }
@@ -575,13 +575,13 @@ body.is-night .top::before, .top.on-dark::before { background: rgba(5, 14, 16, 0
   .viewer__thumb { width: 38px; height: 38px; }
   .viewer__thumbs { bottom: calc(var(--gutter) + 40px + env(safe-area-inset-bottom)); }
   .fig__l { padding-bottom: 0; font-size: 13px; }
-  .figures { height: 240vh; }
+  .figures { height: 130vh; }
   .no-tunnel .tunnel__fallback { columns: 2; }
-  .reel { height: 220vh; }
+  .reel { height: 130vh; }
   .reel__line { bottom: calc(var(--gutter) + 40px); }
-  .manifesto { height: 200vh; }
-  .hs { height: 360vh; }
-  .strengths { height: 360vh; }
+  .manifesto { height: 130vh; }
+  .hs { height: 230vh; }
+  .strengths { height: 190vh; }
   .strengths__bg img { object-position: 74% 30%; }
   .strengths__bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, #efe6d3 18%, rgba(239, 230, 211, 0.82) 46%, rgba(239, 230, 211, 0) 72%); }
   .strengths__list { width: auto; right: var(--gutter); top: 66%; }
@@ -612,3 +612,23 @@ body.is-night .top::before, .top.on-dark::before { background: rgba(5, 14, 16, 0
   .top::before { backdrop-filter: none; -webkit-backdrop-filter: none; background: linear-gradient(rgba(242, 234, 216, 0.92), rgba(242, 234, 216, 0)); -webkit-mask: none; mask: none; }
   body.is-night .top::before, .top.on-dark::before { background: linear-gradient(rgba(5, 12, 12, 0.85), rgba(5, 12, 12, 0)); }
 }
+
+/* Téléphone : les projets en liste, sans 3D */
+.is-plist .tunnel { height: auto !important; }
+.is-plist .tunnel__sticky { position: static; height: auto; overflow: visible; padding: 110px var(--gutter) 70px; }
+.is-plist .tunnel__gl, .is-plist .ptitle, .is-plist .tunnel__hint { display: none; }
+.is-plist .tunnel__head, .is-plist .tunnel__foot { position: static; }
+.is-plist .tunnel__head { margin-bottom: 36px; }
+.is-plist .tunnel__foot { margin-top: 10px; justify-content: flex-end; }
+.is-plist .tunnel__fallback { display: grid; gap: 44px; }
+.plist__p { margin: 0; cursor: pointer; }
+.plist__img { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--bg-raise); }
+.plist__m { position: absolute; inset: 0; overflow: hidden; transform: translate3d(0, 101%, 0); transition: transform 1.1s cubic-bezier(0.77, 0, 0.18, 1); }
+.plist__m img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: translate3d(0, -101%, 0) scale(1.1); transition: transform 1.1s cubic-bezier(0.77, 0, 0.18, 1); }
+.plist__p.is-in .plist__m { transform: none; }
+.plist__p.is-in .plist__m img { transform: scale(1.02); transition: transform 2s var(--ease); }
+.plist__p figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 14px; padding-top: 12px; border-top: 1px solid color-mix(in srgb, var(--ink) 18%, transparent); opacity: 0; transform: translate3d(0, 12px, 0); transition: opacity 0.8s var(--ease) 0.35s, transform 1s var(--ease) 0.35s; }
+.plist__p.is-in figcaption { opacity: 1; transform: none; }
+.plist__t { font-size: 26px; letter-spacing: -0.03em; line-height: 1.05; }
+.plist__s { color: var(--ink-soft); font-size: 12px; text-align: right; }
+@media (prefers-reduced-motion: reduce) { .plist__m, .plist__m img, .plist__p figcaption { transform: none; opacity: 1; transition: none; } }

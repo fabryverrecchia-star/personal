@@ -145,6 +145,8 @@
       // 4. « 18h22 » sort à la plume, de gauche à droite
       .to({}, { duration: 0.4 });
 
+    // plus vif : l'intro ne doit pas faire attendre
+    tl.timeScale(1.8);
     if (params.has('skip') || reduce) tl.progress(1);
     return tl;
   }
@@ -747,6 +749,7 @@
       // les aiguilles filent de minuit à 18h22, puis ralentissent comme une montre qu'on règle
       .to(clock, { m: target, duration: 2.8, ease: 'expo.inOut', onUpdate: paint }, 1.4)
       .to(hSec, { autoAlpha: 1, duration: 0.8 }, 3.9);
+    tl.timeScale(1.7);
     if (instant) tl.progress(1);
   }
 
