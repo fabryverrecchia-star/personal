@@ -26,7 +26,7 @@ vectors = '\n'.join(read(os.path.relpath(f, ROOT)) for f in sorted(glob.glob(os.
 three = read('assets/vendor/three.min.js')
 lenis = read('assets/vendor/lenis.min.js')
 
-html = re.sub(r'src="(assets/team/[a-z]+\.webp)"', lambda m: 'src="%s"' % data_uri(m.group(1), 'image/webp'), html)
+html = re.sub(r'src="(assets/(?:team|services)/[a-z]+\.webp)"', lambda m: 'src="%s"' % data_uri(m.group(1), 'image/webp'), html)
 html = html.replace('src="assets/reel/reel.mp4"', 'src="%s"' % data_uri('assets/reel/reel.mp4', 'video/mp4'))
 html = html.replace('poster="assets/reel/reel-poster.jpg"', 'poster="%s"' % data_uri('assets/reel/reel-poster.jpg', 'image/jpeg'))
 head = re.search(r'<head>(.*?)</head>', html, re.S).group(1)

@@ -53,7 +53,7 @@
       manifesto: '18h22 est l’heure où la lumière change. Studio de création, nous donnons aux marques une image juste, et le temps de la faire vivre.',
       reelLabel: 'Showreel', reelLine: 'Paris, 18h22.',
       teamLabel: 'L’équipe', teamTitle: 'Deux regards sur chaque projet.', roleF: 'Senior UX Designer', roleS: '', workLabel: 'Projets', workTitle: 'Sélection', workHint: 'Défiler', workAll: 'Index', statProj: 'projets en 2026', statYears: 'années d’activité, depuis 2017', statBriefs: 'briefings créatifs', footSeo: 'Agence de création à Paris. Création de logo, identité visuelle, sites web et applications, packaging, réseaux sociaux. Paris et toute la France.',
-      servicesLabel: 'Services',
+      strLabel: 'Points forts', servicesLabel: 'Services',
       endTitle: 'Un projet ?', endCta: 'Écrivez-nous', copied: 'Adresse copiée',
       need: 'Objet', needOther: 'Autre',
       vClose: 'Fermer', vPrev: 'Précédent', vNext: 'Suivant',
@@ -64,7 +64,7 @@
       manifesto: '18:22 is the hour the light changes. As a creative studio, we give brands the right image, and the time to make it live.',
       reelLabel: 'Showreel', reelLine: 'Paris, 18:22.',
       teamLabel: 'The team', teamTitle: 'Two points of view on every project.', roleF: 'Senior UX Designer', roleS: '', workLabel: 'Work', workTitle: 'Selection', workHint: 'Scroll', workAll: 'Index', statProj: 'projects in 2026', statYears: 'years in practice, since 2017', statBriefs: 'creative briefs', footSeo: 'Creative agency in Paris. Logo design, visual identity, websites and apps, packaging, social media. Paris and all of France.',
-      servicesLabel: 'Services',
+      strLabel: 'Strengths', servicesLabel: 'Services',
       endTitle: 'A project?', endCta: 'Write to us', copied: 'Address copied',
       need: 'Subject', needOther: 'Other',
       vClose: 'Close', vPrev: 'Previous', vNext: 'Next',
@@ -75,7 +75,7 @@
       manifesto: 'Las 18:22 son la hora en que cambia la luz. Como estudio creativo, damos a las marcas la imagen justa, y el tiempo para hacerla vivir.',
       reelLabel: 'Showreel', reelLine: 'París, 18:22.',
       teamLabel: 'El equipo', teamTitle: 'Dos miradas sobre cada proyecto.', roleF: 'Senior UX Designer', roleS: '', workLabel: 'Proyectos', workTitle: 'Selección', workHint: 'Desplazar', workAll: 'Índice', statProj: 'proyectos en 2026', statYears: 'años de actividad, desde 2017', statBriefs: 'briefings creativos', footSeo: 'Agencia creativa en París. Diseño de logotipos, identidad visual, sitios web y apps, packaging, redes sociales. París y toda Francia.',
-      servicesLabel: 'Servicios',
+      strLabel: 'Puntos fuertes', servicesLabel: 'Servicios',
       endTitle: '¿Un proyecto?', endCta: 'Escríbenos', copied: 'Dirección copiada',
       need: 'Asunto', needOther: 'Otro',
       vClose: 'Cerrar', vPrev: 'Anterior', vNext: 'Siguiente',
@@ -86,7 +86,7 @@
       manifesto: 'Le 18:22 sono l’ora in cui la luce cambia. Come studio creativo, diamo ai marchi l’immagine giusta, e il tempo per farla vivere.',
       reelLabel: 'Showreel', reelLine: 'Parigi, 18:22.',
       teamLabel: 'Il team', teamTitle: 'Due sguardi su ogni progetto.', roleF: 'Senior UX Designer', roleS: '', workLabel: 'Progetti', workTitle: 'Selezione', workHint: 'Scorri', workAll: 'Indice', statProj: 'progetti nel 2026', statYears: 'anni di attività, dal 2017', statBriefs: 'brief creativi', footSeo: 'Agenzia creativa a Parigi. Logo, identità visiva, siti web e app, packaging, social media. Parigi e tutta la Francia.',
-      servicesLabel: 'Servizi',
+      strLabel: 'Punti di forza', servicesLabel: 'Servizi',
       endTitle: 'Un progetto?', endCta: 'Scriveteci', copied: 'Indirizzo copiato',
       need: 'Oggetto', needOther: 'Altro',
       vClose: 'Chiudi', vPrev: 'Precedente', vNext: 'Successivo',
@@ -379,6 +379,8 @@
     $('#tickTime').textContent = pad(Math.floor(m / 60)) + ':' + pad(Math.floor(m % 60));
     tick.classList.toggle('is-on', y > H * 0.9 && y < max - 140 && !document.body.classList.contains('is-locked'));
 
+    strFrame();
+
     // brume : le teal et l'ambre montent quand arrivent les services
     var sr = $('#services').getBoundingClientRect().top;
     mist.style.setProperty('--dusk', clamp((H * 0.75 - sr) / (H * 0.9), 0, 1).toFixed(3));
@@ -476,27 +478,29 @@
   hsFrame();
 
   /* ------------------------------------------------------------------------
-     Bandeau clients : défile en continu, accélère et penche avec le défilement
+     Points forts : les lignes montent une à une sur le visage dans la lumière
      ------------------------------------------------------------------------ */
-  var marquee = $('#marquee');
+  var strSec = $('#atouts'), strList = $('#strengths'), strItems = [];
   function renderStrengths(l) {
-    var row = (STRENGTHS[l] || STRENGTHS.fr).map(function (n) { return '<span>' + esc(n) + '</span><i></i>'; }).join('');
-    marquee.innerHTML = '<div>' + row + '</div><div aria-hidden="true">' + row + '</div>';
+    strList.innerHTML = (STRENGTHS[l] || STRENGTHS.fr).map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('');
+    strItems = $$('li', strList);
   }
   renderStrengths(current);
-  var mq = { x: 0, v: 0, lastY: window.scrollY };
-  (function mqLoop() {
-    var y = window.scrollY;
-    var dy = y - mq.lastY; mq.lastY = y;
-    mq.v += (dy * 0.6 - mq.v) * 0.1;
-    var speed = 0.6 + Math.abs(mq.v) * 0.5;
-    mq.x -= speed * (mq.v < -0.5 ? -1 : 1);
-    var w = marquee.firstChild.offsetWidth || 1;
-    if (mq.x <= -w) mq.x += w;
-    if (mq.x > 0) mq.x -= w;
-    marquee.style.transform = 'translate3d(' + mq.x.toFixed(1) + 'px,0,0) skewX(' + clamp(-mq.v * 0.4, -10, 10).toFixed(2) + 'deg)';
-    requestAnimationFrame(mqLoop);
-  })();
+  function strFrame() {
+    if (!strItems || !strItems.length) return;
+    var sp = sectionProgress(strSec), n = strItems.length;
+    strSec.style.setProperty('--sp', sp.toFixed(4));
+    // la ligne active passe au centre ; entre deux lignes on glisse
+    var f = clamp(sp * 1.15 - 0.04, 0, 1) * (n - 1);
+    var i0 = Math.floor(f), i1 = Math.min(n - 1, i0 + 1), t = f - i0;
+    var c = function (li) { return li.offsetTop + li.offsetHeight / 2; };
+    var y = c(strItems[i0]) + (c(strItems[i1]) - c(strItems[i0])) * t;
+    strList.style.transform = 'translate3d(0,' + (-y).toFixed(1) + 'px,0)';
+    strItems.forEach(function (li, i) {
+      var d = f - i;
+      li.style.opacity = (d > 0 ? clamp(1 - d * 1.3, 0, 1) : 0.14 + 0.86 * clamp(1 + d, 0, 1)).toFixed(3);
+    });
+  }
 
   /* ------------------------------------------------------------------------
      Contact : copier l'adresse

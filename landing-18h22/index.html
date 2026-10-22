@@ -133,24 +133,6 @@
       </div>
     </section>
 
-    <!-- L'équipe : deux portraits qui montent avec le défilement -->
-    <section class="team" id="equipe">
-      <header class="team__head">
-        <p class="s__label" data-s="teamLabel">L’équipe</p>
-        <h2 class="s__title" data-s="teamTitle">Deux regards sur chaque projet.</h2>
-      </header>
-      <div class="team__grid">
-        <figure class="team__p" data-rv>
-          <div class="team__img"><div class="team__m"><img src="assets/team/fabrizio.webp" width="1122" height="1402" alt="Fabrizio" decoding="async"></div></div>
-          <figcaption><span class="team__n">Fabrizio</span><span class="team__r" data-s="roleF">Senior UX Designer</span></figcaption>
-        </figure>
-        <figure class="team__p" data-rv>
-          <div class="team__img team__img--soon"><div class="team__m"><i class="team__wash"></i></div></div>
-          <figcaption><span class="team__n">Sadik</span><span class="team__r" data-s="roleS"></span></figcaption>
-        </figure>
-      </div>
-    </section>
-
     <!-- Showreel : la vidéo s'ouvre jusqu'au plein écran en faisant défiler -->
     <section class="reel" id="reel">
       <div class="reel__sticky">
@@ -159,6 +141,15 @@
           <p class="reel__line" id="reelLine" data-s="reelLine">Paris, de l’aube à 18h22.</p>
         </div>
         <p class="reel__label" id="reelLabel" data-s="reelLabel">Showreel</p>
+      </div>
+    </section>
+
+    <!-- Atouts : un visage dans la lumière, nos points forts défilent par-dessus -->
+    <section class="strengths" id="atouts" aria-label="Points forts">
+      <div class="strengths__sticky">
+        <div class="strengths__bg"><img src="assets/services/lumiere.webp" width="1688" height="1402" alt="" decoding="async"></div>
+        <p class="s__label strengths__label" data-s="strLabel">Points forts</p>
+        <ol class="strengths__list" id="strengths"></ol>
       </div>
     </section>
 
@@ -179,6 +170,24 @@
       </div>
     </section>
 
+    <!-- L'équipe : deux portraits qui montent avec le défilement -->
+    <section class="team on-dark" id="equipe">
+      <header class="team__head">
+        <p class="s__label" data-s="teamLabel">L’équipe</p>
+        <h2 class="s__title" data-s="teamTitle">Deux regards sur chaque projet.</h2>
+      </header>
+      <div class="team__grid">
+        <figure class="team__p" data-rv>
+          <div class="team__img"><div class="team__m"><img src="assets/team/fabrizio.webp" width="1122" height="1402" alt="Fabrizio" decoding="async"></div></div>
+          <figcaption><span class="team__n">Fabrizio</span><span class="team__r" data-s="roleF">Senior UX Designer</span></figcaption>
+        </figure>
+        <figure class="team__p" data-rv>
+          <div class="team__img"><div class="team__m"><img src="assets/team/sadik.webp" width="1121" height="1401" alt="Sadik" decoding="async"></div></div>
+          <figcaption><span class="team__n">Sadik</span><span class="team__r" data-s="roleS"></span></figcaption>
+        </figure>
+      </div>
+    </section>
+
     <!-- Chiffres clés : plein écran, très grands, l'un sous l'autre -->
     <section class="figures" id="chiffres" aria-label="Chiffres clés">
       <div class="figures__sticky">
@@ -195,11 +204,6 @@
         <div class="hs__track" id="hsTrack"></div>
         <div class="hs__bar"><span id="hsBar"></span></div>
       </div>
-    </section>
-
-    <!-- Clients : un bandeau qui suit la vitesse du défilement -->
-    <section class="marquee" id="references" aria-label="Points forts">
-      <div class="marquee__track" id="marquee"></div>
     </section>
 
     <!-- Contact -->
