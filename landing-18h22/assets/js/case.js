@@ -17,28 +17,28 @@
       menusT: 'La carte d’hiver, en français et en anglais.', printT: 'Cartes, livre, tote bag, façade et réseaux sociaux.',
       paletteT: 'Cinq teintes prises au soleil de la Méditerranée.', typeT: 'Une capitale à deux voix : sobre pour lire, déliée pour signer.',
       steps: ['L’ellipse, au rapport 1 : 1,6', 'Le monogramme : l’alpha noué au A', 'La couronne de lettres', 'La signature complète'],
-      uses: { base: 'Fond', light: 'Lumière', signature: 'Signature', text: 'Texte', warm: 'Chaleur' }, share: 'Usage', credit: 'Typographie : ' },
+      plates: { wordmark: 'Logotype', alt: 'Logotype, variante et médaillon', scales: 'Monogramme, trois échelles', seals: 'Sceaux', fleur: 'Emblème', badge: 'Médaillon', photos: 'Applications' }, rows: ['Capitales', 'Capitales', 'Ornées', 'Ornées', 'Chiffres et signes', 'Chiffres et signes'], pick: 'Touchez une lettre', uses: { base: 'Fond', light: 'Lumière', signature: 'Signature', text: 'Texte', warm: 'Chaleur' }, share: 'Usage', credit: 'Typographie : ' },
     en: { close: 'Close', back: 'Back to projects', client: 'Client', place: 'Location', missions: 'Scope', typeface: 'Typeface',
       mood: 'Atmosphere', logo: 'Logo construction', system: 'System', menus: 'Menus', print: 'Print & digital', palette: 'Palette', type: 'Typeface',
       moodT: 'The room, the table, the Saint-Germain light.', systemT: 'Logotype, monogram, seals and flower: an alphabet of signs for the whole house.',
       menusT: 'The winter menu, in French and English.', printT: 'Cards, book, tote bag, shopfront and social media.',
       paletteT: 'Five tones taken from the Mediterranean sun.', typeT: 'A capital with two voices: plain to read, flowing to sign.',
       steps: ['The ellipse, at a 1 : 1.6 ratio', 'The monogram: alpha knotted to A', 'The crown of letters', 'The complete signature'],
-      uses: { base: 'Ground', light: 'Light', signature: 'Signature', text: 'Text', warm: 'Warmth' }, share: 'Use', credit: 'Typeface: ' },
+      plates: { wordmark: 'Logotype', alt: 'Logotype, variant and medallion', scales: 'Monogram, three scales', seals: 'Seals', fleur: 'Emblem', badge: 'Medallion', photos: 'Applications' }, rows: ['Capitals', 'Capitals', 'Swash', 'Swash', 'Figures and signs', 'Figures and signs'], pick: 'Tap a letter', uses: { base: 'Ground', light: 'Light', signature: 'Signature', text: 'Text', warm: 'Warmth' }, share: 'Use', credit: 'Typeface: ' },
     es: { close: 'Cerrar', back: 'Volver a los proyectos', client: 'Cliente', place: 'Lugar', missions: 'Misiones', typeface: 'Tipografía',
       mood: 'Atmósfera', logo: 'Construcción del logo', system: 'Sistema', menus: 'Menús', print: 'Print y digital', palette: 'Paleta', type: 'Tipografía',
       moodT: 'La sala, la mesa, la luz de Saint-Germain.', systemT: 'Logotipo, monograma, sellos y flor: un alfabeto de signos para toda la casa.',
       menusT: 'La carta de invierno, en francés y en inglés.', printT: 'Tarjetas, libro, tote bag, fachada y redes sociales.',
       paletteT: 'Cinco tonos tomados del sol del Mediterráneo.', typeT: 'Una capital a dos voces: sobria para leer, suelta para firmar.',
       steps: ['La elipse, en proporción 1 : 1,6', 'El monograma: la alfa anudada a la A', 'La corona de letras', 'La firma completa'],
-      uses: { base: 'Fondo', light: 'Luz', signature: 'Firma', text: 'Texto', warm: 'Calidez' }, share: 'Uso', credit: 'Tipografía: ' },
+      plates: { wordmark: 'Logotipo', alt: 'Logotipo, variante y medallón', scales: 'Monograma, tres escalas', seals: 'Sellos', fleur: 'Emblema', badge: 'Medallón', photos: 'Aplicaciones' }, rows: ['Mayúsculas', 'Mayúsculas', 'Ornamentadas', 'Ornamentadas', 'Cifras y signos', 'Cifras y signos'], pick: 'Toca una letra', uses: { base: 'Fondo', light: 'Luz', signature: 'Firma', text: 'Texto', warm: 'Calidez' }, share: 'Uso', credit: 'Tipografía: ' },
     it: { close: 'Chiudi', back: 'Torna ai progetti', client: 'Cliente', place: 'Luogo', missions: 'Missioni', typeface: 'Tipografia',
       mood: 'Atmosfera', logo: 'Costruzione del logo', system: 'Sistema', menus: 'Menu', print: 'Print e digital', palette: 'Palette', type: 'Tipografia',
       moodT: 'La sala, la tavola, la luce di Saint-Germain.', systemT: 'Logotipo, monogramma, sigilli e fiore: un alfabeto di segni per tutta la casa.',
       menusT: 'Il menu d’inverno, in francese e in inglese.', printT: 'Biglietti, libro, tote bag, facciata e social.',
       paletteT: 'Cinque toni presi dal sole del Mediterraneo.', typeT: 'Una capitale a due voci: sobria per leggere, sciolta per firmare.',
       steps: ['L’ellisse, in rapporto 1 : 1,6', 'Il monogramma: l’alfa annodata alla A', 'La corona di lettere', 'La firma completa'],
-      uses: { base: 'Fondo', light: 'Luce', signature: 'Firma', text: 'Testo', warm: 'Calore' }, share: 'Uso', credit: 'Tipografia: ' }
+      plates: { wordmark: 'Logotipo', alt: 'Logotipo, variante e medaglione', scales: 'Monogramma, tre scale', seals: 'Sigilli', fleur: 'Emblema', badge: 'Medaglione', photos: 'Applicazioni' }, rows: ['Maiuscole', 'Maiuscole', 'Ornate', 'Ornate', 'Cifre e segni', 'Cifre e segni'], pick: 'Tocca una lettera', uses: { base: 'Fondo', light: 'Luce', signature: 'Firma', text: 'Testo', warm: 'Calore' }, share: 'Uso', credit: 'Tipografia: ' }
   };
   function lang() { var l = document.documentElement.lang; return T[l] ? l : 'fr'; }
   function tr(v) { return v && typeof v === 'object' ? (v[lang()] || v.fr) : (v || ''); }
@@ -50,7 +50,7 @@
   var scroller = root.querySelector('.case__scroll');
   var inner = root.querySelector('.case__inner');
   var closeBtn = root.querySelector('.case__close');
-  var data = null, at0 = null, running = false, sections = [], figs = [], io = null;
+  var data = null, at0 = null, running = false, sections = [], figs = [];
 
   /* ---------- Rendu ---------- */
   function head(b) {
@@ -58,7 +58,7 @@
     return '<header class="case__head"><h3>' + esc(t[b.label]) + '</h3>' + (t[b.label + 'T'] ? '<p>' + esc(t[b.label + 'T']) + '</p>' : '') + '</header>';
   }
   function fig(im) {
-    return '<figure class="cm" style="--ar:' + (im.w / im.h).toFixed(4) + '" data-ar="' + (im.w / im.h).toFixed(4) + '"><img src="' + im.src + '" width="' + im.w + '" height="' + im.h + '" alt="" loading="lazy" decoding="async"></figure>';
+    return '<figure class="cm" style="--ar:' + (im.w / im.h).toFixed(4) + '" data-ar="' + (im.w / im.h).toFixed(4) + '"><img src="' + im.src + '" width="' + im.w + '" height="' + im.h + '" alt="" decoding="async"></figure>';
   }
   function gallery(b) {
     var html = '';
@@ -78,6 +78,53 @@
       return '<figure class="cmenu__card cmenu__card--' + i + '"><img src="' + src.src + '" alt="" decoding="async"><i class="cmenu__shine"></i></figure>';
     }).join('') + head(b) + '</div>';
   }
+  /* ---------- Planches vectorielles (logotypes, sceaux, fleur, glyphes) ---------- */
+  var RED = '#d75443', BROWN = '#3c2217';
+  function vec() { return (window.CASE_VECTORS || {})[String(data && data.title || '').toLowerCase()] || {}; }
+  function word(w, cls) {
+    return '<svg class="cwm ' + (cls || '') + '" viewBox="0 0 ' + w.w + ' ' + w.h + '" aria-hidden="true">' +
+      w.letters.map(function (d, i) { return '<path class="cl" style="--i:' + i + '" d="' + d + '"/>'; }).join('') + '</svg>';
+  }
+  function mono(cls, extra) {
+    var m = vec().monogram;
+    return '<svg class="cmono ' + (cls || '') + '" viewBox="69 76 57 47" aria-hidden="true"' + (extra || '') + '><path d="' + m.d + '"/></svg>';
+  }
+  function badge(cls) {
+    var m = vec().monogram;
+    return '<svg class="cbadge ' + (cls || '') + '" viewBox="0 0 120 180" aria-hidden="true">' +
+      '<ellipse class="cbadge__ring" cx="60" cy="90" rx="55" ry="85" pathLength="1"/>' +
+      '<g transform="translate(60 91) scale(1.45) translate(-97.5 -99)"><path class="cbadge__mono" d="' + m.d + '"/></g></svg>';
+  }
+  function plate(label, inner, cls, attrs) {
+    return '<figure class="cplate ' + (cls || '') + '" data-rev' + (attrs || '') + '>' + inner + '<figcaption>' + esc(label) + '</figcaption></figure>';
+  }
+  function system(b) {
+    var t = T[lang()], V = vec(), html = '';
+    if (!V.wordmark) return gallery(b);
+    html += plate(t.plates.wordmark,
+      '<div class="cplate__duo"><div class="cplate__cell" style="background:#fff;color:#161616">' + word(V.wordmark) + '</div>' +
+      '<div class="cplate__cell" style="background:#faf7f3;color:' + RED + '">' + word(V.wordmark) + '</div></div>', 'cplate--wm');
+    html += plate(t.plates.alt,
+      '<div class="cplate__cell cplate__cell--alt" style="color:' + RED + '">' + badge() + word(V.logotype, 'cwm--alt') + '</div>', 'cplate--alt');
+    html += plate(t.plates.scales,
+      '<div class="cplate__duo"><div class="cplate__cell cplate__scales" style="background:#fff;color:#161616">' + mono('s1') + mono('s2') + mono('s3') + '</div>' +
+      '<div class="cplate__cell cplate__scales" style="background:#faf7f3;color:' + RED + '">' + mono('s1') + mono('s2') + mono('s3') + '</div></div>', 'cplate--scales');
+    html += plate(t.plates.seals, '<div class="cplate__duo">' + V.seals.map(function (sl, i) {
+      return '<div class="cplate__cell" style="background:' + (i ? '#f4f3f1' : '#fff') + ';color:' + (i ? BROWN : RED) + '">' +
+        '<svg class="cseal" viewBox="0 0 ' + sl.w + ' ' + sl.h + '" aria-hidden="true"><g class="cseal__ring" data-cx="' + sl.w / 2 + '" data-cy="' + sl.h / 2 + '"><path fill-rule="evenodd" d="' + sl.ring + '"/></g>' +
+        '<path class="cseal__core" fill-rule="evenodd" d="' + sl.core + '"/></svg></div>';
+    }).join('') + '</div>', 'cplate--seals');
+    var F = V.fleur;
+    html += plate(t.plates.fleur, '<div class="cplate__duo"><div class="cplate__cell" style="background:#fff;color:' + RED + '">' +
+      '<svg class="cfleur" viewBox="0 0 ' + F.w + ' ' + F.h + '" aria-hidden="true"><defs><clipPath id="cfleurClip"><rect class="cfleur__grow" x="-10" width="' + (F.w + 20) + '" y="' + F.h + '" height="' + (F.h + 10) + '"/></clipPath></defs>' +
+      '<path class="cfleur__ghost" fill-rule="evenodd" d="' + F.d + '"/><path clip-path="url(#cfleurClip)" fill-rule="evenodd" d="' + F.d + '"/></svg></div>' +
+      '<div class="cplate__cell cplate__cell--photo">' + photo(b.photos.fleur) + '</div></div>', 'cplate--fleur');
+    html += plate(t.plates.badge, '<div class="cplate__duo"><div class="cplate__cell cplate__cell--photo">' + photo(b.photos.coupe) + '</div>' +
+      '<div class="cplate__cell" style="background:#fff;color:' + RED + '">' + badge('cbadge--solo') + '</div></div>', 'cplate--badge');
+    return '<div class="csys">' + html + '</div>' + (b.rows ? '<p class="csys__label">' + esc(t.plates.photos) + '</p>' + gallery(b) : '');
+  }
+  function photo(im) { return '<img src="' + im.src + '" width="' + im.w + '" height="' + im.h + '" alt="" decoding="async">'; }
+
   function rgb(hex) { var n = parseInt(hex.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
   function cmyk(c) {
     var r = c[0] / 255, g = c[1] / 255, b = c[2] / 255, k = 1 - Math.max(r, g, b);
@@ -98,9 +145,35 @@
     '<p class="cpal__note">' + esc(t.share) + '</p>';
   }
   function type(b) {
-    var t = T[lang()];
-    return '<div class="cg"><div class="cg__row cg__row--1">' + fig(b.img) + '</div></div>' +
-      '<p class="ctype__credit">' + esc(t.credit) + esc(b.credit) + '</p>';
+    var t = T[lang()], Gl = vec().glyphs;
+    if (!Gl) return '<p class="ctype__credit" data-rev>' + esc(t.credit) + esc(b.credit) + '</p>';
+    var grid = '<svg class="ctype__grid" viewBox="-6 -6 ' + (Gl.w + 12) + ' ' + (Gl.h + 12) + '" aria-hidden="true">' + Gl.items.map(function (g, i) {
+      return '<g class="ctype__g" data-k="' + i + '" style="--r:' + g.row + ';--i:' + i + '" transform="translate(' + g.x + ' ' + g.y + ')">' +
+        '<rect x="-4" y="-4" width="' + (g.w + 8) + '" height="' + (g.h + 8) + '"/><path fill-rule="evenodd" d="' + g.d + '"/></g>';
+    }).join('') + '</svg>';
+    return '<div class="ctype" data-rev><div class="ctype__view"><svg class="ctype__big" viewBox="0 0 100 100" aria-hidden="true"><path fill-rule="evenodd"/></svg>' +
+      '<p class="ctype__name"><span class="ctype__ch"></span><span class="ctype__row"></span></p></div>' +
+      '<div class="ctype__side">' + grid + '<p class="ctype__hint">' + esc(t.pick) + '</p></div></div>' +
+      (b.photo ? '<div class="cg"><div class="cg__row cg__row--1 is-odd">' + fig(b.photo) + '</div></div>' : '') +
+      '<p class="ctype__credit" data-rev>' + esc(t.credit) + esc(b.credit) + '</p>';
+  }
+  var glyphAt = -1, glyphAuto = null, glyphTouched = false;
+  function showGlyph(k) {
+    var Gl = vec().glyphs, sec = inner.querySelector('.ctype');
+    if (!Gl || !sec) return;
+    k = (k + Gl.items.length) % Gl.items.length;
+    if (k === glyphAt) return;
+    glyphAt = k;
+    var g = Gl.items[k], big = sec.querySelector('.ctype__big'), path = big.querySelector('path');
+    // même hauteur de ligne pour toutes les lettres d'une rangée : la lettre garde sa taille relative
+    var size = Math.max(g.w, 76);
+    big.setAttribute('viewBox', (-(size - g.w) / 2).toFixed(1) + ' ' + (g.h / 2 - size / 2).toFixed(1) + ' ' + size + ' ' + size);
+    path.setAttribute('d', g.d);
+    sec.querySelector('.ctype__ch').textContent = g.ch;
+    sec.querySelector('.ctype__row').textContent = T[lang()].rows[g.row];
+    [].forEach.call(sec.querySelectorAll('.ctype__g.is-on'), function (n) { n.classList.remove('is-on'); });
+    var on = sec.querySelector('.ctype__g[data-k="' + k + '"]'); if (on) on.classList.add('is-on');
+    big.classList.remove('is-pop'); void big.getBoundingClientRect(); big.classList.add('is-pop');
   }
 
   function render(c) {
@@ -112,7 +185,7 @@
       c.facts.map(function (f) { return '<div><dt>' + esc(t[f[0]]) + '</dt><dd>' + esc(tr(f[1])) + '</dd></div>'; }).join('') + '</dl></section>';
     c.blocks.forEach(function (b) {
       var ink = b.ink || (isDark(b.bg) ? '#dfe7ea' : '#1b1d24');
-      var body = b.type === 'gallery' ? gallery(b) : b.type === 'logo' ? logo(b) : b.type === 'menus' ? menus(b) : b.type === 'palette' ? palette(b) : type(b);
+      var body = b.type === 'gallery' ? gallery(b) : b.type === 'system' ? system(b) : b.type === 'logo' ? logo(b) : b.type === 'menus' ? menus(b) : b.type === 'palette' ? palette(b) : type(b);
       html += '<section class="cs cs--' + b.type + '" data-bg="' + b.bg + '" data-ink="' + ink + '"' + (b.color ? ' style="--accent:' + b.color + '"' : '') + '>' +
         (b.type === 'logo' || b.type === 'menus' ? '' : head(b)) + body + '</section>';
     });
@@ -252,7 +325,7 @@
   }
 
   /* ---------- Boucle de défilement ---------- */
-  var bgNow = '';
+  var bgNow = '', revs = [], seals = [], grow = null;
   function frame() {
     if (!running) return;
     requestAnimationFrame(frame);
@@ -273,6 +346,25 @@
       bgNow = pick.getAttribute('data-bg');
       root.style.setProperty('--case-bg', bgNow);
       root.style.setProperty('--case-ink', pick.getAttribute('data-ink'));
+    }
+    // apparitions : tout élément qui entre dans l'écran se dévoile (calcul direct, sans observateur)
+    for (var k = 0; k < revs.length; k++) {
+      var rv = revs[k];
+      if (rv.classList.contains('is-in')) continue;
+      var rr = rv.getBoundingClientRect();
+      if (rr.top < vh * 0.94) rv.classList.add('is-in'); // y compris ce qu'un défilement rapide a sauté
+    }
+    // sceaux : la couronne de lettres tourne avec le défilement ; la fleur pousse
+    for (var q = 0; q < seals.length; q++) {
+      var sr = seals[q].getBoundingClientRect();
+      if (sr.bottom < 0 || sr.top > vh) continue;
+      var a = ((sr.top + sr.height / 2) / vh - 0.5) * -70;
+      seals[q].setAttribute('transform', 'rotate(' + a.toFixed(2) + ' ' + seals[q].getAttribute('data-cx') + ' ' + seals[q].getAttribute('data-cy') + ')');
+    }
+    if (grow) {
+      var gr = grow.svg.getBoundingClientRect();
+      var gp = ease(clamp((vh * 0.95 - gr.top) / (vh * 0.75), 0, 1));
+      grow.rect.setAttribute('y', (grow.h * (1 - gp)).toFixed(1));
     }
     // légère parallaxe dans les images
     for (var j = 0; j < figs.length; j++) {
@@ -295,11 +387,23 @@
     var box = inner.querySelector('.clogo__svg');
     logoParts = null;
     if (box) buildLogo(box);
-    if (io) io.disconnect();
-    io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
-    }, { root: scroller, rootMargin: '0px 0px -12% 0px' });
-    [].forEach.call(inner.querySelectorAll('.cm, .cs__head, .case__head, .cpal, .cintro, .ctype__credit, .cpal__bar'), function (n) { io.observe(n); });
+    [].forEach.call(inner.querySelectorAll('.cm, .case__head, .cpal, .cintro, .cpal__bar'), function (n) { n.setAttribute('data-rev', ''); });
+    revs = [].slice.call(inner.querySelectorAll('[data-rev]'));
+    seals = [].slice.call(inner.querySelectorAll('.cseal__ring'));
+    var fl = inner.querySelector('.cfleur');
+    grow = fl ? { svg: fl, rect: fl.querySelector('.cfleur__grow'), h: +fl.viewBox.baseVal.height } : null;
+    glyphAt = -1; glyphTouched = false;
+    clearInterval(glyphAuto);
+    if (inner.querySelector('.ctype')) {
+      showGlyph(0);
+      // tant qu'on ne touche rien, la loupe parcourt l'alphabet orné
+      glyphAuto = setInterval(function () {
+        if (glyphTouched || !running) return;
+        var Gl = vec().glyphs, n = glyphAt + 1;
+        if (!Gl.items[n] || Gl.items[n].row > 3) n = 0;
+        showGlyph(n);
+      }, 1400);
+    }
 
     scroller.scrollTop = 0;
     bgNow = '';
@@ -331,7 +435,7 @@
       root.style.clipPath = '';
       document.body.classList.remove('is-locked', 'is-case');
       inner.innerHTML = '';
-      if (io) io.disconnect();
+      clearInterval(glyphAuto);
     };
     if (!window.gsap || reduce) return end();
     var at = at0 || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
@@ -342,6 +446,10 @@
   closeBtn.addEventListener('click', close);
   window.addEventListener('resize', function () { if (root.classList.contains('is-open')) layoutRows(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && root.classList.contains('is-open')) close(); });
+  // glyphes : survol ou toucher pour voir la lettre en grand
+  function glyphFrom(e) { var g = e.target.closest && e.target.closest('.ctype__g'); return g ? +g.getAttribute('data-k') : -1; }
+  root.addEventListener('pointerover', function (e) { var k = glyphFrom(e); if (k > -1 && e.pointerType === 'mouse') { glyphTouched = true; showGlyph(k); } });
+  root.addEventListener('click', function (e) { var k = glyphFrom(e); if (k > -1) { glyphTouched = true; showGlyph(k); } });
   // palette : au toucher, la teinte s'ouvre
   root.addEventListener('click', function (e) {
     var sw = e.target.closest && e.target.closest('.cpal__sw');

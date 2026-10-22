@@ -1,5 +1,6 @@
 /* Pages projet détaillées : une entrée par client, clé = titre du projet en minuscules.
-   Les blocs s'affichent dans l'ordre. Types : gallery, logo, menus, palette, type. */
+   Les blocs s'affichent dans l'ordre. Types : gallery, system, logo, menus, palette, type.
+   Les tracés vectoriels (logotypes, sceaux, glyphes) sont dans assets/cases/<client>/vectors.js. */
 window.CASES = {
   'agata paris': {
     title: 'Agata Paris',
@@ -21,23 +22,21 @@ window.CASES = {
       { type: 'gallery', label: 'mood', bg: '#050c0c', rows: [
         [{ src: 'assets/cases/agata/salle.webp', w: 933, h: 1400 }, { src: 'assets/cases/agata/pizza.webp', w: 800, h: 1066 }],
         [{ src: 'assets/cases/agata/banquette.webp', w: 1346, h: 1500 }],
-        [{ src: 'assets/projects/p17.webp', w: 619, h: 1100 }, { src: 'assets/projects/p03.webp', w: 880, h: 1100 }],
-        [{ src: 'assets/cases/agata/pivoine.webp', w: 1800, h: 995 }]
+        [{ src: 'assets/projects/p17.webp', w: 619, h: 1100 }, { src: 'assets/projects/p03.webp', w: 880, h: 1100 }]
       ] },
       { type: 'logo', label: 'logo', src: 'assets/cases/agata/logo.svg', bg: '#ede3bf', ink: '#1b374f', color: '#c1413a' },
-      { type: 'gallery', label: 'system', bg: '#ffffff', rows: [
-        [{ src: 'assets/cases/agata/logotype.webp', w: 1800, h: 963 }],
-        [{ src: 'assets/cases/agata/monogramme.webp', w: 1800, h: 762 }],
-        [{ src: 'assets/cases/agata/sceaux.webp', w: 1800, h: 995 }, { src: 'assets/cases/agata/fleur.webp', w: 1800, h: 941 }],
+      { type: 'system', label: 'system', bg: '#ffffff', photos: {
+        fleur: { src: 'assets/cases/agata/fleur-photo.webp', w: 1049, h: 1200 },
+        coupe: { src: 'assets/cases/agata/coupe-photo.webp', w: 1400, h: 1212 }
+      }, rows: [
         [{ src: 'assets/cases/agata/signes.webp', w: 1800, h: 991 }],
-        [{ src: 'assets/cases/agata/enseigne.webp', w: 746, h: 851 }, { src: 'assets/cases/agata/coupe.webp', w: 1800, h: 954 }]
+        [{ src: 'assets/cases/agata/enseigne.webp', w: 746, h: 851 }, { src: 'assets/cases/agata/pivoine.webp', w: 1800, h: 995 }]
       ] },
       { type: 'menus', label: 'menus', bg: '#1b374f', items: [{ src: 'assets/cases/agata/menu-fr.webp', w: 732, h: 1500 }, { src: 'assets/cases/agata/menu-en.webp', w: 732, h: 1500 }] },
       { type: 'gallery', label: 'print', bg: '#ffffff', rows: [
         [{ src: 'assets/cases/agata/print.webp', w: 2000, h: 851 }],
         [{ src: 'assets/cases/agata/date.webp', w: 513, h: 900 }, { src: 'assets/cases/agata/book.webp', w: 1048, h: 1400 }],
-        [{ src: 'assets/cases/agata/tote.webp', w: 1733, h: 1080 }, { src: 'assets/cases/agata/facade.webp', w: 1800, h: 1000 }],
-        [{ src: 'assets/cases/agata/wordmark.webp', w: 1800, h: 663 }]
+        [{ src: 'assets/cases/agata/tote.webp', w: 1733, h: 1080 }, { src: 'assets/cases/agata/facade.webp', w: 1800, h: 1000 }]
       ] },
       { type: 'palette', label: 'palette', bg: '#ffffff', colors: [
         { name: 'Lemon Meringue', hex: '#EDE3BF', use: 'base', share: 40 },
@@ -46,7 +45,7 @@ window.CASES = {
         { name: 'Indigo', hex: '#1B374F', use: 'text', share: 16 },
         { name: 'Terracotta', hex: '#C0644E', use: 'warm', share: 10 }
       ] },
-      { type: 'type', label: 'type', bg: '#ffffff', img: { src: 'assets/cases/agata/typo.webp', w: 1800, h: 914 }, credit: 'New Tropical Studio' }
+      { type: 'type', label: 'type', bg: '#ffffff', photo: { src: 'assets/cases/agata/typo-photo.webp', w: 710, h: 1061 }, credit: 'New Tropical Studio' }
     ]
   }
 };
