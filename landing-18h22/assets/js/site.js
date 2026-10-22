@@ -199,7 +199,15 @@
   var hero = $('#hero'), top = $('#top'), tick = $('#tick');
   var manifesto = $('#agence'), manifestoWords = [];
   var H = window.innerHeight;
-  window.addEventListener('resize', function () { H = window.innerHeight; });
+  window.addEventListener('resize', function () { H = window.innerHeight; strDirty = true; });
+  // sur téléphone, la barre d'adresse change la hauteur en défilant : on ne recalcule pas tout pour si peu
+  var lastW = window.innerWidth, lastH = window.innerHeight;
+  function realResize() {
+    var w = window.innerWidth, h = window.innerHeight;
+    if (!fine && w === lastW && Math.abs(h - lastH) < 160) return false;
+    lastW = w; lastH = h; return true;
+  }
+  var strDirty = true;
 
   function sectionProgress(sec) {
     var r = sec.getBoundingClientRect();
@@ -307,7 +315,7 @@
       cv.height = Math.max(2, Math.round(window.innerHeight * k));
       gl.viewport(0, 0, cv.width, cv.height);
     }
-    size(); window.addEventListener('resize', size);
+    size(); window.addEventListener('resize', function () { if (realResize()) size(); });
 
     var tgt = { x: 0.22, y: -0.06 }, sm = { sc: 0, night: 0, cover: 0.2 };
     if (fine) window.addEventListener('pointermove', function (e) {
@@ -323,7 +331,10 @@
       requestAnimationFrame(loop);
       if (document.hidden || covered()) return;
       // sur téléphone, une image sur deux suffit à la matière
-      if (mob && (skip = 1 - skip)) return;
+      // quand une section pleine page la recouvre, la matière se repose ; pendant le tunnel, une image sur trois
+      if (flowState.hidden) return;
+      skip = (skip + 1) % (mob && flowState.busy ? 3 : 2);
+      if (mob && skip) return;
       // si l'appareil peine, on baisse la définition (la matière est floue de toute façon)
       var dt = now - last; last = now;
       slow = dt > (mob ? 45 : 24) ? slow + 1 : Math.max(0, slow - 1);
@@ -354,9 +365,17 @@
     var to = n.dataset.to === 'years' ? YEARS : +n.dataset.to;
     return { el: el, n: n, to: to, pre: n.dataset.pre, post: n.dataset.post, k: -1 };
   });
-  var endShown = false, night = 0;
+  var endShown = false, night = 0, lastTick = '';
   function onScroll() {
     var y = window.scrollY;
+    // on lit toute la mise en page d'abord, on écrit ensuite : pas de recalcul forcé en plein défilement
+    var prog = function (r) { return clamp(-r.top / Math.max(1, r.height - window.innerHeight), 0, 1); };
+    var mR = manifesto.getBoundingClientRect(), svR = $('#services').getBoundingClientRect(),
+      tr = $('#selection').getBoundingClientRect(), fr = $('#chiffres').getBoundingClientRect(),
+      sr2 = $('#atouts').getBoundingClientRect(), et = $('#endTitle').getBoundingClientRect().top,
+      max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight),
+      teamTops = (teamEls || []).map(function (el) { return el.classList.contains('is-in') ? 0 : el.getBoundingClientRect().top; });
+    strRead();
     var p = Math.min(1, y / H);
     hero.style.opacity = (1 - p * 0.85).toFixed(3);
     hero.style.transform = p > 0 ? 'scale(' + (1 - p * 0.08).toFixed(4) + ')' : '';
@@ -364,37 +383,36 @@
     top.classList.toggle('is-solid', y > H * 0.92);
 
     // manifeste : chaque mot s'allume quand on le dépasse
-    var mp = sectionProgress(manifesto);
+    var mp = prog(mR);
     var n = manifestoWords.length;
-    manifestoWords.forEach(function (w, i) {
+    if (mR.bottom > -60 && mR.top < H + 60) manifestoWords.forEach(function (w, i) {
       var k = clamp(mp * 1.25 * n - i, 0, 1);
       w.style.opacity = (0.16 + 0.84 * k).toFixed(3);
     });
 
     // petite montre : 9h00 en haut de page, 18h22 tout en bas
-    var max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     var m = 9 * 60 + (18 * 60 + 22 - 9 * 60) * clamp(y / max, 0, 1);
     $('#tickH').setAttribute('transform', 'rotate(' + (m * 0.5).toFixed(1) + ')');
     $('#tickM').setAttribute('transform', 'rotate(' + (m * 6).toFixed(1) + ')');
-    $('#tickTime').textContent = pad(Math.floor(m / 60)) + ':' + pad(Math.floor(m % 60));
+    var tt = pad(Math.floor(m / 60)) + ':' + pad(Math.floor(m % 60));
+    if (tt !== lastTick) { lastTick = tt; $('#tickTime').textContent = tt; }
     tick.classList.toggle('is-on', y > H * 0.9 && y < max - 140 && !document.body.classList.contains('is-locked'));
 
     strFrame();
 
     // brume : le teal et l'ambre montent quand arrivent les services
-    var sr = $('#services').getBoundingClientRect().top;
+    var sr = svR.top;
     mist.style.setProperty('--dusk', clamp((H * 0.75 - sr) / (H * 0.9), 0, 1).toFixed(3));
 
     // côté nuit : le tunnel du temps passe en sombre, entrée et sortie en fondu
-    var tr = $('#selection').getBoundingClientRect(), fr = $('#chiffres').getBoundingClientRect();
     // deux nuits : le tunnel, puis l'équipe et les chiffres ; entre les deux, les points forts restent en plein jour
-    var sr2 = $('#atouts').getBoundingClientRect();
+    flowState.hidden = sr2.top <= 0 && sr2.bottom >= H;
     night = Math.max(
       Math.min(clamp((H * 0.9 - tr.top) / (H * 0.7), 0, 1), clamp((sr2.top - H * 0.15) / (H * 0.7), 0, 1)),
       Math.min(clamp((H * 1.5 - sr2.bottom) / (H * 0.5), 0, 1), clamp((fr.bottom - H * 0.15) / (H * 0.7), 0, 1)));
 
     // chiffres clés : chaque ligne monte depuis le bas et compte, l'une après l'autre
-    var fp = sectionProgress($('#chiffres'));
+    var fp = prog(fr);
     figs.forEach(function (f, i) {
       var k = clamp((fp - i * 0.2) / 0.28, 0, 1);
       k = 1 - Math.pow(1 - k, 3);
@@ -406,21 +424,26 @@
       f.n.textContent = (f.pre || '') + v + (k >= 1 ? (f.post || '') : '');
     });
     mist.style.setProperty('--night', night.toFixed(3));
-    var maxY = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    var maxY = max;
     flowState.sc = y / H * 0.35;
     flowState.night = night;
     flowState.cover = (window.innerWidth < 700 ? 0.26 : 0.18) + 0.2 * clamp(y / maxY, 0, 1);
     if (!flowOn) { flowState.nightS = night; tone(); }
 
     // équipe : chaque portrait se dévoile quand il entre dans l'écran
-    (teamEls || []).forEach(function (el) { if (!el.classList.contains('is-in') && el.getBoundingClientRect().top < H * 0.9) el.classList.add('is-in'); });
+    (teamEls || []).forEach(function (el, k) { if (!el.classList.contains('is-in') && teamTops[k] < H * 0.9) el.classList.add('is-in'); });
 
     // titre final
-    var et = $('#endTitle').getBoundingClientRect().top;
     if (!endShown && et < H * 0.85) { endShown = true; revealChars($('#endTitle')); }
   }
   var teamEls = $$('.team [data-rv]');
-  window.addEventListener('scroll', onScroll, { passive: true });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { strDirty = true; onScroll(); });
+  var scrollPending = false;
+  window.addEventListener('scroll', function () {
+    if (scrollPending) return;
+    scrollPending = true;
+    requestAnimationFrame(function () { scrollPending = false; onScroll(); });
+  }, { passive: true });
 
   /* ------------------------------------------------------------------------
      Services : volets horizontaux pilotés par le défilement vertical
@@ -450,10 +473,11 @@
     var target = -dist * clamp((p - 0.08) / 0.84, 0, 1);
     hsX += (target - hsX) * (lenis ? 1 : 0.2);
     var skew = clamp((target - hsX) * 0.01, -4, 4);
+    var rects = panels.map(function (pn) { return pn.getBoundingClientRect(); });
     track.style.transform = 'translate3d(' + hsX.toFixed(1) + 'px,0,0) skewX(' + skew.toFixed(2) + 'deg)';
     bar.style.transform = 'scaleX(' + p.toFixed(4) + ')';
     panels.forEach(function (pn, k) {
-      var pr = pn.getBoundingClientRect();
+      var pr = rects[k];
       var vis = clamp(1 - (pr.left - window.innerWidth * 0.15) / (window.innerWidth * 0.75), 0, 1);
       // dévoilement par deux calques en sens inverse (le clip-path laissait voir l'image en place sur Safari)
       var img = pn.querySelector('.panel__img img'), m = pn.querySelector('.panel__m'), off = ((1 - vis) * 100).toFixed(2);
@@ -484,21 +508,28 @@
   /* ------------------------------------------------------------------------
      Points forts : les lignes montent une à une sur le visage dans la lumière
      ------------------------------------------------------------------------ */
-  var strSec = $('#atouts'), strList = $('#strengths'), strItems = [];
+  var strSec = $('#atouts'), strList = $('#strengths'), strItems = [], strC = [];
   function renderStrengths(l) {
     strList.innerHTML = (STRENGTHS[l] || STRENGTHS.fr).map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('');
-    strItems = $$('li', strList);
+    strItems = $$('li', strList); strDirty = true;
   }
   renderStrengths(current);
+  var strRect = null;
+  function strRead() {
+    if (!strSec) return;
+    strRect = strSec.getBoundingClientRect();
+    if ((strDirty || !strC.length) && strItems && strItems.length) { strC = strItems.map(function (li) { return li.offsetTop + li.offsetHeight / 2; }); strDirty = false; }
+  }
   function strFrame() {
     if (!strItems || !strItems.length) return;
-    var sp = sectionProgress(strSec), n = strItems.length;
+    var r = strRect;
+    if (!r || r.bottom < -50 || r.top > H + 50) return;
+    var sp = clamp(-r.top / Math.max(1, r.height - H), 0, 1), n = strItems.length;
     strSec.style.setProperty('--sp', sp.toFixed(4));
     // la ligne active passe au centre ; entre deux lignes on glisse
     var f = clamp(sp * 1.15 - 0.04, 0, 1) * (n - 1);
     var i0 = Math.floor(f), i1 = Math.min(n - 1, i0 + 1), t = f - i0;
-    var c = function (li) { return li.offsetTop + li.offsetHeight / 2; };
-    var y = c(strItems[i0]) + (c(strItems[i1]) - c(strItems[i0])) * t;
+    var y = strC[i0] + (strC[i1] - strC[i0]) * t;
     strList.style.transform = 'translate3d(0,' + (-y).toFixed(1) + 'px,0)';
     strItems.forEach(function (li, i) {
       var d = f - i;
@@ -686,7 +717,7 @@
     function layout() {
       var w = canvas.clientWidth, h = canvas.clientHeight;
       mobile = w < 700;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.6 : 1.75));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.75));
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.fov = mobile ? 68 : 52;
@@ -702,10 +733,10 @@
       rings.forEach(function (g) { g.scale.set(rs, rs, 1); });
     }
     layout();
-    window.addEventListener('resize', layout);
+    window.addEventListener('resize', function () { if (fine || window.innerWidth !== lastW || Math.abs(window.innerHeight - lastH) > 160) layout(); });
 
     var inView = false;
-    new IntersectionObserver(function (e) { inView = e[0].isIntersecting; }, { rootMargin: '10% 0px' }).observe(section);
+    new IntersectionObserver(function (e) { inView = flowState.busy = e[0].isIntersecting; }, { rootMargin: '10% 0px' }).observe(section);
 
     var mouse = { x: 0, y: 0, sx: 0, sy: 0 };
     window.addEventListener('pointermove', function (e) {
@@ -723,7 +754,7 @@
     var head = $('.tunnel__head'), hint = $('.tunnel__hint');
     // le titre du projet qui arrive monte depuis le bas ; le précédent part par le haut
     var curTitle = null;
-    function swapTitle(p) {
+    function swapTitle(p, idx) {
       var old = curTitle;
       curTitle = null;
       if (old) {
@@ -734,6 +765,17 @@
       var meta = [p.service, p.year].filter(Boolean).join(' · ');
       var el = document.createElement('div');
       el.className = 'ptitle__item';
+      el.setAttribute('role', 'link');
+      el.tabIndex = 0;
+      // le nom ouvre le projet, comme l'image
+      var go = function (e) {
+        var m = planes.filter(function (pl) { return pl.userData.i === idx; })[0];
+        var r = el.getBoundingClientRect();
+        var at = e && e.clientX ? { x: e.clientX, y: e.clientY } : { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+        openViewer(idx, m ? screenRect(m) : { l: r.left, t: r.top, r: r.right, b: r.bottom }, at);
+      };
+      el.addEventListener('click', go);
+      el.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
       el.innerHTML = '<h3 class="ptitle__t"><span class="ptitle__mask"><span>' + esc(p.title) + '</span></span></h3>' +
         (meta ? '<p class="ptitle__m"><span class="ptitle__mask"><span>' + esc(meta) + '</span></span></p>' : '');
       ptitle.appendChild(el);
@@ -802,7 +844,7 @@
       var show = nearest >= 0 && best < GAP * 1.4 && smooth > 0.02 ? nearest : -1;
       if (show !== lastTitle) {
         lastTitle = show;
-        swapTitle(show >= 0 ? COVERS[show] : null);
+        swapTitle(show >= 0 ? COVERS[show] : null, show);
       }
       renderer.render(scene, camera);
     }
