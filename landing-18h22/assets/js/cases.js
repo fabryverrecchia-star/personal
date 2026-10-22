@@ -7,24 +7,24 @@ window.CASES = {
     cover: { src: 'assets/cases/jacqueline/cover.webp', w: 1800, h: 1200 },
     place: { fr: 'Table gastronomique, Paris 9e', en: 'Fine dining, Paris 9th', es: 'Alta cocina, París 9', it: 'Alta cucina, Parigi 9' },
     intro: {
-      fr: 'Le chef Gustave Migdal ouvre sa table dans le 9e. Nous avons dessiné toute la maison : un logotype en Cirka qui se lit à plat comme en colonne, un monogramme où le J enlace le Q, un bordeaux profond, le cuir des arts de la table, et le décor, imaginé avec Pierre Gonalons.',
-      en: 'Chef Gustave Migdal opens his table in the 9th. We designed the whole house: a Cirka logotype that reads flat or in a column, a monogram where the J embraces the Q, a deep burgundy, leather for the tableware, and the interiors, imagined with Pierre Gonalons.',
-      es: 'El chef Gustave Migdal abre su mesa en el distrito 9. Diseñamos toda la casa: un logotipo en Cirka que se lee en línea o en columna, un monograma donde la J abraza la Q, un burdeos profundo, el cuero de la mesa y la decoración, imaginada con Pierre Gonalons.',
-      it: 'Lo chef Gustave Migdal apre la sua tavola nel 9°. Abbiamo disegnato tutta la casa: un logotipo in Cirka che si legge in riga o in colonna, un monogramma in cui la J abbraccia la Q, un bordeaux profondo, il cuoio della tavola e la decorazione, immaginata con Pierre Gonalons.'
+      fr: 'Le chef Gustave Migdal ouvre sa table dans le 9e. Nous avons dessiné toute la maison : un logotype en Cirka qui se lit à plat comme en colonne, un monogramme où le J enlace le Q, un bordeaux profond et le cuir des arts de la table. L’architecture intérieure est signée Pierre Gonalons.',
+      en: 'Chef Gustave Migdal opens his table in the 9th. We designed the whole house: a Cirka logotype that reads flat or in a column, a monogram where the J embraces the Q, a deep burgundy and leather for the tableware. Interior design by Pierre Gonalons.',
+      es: 'El chef Gustave Migdal abre su mesa en el distrito 9. Diseñamos toda la casa: un logotipo en Cirka que se lee en línea o en columna, un monograma donde la J abraza la Q, un burdeos profundo y el cuero de la mesa. Interiorismo de Pierre Gonalons.',
+      it: 'Lo chef Gustave Migdal apre la sua tavola nel 9°. Abbiamo disegnato tutta la casa: un logotipo in Cirka che si legge in riga o in colonna, un monogramma in cui la J abbraccia la Q, un bordeaux profondo e il cuoio della tavola. Interior design di Pierre Gonalons.'
     },
     facts: [
       ['client', 'Jacqueline'],
       ['chef', 'Gustave Migdal'],
       ['place', 'Paris 9e'],
-      ['missions', { fr: 'Identité, direction artistique, décoration, arts de la table, photographie, print', en: 'Identity, art direction, interiors, tableware, photography, print', es: 'Identidad, dirección artística, decoración, mesa, fotografía, print', it: 'Identità, direzione artistica, decorazione, tavola, fotografia, print' }],
-      ['decor', { fr: 'Avec Pierre Gonalons', en: 'With Pierre Gonalons', es: 'Con Pierre Gonalons', it: 'Con Pierre Gonalons' }],
+      ['missions', { fr: 'Identité, direction artistique, arts de la table, photographie, print', en: 'Identity, art direction, tableware, photography, print', es: 'Identidad, dirección artística, mesa, fotografía, print', it: 'Identità, direzione artistica, tavola, fotografia, print' }],
+      ['decor', 'Pierre Gonalons'],
       ['typeface', 'Cirka, Afacad Flux']
     ],
     blocks: [
       { type: 'collab', label: 'decor', bg: '#2a221f', with: 'Pierre Gonalons',
-        title: { fr: 'Décoration', en: 'Interiors', es: 'Decoración', it: 'Decorazione' },
-        text: { fr: 'Un projet mené à deux, du plafond de globes au marbre des tables.', en: 'A project led together, from the ceiling of globes to the marble tables.', es: 'Un proyecto a cuatro manos, del techo de globos al mármol de las mesas.', it: 'Un progetto a quattro mani, dal soffitto di globi al marmo dei tavoli.' },
-        statement: { fr: 'Banquettes de velours rose, marbres veinés, une pluie de globes de verre : la salle a été pensée avec l’architecte d’intérieur Pierre Gonalons, comme une suite du monogramme.', en: 'Pink velvet banquettes, veined marbles, a rain of glass globes: the room was conceived with interior architect Pierre Gonalons, as an extension of the monogram.', es: 'Banquetas de terciopelo rosa, mármoles veteados, una lluvia de globos de cristal: la sala se pensó con el interiorista Pierre Gonalons, como una prolongación del monograma.', it: 'Banquette di velluto rosa, marmi venati, una pioggia di globi di vetro: la sala è stata pensata con l’architetto d’interni Pierre Gonalons, come un prolungamento del monogramma.' },
+        title: { fr: 'Interior design', en: 'Interior design', es: 'Interior design', it: 'Interior design' },
+        text: { fr: 'La salle, photographiée par le studio.', en: 'The dining room, photographed by the studio.', es: 'La sala, fotografiada por el estudio.', it: 'La sala, fotografata dallo studio.' },
+        statement: { fr: 'Banquettes de velours rose, marbres veinés, une pluie de globes de verre.', en: 'Pink velvet banquettes, veined marbles, a rain of glass globes.', es: 'Banquetas de terciopelo rosa, mármoles veteados, una lluvia de globos de cristal.', it: 'Banquette di velluto rosa, marmi venati, una pioggia di globi di vetro.' },
         rows: [
           [{ src: 'assets/cases/jacqueline/salle.webp', w: 1200, h: 1800 }, { src: 'assets/cases/jacqueline/plafond.webp', w: 1200, h: 1800 }],
           [{ src: 'assets/cases/jacqueline/banquette.webp', w: 1800, h: 917 }],

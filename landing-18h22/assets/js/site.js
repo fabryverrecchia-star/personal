@@ -52,7 +52,7 @@
       cue: 'Entrer',
       manifesto: '18h22 est l’heure où la lumière change. Studio de création, nous donnons aux marques une image juste, et le temps de la faire vivre.',
       reelLabel: 'Showreel', reelLine: 'Paris, 18h22.',
-      workLabel: 'Projets', workTitle: 'Sélection', workHint: 'Défiler', workAll: 'Index', statProj: 'projets en 2026', statYears: 'années d’activité, depuis 2017', statBriefs: 'briefings créatifs', footSeo: 'Agence de création à Paris. Création de logo, identité visuelle, sites web et applications, packaging, réseaux sociaux. Paris et toute la France.',
+      teamLabel: 'L’équipe', teamTitle: 'Deux regards sur chaque projet.', roleF: 'Senior UX Designer', roleS: '', workLabel: 'Projets', workTitle: 'Sélection', workHint: 'Défiler', workAll: 'Index', statProj: 'projets en 2026', statYears: 'années d’activité, depuis 2017', statBriefs: 'briefings créatifs', footSeo: 'Agence de création à Paris. Création de logo, identité visuelle, sites web et applications, packaging, réseaux sociaux. Paris et toute la France.',
       servicesLabel: 'Services',
       endTitle: 'Un projet ?', endCta: 'Écrivez-nous', copied: 'Adresse copiée',
       need: 'Objet', needOther: 'Autre',
@@ -63,7 +63,7 @@
       cue: 'Enter',
       manifesto: '18:22 is the hour the light changes. As a creative studio, we give brands the right image, and the time to make it live.',
       reelLabel: 'Showreel', reelLine: 'Paris, 18:22.',
-      workLabel: 'Work', workTitle: 'Selection', workHint: 'Scroll', workAll: 'Index', statProj: 'projects in 2026', statYears: 'years in practice, since 2017', statBriefs: 'creative briefs', footSeo: 'Creative agency in Paris. Logo design, visual identity, websites and apps, packaging, social media. Paris and all of France.',
+      teamLabel: 'The team', teamTitle: 'Two points of view on every project.', roleF: 'Senior UX Designer', roleS: '', workLabel: 'Work', workTitle: 'Selection', workHint: 'Scroll', workAll: 'Index', statProj: 'projects in 2026', statYears: 'years in practice, since 2017', statBriefs: 'creative briefs', footSeo: 'Creative agency in Paris. Logo design, visual identity, websites and apps, packaging, social media. Paris and all of France.',
       servicesLabel: 'Services',
       endTitle: 'A project?', endCta: 'Write to us', copied: 'Address copied',
       need: 'Subject', needOther: 'Other',
@@ -74,7 +74,7 @@
       cue: 'Entrar',
       manifesto: 'Las 18:22 son la hora en que cambia la luz. Como estudio creativo, damos a las marcas la imagen justa, y el tiempo para hacerla vivir.',
       reelLabel: 'Showreel', reelLine: 'París, 18:22.',
-      workLabel: 'Proyectos', workTitle: 'Selección', workHint: 'Desplazar', workAll: 'Índice', statProj: 'proyectos en 2026', statYears: 'años de actividad, desde 2017', statBriefs: 'briefings creativos', footSeo: 'Agencia creativa en París. Diseño de logotipos, identidad visual, sitios web y apps, packaging, redes sociales. París y toda Francia.',
+      teamLabel: 'El equipo', teamTitle: 'Dos miradas sobre cada proyecto.', roleF: 'Senior UX Designer', roleS: '', workLabel: 'Proyectos', workTitle: 'Selección', workHint: 'Desplazar', workAll: 'Índice', statProj: 'proyectos en 2026', statYears: 'años de actividad, desde 2017', statBriefs: 'briefings creativos', footSeo: 'Agencia creativa en París. Diseño de logotipos, identidad visual, sitios web y apps, packaging, redes sociales. París y toda Francia.',
       servicesLabel: 'Servicios',
       endTitle: '¿Un proyecto?', endCta: 'Escríbenos', copied: 'Dirección copiada',
       need: 'Asunto', needOther: 'Otro',
@@ -85,7 +85,7 @@
       cue: 'Entra',
       manifesto: 'Le 18:22 sono l’ora in cui la luce cambia. Come studio creativo, diamo ai marchi l’immagine giusta, e il tempo per farla vivere.',
       reelLabel: 'Showreel', reelLine: 'Parigi, 18:22.',
-      workLabel: 'Progetti', workTitle: 'Selezione', workHint: 'Scorri', workAll: 'Indice', statProj: 'progetti nel 2026', statYears: 'anni di attività, dal 2017', statBriefs: 'brief creativi', footSeo: 'Agenzia creativa a Parigi. Logo, identità visiva, siti web e app, packaging, social media. Parigi e tutta la Francia.',
+      teamLabel: 'Il team', teamTitle: 'Due sguardi su ogni progetto.', roleF: 'Senior UX Designer', roleS: '', workLabel: 'Progetti', workTitle: 'Selezione', workHint: 'Scorri', workAll: 'Indice', statProj: 'progetti nel 2026', statYears: 'anni di attività, dal 2017', statBriefs: 'brief creativi', footSeo: 'Agenzia creativa a Parigi. Logo, identità visiva, siti web e app, packaging, social media. Parigi e tutta la Francia.',
       servicesLabel: 'Servizi',
       endTitle: 'Un progetto?', endCta: 'Scriveteci', copied: 'Indirizzo copiato',
       need: 'Oggetto', needOther: 'Altro',
@@ -406,10 +406,14 @@
     flowState.cover = (window.innerWidth < 700 ? 0.26 : 0.18) + 0.2 * clamp(y / maxY, 0, 1);
     if (!flowOn) { flowState.nightS = night; tone(); }
 
+    // équipe : chaque portrait se dévoile quand il entre dans l'écran
+    (teamEls || []).forEach(function (el) { if (!el.classList.contains('is-in') && el.getBoundingClientRect().top < H * 0.9) el.classList.add('is-in'); });
+
     // titre final
     var et = $('#endTitle').getBoundingClientRect().top;
     if (!endShown && et < H * 0.85) { endShown = true; revealChars($('#endTitle')); }
   }
+  var teamEls = $$('.team [data-rv]');
   window.addEventListener('scroll', onScroll, { passive: true });
 
   /* ------------------------------------------------------------------------

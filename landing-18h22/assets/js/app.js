@@ -10,6 +10,8 @@
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var finePointer = window.matchMedia('(pointer: fine)').matches;
   var params = new URLSearchParams(location.search);
+  // lien direct vers un projet : pas d'intro, la page projet s'ouvre tout de suite
+  if (/^#projet\//.test(location.hash)) params.set('skip', '1');
   var $ = function (s) { return document.querySelector(s); };
   var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
 
@@ -774,17 +776,35 @@
     overUI = !!(e.target.closest && e.target.closest(UI_SEL));
   });
 
+  // un client = une carte : sa couverture, son nom, ses métiers ; un clic ouvre sa page
+  var groups = [];
   function buildGallery() {
     if (grid.children.length) return;
-    PROJECTS.forEach(function (p, i) {
+    var byT = {};
+    groups = [];
+    PROJECTS.forEach(function (p) {
+      var k = (p.title || '').trim().toLowerCase(), g = k && byT[k];
+      if (!g) { g = { title: p.title || '', items: [] }; groups.push(g); if (k) byT[k] = g; }
+      g.items.push(p);
+    });
+    groups.forEach(function (g, i) {
+      var c = g.items[0], sv = [];
+      g.items.forEach(function (p) { if (p.service && sv.indexOf(p.service) < 0) sv.push(p.service); });
       var f = document.createElement('figure');
-      f.innerHTML = '<img src="' + p.src + '" width="' + p.w + '" height="' + p.h + '" alt="" loading="lazy" decoding="async">' +
-        '<figcaption></figcaption>';
-      f.querySelector('figcaption').textContent = p.title || '';
+      f.setAttribute('data-g', i);
+      f.innerHTML = '<img src="' + c.src + '" width="' + c.w + '" height="' + c.h + '" alt="" loading="lazy" decoding="async">' +
+        '<figcaption><span></span><small></small></figcaption>';
+      f.querySelector('figcaption span').textContent = g.title || '';
+      f.querySelector('figcaption small').textContent = sv.join(' · ');
       grid.appendChild(f);
     });
-    $('#galleryCount').textContent = String(PROJECTS.length).padStart(2, '0');
+    $('#galleryCount').textContent = String(groups.length).padStart(2, '0');
   }
+  grid.addEventListener('click', function (e) {
+    var f = e.target.closest && e.target.closest('figure[data-g]');
+    if (!f || !window.CASE) return;
+    if (window.CASE.open(groups[+f.getAttribute('data-g')], { x: e.clientX, y: e.clientY })) setTimeout(closeGallery, 700);
+  });
 
   function openGallery() {
     if (galleryOpen || !ready) return;

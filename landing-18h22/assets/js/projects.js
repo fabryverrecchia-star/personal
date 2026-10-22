@@ -1,7 +1,7 @@
 /* Projets affichés autour du logo.
    Ajouter / retirer une ligne suffit. `title`, `service` et `year` (facultatifs) s'affichent quand le projet arrive à l'écran. */
 window.PROJECTS = [
-  { src: 'assets/cases/jacqueline/cover.webp', w: 1800, h: 1200, title: 'Jacqueline', service: 'Interior Design', year: '' },
+  { src: 'assets/cases/jacqueline/cover.webp', w: 1800, h: 1200, title: 'Jacqueline', service: 'Identity Design', year: '' },
   { src: 'assets/projects/p06.webp', w: 1100, h: 560, title: 'Jacqueline', service: 'Identity Design', year: '' },
   { src: 'assets/projects/p08.webp', w: 970, h: 1100, title: 'Jacqueline', service: 'Retail Design', year: '' },
   { src: 'assets/projects/p12.webp', w: 710, h: 960, title: 'Jacqueline', service: 'Print', year: '' },

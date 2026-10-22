@@ -421,7 +421,12 @@ button { font: inherit; color: inherit; }
   font-size: 13px;
   color: var(--ink-soft);
 }
-.gallery figcaption:empty { display: none; }
+.gallery figcaption { display: flex; justify-content: space-between; gap: 12px; }
+.gallery figcaption span { color: var(--ink); }
+.gallery figcaption small { font-size: 12px; text-align: right; }
+.gallery figure[data-g] { cursor: pointer; }
+.gallery figure[data-g] img { transition: opacity 0.4s; }
+@media (hover: hover) { .gallery figure[data-g]:hover img { opacity: 0.82; } }
 
 /* --------------------------------------------------------------------------
    Contact

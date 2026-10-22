@@ -53,9 +53,11 @@
     it: { web: 'Online', webT: 'Il sito, schermata per schermata.', work: 'Lavori', workT: '', paletteA: 'Le tinte del progetto, rilevate nelle sue immagini.', untitled: 'Progetto', year: 'Anno' }
   };
   for (var tl in TA) for (var tk in TA[tl]) T[tl][tk] = TA[tl][tk];
-  var TU = { fr: { accent: 'Accent', deep: 'Profondeur', chef: 'Chef', decor: 'Décoration' }, en: { accent: 'Accent', deep: 'Depth', chef: 'Chef', decor: 'Interiors' },
-    es: { accent: 'Acento', deep: 'Profundidad', chef: 'Chef', decor: 'Decoración' }, it: { accent: 'Accento', deep: 'Profondità', chef: 'Chef', decor: 'Decorazione' } };
-  for (var ul in TU) { T[ul].uses.accent = TU[ul].accent; T[ul].uses.deep = TU[ul].deep; T[ul].chef = TU[ul].chef; T[ul].decor = TU[ul].decor; }
+  var TU = { fr: { accent: 'Accent', deep: 'Profondeur', chef: 'Chef', decor: 'Interior design', shareP: 'Partager', copied: 'Lien copié' },
+    en: { accent: 'Accent', deep: 'Depth', chef: 'Chef', decor: 'Interior design', shareP: 'Share', copied: 'Link copied' },
+    es: { accent: 'Acento', deep: 'Profundidad', chef: 'Chef', decor: 'Interior design', shareP: 'Compartir', copied: 'Enlace copiado' },
+    it: { accent: 'Accento', deep: 'Profondità', chef: 'Chef', decor: 'Interior design', shareP: 'Condividi', copied: 'Link copiato' } };
+  for (var ul in TU) { T[ul].uses.accent = TU[ul].accent; T[ul].uses.deep = TU[ul].deep; for (var uk in TU[ul]) if (uk !== 'accent' && uk !== 'deep') T[ul][uk] = TU[ul][uk]; }
   var SV = {
     'website': { fr: 'Site web', en: 'Website', es: 'Sitio web', it: 'Sito web' },
     'identity design': { fr: 'Identité visuelle', en: 'Identity design', es: 'Identidad visual', it: 'Identità visiva' },
@@ -72,6 +74,7 @@
   var scroller = root.querySelector('.case__scroll');
   var inner = root.querySelector('.case__inner');
   var closeBtn = root.querySelector('.case__close');
+  var shareBtn = root.querySelector('.case__share');
   var data = null, at0 = null, running = false, sections = [], figs = [];
 
   /* ---------- Rendu ---------- */
@@ -228,7 +231,7 @@
   function jStack(kind) {
     var L = jL(), g = '';
     if (kind === 'straight') { // lettres empilées à la même hauteur, sur l'axe central
-      var y = 0, s = 44 / 55;
+      var y = 0, s = 44 / vec().wordmark.cap;
       L.forEach(function (l, i) {
         var w = (l.b[2] - l.b[0]) * s;
         g += '<g transform="' + jPlace(l, 50 - w / 2, y, s) + '"><path class="cl" style="--i:' + i + '" fill-rule="evenodd" d="' + l.d + '"/></g>';
@@ -308,7 +311,7 @@
       '<p class="cjt__aa">Aa</p><p class="cjt__abc">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz<br>0123456789 &amp; ! ? € ( )</p></div></div>';
   }
   function collab(b) {
-    return '<div class="ccol" data-rev><p class="ccol__by"><span>18H22</span><i>×</i><span>' + esc(b.with) + '</span></p>' +
+    return '<div class="ccol" data-rev><p class="ccol__by"><span>Interior design</span><i>by</i><span>' + esc(b.with) + '</span></p>' +
       '<p class="ccol__t">' + esc(tr(b.statement)) + '</p></div>' + gallery(b);
   }
 
@@ -330,6 +333,7 @@
       '<p>' + esc(c.title) + ' · 18H22</p></footer>';
     inner.innerHTML = html;
     closeBtn.textContent = t.close;
+    if (shareBtn) shareBtn.textContent = t.shareP;
     inner.querySelector('.case__back').addEventListener('click', close);
   }
   function isDark(hex) { var v = rgb(hex); return (0.299 * v[0] + 0.587 * v[1] + 0.114 * v[2]) / 255 < 0.5; }
@@ -632,15 +636,52 @@
     out.forEach(function (c, i) {
       c.share = i === out.length - 1 ? 100 - acc : Math.max(1, Math.round(c.share / tot * 100));
       acc += c.share;
-      c.name = 'Nº ' + (i < 9 ? '0' : '') + (i + 1);
+      c.name = c.hex;
     });
     return out;
+  }
+
+  /* ---------- Lien direct : #projet/<nom> ouvre la page du projet ---------- */
+  function slugify(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+  function fileSlug(p) { return slugify(String(p.src || '').split('/').pop().replace(/\.\w+$/, '')); }
+  function slugOf(x) {
+    var title = typeof x === 'string' ? x : (x && x.title) || '';
+    if (title) return slugify(title);
+    var it = x && x.items && x.items[0];
+    return it ? fileSlug(it) : '';
+  }
+  function fromSlug(sl) {
+    var P = window.PROJECTS || [], i;
+    for (i = 0; i < P.length; i++) if (P[i].title && slugify(P[i].title) === sl) return P[i].title;
+    for (var k in CASES) if (slugify(CASES[k].title) === sl) return CASES[k].title;
+    for (i = 0; i < P.length; i++) if (!P[i].title && fileSlug(P[i]) === sl) return { title: '', items: [P[i]] };
+    return null;
+  }
+  var curSlug = '';
+  function link() { return location.href.split('#')[0] + '#projet/' + curSlug; }
+  function setHash(on) {
+    try { history.replaceState(null, '', on ? '#projet/' + curSlug : location.pathname + location.search); } catch (e) {}
+  }
+  if (shareBtn) shareBtn.addEventListener('click', function () {
+    var t = T[lang()], url = link();
+    function done() { shareBtn.textContent = t.copied; setTimeout(function () { shareBtn.textContent = t.shareP; }, 1800); }
+    if (touch && navigator.share) { navigator.share({ title: (data && data.title || '') + ' · 18H22', url: url }).catch(function () {}); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(url).then(done, function () { copyOld(url); done(); }); return; }
+    copyOld(url); done();
+  });
+  function copyOld(url) {
+    var ta = document.createElement('textarea'); ta.value = url; ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    ta.remove();
   }
 
   function has(x) { return !!resolve(x); }
   function open(title, at) {
     data = resolve(title);
     if (!data) return false;
+    curSlug = slugOf(title);
+    setHash(true);
     render(data);
     sections = [].slice.call(inner.querySelectorAll('section, footer'));
     figs = [].slice.call(inner.querySelectorAll('.cm'));
@@ -698,7 +739,7 @@
         { clipPath: 'circle(' + big + 'px at ' + at0.x + 'px ' + at0.y + 'px)', duration: 1.2, ease: 'expo.inOut', onComplete: function () { root.style.clipPath = 'none'; } });
       gsap.fromTo(inner.querySelector('.chero__img'), { scale: 1.25, filter: 'blur(10px)' }, { scale: 1, filter: 'blur(0px)', duration: 1.6, ease: 'expo.out', delay: 0.2, clearProps: 'transform,filter' });
       gsap.fromTo(masks, { yPercent: 110 }, { yPercent: 0, duration: 1.1, ease: 'expo.out', stagger: 0.1, delay: 0.7 });
-      gsap.fromTo(closeBtn, { opacity: 0 }, { opacity: 1, duration: 0.6, delay: 0.9 });
+      gsap.fromTo([closeBtn, shareBtn], { opacity: 0 }, { opacity: 1, duration: 0.6, delay: 0.9 });
     }
     return true;
   }
@@ -712,6 +753,7 @@
       document.body.classList.remove('is-locked', 'is-case');
       inner.innerHTML = '';
       clearInterval(glyphAuto);
+      setHash(false);
     };
     if (!window.gsap || reduce) return end();
     var at = at0 || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
@@ -736,4 +778,7 @@
   });
 
   window.CASE = { has: has, open: open, close: close };
+  // arrivée par un lien partagé
+  var deep = /^#projet\/([\w-]+)/.exec(location.hash);
+  if (deep) { var target = fromSlug(deep[1]); if (target) setTimeout(function () { open(target); }, 300); }
 })();
