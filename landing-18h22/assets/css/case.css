@@ -241,6 +241,55 @@ body.is-case .tick, body.is-case #top { opacity: 0; pointer-events: none; }
 .cfleur { width: 46%; overflow: visible; }
 .cplate__cell svg .cfleur__ghost { fill: none; stroke: currentColor; stroke-width: 1.2; opacity: 0.35; }
 
+/* Jacqueline : construction du logotype (horizontal, vertical, monogramme) */
+.cs--jlogo { height: 360vh; padding: 0; }
+.cjl__stage .case__head { position: absolute; z-index: 2; top: calc(var(--gutter) * 2.4 + env(safe-area-inset-top)); left: 0; right: 0; }
+.cjl__box { width: min(78vw, 76svh); aspect-ratio: 1; }
+.cjl__svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.cjl__svg path { fill: currentColor; }
+.cjl__guides line { stroke: currentColor; stroke-width: 0.6; opacity: 0.18; stroke-dasharray: 3 5; }
+.cjl__l { opacity: 0; }
+.cjl__svg .cjl__mo { fill: var(--accent, currentColor); fill-opacity: 0; stroke: var(--accent, currentColor); stroke-width: 0.6; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.cplate__quad { display: grid; grid-template-columns: 1fr 1fr; }
+.cplate__quad .cplate__cell { aspect-ratio: 16 / 7; }
+.cplate__quad .cwm { width: 68%; }
+.cplate__pair { display: grid; grid-template-rows: 1fr 1fr; gap: 6px; }
+.cplate__pair .cplate__cell { aspect-ratio: auto; }
+.cplate__cell--tall { aspect-ratio: 1 / 1; }
+.cjm { width: 22%; overflow: visible; opacity: 0; transform: translate3d(0, 6%, 0) scale(0.92); transition: opacity 1s var(--ease) 0.2s, transform 1.4s var(--ease) 0.2s; }
+.cjm.is-big { width: 40%; }
+.cplate.is-in .cjm { opacity: 1; transform: none; }
+.cplate__trio { display: grid; grid-template-columns: repeat(3, 1fr); }
+.cplate__trio .cplate__cell { aspect-ratio: 4 / 5; }
+.cvs { height: 82%; width: auto; overflow: hidden; }
+.cvs .cl { transform-box: fill-box; transform: translateY(-120%); opacity: 0; transition: transform 1.2s cubic-bezier(0.77, 0, 0.18, 1) calc(0.1s + var(--i) * 0.07s), opacity 0.6s var(--ease) calc(0.1s + var(--i) * 0.07s); }
+.cplate.is-in .cvs .cl { transform: none; opacity: 1; }
+/* Collaboration */
+.ccol { padding: 0 var(--gutter) clamp(40px, 8vh, 90px); }
+.ccol__by { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3em; font-size: clamp(40px, 7.4vw, 120px); line-height: 1; letter-spacing: -0.045em; }
+.ccol__by i { font-style: normal; opacity: 0.45; font-size: 0.6em; }
+.ccol__by span, .ccol__by i { display: inline-block; opacity: 0; transform: translate3d(0, 40%, 0); transition: opacity 0.9s var(--ease), transform 1.3s var(--ease); }
+.ccol__by i { transition-delay: 0.12s; }
+.ccol__by span:last-child { transition-delay: 0.24s; }
+.ccol.is-in .ccol__by span { opacity: 1; transform: none; }
+.ccol.is-in .ccol__by i { opacity: 0.45; transform: none; }
+.ccol__t { margin: clamp(18px, 3vh, 32px) 0 0; max-width: 40ch; font-size: clamp(16px, 1.5vw, 22px); line-height: 1.45; opacity: 0; transition: opacity 1s var(--ease) 0.4s; }
+.ccol.is-in .ccol__t { opacity: 0.8; }
+/* Typographies Jacqueline */
+@font-face { font-family: 'Afacad Flux'; src: url('../fonts/AfacadFlux-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+.cjt { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(12px, 2vw, 28px); padding: 0 var(--gutter); }
+.cjt__card { position: relative; display: flex; flex-direction: column; align-items: center; padding: clamp(22px, 3vw, 40px); min-height: min(70vh, 640px); border-radius: 10px; overflow: hidden; opacity: 0; transform: translate3d(0, 40px, 0); transition: opacity 1s var(--ease), transform 1.3s var(--ease); }
+.cjt__card + .cjt__card { transition-delay: 0.15s; }
+.cjt__card.is-in { opacity: 1; transform: none; }
+.cjt__k { margin: 0; font-size: 13px; opacity: 0.8; }
+.cjt__n { margin: 10px 0 0; font-size: clamp(22px, 2.2vw, 34px); letter-spacing: 0.02em; }
+.cjt__q { width: 34%; margin: auto 0 22px; overflow: visible; }
+.cjt__q path, .cjt__row path { fill: currentColor; }
+.cjt__row { width: 70%; }
+.cjt__card.is-in .cwm .cl { transform: none; }
+.cjt__aa { margin: auto 0 0; font-family: 'Afacad Flux', var(--text); font-size: clamp(110px, 13vw, 210px); line-height: 1; }
+.cjt__abc { margin: 18px 0 0; font-family: 'Afacad Flux', var(--text); font-size: clamp(13px, 1.1vw, 16px); line-height: 1.6; text-align: center; letter-spacing: 0.04em; }
+
 /* Spécimen : la typo en vecteurs, une loupe sur chaque lettre */
 .ctype { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr); gap: clamp(24px, 4vw, 70px); align-items: center; padding: 0 var(--gutter) clamp(40px, 8vh, 90px); }
 .ctype__view { position: relative; aspect-ratio: 1; display: grid; place-items: center; border: 1px solid color-mix(in srgb, currentColor 14%, transparent); }
@@ -297,6 +346,18 @@ body.is-case .tick, body.is-case #top { opacity: 0; pointer-events: none; }
   .cpal { flex-direction: column; height: min(86svh, 720px); }
   .cpal__sw { flex: var(--w) 1 0; min-height: 0; }
   .cpal__sw.is-on { flex-grow: calc(var(--w) + 34); }
+  .cs--jlogo { height: 300vh; }
+  .cjl__box { width: 94vw; }
+  .cplate__quad .cplate__cell { aspect-ratio: 16 / 9; }
+  .cplate__quad .cwm { width: 80%; }
+  .cplate__pair { grid-template-rows: none; grid-template-columns: 1fr 1fr; }
+  .cplate__pair .cplate__cell { aspect-ratio: 1 / 1; }
+  .cjm { width: 34%; }
+  .cjm.is-big { width: 46%; }
+  .cplate__trio { grid-template-columns: 1fr 1fr; }
+  .cplate__trio .cplate__cell:first-child { grid-column: 1 / -1; aspect-ratio: 16 / 12; }
+  .cjt { grid-template-columns: 1fr; }
+  .cjt__card { min-height: 440px; }
   .cpal__fill { transform: translateX(-101%); }
   .cpal__top { top: 10px; }
   .cpal__info { bottom: 12px; }

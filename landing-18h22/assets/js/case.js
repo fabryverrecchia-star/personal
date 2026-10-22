@@ -53,10 +53,14 @@
     it: { web: 'Online', webT: 'Il sito, schermata per schermata.', work: 'Lavori', workT: '', paletteA: 'Le tinte del progetto, rilevate nelle sue immagini.', untitled: 'Progetto', year: 'Anno' }
   };
   for (var tl in TA) for (var tk in TA[tl]) T[tl][tk] = TA[tl][tk];
+  var TU = { fr: { accent: 'Accent', deep: 'Profondeur', chef: 'Chef', decor: 'Décoration' }, en: { accent: 'Accent', deep: 'Depth', chef: 'Chef', decor: 'Interiors' },
+    es: { accent: 'Acento', deep: 'Profundidad', chef: 'Chef', decor: 'Decoración' }, it: { accent: 'Accento', deep: 'Profondità', chef: 'Chef', decor: 'Decorazione' } };
+  for (var ul in TU) { T[ul].uses.accent = TU[ul].accent; T[ul].uses.deep = TU[ul].deep; T[ul].chef = TU[ul].chef; T[ul].decor = TU[ul].decor; }
   var SV = {
     'website': { fr: 'Site web', en: 'Website', es: 'Sitio web', it: 'Sito web' },
     'identity design': { fr: 'Identité visuelle', en: 'Identity design', es: 'Identidad visual', it: 'Identità visiva' },
-    'retail design': { fr: 'Design d’espace', en: 'Retail design', es: 'Diseño de espacios', it: 'Design degli spazi' }
+    'retail design': { fr: 'Design d’espace', en: 'Retail design', es: 'Diseño de espacios', it: 'Design degli spazi' },
+    'interior design': { fr: 'Décoration', en: 'Interior design', es: 'Decoración', it: 'Decorazione' }
   };
   function lang() { var l = document.documentElement.lang; return T[l] ? l : 'fr'; }
   function tr(v) { return v && typeof v === 'object' ? (v[lang()] || v.fr) : (v || ''); }
@@ -73,8 +77,8 @@
   /* ---------- Rendu ---------- */
   function head(b) {
     var t = T[lang()];
-    var txt = t[b.textKey || b.label + 'T'];
-    return '<header class="case__head"><h3>' + esc(t[b.label]) + '</h3>' + (txt ? '<p>' + esc(txt) + '</p>' : '') + '</header>';
+    var txt = b.text ? tr(b.text) : t[b.textKey || b.label + 'T'];
+    return '<header class="case__head"><h3>' + esc(b.title ? tr(b.title) : t[b.label]) + '</h3>' + (txt ? '<p>' + esc(txt) + '</p>' : '') + '</header>';
   }
   function fig(im) {
     // le dévoilement passe par deux calques qui glissent en sens inverse (pas de clip-path :
@@ -165,20 +169,20 @@
   }
   function palette(b) {
     if (!b.colors) return '<div class="cpal" data-auto></div><div class="cpal__bar"></div><p class="cpal__note">' + esc(T[lang()].share) + '</p>';
-    return swatches(b.colors);
+    return swatches(b.colors, b.even);
   }
-  function swatches(colors) {
+  function swatches(colors, even) {
     var t = T[lang()];
     return '<div class="cpal">' + colors.map(function (c, i) {
       var v = rgb(c.hex), lum = (0.299 * v[0] + 0.587 * v[1] + 0.114 * v[2]) / 255;
       return '<div class="cpal__sw' + (lum > 0.6 ? ' is-light' : '') + '" style="--c:' + c.hex + ';--w:' + c.share + ';--i:' + i + '" tabindex="0">' +
         '<div class="cpal__fill"></div>' +
-        '<div class="cpal__top"><span>' + esc(t.uses[c.use] || '') + '</span><span>' + c.share + '%</span></div>' +
+        '<div class="cpal__top"><span>' + esc(t.uses[c.use] || '') + '</span>' + (even ? '' : '<span>' + c.share + '%</span>') + '</div>' +
         '<div class="cpal__info"><b>' + esc(c.name) + '</b>' +
         '<dl><dt>HEX</dt><dd>' + c.hex + '</dd><dt>RGB</dt><dd>' + v.join(' ') + '</dd><dt>CMYK</dt><dd>' + cmyk(v).join(' ') + '</dd></dl></div></div>';
     }).join('') + '</div>' +
     '<div class="cpal__bar">' + colors.map(function (c) { return '<i style="--c:' + c.hex + ';--w:' + c.share + '"></i>'; }).join('') + '</div>' +
-    '<p class="cpal__note">' + esc(t.share) + '</p>';
+    (even ? '' : '<p class="cpal__note">' + esc(t.share) + '</p>');
   }
   function type(b) {
     var t = T[lang()], Gl = vec().glyphs;
@@ -212,6 +216,102 @@
     big.classList.remove('is-pop'); void big.getBoundingClientRect(); big.classList.add('is-pop');
   }
 
+  /* ---------- Jacqueline : logotype Cirka, compositions verticales, monogramme ---------- */
+  function jL() { return vec().wordmark.letters; }
+  // une lettre placée dans un cadre : translate(x,y) scale(s) depuis le coin de sa boîte d'origine
+  function jPlace(l, x, y, s) { return 'translate(' + x.toFixed(2) + ' ' + y.toFixed(2) + ') scale(' + s.toFixed(4) + ') translate(' + (-l.b[0]) + ' ' + (-l.b[1]) + ')'; }
+  function jWord(cls) {
+    var B = vec().wordmark.box;
+    return '<svg class="cwm ' + (cls || '') + '" viewBox="' + B[0] + ' ' + B[1] + ' ' + (B[2] - B[0]) + ' ' + (B[3] - B[1]) + '" aria-hidden="true">' +
+      jL().map(function (l, i) { return '<path class="cl" style="--i:' + i + '" fill-rule="evenodd" d="' + l.d + '"/>'; }).join('') + '</svg>';
+  }
+  function jStack(kind) {
+    var L = jL(), g = '';
+    if (kind === 'straight') { // lettres empilées à la même hauteur, sur l'axe central
+      var y = 0, s = 44 / 55;
+      L.forEach(function (l, i) {
+        var w = (l.b[2] - l.b[0]) * s;
+        g += '<g transform="' + jPlace(l, 50 - w / 2, y, s) + '"><path class="cl" style="--i:' + i + '" fill-rule="evenodd" d="' + l.d + '"/></g>';
+        y += Math.max(44, (l.b[3] - l.b[1]) * s) + 6;
+      });
+      return '<svg class="cvs" viewBox="0 -4 100 ' + (y + 8) + '" aria-hidden="true">' + g + '</svg>';
+    }
+    var SB = vec().stackBox;
+    L.forEach(function (l, i) {
+      var sc = (l.t[3] - l.t[1]) / (l.b[3] - l.b[1]);
+      g += '<g transform="' + jPlace(l, l.t[0], l.t[1], sc) + '"><path class="cl" style="--i:' + i + '" fill-rule="evenodd" d="' + l.d + '"/></g>';
+    });
+    return '<svg class="cvs" viewBox="' + SB[0] + ' ' + SB[1] + ' ' + (SB[2] - SB[0]) + ' ' + (SB[3] - SB[1]) + '" aria-hidden="true">' + g + '</svg>';
+  }
+  function jMono(cls) {
+    var M = vec().monogram, B = M.box;
+    return '<svg class="cjm ' + (cls || '') + '" viewBox="' + B[0] + ' ' + B[1] + ' ' + (B[2] - B[0]) + ' ' + (B[3] - B[1]) + '" aria-hidden="true"><path fill-rule="evenodd" d="' + M.d + '"/></svg>';
+  }
+  function jlogo(b) {
+    var L = jL(), M = vec().monogram;
+    var svg = '<svg class="cjl__svg" viewBox="0 0 600 600" aria-hidden="true"><g class="cjl__guides"><line x1="0" y1="300" x2="600" y2="300"/><line x1="300" y1="0" x2="300" y2="600"/></g>' +
+      L.map(function (l, i) { return '<g class="cjl__l"><path fill-rule="evenodd" d="' + l.d + '"/></g>'; }).join('') +
+      '<g class="cjl__mono"><path class="cjl__mo" fill-rule="evenodd" pathLength="1" d="' + M.d + '"/></g></svg>';
+    return '<div class="clogo__stage cjl__stage">' + head(b) + '<div class="cjl__box">' + svg + '</div>' +
+      '<ol class="clogo__steps">' + b.steps.map(function (s) { return '<li>' + esc(tr(s)) + '</li>'; }).join('') + '</ol></div>';
+  }
+  // le logotype se lit à l'horizontale, ses lettres glissent en composition verticale, puis le monogramme se trace
+  var jl = null;
+  function buildJ(sec) {
+    var L = jL(), M = vec().monogram, B = vec().wordmark.box, SB = vec().stackBox;
+    var Sa = 540 / (B[2] - B[0]), Sg = 540 / (SB[3] - SB[1]);
+    var cxA = (B[0] + B[2]) / 2, cyA = (B[1] + B[3]) / 2, cxB = (SB[0] + SB[2]) / 2, cyB = (SB[1] + SB[3]) / 2;
+    var MB = M.box, Sm = 470 / (MB[3] - MB[1]);
+    sec.querySelector('.cjl__mono').setAttribute('transform', 'translate(' + (300 - (MB[2] - MB[0]) * Sm / 2).toFixed(2) + ' ' + (300 - (MB[3] - MB[1]) * Sm / 2).toFixed(2) + ') scale(' + Sm.toFixed(4) + ') translate(' + (-MB[0]) + ' ' + (-MB[1]) + ')');
+    jl = { gs: [].slice.call(sec.querySelectorAll('.cjl__l')), mo: sec.querySelector('.cjl__mo'), lis: sec.querySelectorAll('.clogo__steps li'),
+      A: L.map(function (l) { return [300 + (l.b[0] - cxA) * Sa, 300 + (l.b[1] - cyA) * Sa, Sa]; }),
+      Bt: L.map(function (l) { return [300 + (l.t[0] - cxB) * Sg, 300 + (l.t[1] - cyB) * Sg, Sg * (l.t[3] - l.t[1]) / (l.b[3] - l.b[1])]; }) };
+    paintJ(0);
+  }
+  function paintJ(p) {
+    if (!jl) return;
+    var L = jL(), out = ramp(p, 0.72, 0.82);
+    jl.gs.forEach(function (g, i) {
+      var inK = ease(ramp(p, 0.02 + i * 0.018, 0.16 + i * 0.018));
+      var k = ease(ramp(p, 0.3 + i * 0.022, 0.56 + i * 0.022));
+      var a = jl.A[i], b = jl.Bt[i];
+      g.setAttribute('transform', jPlace(L[i], a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k + (1 - inK) * 40, a[2] + (b[2] - a[2]) * k));
+      g.style.opacity = (inK * (1 - out)).toFixed(3);
+    });
+    jl.mo.style.strokeDashoffset = (1 - ease(ramp(p, 0.76, 0.9))).toFixed(4);
+    jl.mo.style.fillOpacity = ramp(p, 0.86, 0.96).toFixed(3);
+    jl.mo.style.strokeOpacity = (1 - ramp(p, 0.94, 1)).toFixed(3);
+    var step = p < 0.28 ? 0 : p < 0.72 ? 1 : 2;
+    for (var i = 0; i < jl.lis.length; i++) if (jl.lis[i].classList.contains('is-on') !== (i === step)) jl.lis[i].classList.toggle('is-on', i === step);
+  }
+  function jsys(b) {
+    var P = b.plates, R0 = '#62241F', RO = '#BA968A';
+    var html = plate(tr(P.wordmark), '<div class="cplate__quad">' +
+      '<div class="cplate__cell" style="background:#fff;color:' + R0 + '">' + jWord() + '</div>' +
+      '<div class="cplate__cell" style="background:#fff;color:' + RO + '">' + jWord() + '</div>' +
+      '<div class="cplate__cell" style="background:#fff;color:#161616">' + jWord() + '</div>' +
+      '<div class="cplate__cell" style="background:' + R0 + ';color:#fff">' + jWord() + '</div></div>', 'cplate--jwm');
+    html += plate(tr(P.mono), '<div class="cplate__duo"><div class="cplate__cell cplate__cell--tall" style="background:#fff;color:#161616">' + jMono('is-big') + '</div>' +
+      '<div class="cplate__pair"><div class="cplate__cell" style="background:' + R0 + ';color:#fff">' + jMono() + '</div><div class="cplate__cell" style="background:' + R0 + ';color:#fff">' + jMono() + '</div></div></div>', 'cplate--jmono');
+    html += plate(tr(P.stacks), '<div class="cplate__trio">' +
+      '<div class="cplate__cell" style="background:#fff;color:#161616">' + jStack('straight') + '</div>' +
+      '<div class="cplate__cell" style="background:#fff;color:#161616">' + jStack('stagger') + '</div>' +
+      '<div class="cplate__cell" style="background:' + RO + ';color:#fff">' + jStack('stagger') + '</div></div>', 'cplate--jstack');
+    return '<div class="csys">' + html + '</div>';
+  }
+  function jtype(b) {
+    var Q = jL()[3];
+    var big = '<svg class="cjt__q" viewBox="' + (Q.b[0] - 2) + ' ' + (Q.b[1] - 2) + ' ' + (Q.b[2] - Q.b[0] + 4) + ' ' + (Q.b[3] - Q.b[1] + 4) + '" aria-hidden="true"><path fill-rule="evenodd" d="' + Q.d + '"/></svg>';
+    return '<div class="cjt">' +
+      '<div class="cjt__card" data-rev style="background:#BA968A;color:#fff"><p class="cjt__k">' + esc(tr(b.primary)) + '</p><p class="cjt__n">Cirka</p>' + big + jWord('cjt__row') + '</div>' +
+      '<div class="cjt__card" data-rev style="background:#D7CEB9;color:#1b1714"><p class="cjt__k">' + esc(tr(b.secondary)) + '</p><p class="cjt__n">Afacad Flux</p>' +
+      '<p class="cjt__aa">Aa</p><p class="cjt__abc">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz<br>0123456789 &amp; ! ? € ( )</p></div></div>';
+  }
+  function collab(b) {
+    return '<div class="ccol" data-rev><p class="ccol__by"><span>18H22</span><i>×</i><span>' + esc(b.with) + '</span></p>' +
+      '<p class="ccol__t">' + esc(tr(b.statement)) + '</p></div>' + gallery(b);
+  }
+
   function render(c) {
     var t = T[lang()];
     var html = '<section class="chero' + (c.web ? ' chero--web' : '') + '" data-bg="#050c0c" data-ink="#dfe7ea"><div class="chero__img"><img src="' + c.cover.src + '" alt="' + esc(c.title) + '" decoding="async"></div>' +
@@ -221,10 +321,10 @@
       c.facts.map(function (f) { return '<div><dt>' + esc(t[f[0]]) + '</dt><dd>' + esc(tr(f[1])) + '</dd></div>'; }).join('') + '</dl></section>';
     c.blocks.forEach(function (b) {
       var ink = b.ink || (isDark(b.bg) ? '#dfe7ea' : '#1b1d24');
-      var body = b.type === 'screens' ? screens(b) : b.type === 'gallery' ? gallery(b) : b.type === 'system' ? system(b) : b.type === 'logo' ? logo(b) : b.type === 'menus' ? menus(b) : b.type === 'palette' ? palette(b) : type(b);
+      var body = b.type === 'collab' ? collab(b) : b.type === 'jlogo' ? jlogo(b) : b.type === 'jsys' ? jsys(b) : b.type === 'jtype' ? jtype(b) : b.type === 'screens' ? screens(b) : b.type === 'gallery' ? gallery(b) : b.type === 'system' ? system(b) : b.type === 'logo' ? logo(b) : b.type === 'menus' ? menus(b) : b.type === 'palette' ? palette(b) : type(b);
       var st = (b.color ? '--accent:' + b.color + ';' : '') + (b.type === 'screens' ? 'height:' + (b.items.length * 100 + 60) + 'svh;' : '');
       html += '<section class="cs cs--' + b.type + '" data-bg="' + b.bg + '" data-ink="' + ink + '"' + (st ? ' style="' + st + '"' : '') + '>' +
-        (b.type === 'logo' || b.type === 'menus' || b.type === 'screens' ? '' : head(b)) + body + '</section>';
+        (b.type === 'logo' || b.type === 'menus' || b.type === 'screens' || b.type === 'jlogo' ? '' : head(b)) + body + '</section>';
     });
     html += '<footer class="cend" data-bg="#050c0c" data-ink="#dfe7ea"><button type="button" class="case__back">' + esc(t.back) + '</button>' +
       '<p>' + esc(c.title) + ' · 18H22</p></footer>';
@@ -401,6 +501,7 @@
       if (r.top <= vh * 0.55 && r.bottom > vh * 0.55) pick = sections[i];
       if (sections[i].classList.contains('cs--logo')) paintLogo(clamp(-r.top / Math.max(1, r.height - vh), 0, 1));
       if (sections[i].classList.contains('cs--menus') && r.top < vh && r.bottom > 0) paintMenus(sections[i], clamp(-r.top / Math.max(1, r.height - vh), 0, 1));
+      if (sections[i].classList.contains('cs--jlogo') && r.top < vh && r.bottom > 0) paintJ(clamp(-r.top / Math.max(1, r.height - vh), 0, 1));
       if (sections[i].classList.contains('cs--screens') && r.top < vh && r.bottom > 0) paintScreens(sections[i], clamp(-r.top / Math.max(1, r.height - vh), 0, 1));
     }
     if (pick && pick.getAttribute('data-bg') !== bgNow) {
@@ -547,7 +648,10 @@
     var box = inner.querySelector('.clogo__svg');
     logoParts = null;
     if (box) buildLogo(box);
-    [].forEach.call(inner.querySelectorAll('.cm, .case__head, .cpal, .cintro, .cpal__bar'), function (n) { n.setAttribute('data-rev', ''); });
+    jl = null;
+    var js = inner.querySelector('.cs--jlogo');
+    if (js) buildJ(js);
+    [].forEach.call(inner.querySelectorAll('.cm, .case__head, .cpal, .cintro, .cpal__bar'), function (n) { if (!n.closest('.cjl__stage')) n.setAttribute('data-rev', ''); });
     revs = [].slice.call(inner.querySelectorAll('[data-rev]'));
     seals = [].slice.call(inner.querySelectorAll('.cseal__ring'));
     pal = inner.querySelector('.cpal');
