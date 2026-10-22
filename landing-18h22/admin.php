@@ -86,7 +86,7 @@ function write_atomic(string $file, string $content): bool {
 function publish(array $projects, array $settings, string $data, string $js): bool {
   $ok = write_atomic($data, json_encode(['settings' => $settings, 'projects' => array_values($projects)], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
   $list = array_map(function ($p) {
-    return ['src' => $p['src'], 'w' => (int) $p['w'], 'h' => (int) $p['h'], 'title' => $p['title']];
+    return ['src' => $p['src'], 'w' => (int) $p['w'], 'h' => (int) $p['h'], 'title' => $p['title'], 'service' => $p['service'] ?? '', 'year' => $p['year'] ?? ''];
   }, array_values($projects));
   $body = "/* Généré par admin.php — modifier les projets depuis l'admin. */\nwindow.PROJECTS = "
     . json_encode($list, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) . ";\n"
@@ -133,14 +133,14 @@ if (isset($_GET['api'])) {
     if (!move_uploaded_file($f['tmp_name'], __DIR__ . '/' . $src)) out(['error' => 'write'], 500);
     @chmod(__DIR__ . '/' . $src, 0644);
     $projects = load($DATA);
-    $item = ['id' => $id, 'src' => $src, 'w' => (int) $info[0], 'h' => (int) $info[1], 'title' => clean_title($_POST['title'] ?? '')];
+    $item = ['id' => $id, 'src' => $src, 'w' => (int) $info[0], 'h' => (int) $info[1], 'title' => clean_title($_POST['title'] ?? ''), 'service' => '', 'year' => ''];
     $projects[] = $item;
     if (!publish($projects, load_settings($DATA), $DATA, $JS)) out(['error' => 'write'], 500);
     out(['ok' => true, 'item' => $item]);
   }
 
   if ($api === 'save') {
-    // Nouvel ordre + titres ; les projets absents de la liste sont supprimés
+    // Nouvel ordre + titres, services et années ; les projets absents de la liste sont supprimés
     $in = json_decode((string) ($_POST['list'] ?? ''), true);
     if (!is_array($in)) out(['error' => 'json'], 400);
     $byId = [];
@@ -151,6 +151,8 @@ if (isset($_GET['api'])) {
       if (!isset($byId[$id]) || isset($next[$id])) continue;
       $p = $byId[$id];
       $p['title'] = clean_title($row['title'] ?? '');
+      $p['service'] = clean_title($row['service'] ?? '');
+      $p['year'] = preg_replace('/[^0-9]/', '', mb_substr((string) ($row['year'] ?? ''), 0, 4, 'UTF-8'));
       $next[$id] = $p;
     }
     foreach ($byId as $id => $p) {

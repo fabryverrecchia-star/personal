@@ -57,7 +57,11 @@
         '<div class="card__img"><img src="' + p.src + '" alt="" loading="lazy"></div>' +
         '<div class="card__body">' +
           '<span class="card__num">N° ' + String(i + 1).padStart(2, '0') + '</span>' +
-          '<input class="card__title" type="text" maxlength="80" placeholder="Titre (facultatif)" aria-label="Titre du projet ' + (i + 1) + '">' +
+          '<input class="card__title" data-k="title" type="text" maxlength="80" placeholder="Titre du projet" aria-label="Titre du projet ' + (i + 1) + '">' +
+          '<div class="card__meta">' +
+            '<input class="card__field" data-k="service" type="text" maxlength="80" placeholder="Service (ex. Identity Design)" aria-label="Service du projet ' + (i + 1) + '">' +
+            '<input class="card__field card__year" data-k="year" type="text" inputmode="numeric" maxlength="4" placeholder="Année" aria-label="Année du projet ' + (i + 1) + '">' +
+          '</div>' +
           '<div class="card__tools">' +
             '<button type="button" data-act="up" aria-label="Monter">↑</button>' +
             '<button type="button" data-act="down" aria-label="Descendre">↓</button>' +
@@ -65,15 +69,18 @@
           '</div>' +
         '</div>';
       li.querySelector('.card__title').value = p.title || '';
+      li.querySelector('[data-k=service]').value = p.service || '';
+      li.querySelector('[data-k=year]').value = p.year || '';
       list.appendChild(li);
     });
     document.getElementById('count').textContent = state.length;
   }
 
   list.addEventListener('input', function (e) {
-    if (!e.target.classList.contains('card__title')) return;
+    var k = e.target.dataset && e.target.dataset.k;
+    if (!k) return;
     var i = +e.target.closest('.card').dataset.index;
-    state[i].title = e.target.value;
+    state[i][k] = e.target.value;
     setDirty(true);
   });
 
@@ -142,7 +149,7 @@
     btn.disabled = true;
     btn.textContent = 'Enregistrement…';
     api('save', {
-      list: JSON.stringify(state.map(function (p) { return { id: p.id, title: p.title || '' }; })),
+      list: JSON.stringify(state.map(function (p) { return { id: p.id, title: p.title || '', service: p.service || '', year: p.year || '' }; })),
       settings: JSON.stringify(settings)
     })
       .then(function () { setDirty(false); toast('Enregistré. Le site est à jour.'); })

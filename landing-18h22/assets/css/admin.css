@@ -108,6 +108,10 @@ button:focus-visible, input:focus-visible, .drop:focus-within { outline: 1px sol
 .card__num { color: var(--ink-soft); }
 .card__title { width: 100%; border: 0; border-bottom: 1px solid var(--ink-faint); background: none; padding: 4px 0; font-size: 19px; outline: none; border-radius: 0; }
 .card__title:focus { border-bottom-color: var(--ink); }
+.card__meta { display: flex; gap: 12px; margin-top: 6px; }
+.card__field { flex: 1; min-width: 0; border: 0; border-bottom: 1px solid var(--ink-faint); background: none; padding: 4px 0; font-size: 15px; outline: none; border-radius: 0; color: inherit; font-family: inherit; }
+.card__field:focus { border-bottom-color: var(--ink); }
+.card__year { flex: 0 0 4.5em; }
 .card__tools { display: flex; gap: 6px; }
 .card__tools button {
   border: 1px solid var(--ink-faint); background: none; border-radius: 999px;

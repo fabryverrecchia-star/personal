@@ -333,6 +333,12 @@
     })(t0);
   })();
 
+  var YEARS = Math.max(1, new Date().getFullYear() - 2017);
+  var figs = $$('.fig').map(function (el) {
+    var n = el.querySelector('.fig__n');
+    var to = n.dataset.to === 'years' ? YEARS : +n.dataset.to;
+    return { el: el, n: n, to: to, pre: n.dataset.pre, post: n.dataset.post, k: -1 };
+  });
   var endShown = false, night = 0;
   function onScroll() {
     var y = window.scrollY;
@@ -363,8 +369,21 @@
     mist.style.setProperty('--dusk', clamp((H * 0.75 - sr) / (H * 0.9), 0, 1).toFixed(3));
 
     // côté nuit : le tunnel du temps passe en sombre, entrée et sortie en fondu
-    var tr = $('#selection').getBoundingClientRect();
-    night = Math.min(clamp((H * 0.9 - tr.top) / (H * 0.7), 0, 1), clamp((tr.bottom - H * 0.15) / (H * 0.7), 0, 1));
+    var tr = $('#selection').getBoundingClientRect(), fr = $('#chiffres').getBoundingClientRect();
+    night = Math.min(clamp((H * 0.9 - tr.top) / (H * 0.7), 0, 1), clamp((fr.bottom - H * 0.15) / (H * 0.7), 0, 1));
+
+    // chiffres clés : chaque ligne monte depuis le bas et compte, l'une après l'autre
+    var fp = sectionProgress($('#chiffres'));
+    figs.forEach(function (f, i) {
+      var k = clamp((fp - i * 0.2) / 0.28, 0, 1);
+      k = 1 - Math.pow(1 - k, 3);
+      if (Math.abs(k - f.k) < 0.001) return;
+      f.k = k;
+      f.el.style.setProperty('--k', k.toFixed(3));
+      var v = Math.round(f.to * k);
+      if (f.to >= 100) v = Math.round(v / 10) * 10;
+      f.n.textContent = (f.pre || '') + v + (k >= 1 ? (f.post || '') : '');
+    });
     mist.style.setProperty('--night', night.toFixed(3));
     var maxY = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     flowState.sc = y / H * 0.35;
@@ -497,7 +516,7 @@
   function tunnelInit() {
     var section = $('#selection');
     var canvas = $('#tunnelGl');
-    var now = $('#tunnelNow');
+    var ptitle = $('#ptitle');
     var ok = false;
     try {
       ok = !!window.THREE && !!(canvas.getContext('webgl2') || canvas.getContext('webgl'));
@@ -672,9 +691,28 @@
 
     var prog = 0, smooth = 0, vel = 0, lastTitle = -1;
     var head = $('.tunnel__head'), hint = $('.tunnel__hint');
-    // compteurs : les projets de 2026 et les années depuis 2017 montent avec le défilement
-    var stats = $('#tunnelStats'), statProj = $('#statProj'), statYears = $('#statYears'), statBriefs = $('#statBriefs');
-    var YEARS = Math.max(1, new Date().getFullYear() - 2017), lastP = -1, lastY = -1, lastB = -1;
+    // le titre du projet qui arrive monte depuis le bas ; le précédent part par le haut
+    var curTitle = null;
+    function swapTitle(p) {
+      var old = curTitle;
+      curTitle = null;
+      if (old) {
+        if (window.gsap) gsap.to(old.querySelectorAll('.ptitle__mask > span'), { yPercent: -110, duration: 0.55, ease: 'expo.in', stagger: 0.04, onComplete: function () { old.remove(); } });
+        else old.remove();
+      }
+      if (!p || !p.title) return;
+      var meta = [p.service, p.year].filter(Boolean).join(' · ');
+      var el = document.createElement('div');
+      el.className = 'ptitle__item';
+      el.innerHTML = '<h3 class="ptitle__t"><span class="ptitle__mask"><span>' + esc(p.title) + '</span></span></h3>' +
+        (meta ? '<p class="ptitle__m"><span class="ptitle__mask"><span>' + esc(meta) + '</span></span></p>' : '');
+      ptitle.appendChild(el);
+      curTitle = el;
+      var lines = el.querySelectorAll('.ptitle__mask > span');
+      if (window.gsap) gsap.fromTo(lines, { yPercent: 110 }, { yPercent: 0, duration: 1.1, ease: 'expo.out', stagger: 0.09, delay: old ? 0.3 : 0 });
+      
+    }
+
     function progress() {
       var r = section.getBoundingClientRect();
       var span = r.height - window.innerHeight;
@@ -730,25 +768,11 @@
       });
 
       head.style.opacity = Math.max(0, 1 - smooth * 9).toFixed(3);
-      var ks = clamp((smooth - 0.06) / 0.62, 0, 1);
-      ks = 1 - Math.pow(1 - ks, 3);
-      stats.style.opacity = clamp((smooth - 0.05) * 12, 0, 1).toFixed(3);
-      var np = Math.round(32 * ks), ny = Math.round(YEARS * ks);
-      if (np !== lastP) { lastP = np; statProj.textContent = '+' + np; }
-      if (ny !== lastY) { lastY = ny; statYears.textContent = ny; }
-      var nb = Math.round(1000 * ks / 10) * 10;
-      if (nb !== lastB) { lastB = nb; statBriefs.textContent = nb + (nb >= 1000 ? '+' : ''); }
       hint.style.opacity = Math.max(0, 1 - smooth * 6).toFixed(3);
       var show = nearest >= 0 && best < GAP * 1.4 && smooth > 0.02 ? nearest : -1;
       if (show !== lastTitle) {
         lastTitle = show;
-        var txt = show >= 0 ? (PROJECTS[show].title || '') : '';
-        if (window.gsap) {
-          gsap.to(now, { opacity: 0, y: -8, duration: 0.2, onComplete: function () {
-            now.textContent = txt;
-            gsap.fromTo(now, { opacity: 0, y: 10 }, { opacity: txt ? 1 : 0, y: 0, duration: 0.6, ease: 'expo.out' });
-          } });
-        } else now.textContent = txt;
+        swapTitle(show >= 0 ? PROJECTS[show] : null);
       }
       renderer.render(scene, camera);
     }

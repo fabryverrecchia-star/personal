@@ -151,17 +151,21 @@
           <p class="s__label" data-s="workLabel">Sélection</p>
           <h2 class="s__title" data-s="workTitle">Traversez le temps, projet après projet.</h2>
         </div>
-        <div class="tunnel__stats" id="tunnelStats">
-          <p class="stat"><span class="stat__n" id="statProj">+32</span><span class="stat__l" data-s="statProj">projets en 2026</span></p>
-          <p class="stat"><span class="stat__n" id="statYears">9</span><span class="stat__l" data-s="statYears">années d’activité, depuis 2017</span></p>
-          <p class="stat"><span class="stat__n" id="statBriefs">1000+</span><span class="stat__l" data-s="statBriefs">briefings créatifs</span></p>
-        </div>
-        <p class="tunnel__now" id="tunnelNow" aria-live="polite"></p>
+        <div class="ptitle" id="ptitle" aria-live="polite"></div>
         <div class="tunnel__foot">
           <p class="tunnel__hint" data-s="workHint">Faites défiler pour avancer</p>
           <button class="link" type="button" id="workAll" data-magnetic><span data-s="workAll">Tout l’index</span></button>
         </div>
         <div class="tunnel__fallback" id="tunnelFallback"></div>
+      </div>
+    </section>
+
+    <!-- Chiffres clés : plein écran, très grands, l'un sous l'autre -->
+    <section class="figures" id="chiffres" aria-label="Chiffres clés">
+      <div class="figures__sticky">
+        <p class="fig"><span class="fig__mask"><span class="fig__n" data-to="32" data-pre="+">+32</span></span><span class="fig__l" data-s="statProj">projets en 2026</span></p>
+        <p class="fig"><span class="fig__mask"><span class="fig__n" data-to="years">9</span></span><span class="fig__l" data-s="statYears">années d’activité, depuis 2017</span></p>
+        <p class="fig"><span class="fig__mask"><span class="fig__n" data-to="1000" data-post="+">1000+</span></span><span class="fig__l" data-s="statBriefs">briefings créatifs</span></p>
       </div>
     </section>
 
