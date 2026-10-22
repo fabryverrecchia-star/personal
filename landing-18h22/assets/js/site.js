@@ -557,6 +557,8 @@
      ------------------------------------------------------------------------ */
   // three.js ne se charge qu'à l'approche du tunnel : la page s'ouvre plus vite
   function tunnel() {
+    // par défaut : l'index des projets ; le tunnel 3D reste visible avec ?tunnel pour comparer
+    if (!/[?&]tunnel\b/.test(location.search)) return workList();
     // sur téléphone : pas de 3D, une liste de projets courte et légère qu'on fait défiler normalement
     if (!fine || window.innerWidth < 700) return projectList();
     // le tunnel est assez long pour qu'on ait le temps de voir chaque couverture
@@ -575,6 +577,57 @@
       var io = new IntersectionObserver(function (e) { if (e[0].isIntersecting) { io.disconnect(); go(); } }, { rootMargin: '250% 0px' });
       io.observe(sec);
     } else go();
+  }
+  /* Index des projets : les noms en liste, la couverture du projet survolé
+     (ou de celui qui passe au milieu de l'écran) s'affiche dans un cadre qui suit */
+  function workList() {
+    var sec = $('#selection');
+    document.documentElement.classList.add('is-wlist');
+    var list = COVERS.map(function (c, i) { return { c: c, i: i }; }).filter(function (x) { return x.c.title; });
+    var wl = document.createElement('div');
+    wl.className = 'wl';
+    wl.innerHTML = '<div class="wl__media"><div class="wl__frame">' +
+      list.map(function (x) { return '<div class="wl__m" data-i="' + x.i + '"><img src="' + x.c.src + '" alt="' + esc(x.c.title) + '" decoding="async"></div>'; }).join('') +
+      '</div></div><ol class="wl__list">' +
+      list.map(function (x) {
+        return '<li class="wl__i" data-rv data-i="' + x.i + '" role="link" tabindex="0"><span class="wl__t">' + esc(x.c.title) + '</span>' +
+          '<span class="wl__s">' + esc([x.c.service, x.c.year].filter(Boolean).join(' · ')) + '</span></li>';
+      }).join('') + '</ol>';
+    $('.tunnel__foot', sec).before(wl);
+    var items = $$('.wl__i', wl), media = $$('.wl__m', wl), frame = $('.wl__frame', wl);
+    var on = -1, hovering = false;
+    function set(i) {
+      if (i === on) return; on = i;
+      items.forEach(function (el) { el.classList.toggle('is-on', +el.dataset.i === i); });
+      media.forEach(function (el) { el.classList.toggle('is-on', +el.dataset.i === i); });
+    }
+    set(list[0].i);
+    items.forEach(function (el) {
+      teamEls.push(el);
+      el.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') { hovering = true; set(+el.dataset.i); } });
+      el.addEventListener('pointerleave', function () { hovering = false; });
+      var go = function (e) {
+        var r = frame.getBoundingClientRect();
+        set(+el.dataset.i);
+        openViewer(+el.dataset.i, { l: r.left, t: r.top, r: r.right, b: r.bottom }, e && e.clientX ? { x: e.clientX, y: e.clientY } : { x: r.left + r.width / 2, y: r.top + r.height / 2 });
+      };
+      el.addEventListener('click', go);
+      el.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+    });
+    // au défilement : le nom qui passe à la hauteur du regard devient le projet affiché
+    var pend = false;
+    window.addEventListener('scroll', function () {
+      if (pend || hovering) return; pend = true;
+      requestAnimationFrame(function () {
+        pend = false;
+        var fr = frame.getBoundingClientRect();
+        var line = window.innerWidth < 700 ? fr.bottom + (H - fr.bottom) * 0.3 : H * 0.5;
+        var best = -1, bd = 1e9;
+        items.forEach(function (el) { var r = el.getBoundingClientRect(), d = Math.abs(r.top + r.height / 2 - line); if (d < bd) { bd = d; best = +el.dataset.i; } });
+        if (best > -1) set(best);
+      });
+    }, { passive: true });
+    onScroll();
   }
   function projectList() {
     var sec = $('#selection'), box = $('#tunnelFallback');
