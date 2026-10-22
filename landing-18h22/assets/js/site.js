@@ -14,6 +14,20 @@
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var PROJECTS = window.PROJECTS || [];
+  // les visuels d'un même client forment un seul projet : le premier sert de couverture
+  var GROUPS = [], byTitle = {};
+  PROJECTS.forEach(function (p) {
+    var key = (p.title || '').trim().toLowerCase();
+    var g = key && byTitle[key];
+    if (!g) { g = { title: p.title || '', items: [] }; GROUPS.push(g); if (key) byTitle[key] = g; }
+    g.items.push(p);
+  });
+  var COVERS = GROUPS.map(function (g) {
+    var sv = [], yr = '';
+    g.items.forEach(function (p) { if (p.service && sv.indexOf(p.service) < 0) sv.push(p.service); if (!yr && p.year) yr = p.year; });
+    var c = g.items[0];
+    return { src: c.src, w: c.w, h: c.h, title: g.title, service: sv.join(' · '), year: yr };
+  });
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var fine = window.matchMedia('(pointer: fine)').matches;
 
@@ -499,6 +513,8 @@
      ------------------------------------------------------------------------ */
   // three.js ne se charge qu'à l'approche du tunnel : la page s'ouvre plus vite
   function tunnel() {
+    // le tunnel est assez long pour qu'on ait le temps de voir chaque couverture
+    $('#selection').style.height = Math.max(320, COVERS.length * 46 + 60) + 'vh';
     if (window.THREE) return tunnelInit();
     var sec = $('#selection'), started = false;
     var go = function () {
@@ -536,7 +552,7 @@
     var camera = new T.PerspectiveCamera(55, 1, 0.05, 120);
     var mobile = false;
     var GAP = 5.2;
-    var N = PROJECTS.length;
+    var N = COVERS.length;
     var LEN = (N + 1) * GAP;
 
     var vert = [
@@ -606,7 +622,7 @@
     var resV = new T.Vector2(1, 1);
     var loader = new T.TextureLoader();
     var geo = new T.PlaneGeometry(1, 1, 24, 24);
-    var planes = PROJECTS.map(function (p, i) {
+    var planes = COVERS.map(function (p, i) {
       var mat = new T.ShaderMaterial({
         vertexShader: vert, fragmentShader: frag, transparent: true, depthWrite: false,
         uniforms: { uTex: { value: null }, uVel: { value: 0 }, uTime: { value: 0 }, uAlpha: { value: 0 }, uReady: { value: 0 }, uFog: { value: 1 }, uMist: { value: mistCol }, uRes: { value: resV }, uNight: { value: 0 }, uClock: { value: 0 }, uPress: { value: 0 }, uHit: { value: new T.Vector2(0.5, 0.5) } }
@@ -773,7 +789,7 @@
       var show = nearest >= 0 && best < GAP * 1.4 && smooth > 0.02 ? nearest : -1;
       if (show !== lastTitle) {
         lastTitle = show;
-        swapTitle(show >= 0 ? PROJECTS[show] : null);
+        swapTitle(show >= 0 ? COVERS[show] : null);
       }
       renderer.render(scene, camera);
     }
@@ -830,17 +846,30 @@
      Un projet seul : il s'ouvre depuis l'endroit où on l'a touché
      ------------------------------------------------------------------------ */
   var viewer = $('#viewer'), vImg = $('#viewerImg'), vCap = $('#viewerCap'), vAt = 0;
-  function showProject(i) {
-    vAt = (i + PROJECTS.length) % PROJECTS.length;
-    var p = PROJECTS[vAt];
+  var vG = 0, vThumbs = $('#viewerThumbs');
+  function showProject(g, k) {
+    vG = (g + GROUPS.length) % GROUPS.length;
+    var items = GROUPS[vG].items;
+    vAt = (k + items.length) % items.length;
+    var p = items[vAt];
     vImg.src = p.src;
-    vImg.alt = p.title || '';
-    vCap.textContent = p.title || '';
+    vImg.alt = GROUPS[vG].title || '';
+    var c = COVERS[vG];
+    vCap.textContent = [c.title, c.service, c.year].filter(Boolean).join(' · ');
+    // les autres visuels du projet, en vignettes
+    vThumbs.innerHTML = items.length > 1 ? items.map(function (it, n) {
+      return '<button type="button" class="viewer__thumb' + (n === vAt ? ' is-on' : '') + '" data-n="' + n + '" aria-label="' + (n + 1) + '"><img src="' + it.src + '" alt=""></button>';
+    }).join('') : '';
   }
+  vThumbs.addEventListener('click', function (e) {
+    var b = e.target.closest('.viewer__thumb'); if (!b) return;
+    var n = +b.dataset.n; if (n === vAt) return;
+    jumpViewer(n > vAt ? 1 : -1, function () { showProject(vG, n); });
+  });
   var vFrom = null, vAt0 = null;
   function openViewer(i, rect, at) {
-    if (!PROJECTS.length) return;
-    showProject(i);
+    if (!GROUPS.length) return;
+    showProject(i, 0);
     vFrom = rect; vAt0 = at || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     viewer.classList.add('is-open');
     viewer.setAttribute('aria-hidden', 'false');
@@ -878,13 +907,22 @@
     gsap.to(vImg, { scale: 0.86, opacity: 0, filter: 'blur(8px)', duration: 0.6, ease: 'power3.in' });
     gsap.to(viewer, { clipPath: 'circle(0px at ' + at.x + 'px ' + at.y + 'px)', duration: 0.9, ease: 'expo.inOut', delay: 0.15, onComplete: end });
   }
-  function stepViewer(d) {
-    if (window.gsap) {
+  function jumpViewer(d, show) {
+    if (window.gsap && !reduce) {
       gsap.to(vImg, { opacity: 0, x: -30 * d, duration: 0.25, ease: 'power2.in', onComplete: function () {
-        showProject(vAt + d);
+        show();
         gsap.fromTo(vImg, { opacity: 0, x: 30 * d }, { opacity: 1, x: 0, duration: 0.6, ease: 'expo.out' });
       } });
-    } else showProject(vAt + d);
+    } else show();
+  }
+  // suivant : d'abord les visuels du même projet, puis le projet d'après
+  function stepViewer(d) {
+    jumpViewer(d, function () {
+      var n = GROUPS[vG].items.length, k = vAt + d;
+      if (k >= n) showProject(vG + 1, 0);
+      else if (k < 0) showProject(vG - 1, GROUPS[(vG - 1 + GROUPS.length) % GROUPS.length].items.length - 1);
+      else showProject(vG, k);
+    });
   }
   $('#viewerClose').addEventListener('click', closeViewer);
   $('#viewerPrev').addEventListener('click', function () { stepViewer(-1); });
