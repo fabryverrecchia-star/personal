@@ -28,11 +28,10 @@
   right: var(--gutter);
   appearance: none; border: 0; background: none; padding: 0 0 6px;
   font-size: 14px;
-  color: #fff;
-  mix-blend-mode: difference;
+  color: var(--case-ink);
+  transition: color 0.9s var(--ease), background-size 0.5s var(--ease);
   background-image: linear-gradient(currentColor, currentColor);
   background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat;
-  transition: background-size 0.5s var(--ease);
 }
 .case__close:hover { background-size: 0 1px; }
 @media (pointer: fine) { .case, .case button { cursor: none; } }
@@ -41,7 +40,11 @@ body.is-case .tick, body.is-case #top { opacity: 0; pointer-events: none; }
 /* Couverture */
 .chero { position: relative; height: 100svh; overflow: hidden; }
 .chero__img { position: absolute; inset: 0; overflow: hidden; }
-.chero__img img { position: absolute; inset: -4% 0 0; width: 100%; height: 108%; object-fit: cover; object-position: 50% 30%; will-change: transform; }
+.chero__img img { position: absolute; inset: -4% 0 0; width: 100%; height: 108%; object-fit: cover; object-position: 50% 30%; transform: scale(1.04); }
+/* site seul : la page d'accueil posée comme une épreuve, pas recadrée plein écran */
+.chero--web { background: #0d1414; }
+.chero--web .chero__img img { inset: 13% 9% auto; width: 82%; height: 58%; object-position: 50% 0; border-radius: 8px; box-shadow: 0 50px 90px -40px rgba(0, 0, 0, 0.8); }
+@media (max-width: 700px) { .chero--web .chero__img img { inset: 16% 4% auto; width: 92%; height: 40%; } }
 .chero::after {
   content: ''; position: absolute; inset: 45% 0 0;
   background: linear-gradient(to bottom, rgba(5, 12, 12, 0), rgba(5, 12, 12, 0.72));
@@ -84,16 +87,34 @@ body.is-case .tick, body.is-case #top { opacity: 0; pointer-events: none; }
 /* Galeries : rangées à hauteur égale, images qui se dévoilent */
 .cg { display: grid; gap: clamp(14px, 2vw, 32px); padding: 0 var(--gutter); }
 .cg__row { display: flex; gap: clamp(14px, 2vw, 32px); align-items: flex-start; }
-.cm { position: relative; margin: 0; overflow: hidden; flex: none; width: 100%; aspect-ratio: var(--ar, 1); clip-path: inset(100% 0 0 0); transition: clip-path 1.1s cubic-bezier(0.77, 0, 0.18, 1); }
-.cm.is-in { clip-path: inset(0 0 0 0); }
-.cm img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale(1.12); will-change: transform; }
+.cm { position: relative; margin: 0; overflow: hidden; flex: none; width: 100%; aspect-ratio: var(--ar, 1); }
+.cm__m, .cm__c { position: absolute; inset: 0; overflow: hidden; transition: transform 1.1s cubic-bezier(0.77, 0, 0.18, 1); }
+.cm__m { transform: translate3d(0, 101%, 0); }
+.cm__c { transform: translate3d(0, -101%, 0); }
+.cm.is-in .cm__m, .cm.is-in .cm__c { transform: none; }
+.cm img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale(1.12); }
 .cg__row { justify-content: center; }
 .cg__row--1 { justify-content: flex-start; padding-left: 6%; }
 .cg__row--1.is-odd { justify-content: flex-end; padding: 0 6% 0 0; }
 .cg__row--2 .cm + .cm { margin-top: clamp(30px, 9vh, 110px); }
 .cg__row.is-stack { flex-direction: column; align-items: stretch; }
 .cg__row.is-stack .cm + .cm { margin-top: 0; }
-.cs--gallery[data-bg="#ffffff"] .cm img { transform: none !important; }
+.cs--gallery[data-bg="#ffffff"] .cm img { transform: none !important; animation: none !important; }
+
+/* Parallaxe confiée au navigateur (suit le doigt sans retard) */
+@supports (animation-timeline: view()) {
+  .cm img { animation: cpar linear both; animation-timeline: view(); }
+  .chero__img img { animation: chpar linear both; animation-timeline: scroll(nearest block); animation-range: 0 100vh; }
+  .chero__txt { animation: chtxt linear both; animation-timeline: scroll(nearest block); animation-range: 0 55vh; }
+}
+@keyframes cpar { from { transform: translate3d(0, -4%, 0) scale(1.12); } to { transform: translate3d(0, 4%, 0) scale(1.12); } }
+@keyframes chpar { from { transform: translate3d(0, 0, 0) scale(1.04); } to { transform: translate3d(0, 35vh, 0) scale(1.12); } }
+@keyframes chtxt { to { opacity: 0; } }
+
+/* En-têtes et introduction : montent à leur tour */
+.case__head, .cintro > * { opacity: 0; transform: translate3d(0, 28px, 0); transition: opacity 0.9s var(--ease), transform 1.2s var(--ease); }
+.case__head.is-in, .cintro.is-in > * { opacity: 1; transform: none; }
+.cintro.is-in > :nth-child(2) { transition-delay: 0.15s; }
 
 /* Construction du logo */
 .cs--logo { height: 360vh; padding: 0; }
@@ -120,7 +141,7 @@ body.is-case .tick, body.is-case #top { opacity: 0; pointer-events: none; }
 
 /* Menus : diptyque */
 .cs--menus { height: 300vh; padding: 0; }
-.cs--menus .case__head { position: absolute; z-index: 2; top: calc(var(--gutter) * 2.4 + env(safe-area-inset-top)); left: 0; right: 0; }
+.cs--menus .case__head, .cs--screens .case__head { position: absolute; z-index: 2; top: calc(var(--gutter) * 2.4 + env(safe-area-inset-top)); left: 0; right: 0; }
 .cmenu__stage { position: sticky; top: 0; height: 100svh; display: grid; place-items: center; perspective: 1800px; overflow: hidden; }
 .cmenu__card {
   grid-area: 1 / 1;
@@ -141,6 +162,20 @@ body.is-case .tick, body.is-case #top { opacity: 0; pointer-events: none; }
   mix-blend-mode: soft-light;
   pointer-events: none;
 }
+
+/* Sites : fenêtre de navigateur */
+.cs--screens { padding: 0; }
+.cscr__stage { position: sticky; top: 0; height: 100svh; display: grid; place-items: center; perspective: 1600px; overflow: hidden; }
+.cscr__win { width: min(84vw, calc((100svh - 200px) * 1.6)); border-radius: 10px; overflow: hidden; background: #1c2424; box-shadow: 0 50px 90px -40px rgba(0, 0, 0, 0.7); transform-origin: 50% 100%; will-change: transform; }
+.cscr__bar { display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; background: #e9e6e0; color: #6d6a64; font-size: 11px; }
+.cscr__bar i { width: 9px; height: 9px; border-radius: 50%; background: #cfcac2; }
+.cscr__bar span { margin-left: 10px; letter-spacing: 0.02em; }
+.cscr__view { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: #0d1414; }
+.cscr__s { position: absolute; inset: 0; overflow: hidden; transform: translate3d(0, 100%, 0); }
+.cscr__s:first-child { transform: none; }
+.cscr__c { position: absolute; inset: 0; }
+.cscr__c img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
+.cscr__n { position: absolute; right: var(--gutter); bottom: calc(var(--gutter) + env(safe-area-inset-bottom)); margin: 0; font-size: 13px; font-variant-numeric: tabular-nums; opacity: 0.7; }
 
 /* Palette, façon studio */
 .cpal { display: flex; height: min(76vh, 760px); margin: 0 var(--gutter); }
@@ -258,16 +293,20 @@ body.is-case .tick, body.is-case #top { opacity: 0; pointer-events: none; }
   .clogo__svg { width: 100vw; }
   .clogo__steps { font-size: 13px; }
   .cmenu__card { height: auto; width: 41vw; }
-  .cpal { flex-direction: column; height: auto; }
-  .cpal__sw { flex: none; height: calc(64px + var(--w) * 2.4px); transition: height 0.8s var(--ease); }
-  .cpal__sw.is-on { height: 210px; flex-grow: 0; }
+  /* hauteur fixe : la teinte qui s'ouvre prend la place des autres, rien ne bouge autour */
+  .cpal { flex-direction: column; height: min(86svh, 720px); }
+  .cpal__sw { flex: var(--w) 1 0; min-height: 0; }
+  .cpal__sw.is-on { flex-grow: calc(var(--w) + 34); }
   .cpal__fill { transform: translateX(-101%); }
-  .cpal__top { top: 12px; }
+  .cpal__top { top: 10px; }
   .cpal__info { bottom: 12px; }
-  .cpal__info dl { display: none; }
-  .cpal__sw.is-on .cpal__info dl { display: grid; }
+  .cpal.is-in .cpal__sw:not(.is-on) .cpal__info { opacity: 0; transition-delay: 0s; }
+  .cpal.is-in .cpal__sw.is-on .cpal__info { transition-delay: 0.3s; }
+  .cscr__win { width: 92vw; border-radius: 8px; }
+  .cscr__bar { height: 22px; }
   .cend { flex-direction: column; align-items: start; justify-content: end; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cm, .cpal__fill, .cpal__bar { transition: none; clip-path: none; transform: none; }
+  .cm__m, .cm__c, .cpal__fill, .case__head, .cintro > * { transition: none; transform: none; opacity: 1; }
+  .cpal__bar { transition: none; clip-path: none; }
 }

@@ -133,6 +133,7 @@
     manifestoWords = $$('#manifesto span');
     splitChars($('#endTitle'), c.endTitle);
     endShown = false;
+    if (window.gsap && !reduce) gsap.set($$('.ch > span', $('#endTitle')), { yPercent: 110 });
   }
 
   /* ------------------------------------------------------------------------
@@ -423,7 +424,7 @@
     return '<article class="panel">' +
       '<h3 class="panel__t">' + esc(s.t) + '</h3>' +
       '<ul class="panel__list">' + s.i.map(function (x) { return '<li><span>' + esc(x) + '</span></li>'; }).join('') + '</ul>' +
-      (img ? '<figure class="panel__img"><img src="' + img.src + '" alt="" loading="lazy" decoding="async"></figure>' : '') +
+      (img ? '<figure class="panel__img"><div class="panel__m"><img src="' + img.src + '" alt="" decoding="async"></div></figure>' : '') +
       '<button class="link panel__cta" type="button" data-contact="' + ['strategy', 'creative', 'social'][k] + '" data-magnetic><span data-s="endCta"></span></button>' +
       '</article>';
   }).join('');
@@ -444,10 +445,10 @@
     panels.forEach(function (pn, k) {
       var pr = pn.getBoundingClientRect();
       var vis = clamp(1 - (pr.left - window.innerWidth * 0.15) / (window.innerWidth * 0.75), 0, 1);
-      var img = pn.querySelector('.panel__img img');
-      if (img) img.style.transform = 'translate3d(' + ((pr.left / window.innerWidth) * -12).toFixed(2) + '%,0,0) scale(1.25)';
-      var fig = pn.querySelector('.panel__img');
-      if (fig) fig.style.clipPath = 'inset(' + ((1 - vis) * 100).toFixed(1) + '% 0 0 0)';
+      // dévoilement par deux calques en sens inverse (le clip-path laissait voir l'image en place sur Safari)
+      var img = pn.querySelector('.panel__img img'), m = pn.querySelector('.panel__m'), off = ((1 - vis) * 100).toFixed(2);
+      if (m) m.style.transform = 'translate3d(0,' + off + '%,0)';
+      if (img) img.style.transform = 'translate3d(' + ((pr.left / window.innerWidth) * -12).toFixed(2) + '%,-' + off + '%,0) scale(1.25)';
       if (!panelSeen[k] && pr.left < window.innerWidth * 0.7) {
         panelSeen[k] = true;
         if (window.gsap && !reduce) {
@@ -871,7 +872,7 @@
     if (!GROUPS.length) return;
     // un projet avec sa page détaillée s'ouvre en grand
     var gp = GROUPS[(i + GROUPS.length) % GROUPS.length];
-    if (window.CASE && window.CASE.has(gp.title) && window.CASE.open(gp.title, at)) return;
+    if (window.CASE && window.CASE.open(gp, at)) return;
     showProject(i, 0);
     vFrom = rect; vAt0 = at || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     viewer.classList.add('is-open');
