@@ -368,6 +368,8 @@ body.is-night .top::before, .top.on-dark::before { background: rgba(5, 14, 16, 0
 .panel__list li span { display: inline-block; transition: color 0.3s, transform 0.6s var(--ease); }
 .panel__list li:hover span { color: var(--ink); transform: translateX(8px); }
 .panel__img { grid-column: 2; grid-row: 1 / 5; align-self: center; margin: 0; height: min(66vh, 620px); overflow: hidden; clip-path: inset(100% 0 0 0); }
+.panel__gl canvas { display: block; width: 100%; height: 100%; }
+.panel__gl.is-flat { background: radial-gradient(60% 50% at 36% 40%, #fff6e0 0%, #f6a98f 30%, #9d93e8 55%, #eddcc7 80%); }
 .panel__img img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale(1.25); will-change: transform; }
 .panel__cta { grid-column: 1; grid-row: 4; align-self: end; justify-self: start; margin-top: 30px; }
 .hs__bar { position: absolute; left: var(--gutter); right: var(--gutter); bottom: calc(var(--gutter) - 4px); height: 1px; background: var(--ink-faint); }

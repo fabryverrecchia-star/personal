@@ -408,7 +408,8 @@
     return '<article class="panel">' +
       '<h3 class="panel__t">' + esc(s.t) + '</h3>' +
       '<ul class="panel__list">' + s.i.map(function (x) { return '<li><span>' + esc(x) + '</span></li>'; }).join('') + '</ul>' +
-      (img ? '<figure class="panel__img"><img src="' + img.src + '" alt="" loading="lazy" decoding="async"></figure>' : '') +
+      (k === 0 ? '<figure class="panel__img panel__gl"><canvas id="dsGl" aria-hidden="true"></canvas></figure>' :
+        img ? '<figure class="panel__img"><img src="' + img.src + '" alt="" loading="lazy" decoding="async"></figure>' : '') +
       '<button class="link panel__cta" type="button" data-contact="' + ['strategy', 'creative', 'social'][k] + '" data-magnetic><span data-s="endCta"></span></button>' +
       '</article>';
   }).join('');
@@ -420,6 +421,8 @@
     var r = hs.getBoundingClientRect();
     if (r.bottom < 0 || r.top > H) return;
     var p = sectionProgress(hs);
+    // la lumière se compose en entrant dans les services, et finit de se poser au début du volet
+    dsK = clamp(clamp(1 - r.top / H, 0, 1) * 0.55 + clamp(p / 0.28, 0, 1) * 0.45, 0, 1);
     var dist = track.scrollWidth - window.innerWidth;
     var target = -dist * clamp((p - 0.08) / 0.84, 0, 1);
     hsX += (target - hsX) * (lenis ? 1 : 0.2);
@@ -430,7 +433,7 @@
       var pr = pn.getBoundingClientRect();
       var vis = clamp(1 - (pr.left - window.innerWidth * 0.15) / (window.innerWidth * 0.75), 0, 1);
       var img = pn.querySelector('.panel__img img');
-      if (img) img.style.transform = 'translate3d(' + ((pr.left / window.innerWidth) * -12).toFixed(2) + '%,0,0) scale(1.25)';
+      if (img && img.tagName === 'IMG') img.style.transform = 'translate3d(' + ((pr.left / window.innerWidth) * -12).toFixed(2) + '%,0,0) scale(1.25)';
       var fig = pn.querySelector('.panel__img');
       if (fig) fig.style.clipPath = 'inset(' + ((1 - vis) * 100).toFixed(1) + '% 0 0 0)';
       if (!panelSeen[k] && pr.left < window.innerWidth * 0.7) {
@@ -442,6 +445,113 @@
       }
     });
   }
+  /* ------------------------------------------------------------------------
+     Design Strategy : une lumière qui se compose au défilement.
+     Fond crème, ondes concentriques lavande, rose et orange autour d'un point,
+     et un geste violet bordé d'orange qui monte toucher le centre.
+     ------------------------------------------------------------------------ */
+  var dsK = 0, dsKs = 0;
+  (function designStrategyGl() {
+    var cv = $('#dsGl'); if (!cv) return;
+    var gl = null;
+    try { gl = cv.getContext('webgl', { alpha: false, antialias: false }); } catch (e) { gl = null; }
+    if (!gl) { cv.parentNode.classList.add('is-flat'); return; }
+    var fs = [
+      'precision highp float;',
+      'uniform vec2 uRes; uniform float uK, uTime; uniform vec2 uPtr;',
+      'float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }',
+      'float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);',
+      '  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y); }',
+      'vec3 band(float t){',
+      '  t = fract(t);',
+      '  vec3 lav = vec3(0.60, 0.57, 0.93), pink = vec3(0.96, 0.56, 0.64), org = vec3(1.0, 0.62, 0.36), peach = vec3(0.99, 0.80, 0.62);',
+      '  if (t < 0.25) return mix(lav, pink, t / 0.25);',
+      '  if (t < 0.5) return mix(pink, org, (t - 0.25) / 0.25);',
+      '  if (t < 0.75) return mix(org, peach, (t - 0.5) / 0.25);',
+      '  return mix(peach, lav, (t - 0.75) / 0.25);',
+      '}',
+      'float seg(vec2 p, vec2 a, vec2 b, out float h){ vec2 pa = p - a, ba = b - a; h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0); return length(pa - ba * h); }',
+      'void main(){',
+      '  vec2 uv = gl_FragCoord.xy / uRes; float asp = uRes.x / uRes.y;',
+      '  vec2 q = vec2(uv.x * asp, uv.y);',
+      '  float k = uK, t = uTime;',
+      '  vec2 c = vec2(0.36 * asp, 0.60) + uPtr * 0.03;',
+      '  vec2 d = q - c;',
+      '  float an = -0.55; d = mat2(cos(an), -sin(an), sin(an), cos(an)) * d; d.y *= 1.3;',
+      '  float r = length(d), a = atan(d.y, d.x);',
+      // fond crème, la lumière monte avec la composition
+      '  vec3 cream = vec3(0.93, 0.86, 0.78);',
+      '  vec3 col = cream;',
+      '  float bloom = smoothstep(0.0, 0.35, k);',
+      '  float halo = exp(-r * 1.25) * bloom;',
+      '  float wob = noise(d * 3.0 + t * 0.15) * 0.06;',
+      // les ondes s'éloignent du centre à mesure que l'on défile
+      '  float R = mix(0.02, 1.4, smoothstep(0.12, 0.8, k));',
+      '  float reach = smoothstep(R, R - 0.35, r);',
+      '  float rings = 0.5 + 0.5 * sin(r * 30.0 - t * 1.4 + sin(a) * 0.8 + wob * 20.0);\n  rings = smoothstep(0.15, 0.95, rings);',
+      '  rings = mix(0.5, rings, exp(-r * 1.1));',
+      '  vec3 bc = band(r * 0.9 + sin(a) * 0.06 + 0.15 + wob);',
+      '  col = mix(col, bc, clamp(halo * 1.35 * reach, 0.0, 0.92) * (0.3 + 0.7 * rings));',
+      // une nappe rose et orange en bas, comme la lumière qui remonte
+      '  float low = smoothstep(0.55, -0.1, uv.y + noise(q * 2.0 + t * 0.05) * 0.2) * bloom;',
+      '  col = mix(col, vec3(0.97, 0.62, 0.60), low * 0.35);',
+      // le cœur blanc et chaud du point touché
+      '  float touch = smoothstep(0.82, 1.0, k);',
+      '  col = mix(col, vec3(1.0, 0.97, 0.88), exp(-r * r * mix(260.0, 90.0, touch)) * (0.4 + 0.6 * bloom));',
+      // le geste : une forme longue et douce qui monte du coin bas droit jusqu'au centre
+      '  float g = smoothstep(0.35, 0.95, k);',
+      '  g = 1.0 - pow(1.0 - g, 3.0);',
+      '  vec2 base = vec2(asp * 1.05, -0.25);',
+      '  vec2 tipEnd = c + vec2(0.012, -0.02);',
+      '  vec2 tip = mix(base + vec2(0.1, -0.2), tipEnd, g);',
+      '  float h; float ds = seg(q, tip, base, h);',
+      '  float rad = mix(0.018, 0.13, pow(h, 0.6));',
+      '  ds += (noise(q * 5.0 + t * 0.2) - 0.5) * 0.05;',
+      '  float body = smoothstep(rad + 0.07, rad - 0.06, ds);',
+      '  float rim = smoothstep(rad + 0.2, rad, ds) * (1.0 - body * 0.8);',
+      '  vec3 violet = mix(vec3(0.36, 0.20, 0.62), vec3(0.55, 0.30, 0.70), h);',
+      '  vec3 edge = mix(vec3(1.0, 0.50, 0.32), vec3(0.98, 0.42, 0.55), h);',
+      '  col = mix(col, edge, rim * 0.7 * smoothstep(0.3, 0.5, k));',
+      '  col = mix(col, violet, body * 0.85 * smoothstep(0.3, 0.5, k));',
+      // la pointe s'éclaire quand elle touche
+      '  col += vec3(1.0, 0.85, 0.6) * exp(-pow(length(q - tipEnd), 2.0) * 900.0) * touch * 0.6;',
+      '  col += (hash(gl_FragCoord.xy + fract(t)) - 0.5) / 255.0;',
+      '  gl_FragColor = vec4(col, 1.0);',
+      '}'
+    ].join('\n');
+    function sh(type, src) { var o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return gl.getShaderParameter(o, gl.COMPILE_STATUS) ? o : null; }
+    var v = sh(gl.VERTEX_SHADER, 'attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }'), f = sh(gl.FRAGMENT_SHADER, fs);
+    if (!v || !f) { cv.parentNode.classList.add('is-flat'); return; }
+    var pr = gl.createProgram(); gl.attachShader(pr, v); gl.attachShader(pr, f); gl.linkProgram(pr);
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { cv.parentNode.classList.add('is-flat'); return; }
+    gl.useProgram(pr);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    var al = gl.getAttribLocation(pr, 'a'); gl.enableVertexAttribArray(al); gl.vertexAttribPointer(al, 2, gl.FLOAT, false, 0, 0);
+    var U = {}; ['uRes', 'uK', 'uTime', 'uPtr'].forEach(function (n) { U[n] = gl.getUniformLocation(pr, n); });
+    var fig = cv.parentNode, ptr = { x: 0, y: 0, sx: 0, sy: 0 }, t0 = performance.now();
+    function size() {
+      var r = fig.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 1.5) * 0.7;
+      cv.width = Math.max(2, Math.round(r.width * dpr)); cv.height = Math.max(2, Math.round(r.height * dpr));
+      gl.viewport(0, 0, cv.width, cv.height);
+    }
+    size(); window.addEventListener('resize', size);
+    if (fine) window.addEventListener('pointermove', function (e) { ptr.x = e.clientX / window.innerWidth - 0.5; ptr.y = 0.5 - e.clientY / window.innerHeight; }, { passive: true });
+    (function loop(now) {
+      requestAnimationFrame(loop);
+      var r = fig.getBoundingClientRect();
+      if (r.right < 0 || r.left > window.innerWidth || r.bottom < 0 || r.top > window.innerHeight || document.hidden) return;
+      if (Math.abs(cv.width - r.width * Math.min(window.devicePixelRatio || 1, 1.5) * 0.7) > 4) size();
+      dsKs += (dsK - dsKs) * 0.06;
+      ptr.sx += (ptr.x - ptr.sx) * 0.05; ptr.sy += (ptr.y - ptr.sy) * 0.05;
+      gl.uniform2f(U.uRes, cv.width, cv.height);
+      gl.uniform1f(U.uK, dsKs);
+      gl.uniform1f(U.uTime, reduce ? 0 : (now - t0) / 1000);
+      gl.uniform2f(U.uPtr, ptr.sx, ptr.sy);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    })(t0);
+  })();
+
   function renderPanels() {
     panels.forEach(function (pn) {
       var t = pn.querySelector('.panel__t');
