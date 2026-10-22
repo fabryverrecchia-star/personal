@@ -428,6 +428,7 @@
 
     document.title = '18H22 × ' + (c.name || '') + ' · ' + (PLAN.title || 'Media planning');
     applyFonts();
+    applyTeamColors();
     document.getElementById('bar').innerHTML = '<a href="#top" class="lockup-link" aria-label="Haut de page">' + lockup() + '</a>';
 
     var name = esc(c.name || '');
@@ -531,6 +532,8 @@
       }).join('') +
       '</div>' +
       (live.length ? '<p class="label" style="margin-top:14px;opacity:.7">Voilés : publications déjà en ligne</p>' : '') +
+      (PLAN.pdf ? '<div class="pdf" data-pdf data-reveal><button type="button" class="pdf__make" data-pdf-make>' + DL_ICON + '<span>Exporter le feed en PDF</span></button>' +
+        '<p class="pdf__hint">Page 1, le calendrier du mois avec les titres. Page 2, l’aperçu du feed.</p><p class="pdf__out" data-pdf-out hidden></p></div>' : '') +
       '</section>' +
       weeksHtml +
       storiesHtml();
@@ -897,6 +900,22 @@
 
   /* ---------------------------------------------------- typographies client */
   // Les polices du client servent à partir de son univers ; l'ouverture reste en 18H22
+  // Couleur de chaque membre de l'équipe (pastille et bouton « Publié par ») : plan.suivi.colors,
+  // une couleur de fond, ou [fond, texte, contour]
+  function applyTeamColors() {
+    var colors = PLAN.suivi && PLAN.suivi.colors;
+    if (!colors) return;
+    var css = Object.keys(colors).map(function (n) {
+      var c = list(colors[n]), bg = c[0], fg = c[1] || '#f1eee6', ring = c[2] || bg;
+      var k = n.toLowerCase().replace(/[^a-z0-9-]/g, '');
+      return '.avatar--' + k + '{background:' + bg + ';color:' + fg + ';box-shadow:inset 0 0 0 1px ' + ring + '}' +
+        '.chip.is-on[data-who="' + n.replace(/"/g, '') + '"]{background:' + bg + ';border-color:' + ring + ';color:' + fg + '}';
+    }).join('');
+    var st = document.createElement('style');
+    st.textContent = css;
+    document.head.appendChild(st);
+  }
+
   function applyFonts() {
     var f = PLAN.fonts;
     if (!f) return;
@@ -915,9 +934,10 @@
   /* ------------------------------------------- suivi : passages & missions */
   var MOIS_LONGS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
   var KIND = { photo: 'Shooting photo', video: 'Tournage vidéo', both: 'Photo + vidéo', meeting: 'Rendez-vous' };
-  var CAT = { photo: 'Photos', video: 'Vidéo', montage: 'Montage', planning: 'Media planning', redaction: 'Rédaction', ads: 'Campagnes sponsorisées', autre: 'Autre' };
-  var STATUS = { doing: 'En cours', todo: 'À venir', done: 'Livré' };
-  var NEXT_STATUS = { todo: 'doing', doing: 'done', done: 'todo' };
+  var CAT = { photo: 'Photos', video: 'Vidéo', montage: 'Montage', planning: 'Media planning', redaction: 'Rédaction', ads: 'Campagnes sponsorisées', print: 'Print', branding: 'Branding', meeting: 'Rendez-vous', autre: 'Autre' };
+  var STATUS = { doing: 'En cours', wait: 'En attente de retour', todo: 'À venir', done: 'Livré' };
+  var STATUS_SHORT = { doing: 'En cours', wait: 'En attente', todo: 'À venir', done: 'Livré' };
+  var NEXT_STATUS = { todo: 'doing', doing: 'wait', wait: 'done', done: 'todo' };
   var SICONS = {
     photo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17z"/><circle cx="12" cy="13" r="3.6"/></svg>',
     video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="7" width="12.5" height="10" rx="1.5"/><path d="M15.5 10.5l5-3v9l-5-3"/></svg>',
@@ -926,6 +946,8 @@
     montage: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4L20 16M8.6 15.6L20 8"/></svg>',
     planning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3.5" y="5" width="17" height="15" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>',
     redaction: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 20l1-4.5L16 4.5l3.5 3.5-11 11z"/><path d="M13.5 7l3.5 3.5"/></svg>',
+    print: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 3.5h8.5L18 7v13.5H6z"/><path d="M14.5 3.5V7H18M9 11h6M9 14h6M9 17h4"/></svg>',
+    branding: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16"/><circle cx="12" cy="12" r="2.2"/></svg>',
     autre: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>',
     story: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 9v6M9 12h6"/></svg>',
     ads: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 10v4h3l7 4.5v-13L7 10z"/><path d="M17.5 9.5a3.5 3.5 0 0 1 0 5M7 14l1.5 5h2.5L10 14.6"/></svg>',
@@ -1456,26 +1478,40 @@
       }).join('');
     }
 
+    // Mots toujours dans leur couleur (ex. Enza 8e en vert sauge) : plan.suivi.highlight
+    var HL = list(cfg.highlight).map(function (h) { return { re: new RegExp(h.match, 'gi'), color: h.color }; });
+    function hlColor(t) {
+      var c = '';
+      HL.forEach(function (h) { h.re.lastIndex = 0; if (!c && h.re.test(t)) c = h.color; });
+      return c;
+    }
+    function hlText(t) {
+      var html = esc(t);
+      HL.forEach(function (h) { html = html.replace(h.re, function (m) { return '<span class="hl" style="--hl:' + esc(h.color) + '">' + m + '</span>'; }); });
+      return html;
+    }
+
     function paintTasks() {
-      var order = { doing: 0, todo: 1, done: 2 };
+      var order = { doing: 0, wait: 1, todo: 2, done: 3 };
       var items = state.missions.slice().sort(function (a, b) { return (order[a.status] - order[b.status]) || (a.at < b.at ? 1 : -1); });
-      var count = { doing: 0, todo: 0, done: 0 };
+      var count = { doing: 0, wait: 0, todo: 0, done: 0 };
       items.forEach(function (m) { count[m.status] = (count[m.status] || 0) + 1; });
       var total = items.length || 1;
       document.querySelector('[data-progress]').innerHTML =
-        '<div class="progress__bar">' + ['done', 'doing', 'todo'].map(function (s) {
+        '<div class="progress__bar">' + ['done', 'wait', 'doing', 'todo'].map(function (s) {
           return '<span class="progress__seg progress__seg--' + s + '" style="width:' + (count[s] / total * 100) + '%"></span>';
         }).join('') + '</div>' +
-        '<p class="label progress__legend">' + ['doing', 'todo', 'done'].map(function (s) {
-          return '<span><i class="progress__dot progress__dot--' + s + '"></i>' + count[s] + ' ' + STATUS[s].toLowerCase() + '</span>';
+        '<p class="label progress__legend">' + ['doing', 'wait', 'todo', 'done'].filter(function (s) { return count[s] || s !== 'wait'; }).map(function (s) {
+          return '<span><i class="progress__dot progress__dot--' + s + '"></i>' + count[s] + ' ' + STATUS_SHORT[s].toLowerCase() + '</span>';
         }).join('') + '</p>';
       tasksEl.innerHTML = items.length ? items.map(function (m) {
-        return '<li class="task task--' + esc(m.status) + '">' +
+        var hc = hlColor(m.title);
+        return '<li class="task task--' + esc(m.status) + (hc ? ' is-hl" style="--hl:' + esc(hc) : '') + '">' +
           '<span class="task__icon">' + (SICONS[m.cat] || SICONS.autre) + '</span>' +
-          '<span class="task__body"><span class="label task__cat">' + esc(CAT[m.cat] || CAT.autre) + '</span>' +
-          '<span class="task__title">' + esc(m.title) + '</span>' +
-          '<span class="task__by"><i class="avatar avatar--' + esc(String(m.by).toLowerCase()) + '"' + ((cfg.colors || {})[m.by] ? ' style="background:' + esc(cfg.colors[m.by]) + '"' : '') + '>' + esc(String(m.by).charAt(0)) + '</i>Publié par ' + esc(m.by) + (m.at ? ' · ' + shortDate(m.at) : '') + '</span></span>' +
-          '<button type="button" class="label task__status" data-status="' + esc(m.id) + '" data-now="' + esc(m.status) + '" tabindex="' + (admin ? '0' : '-1') + '">' + (STATUS[m.status] || '') + '</button>' +
+          '<span class="task__body"><span class="label task__cat">' + esc(CAT[m.cat] || CAT.autre) + (m.status === 'wait' ? ' · <b>' + STATUS.wait + '</b>' : '') + '</span>' +
+          '<span class="task__title">' + hlText(m.title) + '</span>' +
+          '<span class="task__by"><i class="avatar avatar--' + esc(String(m.by).toLowerCase().replace(/[^a-z0-9-]/g, '')) + '">' + esc(String(m.by).charAt(0)) + '</i>Publié par ' + esc(m.by) + (m.at ? ' · ' + shortDate(m.at) : '') + '</span></span>' +
+          '<button type="button" class="label task__status" data-status="' + esc(m.id) + '" data-now="' + esc(m.status) + '" tabindex="' + (admin ? '0' : '-1') + '">' + (STATUS_SHORT[m.status] || '') + '</button>' +
           '<span class="row-actions"><button type="button" class="del" data-edit="missions" data-id="' + esc(m.id) + '" aria-label="Modifier cette mission">' + SICONS.edit + '</button>' +
           '<button type="button" class="del" data-del="missions" data-id="' + esc(m.id) + '" aria-label="Supprimer cette mission">' + SICONS.close + '</button></span>' +
           '</li>';
@@ -2869,7 +2905,7 @@
     function link(key) {
       var slug = String(window.CLIENT_BASE || '').replace(/^clients\/|\/$/g, '');
       var dir = location.origin + location.pathname.replace(/[^/]*$/, '');
-      return dir + 'share.php?' + (slug && slug !== 'la-petite-maison' ? 'c=' + encodeURIComponent(slug) + '&' : '') + 'p=' + encodeURIComponent(key);
+      return dir + 'share.php?' + (slug && slug !== (window.DEFAULT_CLIENT || 'la-petite-maison') ? 'c=' + encodeURIComponent(slug) + '&' : '') + 'p=' + encodeURIComponent(key);
     }
     function note(msg) {
       var t = document.querySelector('[data-toast]');
@@ -2902,6 +2938,350 @@
       if (navigator.share && /iPhone|iPad|Android/i.test(navigator.userAgent)) {
         navigator.share({ title: title, url: url }).catch(function (er) { if (er && er.name !== 'AbortError') copy(url); });
       } else copy(url);
+    });
+  }
+
+  /* ------------------------------------------------------- export PDF du feed */
+  // Page 1 : le calendrier du mois, jours et titres des publications (une page par mois planifié).
+  // Page 2 : l'aperçu du feed, comme sur le profil. Pages dessinées sur un canvas, réunies dans un PDF.
+  function initPdf() {
+    if (!PLAN.pdf) return;
+    var W = 1654, H = 2339, M = 120; // A4 à 200 dpi
+    var t = PLAN.theme || {};
+    var css = getComputedStyle(document.documentElement);
+    function tok(k, d) { return t[k] || (css.getPropertyValue('--' + k) || '').trim() || d; }
+    var C = { bg: tok('bg', '#f1eee6'), deep: tok('bg-deep', '#e8e3d7'), ink: tok('ink', '#22365f'), soft: tok('ink-soft', '#55648a'), faint: tok('ink-faint', 'rgba(34,54,95,.14)'), tint: tok('tint', 'rgba(34,54,95,.04)') };
+    var F = {
+      display: "'Cormorant Garamond', 'Times New Roman', serif",
+      label: "'Jost', 'Gill Sans', 'Helvetica Neue', sans-serif",
+      text: (PLAN.fonts && PLAN.fonts.text) || "'EB Garamond', Georgia, serif",
+    };
+    var c = PLAN.client || {};
+    var DOW = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+
+    function plain(s) { var d = document.createElement('div'); d.innerHTML = String(s || ''); return d.textContent.trim(); }
+    function spaced(ctx, txt, x, y, sp, align) {
+      txt = String(txt);
+      var w = 0, i;
+      for (i = 0; i < txt.length; i++) w += ctx.measureText(txt[i]).width + (i < txt.length - 1 ? sp : 0);
+      var cx = align === 'right' ? x - w : align === 'center' ? x - w / 2 : x;
+      var a = ctx.textAlign; ctx.textAlign = 'left';
+      for (i = 0; i < txt.length; i++) { ctx.fillText(txt[i], cx, y); cx += ctx.measureText(txt[i]).width + sp; }
+      ctx.textAlign = a;
+      return w;
+    }
+    function wrap(ctx, txt, maxW, maxLines) {
+      var words = String(txt).split(/\s+/).filter(Boolean), lines = [], cur = '';
+      words.forEach(function (w) {
+        var tryL = cur ? cur + ' ' + w : w;
+        if (ctx.measureText(tryL).width <= maxW || !cur) cur = tryL; else { lines.push(cur); cur = w; }
+      });
+      if (cur) lines.push(cur);
+      if (lines.length > maxLines) {
+        lines = lines.slice(0, maxLines);
+        var l = lines[maxLines - 1];
+        while (l && ctx.measureText(l + '…').width > maxW) l = l.slice(0, -1);
+        lines[maxLines - 1] = l.replace(/[\s,.;:]+$/, '') + '…';
+      }
+      return lines.map(function (l) {
+        while (ctx.measureText(l).width > maxW && l.length > 1) l = l.slice(0, -2) + '…';
+        return l;
+      });
+    }
+
+    // Logos dessinés en tracés (Path2D) : nets, et sans risque de bloquer l'export du canvas
+    function pathsOf(svgText) {
+      var doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+      var svg = doc.querySelector('svg');
+      if (!svg) return null;
+      var vb = (svg.getAttribute('viewBox') || '').split(/[\s,]+/).map(Number);
+      var ps = [].map.call(doc.querySelectorAll('path'), function (p) { return new Path2D(p.getAttribute('d')); });
+      return vb.length === 4 && ps.length ? { vb: vb, paths: ps } : null;
+    }
+    var logos = null;
+    function loadLogos() {
+      if (logos) return Promise.resolve(logos);
+      var mk = document.querySelector('#mark path');
+      var mark = mk ? { vb: [0, 0, 418.46, 277.09], paths: [new Path2D(mk.getAttribute('d'))] } : null;
+      var cl = c.logo ? svgText(src(c.logo)).then(pathsOf).catch(function () { return null; }) : Promise.resolve(null);
+      return cl.then(function (client) { logos = { mark: mark, client: client }; return logos; });
+    }
+    function drawPaths(ctx, g, x, y, h, color) {
+      var s = h / g.vb[3];
+      ctx.save();
+      ctx.translate(x - g.vb[0] * s, y - g.vb[1] * s);
+      ctx.scale(s, s);
+      ctx.fillStyle = color;
+      g.paths.forEach(function (p) { ctx.fill(p, 'evenodd'); });
+      ctx.restore();
+      return g.vb[2] * s;
+    }
+
+    // Visuel d'une vignette : photo, couverture de reel, ou première image d'une vidéo
+    function gridPath(p) {
+      var img = p.type === 'reel' ? p.poster : list(p.options)[0] || list(p.media)[0];
+      if (img && typeof img === 'object') img = img.poster;
+      return img;
+    }
+    function loadVisual(path) {
+      if (!path || /^data:image\/svg/.test(path)) return Promise.resolve(null);
+      return new Promise(function (res) {
+        var done = function (v) { clearTimeout(to); res(v); };
+        var to = setTimeout(function () { res(null); }, 12000);
+        if (isVidPath(path)) {
+          var v = document.createElement('video');
+          v.muted = true; v.playsInline = true; v.preload = 'auto';
+          v.setAttribute('playsinline', '');
+          v.onloadeddata = function () { if (v.currentTime < 0.1) v.currentTime = 0.1; else done(v); };
+          v.onseeked = function () { done(v); };
+          v.onerror = function () { done(null); };
+          v.src = vidSrc(path);
+          v.load();
+        } else {
+          var im = new Image();
+          im.decoding = 'async';
+          im.onload = function () { done(im); };
+          im.onerror = function () { done(null); };
+          im.src = src(path);
+        }
+      });
+    }
+    function cover(ctx, m, x, y, w, h) {
+      var iw = m.videoWidth || m.naturalWidth, ih = m.videoHeight || m.naturalHeight;
+      if (!iw || !ih) return false;
+      var s = Math.max(w / iw, h / ih), sw = w / s, sh = h / s;
+      ctx.drawImage(m, (iw - sw) / 2, (ih - sh) / 2, sw, sh, x, y, w, h);
+      return true;
+    }
+
+    function page(n, total, kicker) {
+      var cv = document.createElement('canvas');
+      cv.width = W; cv.height = H;
+      var ctx = cv.getContext('2d');
+      ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+      ctx.textBaseline = 'alphabetic';
+      // En-tête : 18H22 × logo du client
+      var y = M, h = 58, x = M;
+      ctx.fillStyle = C.ink;
+      if (logos.mark) x += drawPaths(ctx, logos.mark, x, y, h, C.ink) + 16;
+      ctx.font = '400 30px ' + F.label;
+      x += spaced(ctx, '18H22', x, y + h / 2 + 11, 6) + 26;
+      ctx.font = '300 44px ' + F.display;
+      ctx.fillText('×', x, y + h / 2 + 14); x += ctx.measureText('×').width + 26;
+      if (logos.client) {
+        var lh = Math.min(h, 520 / (logos.client.vb[2] / logos.client.vb[3]));
+        drawPaths(ctx, logos.client, x, y + (h - lh) / 2, lh, C.ink);
+      } else { ctx.font = '400 40px ' + F.text; ctx.fillText(c.name || '', x, y + h / 2 + 14); }
+      ctx.font = '400 22px ' + F.label; ctx.fillStyle = C.soft;
+      spaced(ctx, kicker.toUpperCase(), W - M, y + h / 2 + 8, 4, 'right');
+      ctx.fillStyle = C.faint; ctx.fillRect(M, y + h + 40, W - 2 * M, 2);
+      // Pied de page
+      ctx.fillStyle = C.soft; ctx.font = '400 19px ' + F.label;
+      spaced(ctx, ('18H22 × ' + (c.name || '')).toUpperCase(), M, H - M + 30, 3);
+      spaced(ctx, n + ' / ' + total, W - M, H - M + 30, 3, 'right');
+      if (PLAN.footer) { ctx.font = 'italic 400 22px ' + F.text; ctx.textAlign = 'center'; ctx.fillText(PLAN.footer, W / 2, H - M + 30); ctx.textAlign = 'left'; }
+      ctx.fillStyle = C.faint; ctx.fillRect(M, H - M - 10, W - 2 * M, 2);
+      return { cv: cv, ctx: ctx, top: y + h + 110 };
+    }
+    function heading(ctx, y, kicker, title, italic, sub) {
+      ctx.fillStyle = C.ink; ctx.font = '400 22px ' + F.label;
+      spaced(ctx, kicker.toUpperCase(), M, y, 5);
+      ctx.font = '300 132px ' + F.display;
+      ctx.fillText(title, M, y + 140);
+      if (italic) { var w = ctx.measureText(title + ' ').width; ctx.font = 'italic 300 132px ' + F.display; ctx.fillText(italic, M + w, y + 140); }
+      if (sub) { ctx.fillStyle = C.soft; ctx.font = '400 30px ' + F.text; ctx.fillText(sub, M, y + 200); }
+      return y + 250;
+    }
+    function count(posts) {
+      var r = posts.filter(function (p) { return p.type === 'reel'; }).length;
+      return posts.length
+        ? posts.length + ' publication' + (posts.length > 1 ? 's' : '') + (r ? ' dont ' + r + ' reel' + (r > 1 ? 's' : '') : '')
+        : 'Publications à venir';
+    }
+
+    function calendarPage(month, n, total) {
+      var posts = list(month.posts);
+      var first = posts.length ? parseDate(posts[0].date) : parseDate(String(month._key || month.month || iso(today())).slice(0, 7) + '-01');
+      var Y = first.getFullYear(), Mo = first.getMonth();
+      var pg = page(n, total, PLAN.title || 'Media planning'), ctx = pg.ctx;
+      var y = heading(ctx, pg.top, 'Calendrier des publications', MOIS_LONGS[Mo], String(Y), count(posts));
+      var byDay = {};
+      posts.forEach(function (p) { (byDay[p.date] = byDay[p.date] || []).push(p); });
+      var start = (new Date(Y, Mo, 1).getDay() + 6) % 7, days = new Date(Y, Mo + 1, 0).getDate();
+      var rows = Math.ceil((start + days) / 7);
+      var gw = W - 2 * M, cw = gw / 7;
+      ctx.fillStyle = C.soft; ctx.font = '400 19px ' + F.label;
+      DOW.forEach(function (d, k) { spaced(ctx, d.toUpperCase(), M + k * cw + 14, y + 20, 3); });
+      y += 46;
+      var gh = H - M - 70 - y, ch = gh / rows;
+      for (var i = 0; i < rows * 7; i++) {
+        var day = i - start + 1, cx = M + (i % 7) * cw, cy = y + Math.floor(i / 7) * ch;
+        if (day < 1 || day > days) continue;
+        var key = Y + '-' + pad(Mo + 1) + '-' + pad(day), list_ = byDay[key] || [];
+        if (list_.length) { ctx.fillStyle = C.tint; ctx.fillRect(cx, cy, cw, ch); ctx.fillStyle = C.ink; ctx.fillRect(cx, cy, cw, 4); }
+        ctx.strokeStyle = C.faint; ctx.lineWidth = 2; ctx.strokeRect(cx + 1, cy + 1, cw - 2, ch - 2);
+        ctx.fillStyle = list_.length ? C.ink : C.soft;
+        ctx.font = '300 50px ' + F.display;
+        ctx.fillText(String(day), cx + 14, cy + 54);
+        var ty = cy + 90, room = cy + ch - 12;
+        list_.forEach(function (p, j) {
+          if (ty > room - 26) return;
+          ctx.fillStyle = C.ink; ctx.font = '500 16px ' + F.label;
+          var lab = (TYPE_LABEL[p.type] || 'Post') + (p.time ? ' · ' + p.time : '');
+          spaced(ctx, lab.toUpperCase(), cx + 14, ty, 2);
+          ty += 30;
+          ctx.fillStyle = C.soft; ctx.font = '400 22px ' + F.text;
+          var left = list_.length - j - 1;
+          var maxL = Math.max(1, Math.floor((room - ty - left * 60) / 27) + 1);
+          wrap(ctx, plain(p.title) || TYPE_LABEL[p.type] || 'Publication', cw - 28, Math.min(5, maxL)).forEach(function (l) {
+            if (ty > room) return;
+            ctx.fillText(l, cx + 14, ty); ty += 27;
+          });
+          ty += 14;
+        });
+      }
+      return pg.cv;
+    }
+
+    function feedPage(tiles, imgs, n, total, more) {
+      var pg = page(n, total, PLAN.title || 'Media planning'), ctx = pg.ctx;
+      var ig = String(c.instagram || '').replace(/^@/, '');
+      var y = heading(ctx, pg.top, 'Aperçu du feed', 'Le', 'feed', (ig ? '@' + ig + ' · ' : '') + 'du plus récent au plus ancien');
+      var gap = 6, rows = Math.max(4, Math.ceil(tiles.length / 3));
+      var availH = H - M - 120 - y;
+      var th = Math.min((availH - gap * (rows - 1)) / rows, ((W - 2 * M - 2 * gap) / 3) * 4 / 3), tw = th * 3 / 4;
+      var gx = (W - (3 * tw + 2 * gap)) / 2;
+      tiles.forEach(function (it, k) {
+        var x = gx + (k % 3) * (tw + gap), ty = y + Math.floor(k / 3) * (th + gap);
+        var m = imgs[k];
+        ctx.fillStyle = C.deep; ctx.fillRect(x, ty, tw, th);
+        if (!(m && cover(ctx, m, x, ty, tw, th))) {
+          ctx.save(); ctx.setLineDash([10, 12]); ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.5; ctx.lineWidth = 2;
+          ctx.strokeRect(x + 18, ty + 18, tw - 36, th - 36); ctx.restore();
+          ctx.fillStyle = C.soft; ctx.font = '400 17px ' + F.label;
+          spaced(ctx, 'VISUEL À VENIR', x + tw / 2, ty + th / 2 + 6, 4, 'center');
+        }
+        function chip(txt, bx, by, right) {
+          ctx.font = '500 16px ' + F.label;
+          var w = 0; for (var i = 0; i < txt.length; i++) w += ctx.measureText(txt[i]).width + 2;
+          var px = right ? bx - w - 24 : bx;
+          ctx.fillStyle = C.bg; ctx.globalAlpha = 0.92; ctx.fillRect(px, by - 30, w + 24, 40); ctx.globalAlpha = 1;
+          ctx.fillStyle = C.ink; spaced(ctx, txt, px + 12, by - 4, 2);
+        }
+        if (it.live) {
+          ctx.fillStyle = C.bg; ctx.globalAlpha = 0.45; ctx.fillRect(x, ty, tw, th); ctx.globalAlpha = 1;
+          chip('EN LIGNE', x + 12, ty + th - 12);
+        } else {
+          var p = it.post;
+          chip((JOURS[p._date.getDay()] + ' ' + pad(p._date.getDate()) + ' ' + MOIS[p._date.getMonth()]).toUpperCase(), x + 12, ty + th - 12);
+          if (p.type === 'reel' || p.type === 'carousel') chip(TYPE_LABEL[p.type].toUpperCase(), x + tw - 12, ty + 42, true);
+        }
+      });
+      var ly = y + Math.ceil(tiles.length / 3) * (th + gap) + 50;
+      ctx.fillStyle = C.soft; ctx.font = 'italic 400 24px ' + F.text; ctx.textAlign = 'center';
+      ctx.fillText(more ? 'Suite du feed page suivante' : tiles.some(function (x) { return x.live; }) ? 'Voilées : publications déjà en ligne' : '', W / 2, ly);
+      ctx.textAlign = 'left';
+      return pg.cv;
+    }
+
+    // PDF minimal : une image JPEG pleine page par page A4
+    function buildPdf(jpegs) {
+      var enc = new TextEncoder(), parts = [], offs = [], len = 0;
+      function put(x) { var b = typeof x === 'string' ? enc.encode(x) : x; parts.push(b); len += b.length; }
+      function obj(n, body, stream) {
+        offs[n] = len;
+        put(n + ' 0 obj\n' + body + (stream ? '\nstream\n' : '\nendobj\n'));
+        if (stream) { put(stream); put('\nendstream\nendobj\n'); }
+      }
+      var n = jpegs.length, kids = [];
+      for (var i = 0; i < n; i++) kids.push((3 + i * 3) + ' 0 R');
+      put('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+      obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+      obj(2, '<< /Type /Pages /Kids [' + kids.join(' ') + '] /Count ' + n + ' >>');
+      jpegs.forEach(function (j, k) {
+        var p = 3 + k * 3, cmd = enc.encode('q 595.28 0 0 841.89 0 0 cm /Im0 Do Q');
+        obj(p, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 ' + (p + 2) + ' 0 R >> >> /Contents ' + (p + 1) + ' 0 R >>');
+        obj(p + 1, '<< /Length ' + cmd.length + ' >>', cmd);
+        obj(p + 2, '<< /Type /XObject /Subtype /Image /Width ' + W + ' /Height ' + H + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + j.length + ' >>', j);
+      });
+      var count = 3 + n * 3, xref = len, x = 'xref\n0 ' + count + '\n0000000000 65535 f \n';
+      for (var o = 1; o < count; o++) x += String(offs[o]).padStart(10, '0') + ' 00000 n \n';
+      put(x + 'trailer\n<< /Size ' + count + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF');
+      return new Blob(parts, { type: 'application/pdf' });
+    }
+    function jpeg(cv) {
+      var b64 = cv.toDataURL('image/jpeg', 0.9).split(',')[1], bin = atob(b64), u = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+      return u;
+    }
+
+    function make() {
+      var months = (PLAN.months || []).filter(function (m) { return list(m.posts).length; });
+      if (!months.length) months = (PLAN.months || []).slice(0, 1);
+      var planned = allPosts.slice().sort(function (a, b) { return b._date - a._date || timeVal(b.time) - timeVal(a.time); });
+      var tiles = planned.map(function (p) { return { post: p, path: gridPath(p) }; })
+        .concat(list(PLAN.feedExisting).map(function (img) { return { live: true, path: img }; }));
+      // Le feed tient sur une page (15 vignettes) ; au-delà des publications prévues, il continue sur une autre page
+      var keep = Math.max(12, Math.ceil(planned.length / 3) * 3);
+      tiles = tiles.slice(0, Math.min(tiles.length, Math.max(keep, Math.min(15, tiles.length))));
+      var chunks = [];
+      for (var i = 0; i < tiles.length; i += 15) chunks.push(tiles.slice(i, i + 15));
+      if (!chunks.length) chunks.push([]);
+      var total = months.length + chunks.length;
+      var fonts = ['300 50px "Cormorant Garamond"', 'italic 300 50px "Cormorant Garamond"', '400 20px Jost', '500 20px Jost', '400 20px ' + F.text, 'italic 400 20px ' + F.text];
+      return Promise.all([loadLogos(), document.fonts ? Promise.all(fonts.map(function (f) { return document.fonts.load(f).catch(function () {}); })) : null])
+        .then(function () { return Promise.all(tiles.map(function (x) { return loadVisual(x.path); })); })
+        .then(function (imgs) {
+          var pages = months.map(function (m, k) { return calendarPage(m, k + 1, total); });
+          chunks.forEach(function (ch, k) {
+            pages.push(feedPage(ch, imgs.slice(k * 15, k * 15 + ch.length), months.length + k + 1, total, k < chunks.length - 1));
+          });
+          return buildPdf(pages.map(jpeg));
+        });
+    }
+
+    function fileName() {
+      var m = (PLAN.months || [])[0] || {};
+      var k = String(m._key || m.month || '').slice(0, 7), d = k ? parseDate(k + '-01') : today();
+      var s = (c.name || 'feed') + ' feed ' + MOIS_LONGS[d.getMonth()] + ' ' + d.getFullYear();
+      return s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() + '.pdf';
+    }
+    function note(msg) {
+      var el_ = document.querySelector('[data-toast]');
+      if (!el_) return;
+      el_.textContent = msg; el_.classList.add('is-on');
+      clearTimeout(note.t); note.t = setTimeout(function () { el_.classList.remove('is-on'); }, 3600);
+    }
+
+    var box = document.querySelector('[data-pdf]');
+    if (!box) return;
+    var btn = box.querySelector('[data-pdf-make]'), out = box.querySelector('[data-pdf-out]');
+    var url = '', busy = false;
+    btn.addEventListener('click', function () {
+      if (busy) return;
+      busy = true;
+      btn.classList.add('is-busy');
+      btn.querySelector('span').textContent = 'Préparation du PDF…';
+      make().then(function (blob) {
+        if (url) URL.revokeObjectURL(url);
+        url = URL.createObjectURL(blob);
+        var name = fileName(), file = window.File ? new File([blob], name, { type: 'application/pdf' }) : null;
+        var share = file && navigator.canShare && navigator.canShare({ files: [file] }) && /iPhone|iPad|Android/i.test(navigator.userAgent);
+        out.innerHTML = '<a class="pdf-link" href="' + url + '" download="' + esc(name) + '">Ouvrir le PDF</a>' +
+          (share ? '<button type="button" class="pdf-link" data-pdf-share>Partager</button>' : '');
+        out.hidden = false;
+        var sh = out.querySelector('[data-pdf-share]');
+        if (sh) sh.addEventListener('click', function () { navigator.share({ files: [file], title: name }).catch(function () {}); });
+        if (!share) out.querySelector('a').click();
+        note('PDF prêt');
+      }).catch(function (er) {
+        note('Le PDF n’a pas pu être créé. Réessayez.');
+        if (window.console) console.error(er);
+      }).then(function () {
+        busy = false;
+        btn.classList.remove('is-busy');
+        btn.querySelector('span').textContent = 'Exporter le feed en PDF';
+      });
     });
   }
 
@@ -3408,6 +3788,7 @@
   initOptions();
   initPostSheet();
   initShare();
+  initPdf();
   initBrandkit();
   initFeedback();
   initAds();

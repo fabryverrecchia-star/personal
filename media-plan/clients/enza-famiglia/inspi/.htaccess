@@ -1,0 +1,10 @@
+# Images des inspirations copiées depuis Instagram par suivi.php : aucun script exécuté ici
+<FilesMatch "\.(php|phtml|phar|cgi|pl|py)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>

@@ -141,7 +141,7 @@ $kind = isset($in['kind']) ? $in['kind'] : '';
 if (!in_array($kind, ['missions', 'passages', 'inspirations', 'edits'], true)) out(['error' => 'kind'], 400);
 
 $TEAM = ['Fabrizio', 'Jade'];
-$CATS = ['photo', 'video', 'montage', 'planning', 'redaction', 'ads', 'autre'];
+$CATS = ['photo', 'video', 'montage', 'planning', 'redaction', 'ads', 'print', 'branding', 'meeting', 'autre'];
 $AD_STATUS = ['prevue', 'live', 'done'];
 // Chemin d'une photo ou vidéo du site (planning ou envoi de l'équipe), jamais en dehors du dossier client
 function media_path($p) {
@@ -164,7 +164,7 @@ function cleanup_uploads($before, $data) {
     if (preg_match('~^uploads/[a-z0-9-]+\.(jpg|png|webp|mp4|mov)$~', $f)) @unlink(__DIR__ . '/' . $f);
   }
 }
-$STATUS = ['todo', 'doing', 'done'];
+$STATUS = ['todo', 'doing', 'wait', 'done'];
 $KINDS = ['photo', 'video', 'both', 'meeting'];
 $FORMATS = ['reel', 'carousel', 'post'];
 // Lien Instagram d'un post, carrousel ou reel, remis au propre (sans paramètres de suivi)

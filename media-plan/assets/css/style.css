@@ -1092,6 +1092,9 @@ a { color: inherit; }
 .progress__dot--done { background: var(--ink); }
 .progress__dot--doing { background: color-mix(in srgb, var(--ink) 55%, var(--bg)); }
 .progress__dot--todo { box-shadow: inset 0 0 0 1px var(--ink); }
+.progress__seg--wait { background: repeating-linear-gradient(135deg, var(--ink) 0 1.5px, transparent 1.5px 4px); }
+.progress__dot--wait { background: repeating-linear-gradient(135deg, var(--ink) 0 1.5px, transparent 1.5px 3px); box-shadow: inset 0 0 0 1px var(--ink); }
+.progress__legend { flex-wrap: wrap; row-gap: 6px; }
 
 .tasks { list-style: none; margin: 0; padding: 0; }
 .tasks__empty { padding: 24px 0; text-align: center; color: var(--ink-soft); font-style: italic; }
@@ -1117,7 +1120,7 @@ a { color: inherit; }
 .task__by { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; color: var(--ink-soft); }
 .avatar {
   display: inline-grid; place-items: center;
-  width: 20px; height: 20px;
+  width: 20px; height: 20px; flex: none;
   border-radius: 50%;
   font: 10px/1 var(--label);
   font-style: normal;
@@ -1140,6 +1143,9 @@ a { color: inherit; }
 .task--done .task__title { text-decoration: line-through; text-decoration-thickness: 1px; opacity: 0.6; }
 .task--done .task__status { border-color: transparent; color: var(--ink-soft); }
 .task--done .task__status::before { content: '✓ '; }
+.task--wait .task__status { border-style: dashed; border-color: var(--ink); color: var(--ink); }
+.hl { color: var(--hl); }
+.task.is-hl .task__icon { border-color: var(--hl); color: var(--hl); background: color-mix(in srgb, var(--hl) 10%, transparent); }
 
 /* Mode équipe */
 .del, .row-actions { display: none; }
@@ -2340,3 +2346,28 @@ body.has-dock .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); }
   .postsheet__panel { max-height: calc(100svh - 48px); border-radius: 22px; transform: translateY(40px); opacity: 0; transition: transform 0.65s var(--ease), opacity 0.4s var(--ease); }
   .postsheet.is-open .postsheet__panel { opacity: 1; }
 }
+
+/* --------------------------------------------------------------------------
+   Export PDF du feed : calendrier du mois + aperçu du feed
+   -------------------------------------------------------------------------- */
+.pdf { margin: 28px 0 0; display: grid; justify-items: center; gap: 10px; text-align: center; }
+.pdf__make {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0 5px;
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  background: none;
+  color: var(--ink);
+  font-family: var(--label);
+  font-size: 14px;
+  -webkit-tap-highlight-color: transparent;
+}
+.pdf__make svg { width: 16px; height: 16px; flex: none; }
+.pdf__make.is-busy { opacity: 0.55; }
+.pdf__make.is-busy svg { animation: pdfPulse 1s ease-in-out infinite alternate; }
+@keyframes pdfPulse { to { transform: translateY(3px); } }
+.pdf__hint { margin: 0; max-width: 32ch; color: var(--ink-soft); font-size: 13px; line-height: 1.45; }
+.pdf__out { display: flex; gap: 22px; margin: 2px 0 0; }
+.pdf-link { padding: 0; border: 0; background: none; color: var(--ink); font-family: var(--label); font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
