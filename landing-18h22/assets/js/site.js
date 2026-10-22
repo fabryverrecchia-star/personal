@@ -315,7 +315,7 @@
     }, { passive: true });
     var t0 = performance.now();
     var covered = function () {
-      return ['#viewer', '#theatre', '#gallery'].some(function (id) { var el = $(id); return el && el.classList.contains('is-open'); });
+      return ['#viewer', '#theatre', '#gallery', '#case'].some(function (id) { var el = $(id); return el && el.classList.contains('is-open'); });
     };
     var last = t0, slow = 0, skip = 0, mob = !fine;
     (function loop(now) {
@@ -738,7 +738,7 @@
 
     function frame(t) {
       requestAnimationFrame(frame);
-      if (!inView) return;
+      if (!inView || document.body.classList.contains('is-case')) return;
       prog = progress();
       var prev = smooth;
       smooth += (prog - smooth) * 0.085;
@@ -869,6 +869,9 @@
   var vFrom = null, vAt0 = null;
   function openViewer(i, rect, at) {
     if (!GROUPS.length) return;
+    // un projet avec sa page détaillée s'ouvre en grand
+    var gp = GROUPS[(i + GROUPS.length) % GROUPS.length];
+    if (window.CASE && window.CASE.has(gp.title) && window.CASE.open(gp.title, at)) return;
     showProject(i, 0);
     vFrom = rect; vAt0 = at || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     viewer.classList.add('is-open');

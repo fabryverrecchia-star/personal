@@ -3,6 +3,7 @@
 window.PROJECTS = [
   { src: 'assets/projects/p01.webp', w: 720, h: 900, title: '', service: '', year: '' },
   { src: 'assets/projects/p02.webp', w: 1100, h: 802, title: 'Ismael Nebchi', service: 'Website', year: '' },
+  { src: 'assets/cases/agata/cover.webp', w: 1200, h: 934, title: 'Agata Paris', service: 'Identity Design', year: '' },
   { src: 'assets/projects/p03.webp', w: 880, h: 1100, title: 'Agata Paris', service: 'Identity Design', year: '' },
   { src: 'assets/projects/p04.webp', w: 1100, h: 789, title: 'Ismael Nebchi', service: 'Website', year: '' },
   { src: 'assets/projects/p05.webp', w: 880, h: 1100, title: '', service: '', year: '' },

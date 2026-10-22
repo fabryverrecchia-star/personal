@@ -27,6 +27,15 @@
    "year": ""
   },
   {
+   "id": "agata-cover",
+   "src": "assets/cases/agata/cover.webp",
+   "w": 1200,
+   "h": 934,
+   "title": "Agata Paris",
+   "service": "Identity Design",
+   "year": ""
+  },
+  {
    "id": "p03",
    "src": "assets/projects/p03.webp",
    "w": 880,
