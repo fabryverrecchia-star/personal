@@ -18,7 +18,8 @@
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     // Client : index.html?c=<slug> charge clients/<slug>/plan.js (La Petite Maison par défaut)
     (function () {
-      var slug = (new URLSearchParams(location.search).get('c') || 'la-petite-maison').replace(/[^a-z0-9-]/gi, '');
+      window.DEFAULT_CLIENT = 'la-petite-maison';
+      var slug = (new URLSearchParams(location.search).get('c') || window.DEFAULT_CLIENT).replace(/[^a-z0-9-]/gi, '');
       window.CLIENT_BASE = 'clients/' + slug + '/';
       // &p=<nom> charge un planning archivé : clients/<slug>/plan-<nom>.js
       var plan = (new URLSearchParams(location.search).get('p') || '').replace(/[^a-z0-9-]/gi, '');
