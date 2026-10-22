@@ -659,9 +659,20 @@
   }
   var curSlug = '';
   function link() { return location.href.split('#')[0] + '#projet/' + curSlug; }
+  // le projet ouvert prend sa place dans l'historique : le geste « retour » du téléphone ramène au site
+  var pushed = false;
   function setHash(on) {
-    try { history.replaceState(null, '', on ? '#projet/' + curSlug : location.pathname + location.search); } catch (e) {}
+    try {
+      if (on && !pushed && !/^#projet\//.test(location.hash)) { history.pushState({ case: curSlug }, '', '#projet/' + curSlug); pushed = true; }
+      else if (on) history.replaceState(pushed ? { case: curSlug } : null, '', '#projet/' + curSlug);
+      else if (!pushed) history.replaceState(null, '', location.pathname + location.search);
+    } catch (e) {}
   }
+  window.addEventListener('popstate', function () {
+    var m = /^#projet\/([\w-]+)/.exec(location.hash);
+    if (root.classList.contains('is-open') && !m) { pushed = false; close(true); }
+    else if (!root.classList.contains('is-open') && m) { var t = fromSlug(m[1]); if (t) open(t); }
+  });
   if (shareBtn) shareBtn.addEventListener('click', function () {
     var t = T[lang()], url = link();
     function done() { shareBtn.textContent = t.copied; setTimeout(function () { shareBtn.textContent = t.shareP; }, 1800); }
@@ -677,6 +688,7 @@
   }
 
   function has(x) { return !!resolve(x); }
+  var siteY = null;
   function open(title, at) {
     data = resolve(title);
     if (!data) return false;
@@ -727,6 +739,7 @@
     root.style.setProperty('--case-bg', '#050c0c');
     root.style.setProperty('--case-ink', '#dfe7ea');
     at0 = at || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    if (!root.classList.contains('is-open')) siteY = window.scrollY;
     root.classList.add('is-open');
     root.setAttribute('aria-hidden', 'false');
     document.body.classList.add('is-locked', 'is-case');
@@ -743,14 +756,21 @@
     }
     return true;
   }
-  function close() {
-    if (!root.classList.contains('is-open')) return;
+  var closing = false;
+  function close(fromHistory) {
+    if (!root.classList.contains('is-open') || closing) return;
+    closing = true;
+    // fermer à la croix revient aussi en arrière dans l'historique, sans quitter le site
+    if (fromHistory !== true && pushed) { pushed = false; try { history.back(); } catch (e) {} }
     var end = function () {
+      closing = false;
       running = false;
       root.classList.remove('is-open');
       root.setAttribute('aria-hidden', 'true');
       root.style.clipPath = '';
       document.body.classList.remove('is-locked', 'is-case');
+      // le site reprend exactement où on l'avait laissé
+      if (siteY != null && Math.abs(window.scrollY - siteY) > 2) window.scrollTo(0, siteY);
       inner.innerHTML = '';
       clearInterval(glyphAuto);
       setHash(false);
@@ -761,7 +781,7 @@
     gsap.fromTo(root, { clipPath: 'circle(' + big + 'px at ' + at.x + 'px ' + at.y + 'px)' },
       { clipPath: 'circle(0px at ' + at.x + 'px ' + at.y + 'px)', duration: 0.9, ease: 'expo.inOut', onComplete: end });
   }
-  closeBtn.addEventListener('click', close);
+  closeBtn.addEventListener('click', function () { close(); });
   window.addEventListener('resize', function () { if (root.classList.contains('is-open')) layoutRows(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && root.classList.contains('is-open')) close(); });
   // glyphes : survol ou toucher pour voir la lettre en grand
