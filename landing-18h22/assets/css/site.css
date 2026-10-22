@@ -395,12 +395,14 @@ body.is-night .top::before, .top.on-dark::before { background: rgba(5, 14, 16, 0
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 24px 40px;
-  padding: 34px var(--gutter) calc(30px + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--ink-faint);
+  padding: clamp(48px, 9vh, 90px) var(--gutter) calc(34px + env(safe-area-inset-bottom));
   font-size: 13px;
   color: var(--ink-soft);
+  background: var(--bg);
 }
-.foot__logo { width: 54px; color: var(--ink); }
+.foot__logo { width: clamp(62px, 6vw, 86px); color: var(--ink); }
+.foot__seo, .foot__copy { padding-top: 20px; border-top: 1px solid var(--ink-faint); }
+.foot__copy { border-top: 0; padding-top: 0; }
 .foot__logo svg { display: block; width: 100%; height: auto; }
 .foot__credit { display: flex; flex-wrap: wrap; gap: 4px 24px; }
 .foot__credit b { font-weight: 500; color: var(--ink); }

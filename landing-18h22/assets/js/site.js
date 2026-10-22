@@ -388,7 +388,7 @@
     var maxY = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     flowState.sc = y / H * 0.35;
     flowState.night = night;
-    flowState.cover = (window.innerWidth < 700 ? 0.3 : 0.18) + 0.3 * clamp(y / maxY, 0, 1);
+    flowState.cover = (window.innerWidth < 700 ? 0.26 : 0.18) + 0.2 * clamp(y / maxY, 0, 1);
     if (!flowOn) { flowState.nightS = night; tone(); }
 
     // titre final
@@ -402,8 +402,8 @@
      ------------------------------------------------------------------------ */
   var hs = $('#services'), track = $('#hsTrack'), bar = $('#hsBar');
   track.innerHTML = SERVICES.map(function (s, k) {
-    // Design Strategy et Social Media ont leur propre image ; Creative & Digital montre un projet
-    var own = ['assets/services/strategy.webp', null, 'assets/services/social.webp'][k];
+    // chaque service a sa propre image
+    var own = ['assets/services/strategy.webp', 'assets/services/branding.webp', 'assets/services/social.webp'][k];
     var img = own ? { src: own } : PROJECTS.filter(function (pj) { return (pj.file || pj.src).indexOf('/p08.') > -1; })[0] ||
       (PROJECTS.length ? PROJECTS[(k * 6 + 3) % PROJECTS.length] : null);
     return '<article class="panel">' +
