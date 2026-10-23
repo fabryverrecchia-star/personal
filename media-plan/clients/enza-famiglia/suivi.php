@@ -299,6 +299,8 @@ if ($kind === 'edits') {
       elseif ($k === 'added' && in_array($v, ['post', 'ad', 'story'], true)) $e[$k] = $v;
       elseif ($k === 'deleted' && $v === true) $e[$k] = true;
       elseif ($k === 'date' && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $v)) $e[$k] = $v;
+      // Thématique d'un post (plan.themes) : vide = aucune
+      elseif ($k === 'theme' && preg_match('/^[a-z0-9-]{0,24}$/', (string) $v)) $e[$k] = (string) $v;
       elseif ($k === 'time') { $t = clean($v, 12); if ($t !== '') $e[$k] = $t; else unset($e[$k]); }
       elseif (in_array($k, ['objective', 'audience', 'cta'], true)) { $t = clean($v, 160); if ($t !== '') $e[$k] = $t; else unset($e[$k]); }
       elseif (($k === 'start' || $k === 'end') && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $v)) $e[$k] = $v;

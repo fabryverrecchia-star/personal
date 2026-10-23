@@ -72,6 +72,17 @@ window.PLAN = {
     highlight: [{ match: 'Enza\\s*(8\\s*(e|ème|eme)|huiti[eè]me)', color: '#6f8a64' }],
   },
 
+  // Thématiques : une étiquette de couleur par post (choisie dans « Modifier la publication »),
+  // reprise sur la fiche du post et dans le calendrier du PDF
+  themes: [
+    { id: 'food', label: 'Food/Cuisine', bg: '#f6d199', fg: '#7a3a22' },
+    { id: 'bar', label: 'Bar & Mixologie', bg: '#b8d9e1', fg: '#1d3c4a' },
+    { id: 'service', label: 'Service/Ambiance', bg: '#f1bdbd', fg: '#7c2c2e' },
+    { id: 'design', label: 'Design/Lifestyle', bg: '#b3d69b', fg: '#22401c' },
+    { id: 'mood', label: 'Mood/Inspi', bg: '#ababab', fg: '#2e2a2a' },
+    { id: 'events', label: 'Events', bg: '#6f2f31', fg: '#f3893f' },
+  ],
+
   // Retours du client : Validé / À revoir + commentaire, envoyés en un récapitulatif.
   feedback: { whatsapp: '' },
 
