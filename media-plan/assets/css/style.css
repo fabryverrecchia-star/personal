@@ -2371,3 +2371,19 @@ body.has-dock .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); }
 .pdf__hint { margin: 0; max-width: 32ch; color: var(--ink-soft); font-size: 13px; line-height: 1.45; }
 .pdf__out { display: flex; gap: 22px; margin: 2px 0 0; }
 .pdf-link { padding: 0; border: 0; background: none; color: var(--ink); font-family: var(--label); font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
+
+/* Thématique d'un post (plan.themes) */
+.theme-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 4px 10px 3px;
+  border-radius: 99px;
+  background: var(--th-bg);
+  color: var(--th-fg);
+  font-family: var(--label);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  white-space: nowrap;
+}

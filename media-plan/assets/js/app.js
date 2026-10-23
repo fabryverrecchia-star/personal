@@ -288,7 +288,14 @@
   var EDIT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 20l1-4.5L16 4.5l3.5 3.5-11 11z"/><path d="M13.5 7l3.5 3.5"/></svg>';
   function tagHtml(post) {
     var type = post.type || 'post';
-    return '<span class="label tag tag--' + type + '">' + ICONS[type] + TYPE_LABEL[type] + '</span>';
+    var th = themeOf(post);
+    return '<span class="label tag tag--' + type + '">' + ICONS[type] + TYPE_LABEL[type] + '</span>' +
+      (th ? '<span class="theme-tag" style="--th-bg:' + esc(th.bg) + ';--th-fg:' + esc(th.fg) + '">' + esc(th.label) + '</span>' : '');
+  }
+  // Thématiques du planning (plan.themes) : une étiquette de couleur par post, reprise dans le calendrier du PDF
+  function themeOf(post) {
+    var id = post && post.theme;
+    return id ? list(PLAN.themes).filter(function (t) { return t.id === id; })[0] || null : null;
   }
   function captionHtml(post) {
     var caption = list(post.caption).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('');
@@ -737,7 +744,7 @@
   // d'un reel, le titre et la légende. Le post est redessiné sur place.
   function postView(p) {
     var o = p._orig, e = EDITS[p._key] || {};
-    var v = { type: o.type || 'post', media: o.media, options: o.options, poster: o.poster, video: o.video, title: o.title, caption: o.caption };
+    var v = { type: o.type || 'post', media: o.media, options: o.options, poster: o.poster, video: o.video, title: o.title, caption: o.caption, theme: o.theme };
     var orig = o.type || 'post';
     // e.format : l'équipe peut passer un post photo en reel (vidéo + couverture), ou un reel en photo
     var reel = e.format ? e.format === 'reel' : orig === 'reel';
@@ -757,6 +764,7 @@
       v.type = multi ? 'carousel' : 'post';
     }
     if (e.title != null) v.title = e.title;
+    if (e.theme != null) v.theme = e.theme;
     if (e.caption != null) v.caption = String(e.caption).split(/\n+/).filter(Boolean);
     return v;
   }
@@ -1101,6 +1109,8 @@
       '<input type="file" accept="video/*,.mp4,.MP4,.mov,.MOV,.m4v" data-ed-video hidden></section>' +
       '<section class="ed-sec" data-sec="text"><h4 class="label ed-sec__title"><i></i>Texte</h4>' +
       '<label class="editor__field"><span class="label">Titre</span><input type="text" name="title" maxlength="140"></label>' +
+      (list(PLAN.themes).length ? '<div class="editor__field" data-ed-theme><span class="label">Thématique</span><select name="theme"><option value="">Aucune</option>' +
+        list(PLAN.themes).map(function (t) { return '<option value="' + esc(t.id) + '">' + esc(t.label) + '</option>'; }).join('') + '</select></div>' : '') +
       '<label class="editor__field"><span class="label">Légende <small data-ed-count></small></span><textarea name="caption" rows="6" maxlength="2200" placeholder="Une ligne par paragraphe"></textarea></label></section>' +
       '<section class="ed-sec" data-sec="target"><h4 class="label ed-sec__title"><i></i>Ciblage</h4>' +
       '<label class="editor__field"><span class="label">Objectif</span><input type="text" name="objective" maxlength="160" placeholder="Notoriété, messages, trafic…"></label>' +
@@ -2181,7 +2191,7 @@
           objective: c.objective || '', audience: c.audience || '', cta: c.cta || '' };
       }
       var o = ed.post._orig, pb = o._base || o;
-      return { title: o.title || '', caption: list(o.caption).join('\n'), date: pb.date || '', time: pb.time || '' };
+      return { title: o.title || '', caption: list(o.caption).join('\n'), date: pb.date || '', time: pb.time || '', theme: o.theme || '' };
     }
     function edCount() {
       var t = edForm.elements.caption;
@@ -2208,6 +2218,8 @@
       var p = kind === 'post' ? allPosts.filter(function (x) { return x._key === key; })[0] : null;
       if (!camp && !p) return;
       ed = { kind: kind, key: key, camp: camp, post: p };
+      var thf = edEl.querySelector('[data-ed-theme]');
+      if (thf) thf.hidden = kind !== 'post';
       var f = edForm.elements;
       var e = EDITS[key] || {};
       if (kind === 'ad') {
@@ -2231,6 +2243,7 @@
         edEl.querySelector('[data-ed-kicker]').textContent = TYPE_LABEL[pv.type] + ' · ' + JOURS_LONGS[p._date.getDay()] + ' ' + p._date.getDate() + ' ' + MOIS[p._date.getMonth()];
         edEl.querySelector('[data-ed-heading]').textContent = pv.title || 'Publication';
         f.title.value = pv.title || '';
+        if (f.theme) f.theme.value = pv.theme || '';
         f.caption.value = list(pv.caption).join('\n');
         f.date.value = p.date || '';
         f.time.value = p.time || '';
@@ -2476,6 +2489,7 @@
         item.date = f.date.value && f.date.value !== o.date ? f.date.value : null;
         var tm = f.time.value.trim();
         item.time = tm && tm !== o.time ? tm : null;
+        if (f.theme) item.theme = f.theme.value === o.theme ? null : f.theme.value;
       }
       var added = (EDITS[ed.key] || {}).added;
       if (added) {
@@ -3083,6 +3097,30 @@
       ctx.fillStyle = C.faint; ctx.fillRect(M, H - M - 10, W - 2 * M, 2);
       return { cv: cv, ctx: ctx, top: y + h + 110 };
     }
+    function pill(ctx, x, y, w, h, r, color) {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); ctx.fill();
+    }
+    // Légende des thématiques, sous le titre du calendrier
+    function themeLegend(ctx, y) {
+      var ths = list(PLAN.themes);
+      if (!ths.length) return y;
+      ctx.fillStyle = C.ink; ctx.font = '600 18px ' + F.label;
+      spaced(ctx, 'THÉMATIQUES', M, y, 3);
+      var x = M, ly = y + 18;
+      ths.forEach(function (t) {
+        ctx.font = '400 22px ' + F.label;
+        var txt = t.label.toUpperCase(), w = 0;
+        for (var i = 0; i < txt.length; i++) w += ctx.measureText(txt[i]).width + 1;
+        if (x + w + 32 > W - M) { x = M; ly += 54; }
+        pill(ctx, x, ly, w + 32, 44, 22, t.bg);
+        ctx.fillStyle = t.fg; spaced(ctx, txt, x + 16, ly + 30, 1);
+        x += w + 32 + 14;
+      });
+      return ly + 44 + 46;
+    }
     function heading(ctx, y, kicker, title, italic, sub) {
       ctx.fillStyle = C.ink; ctx.font = '400 22px ' + F.label;
       spaced(ctx, kicker.toUpperCase(), M, y, 5);
@@ -3105,6 +3143,7 @@
       var Y = first.getFullYear(), Mo = first.getMonth();
       var pg = page(n, total, PLAN.title || 'Media planning'), ctx = pg.ctx;
       var y = heading(ctx, pg.top, 'Calendrier des publications', MOIS_LONGS[Mo], String(Y), count(posts));
+      y = themeLegend(ctx, y + 14);
       var byDay = {};
       posts.forEach(function (p) { (byDay[p.date] = byDay[p.date] || []).push(p); });
       var start = (new Date(Y, Mo, 1).getDay() + 6) % 7, days = new Date(Y, Mo + 1, 0).getDate();
@@ -3118,26 +3157,32 @@
         var day = i - start + 1, cx = M + (i % 7) * cw, cy = y + Math.floor(i / 7) * ch;
         if (day < 1 || day > days) continue;
         var key = Y + '-' + pad(Mo + 1) + '-' + pad(day), list_ = byDay[key] || [];
-        if (list_.length) { ctx.fillStyle = C.tint; ctx.fillRect(cx, cy, cw, ch); ctx.fillStyle = C.ink; ctx.fillRect(cx, cy, cw, 4); }
         ctx.strokeStyle = C.faint; ctx.lineWidth = 2; ctx.strokeRect(cx + 1, cy + 1, cw - 2, ch - 2);
         ctx.fillStyle = list_.length ? C.ink : C.soft;
         ctx.font = '300 50px ' + F.display;
         ctx.fillText(String(day), cx + 14, cy + 54);
-        var ty = cy + 90, room = cy + ch - 12;
+        // Une étiquette par post, aux couleurs de sa thématique : le format, puis le titre
+        var ty = cy + 70, room = cy + ch - 10;
         list_.forEach(function (p, j) {
-          if (ty > room - 26) return;
-          ctx.fillStyle = C.ink; ctx.font = '500 16px ' + F.label;
+          if (ty > room - 34) return;
+          var th = themeOf(p) || { bg: C.deep, fg: C.ink };
           var lab = (TYPE_LABEL[p.type] || 'Post') + (p.time ? ' · ' + p.time : '');
-          spaced(ctx, lab.toUpperCase(), cx + 14, ty, 2);
-          ty += 30;
-          ctx.fillStyle = C.soft; ctx.font = '400 22px ' + F.text;
+          ctx.font = '600 16px ' + F.label;
+          var lines = [{ t: lab.toUpperCase(), f: '600 16px ' + F.label }];
+          ctx.font = '400 17px ' + F.label;
           var left = list_.length - j - 1;
-          var maxL = Math.max(1, Math.floor((room - ty - left * 60) / 27) + 1);
-          wrap(ctx, plain(p.title) || TYPE_LABEL[p.type] || 'Publication', cw - 28, Math.min(5, maxL)).forEach(function (l) {
-            if (ty > room) return;
-            ctx.fillText(l, cx + 14, ty); ty += 27;
+          var maxL = Math.max(1, Math.floor((room - ty - 30 - left * 64) / 28));
+          wrap(ctx, (plain(p.title) || 'Publication').toUpperCase(), cw - 64, Math.min(4, maxL)).forEach(function (l) { lines.push({ t: l, f: '400 17px ' + F.label }); });
+          lines.forEach(function (l) {
+            if (ty + 30 > room) return;
+            ctx.font = l.f;
+            var w = 0; for (var i = 0; i < l.t.length; i++) w += ctx.measureText(l.t[i]).width + 1;
+            pill(ctx, cx + 12, ty, Math.min(cw - 24, w + 18), 30, 9, th.bg);
+            ctx.fillStyle = th.fg;
+            spaced(ctx, l.t, cx + 21, ty + 22, 1);
+            ty += 28;
           });
-          ty += 14;
+          ty += 12;
         });
       }
       return pg.cv;
@@ -3228,7 +3273,7 @@
       for (var i = 0; i < tiles.length; i += 15) chunks.push(tiles.slice(i, i + 15));
       if (!chunks.length) chunks.push([]);
       var total = months.length + chunks.length;
-      var fonts = ['300 50px "Cormorant Garamond"', 'italic 300 50px "Cormorant Garamond"', '400 20px Jost', '500 20px Jost', '400 20px ' + F.text, 'italic 400 20px ' + F.text];
+      var fonts = ['300 50px "Cormorant Garamond"', 'italic 300 50px "Cormorant Garamond"', '400 20px Jost', '600 20px Jost', '400 20px ' + F.text, 'italic 400 20px ' + F.text];
       return Promise.all([loadLogos(), document.fonts ? Promise.all(fonts.map(function (f) { return document.fonts.load(f).catch(function () {}); })) : null])
         .then(function () { return Promise.all(tiles.map(function (x) { return loadVisual(x.path); })); })
         .then(function (imgs) {
