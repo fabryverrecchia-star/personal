@@ -1845,6 +1845,7 @@
           // Tempo : jour de tournage (edits.start) et de publication (edits.date), rythme en clair
           shoot: e.start || it.shoot || '', publish: e.date || it.publish || '',
           rhythm: e.rhythm != null ? e.rhythm : it.rhythm || '',
+          refs: e.refs != null ? lines(e.refs) : lines(it.refs),
         };
       });
     }
@@ -1911,6 +1912,15 @@
             (t.publish ? '<span class="label">' + SICONS.image + 'Publication · ' + shortDate(t.publish) + '</span>' : '') + '</p>' : '') +
           (t.rhythm ? '<p class="tz__rhythm">' + esc(t.rhythm) + '</p>' : '') +
           '<div class="tz__text">' + t.text.map(function (l) { return '<p>' + esc(l) + '</p>'; }).join('') + '</div>' +
+          (t.refs.length || (PLAN.teasing && PLAN.teasing.inspiButton) ? '<div class="tz__refs"><span class="label">Inspirations</span><p>' +
+            t.refs.map(function (r) {
+              var handle = /^@/.test(r);
+              var url = handle ? 'https://www.instagram.com/' + r.slice(1) + '/' : r;
+              var label = handle ? r : /instagram\.com\/(reel|p)\//.test(r) ? 'Reel Instagram' : r.replace(/^https?:\/\/(www\.)?/, '').slice(0, 40);
+              return '<a class="label tz__ref" href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(label) + ' ↗</a>';
+            }).join('') +
+            (PLAN.teasing && PLAN.teasing.inspiButton ? '<button type="button" class="label tz__ref" data-inspi-open>' + SICONS.spark + 'Le coin inspi</button>' : '') +
+            '</p></div>' : '') +
           (t.details.length ? '<div class="tz__details"><span class="label">À trancher</span><ul>' + t.details.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul></div>' : '') +
           '</div>' +
           (t.notes.length ? '<div class="tz__notes"><p class="label tz__notes-title">Arguments · ' + t.notes.length + '</p><ol>' + t.notes.map(function (n) {
@@ -1940,6 +1950,7 @@
           '<label class="editor__field"><span class="label">Titre</span><input type="text" name="title" maxlength="140" value="' + esc(t.title) + '"></label>' +
           '<label class="editor__field"><span class="label">L’idée <small>une ligne par paragraphe</small></span><textarea name="caption" rows="8" maxlength="2200">' + esc(t.text.join('\n')) + '</textarea></label>' +
           '<label class="editor__field"><span class="label">À trancher <small>une question par ligne</small></span><textarea name="details" rows="3" maxlength="900">' + esc(t.details.join('\n')) + '</textarea></label>' +
+          '<label class="editor__field"><span class="label">Inspirations <small>un lien de reel ou un @compte par ligne</small></span><textarea name="refs" rows="2" maxlength="1200" placeholder="@bistro_tino">' + esc(t.refs.join('\n')) + '</textarea></label>' +
           '<div class="admin-form__row"><label class="editor__field"><span class="label">Tournage</span><input type="date" name="start" value="' + esc(t.shoot) + '"></label>' +
           '<label class="editor__field"><span class="label">Publication</span><input type="date" name="date" value="' + esc(t.publish) + '"></label></div>' +
           '<label class="editor__field"><span class="label">Rythme <small>facultatif</small></span><input type="text" name="rhythm" maxlength="140" value="' + esc(t.rhythm) + '" placeholder="Ex. puis un détail tous les deux jours"></label>' +
@@ -1979,7 +1990,7 @@
         } else if (e.target.closest('[data-tz-cancel]')) {
           tzClose(card);
         } else if (admin && e.target.closest('[data-tz-reset]')) {
-          send({ action: 'edit', kind: 'edits', id: 'teasing-' + card.getAttribute('data-tz'), item: { title: null, caption: null, details: null, by: null, at: null, start: null, date: null, rhythm: null } })
+          send({ action: 'edit', kind: 'edits', id: 'teasing-' + card.getAttribute('data-tz'), item: { title: null, caption: null, details: null, by: null, at: null, start: null, date: null, rhythm: null, refs: null } })
             .then(function (ok) { if (ok) toast('Première version rétablie.'); });
         } else if (admin && (t = e.target.closest('[data-tz-unnote]'))) {
           var nid = t.getAttribute('data-tz-unnote');
@@ -2002,6 +2013,7 @@
           item.title = f.elements.title.value.trim();
           item.caption = f.elements.caption.value.trim();
           item.details = f.elements.details.value.trim();
+          item.refs = f.elements.refs.value.trim();
           item.start = f.elements.start.value || null;
           item.date = f.elements.date.value || null;
           item.rhythm = f.elements.rhythm.value.trim();

@@ -13,7 +13,7 @@
  *        { action: "refresh", kind: "inspirations" }  → récupère le contenu Instagram manquant
  *        { action: "edit",   kind: "edits", id, item: { title, caption, media, poster, video, format, date, time, budget, spent, status, start, end,
  *                                                  objective, audience, cta, added: "post"|"ad"|"story"|"teasing", deleted: true,
- *                                                  details, by, rhythm, note: { who, text }, unnote: id } }
+ *                                                  details, refs, by, rhythm, note: { who, text }, unnote: id } }
  *                            (idées teasing : id "teasing-<id de plan.js>", start = tournage, date = publication,
  *                             note ajoute un argument, unnote le retire)
  *                            (format : "reel" pour passer un post photo en vidéo, "photo" pour l'inverse)
@@ -305,6 +305,11 @@ if ($kind === 'edits') {
       // Publication ou campagne ajoutée depuis l'espace équipe, ou retirée du planning
       elseif ($k === 'added' && in_array($v, ['post', 'ad', 'story', 'teasing'], true)) $e[$k] = $v;
       // Idées teasing : détails à trancher (un par ligne), auteur de la dernière version, arguments de l'équipe
+      elseif ($k === 'refs') {
+        // Liens d'inspiration : un par ligne (adresse https ou @compte Instagram)
+        $lines = array_slice(array_values(array_filter(array_map(function ($l) { $l = clean($l, 300); return preg_match('~^(https?://\S+|@[A-Za-z0-9._]{1,30})$~', $l) ? $l : ''; }, preg_split('/\r\n|\r|\n/', (string) $v)), 'strlen')), 0, 8);
+        if ($lines) $e[$k] = implode("\n", $lines); else unset($e[$k]);
+      }
       elseif ($k === 'details') {
         $lines = array_slice(array_values(array_filter(array_map(function ($l) { return clean($l, 80); }, preg_split('/\r\n|\r|\n/', (string) $v)), 'strlen')), 0, 12);
         if ($lines) $e[$k] = implode("\n", $lines); else unset($e[$k]);

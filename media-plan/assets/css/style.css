@@ -2529,3 +2529,18 @@ body.has-dock .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); }
 .tz__tempo svg { width: 13px; height: 13px; }
 .tz__rhythm { margin: -6px 0 14px; font-style: italic; color: var(--ink-soft); font-size: 16px; }
 .tempo__head { margin: 0 0 6px; padding-bottom: 10px; border-bottom: 1px solid var(--ink-faint); font-size: 9px; color: var(--ink-soft); text-align: center; }
+.tz__refs { display: grid; gap: 8px; margin-top: 16px; }
+.tz__refs > .label { font-size: 9px; color: var(--ink-soft); }
+.tz__refs p { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
+.tz__ref {
+  display: inline-flex; align-items: center; gap: 6px;
+  max-width: 100%;
+  padding: 7px 12px 6px;
+  border-radius: 99px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 9px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.tz__ref svg { width: 13px; height: 13px; flex: none; }
