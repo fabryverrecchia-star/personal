@@ -104,7 +104,7 @@ window.PLAN = {
         text: [
           'Un mélange des inspis citées : les sujets et le format captivant de @bistro_tino, une voix off au concept romantique, et l’expérience racontée en plans fixes.',
           'Des plans fixes posés comme des instants : une table pour deux, une main qui sert le vin, un regard, un rire, les citrons sur le bar, la lumière du soir sur la salle.',
-          'La voix off raconte le moment, douce et intime, sur un son ASMR : verres, couverts, conversations feutrées. Mood WPI, sans être agressif.',
+          'La voix off raconte le moment, douce et intime, sur un son ASMR : verres, couverts, conversations feutrées. Le mood de l’inspi « WPI », sans être agressif.',
           'Fin : « La Petite Maison. Paris. 19 novembre. »',
         ],
         details: ['Voix off : homme ou femme ? En français ?', 'Texte de la voix off à écrire'],
