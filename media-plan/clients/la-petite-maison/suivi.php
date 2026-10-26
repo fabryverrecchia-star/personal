@@ -12,7 +12,9 @@
  *        { action: "delete", kind: "missions"|"passages"|"inspirations", id }
  *        { action: "refresh", kind: "inspirations" }  → récupère le contenu Instagram manquant
  *        { action: "edit",   kind: "edits", id, item: { title, caption, media, poster, video, format, date, time, budget, spent, status, start, end,
- *                                                  objective, audience, cta, added: "post"|"ad"|"story", deleted: true } }
+ *                                                  objective, audience, cta, added: "post"|"ad"|"story"|"teasing", deleted: true,
+ *                                                  details, by, note: { who, text }, unnote: id } }
+ *                            (idées teasing : id "teasing-<id de plan.js>", note ajoute un argument, unnote le retire)
  *                            (format : "reel" pour passer un post photo en vidéo, "photo" pour l'inverse)
  *                            (une valeur null rétablit celle du planning)
  *        { action: "reset",  kind: "edits", id }      → revient au post ou à la campagne d'origine
@@ -280,6 +282,10 @@ if ($kind === 'edits') {
     }
   } elseif ($action === 'edit') {
     $it = isset($in['item']) && is_array($in['item']) ? $in['item'] : [];
+    // Idée teasing réécrite : date de la dernière version
+    if ((isset($e['added']) && $e['added'] === 'teasing') || (isset($it['added']) && $it['added'] === 'teasing')) {
+      if (isset($it['title']) || isset($it['caption']) || isset($it['details'])) $e['at'] = date('Y-m-d');
+    }
     foreach ($it as $k => $v) {
       if ($v === null) { unset($e[$k]); continue; }
       if ($k === 'title') $e[$k] = clean($v, 140);
@@ -296,7 +302,26 @@ if ($kind === 'edits') {
       elseif ($k === 'status' && in_array($v, $AD_STATUS, true)) $e[$k] = $v;
       elseif ($k === 'format' && in_array($v, ['reel', 'photo'], true)) $e[$k] = $v;
       // Publication ou campagne ajoutée depuis l'espace équipe, ou retirée du planning
-      elseif ($k === 'added' && in_array($v, ['post', 'ad', 'story'], true)) $e[$k] = $v;
+      elseif ($k === 'added' && in_array($v, ['post', 'ad', 'story', 'teasing'], true)) $e[$k] = $v;
+      // Idées teasing : détails à trancher (un par ligne), auteur de la dernière version, arguments de l'équipe
+      elseif ($k === 'details') {
+        $lines = array_slice(array_values(array_filter(array_map(function ($l) { return clean($l, 80); }, preg_split('/\r\n|\r|\n/', (string) $v)), 'strlen')), 0, 12);
+        if ($lines) $e[$k] = implode("\n", $lines); else unset($e[$k]);
+      }
+      elseif ($k === 'by') { $t = clean($v, 30); if ($t !== '') $e[$k] = $t; }
+      elseif ($k === 'note' && is_array($v)) {
+        $lines = array_filter(array_map(function ($l) { return clean($l, 1200); }, preg_split('/\r\n|\r|\n/', (string) (isset($v['text']) ? $v['text'] : ''))), 'strlen');
+        $t = implode("\n", $lines);
+        if ($t !== '') {
+          $notes = isset($e['notes']) && is_array($e['notes']) ? $e['notes'] : [];
+          $notes[] = ['id' => 'n' . bin2hex(random_bytes(4)), 'who' => clean(isset($v['who']) ? $v['who'] : '', 30), 'text' => function_exists('mb_substr') ? mb_substr($t, 0, 1200, 'UTF-8') : substr($t, 0, 2400), 'at' => date('Y-m-d')];
+          $e['notes'] = array_slice($notes, -60);
+        }
+      }
+      elseif ($k === 'unnote') {
+        if (isset($e['notes']) && is_array($e['notes'])) $e['notes'] = array_values(array_filter($e['notes'], function ($n) use ($v) { return !isset($n['id']) || $n['id'] !== (string) $v; }));
+        if (empty($e['notes'])) unset($e['notes']);
+      }
       elseif ($k === 'deleted' && $v === true) $e[$k] = true;
       elseif ($k === 'date' && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $v)) $e[$k] = $v;
       elseif ($k === 'time') { $t = clean($v, 12); if ($t !== '') $e[$k] = $t; else unset($e[$k]); }

@@ -3,7 +3,8 @@
  * Situation au 9 octobre : 7 posts en ligne sur @lapetitemaison_paris (feedExisting). Aucun post prévu dans le fichier :
  * l'équipe les ajoute depuis la page (Espace équipe → Publications).
  * Chaque post a un id : photo, vidéo, couverture, légende et date se modifient depuis l'espace équipe.
- * Passages, missions, inspirations et modifications : data/suivi.json, via suivi.php.
+ * Inspirations, idées teasing réécrites et argumentées, modifications : data/suivi.json, via suivi.php.
+ * 26 octobre : passages, calendrier et missions retirés ; compte à rebours du grand opening (19 novembre) et idées teasing.
  */
 window.PLAN = {
   client: {
@@ -16,6 +17,8 @@ window.PLAN = {
   },
 
   title: 'Media planning',
+  // L'ouverture 18H22 ne se joue qu'à la première visite de la journée
+  introDaily: true,
   period: 'Octobre 2026',
   intro:
     '7 rue du Boccador, Paris 8. Ici, le feed tel qu’il est aujourd’hui, les <em>prochaines publications</em>, et vos retours avant chaque mise en ligne.',
@@ -47,6 +50,55 @@ window.PLAN = {
     },
   ],
 
+  // Grand opening : compte à rebours (heure de Paris)
+  countdown: {
+    date: '2026-11-19',
+    kicker: 'Grand opening',
+    title: 'Jeudi 19 <em>novembre</em>',
+    lead: '7 rue du Boccador, Paris 8',
+    done: 'La Petite Maison est ouverte.',
+  },
+
+  // Idées teasing avant l'ouverture : l'équipe (Jade, Fabrizio) peut réécrire chaque idée ou l'argumenter
+  teasing: {
+    kicker: 'Avant le 19 novembre',
+    title: 'Idées <em>teasing</em>',
+    lead: 'Trois pistes pour faire monter l’attente. Chaque idée se modifie ou s’argumente depuis l’espace équipe.',
+    ideas: [
+      {
+        id: 't1',
+        by: 'Fabrizio',
+        title: 'Le serveur descend les Champs',
+        text: [
+          'Un serveur de La Petite Maison, sans jamais montrer son visage : on ne voit que sa tenue et des petits détails.',
+          'Il prend son plateau et se met en marche. Il descend les Champs-Élysées, on découvre l’avenue avec lui, les passants, les vitrines, la lumière de Paris.',
+          'Il continue jusqu’au Triangle d’or, s’arrête devant la devanture de La Petite Maison, pousse la porte et entre. Fin sur « 19 novembre ».',
+        ],
+        details: ['Nœud papillon ?', 'Chemise ?', 'Tablier ?'],
+      },
+      {
+        id: 't2',
+        title: 'Le citron de Nice à Paris',
+        text: [
+          'Un citron de la Riviera quitte Nice : cueilli, posé dans une cagette, il voyage de main en main jusqu’à Paris.',
+          'Il arrive rue du Boccador et se pose sur une table dressée, nappe blanche, verre de rosé. Un couteau le tranche net.',
+          'Texte final : « La Petite Maison arrive à Paris. 19 novembre. »',
+        ],
+        details: ['Un seul reel ou une série en trois épisodes ?', 'Musique de la playlist LPM ?'],
+      },
+      {
+        id: 't3',
+        title: 'Derrière la porte',
+        text: [
+          'Chaque jour jusqu’à l’ouverture, un détail de ce qui se prépare derrière la porte, jamais la salle en entier : la poignée, une nappe qu’on déplie, les citrons sur le bar, une assiette de tomates, une main qui dresse la table.',
+          'Le son passe à travers la porte : des rires, des verres, de la musique.',
+          'Le 19 novembre, la porte s’ouvre enfin sur la salle pleine.',
+        ],
+        details: ['Un post par jour ou trois par semaine ?', 'Sticker compte à rebours en story ?'],
+      },
+    ],
+  },
+
   // Feed actuel de @lapetitemaison_paris au 9 octobre (7 posts, le premier épinglé), affiché après le planning
   feedExisting: ['media/live-1.jpg', 'media/live-2.jpg', 'media/live-3.jpg', 'media/live-4.jpg', 'media/live-5.jpg', 'media/live-6.jpg', 'media/live-7.jpg'],
 
@@ -66,11 +118,13 @@ window.PLAN = {
     ],
   },
 
-  // Passages (shootings, tournages, rendez-vous), missions en cours et modifications des posts : partagés entre
-  // tous les visiteurs via suivi.php. Sans PHP (aperçu), data/suivi.json est lu tel quel.
+  // Modifications des posts, stories, inspirations et idées teasing : partagées entre tous les visiteurs via suivi.php.
+  // Sans PHP (aperçu), data/suivi.json est lu tel quel. Passages, calendrier et missions retirés le 26 octobre.
   suivi: {
     api: 'suivi.php',
     data: 'data/suivi.json',
+    calendar: false,
+    missions: false,
     team: ['Fabrizio', 'Jade'],
     // Fabrizio en couleur 18H22, Jade en couleur La Petite Maison
     colors: { Fabrizio: '#22365f', Jade: '#9c4e42' },

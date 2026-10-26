@@ -417,6 +417,38 @@
     );
   }
 
+  // Compte à rebours jusqu'à une date clé (ex. le grand opening) : PLAN.countdown = { date, kicker, title, lead }
+  function countdownHtml() {
+    var cd = PLAN.countdown;
+    if (!cd || !cd.date) return '';
+    var units = [['d', 'Jours'], ['h', 'Heures'], ['m', 'Minutes'], ['s', 'Secondes']];
+    return '<section class="countdown" id="opening">' +
+      '<p class="label countdown__kicker" data-reveal>' + esc(cd.kicker || 'Compte à rebours') + '</p>' +
+      '<h2 class="countdown__title" data-reveal>' + (cd.title || '') + '</h2>' +
+      '<div class="countdown__clock" data-countdown="' + esc(cd.date) + '" data-reveal>' +
+      units.map(function (u) {
+        return '<div class="cd"><span class="cd__num"><span data-cd="' + u[0] + '">00</span></span><span class="label cd__unit">' + u[1] + '</span></div>';
+      }).join('') +
+      '</div>' +
+      '<p class="countdown__done" data-countdown-done hidden>' + esc(cd.done || 'C’est le grand jour.') + '</p>' +
+      (cd.lead ? '<p class="countdown__lead" data-reveal>' + esc(cd.lead) + '</p>' : '') +
+      (PLAN.teasing ? '<a class="label countdown__link" href="#teasing" data-reveal>Les idées teasing</a>' : '') +
+      '</section>';
+  }
+  // Idées teasing : écrites dans plan.js, réécrites et argumentées par l'équipe (suivi.php, edits « teasing-<id> »)
+  function teasingHtml() {
+    var tz = PLAN.teasing;
+    if (!tz) return '';
+    return '<section class="teasing" id="teasing">' +
+      '<header class="suivi__head">' +
+      '<p class="label suivi__kicker" data-reveal>' + esc(tz.kicker || 'Avant l’ouverture') + '</p>' +
+      '<h2 class="suivi__title" data-reveal>' + (tz.title || 'Idées <em>teasing</em>') + '</h2>' +
+      (tz.lead ? '<p class="suivi__lead" data-reveal>' + esc(tz.lead) + '</p>' : '') +
+      '</header>' +
+      '<div class="tz-list" data-teasing></div>' +
+      '</section>';
+  }
+
   function render() {
     var app = document.getElementById('app');
     var c = PLAN.client || {};
@@ -478,14 +510,19 @@
         '</section>';
     }
 
+    html += countdownHtml() + teasingHtml();
+
     html +=
       '<nav class="weeknav" aria-label="' + (monthly ? 'Mois' : 'Semaines') + '">' +
+      (PLAN.countdown ? '<a class="label" href="#opening">Opening</a>' : '') +
       '<a class="label" href="#feed">Feed</a>' +
       weeks.map(function (w, k) { return '<a class="label" href="#s' + (k + 1) + '">' + (monthly ? MOIS_LONGS[firstDate(w).getMonth()] : 'S' + pad(k + 1)) + '</a>'; }).join('') +
       (PLAN.suivi ? '<a class="label" href="#stories">Stories</a>' : '') +
       (PLAN.feedback ? '<a class="label" href="#retours">Retours</a>' : '') +
       (PLAN.ads ? '<a class="label" href="#ads">Sponsorisé</a>' : '') +
-      (PLAN.suivi ? '<a class="label" href="#passages">' + (PLAN.suivi.passages === false ? 'Calendrier' : 'Passages') + '</a><a class="label" href="#missions">Missions</a>' : '') +
+      (PLAN.suivi && PLAN.suivi.calendar !== false ? '<a class="label" href="#passages">' + (PLAN.suivi.passages === false ? 'Calendrier' : 'Passages') + '</a>' : '') +
+      (PLAN.suivi && PLAN.suivi.missions !== false ? '<a class="label" href="#missions">Missions</a>' : '') +
+      (PLAN.teasing ? '<a class="label" href="#teasing">Teasing</a>' : '') +
       '</nav>';
 
     // Le feed passe en premier (vue d'ensemble), le détail des posts suit
@@ -951,6 +988,9 @@
     }).join('');
     // Sans passages prévus (suivi.passages: false) : le calendrier ne montre que les publications et le sponsorisé
     var pubs = PLAN.suivi.passages === false;
+    // suivi.calendar: false retire passages et calendrier, suivi.missions: false retire les missions
+    var noCal = PLAN.suivi.calendar === false;
+    var noTasks = PLAN.suivi.missions === false;
     var calHtml =
       '<div class="cal" data-reveal>' +
       '<div class="cal__top">' +
@@ -965,7 +1005,7 @@
         : '<span><i class="cal__key cal__key--visit"></i>Passage</span><span><i class="cal__key cal__key--post"></i>Publication</span>') +
       '<span><i class="cal__key cal__key--today"></i>Aujourd’hui</span></div>' +
       '</div>';
-    var passagesHtml = pubs
+    var passagesHtml = noCal ? '' : pubs
       ? '<section class="suivi suivi--pubs" id="passages">' +
         '<header class="suivi__head">' +
         '<p class="label suivi__kicker" data-reveal>Publications et sponsorisé</p>' +
@@ -977,7 +1017,7 @@
       : '';
     return (
       passagesHtml +
-      (pubs ? '' : '<section class="suivi" id="passages">' +
+      (pubs || noCal ? '' : '<section class="suivi" id="passages">' +
       '<header class="suivi__head">' +
       '<p class="label suivi__kicker" data-reveal>Sur place</p>' +
       '<h2 class="suivi__title" data-reveal>Jours de passage</h2>' +
@@ -1006,7 +1046,7 @@
       '<ol class="visits" data-visits></ol>' +
       '</section>') +
 
-      '<section class="suivi" id="missions">' +
+      (noTasks ? '' : '<section class="suivi" id="missions">' +
       '<header class="suivi__head">' +
       '<p class="label suivi__kicker" data-reveal>En coulisses</p>' +
       '<h2 class="suivi__title" data-reveal>Missions en cours</h2>' +
@@ -1025,15 +1065,16 @@
       '</div></div>' +
       '<ul class="tasks" data-tasks></ul>' +
       '<p class="label suivi__mode" data-suivi-mode></p>' +
-      '</section>' +
+      '</section>') +
       // Espace équipe : bouton flottant en bas à droite, on choisit le formulaire à ouvrir
       '<div class="team-fab" data-fab>' +
       '<div class="team-fab__menu" role="menu" aria-label="Espace équipe">' +
-      (pubs ? '' : '<button type="button" class="team-fab__item" role="menuitem" data-goto="passages">' + SICONS.planning + '<span><b>Rendez-vous</b><small class="label">Calendrier des passages</small></span></button>') +
+      (pubs || noCal ? '' : '<button type="button" class="team-fab__item" role="menuitem" data-goto="passages">' + SICONS.planning + '<span><b>Rendez-vous</b><small class="label">Calendrier des passages</small></span></button>') +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="contenus">' + SICONS.image + '<span><b>Publications</b><small class="label">Date, visuel, texte · ajouter, supprimer</small></span></button>' +
       (PLAN.ads ? '<button type="button" class="team-fab__item" role="menuitem" data-goto="ads">' + SICONS.ads + '<span><b>Sponsorisé</b><small class="label">Dépensé, budget, campagnes</small></span></button>' : '') +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="stories">' + SICONS.story + '<span><b>Stories</b><small class="label">Proposer, programmer, prévisualiser</small></span></button>' +
-      '<button type="button" class="team-fab__item" role="menuitem" data-goto="missions">' + SICONS.redaction + '<span><b>Tâches</b><small class="label">Missions en cours</small></span></button>' +
+      (noTasks ? '' : '<button type="button" class="team-fab__item" role="menuitem" data-goto="missions">' + SICONS.redaction + '<span><b>Tâches</b><small class="label">Missions en cours</small></span></button>') +
+      (PLAN.teasing ? '<button type="button" class="team-fab__item" role="menuitem" data-goto="teasing">' + SICONS.spark + '<span><b>Idées teasing</b><small class="label">Modifier, argumenter</small></span></button>' : '') +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="inspi">' + SICONS.spark + '<span><b>Inspiration</b><small class="label">Reels et carrousels du mois</small></span></button>' +
       '<button type="button" class="team-fab__item team-fab__quit" role="menuitem" data-fab-quit>' + SICONS.close + '<span><b>Fermer l’espace équipe</b></span></button>' +
       '</div>' +
@@ -1198,7 +1239,14 @@
         if (op.action === 'reset') delete d.edits[op.id];
         else {
           var cur = d.edits[op.id] || {};
-          Object.keys(op.item).forEach(function (k) { if (op.item[k] == null) delete cur[k]; else cur[k] = op.item[k]; });
+          Object.keys(op.item).forEach(function (k) {
+            var v = op.item[k];
+            // Idées teasing : un argument s'ajoute (note) ou se retire (unnote), comme sur le serveur
+            if (k === 'note') { cur.notes = (cur.notes || []).concat([{ id: 'n' + Date.now().toString(36), who: v.who, text: v.text, at: iso(new Date()) }]); return; }
+            if (k === 'unnote') { cur.notes = (cur.notes || []).filter(function (n) { return n.id !== v; }); if (!cur.notes.length) delete cur.notes; return; }
+            if (v == null) delete cur[k]; else cur[k] = v;
+          });
+          if (cur.added === 'teasing' && ('title' in op.item || 'caption' in op.item || 'details' in op.item)) cur.at = iso(new Date());
           if (Object.keys(cur).length) d.edits[op.id] = cur; else delete d.edits[op.id];
         }
         try { localStorage.setItem(LOCAL, JSON.stringify(d)); } catch (e) { toast('Mémoire de l’appareil pleine : la photo ne sera pas gardée après fermeture.'); }
@@ -1397,6 +1445,7 @@
     }
 
     function paintCalendar() {
+      if (!grid) return;
       if (PUBS) return paintPubCalendar();
       var t = today();
       if (!month) {
@@ -1431,6 +1480,7 @@
     }
 
     function paintVisits() {
+      if (!document.querySelector('[data-next]')) return;
       if (PUBS) return paintPubList();
       var t = today();
       var items = state.passages.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
@@ -1457,6 +1507,7 @@
     }
 
     function paintTasks() {
+      if (!tasksEl) return;
       var order = { doing: 0, todo: 1, done: 2 };
       var items = state.missions.slice().sort(function (a, b) { return (order[a.status] - order[b.status]) || (a.at < b.at ? 1 : -1); });
       var count = { doing: 0, todo: 0, done: 0 };
@@ -1490,17 +1541,19 @@
       paintTasks();
       paintInspi();
       paintStories();
-      document.querySelector('[data-suivi-mode]').textContent = admin && mode === 'local'
+      paintTeasing();
+      var modeEl = document.querySelector('[data-suivi-mode]');
+      if (modeEl) modeEl.textContent = admin && mode === 'local'
         ? 'Aperçu : les modifications restent sur cet appareil'
         : '';
       // Apparition en cascade au premier affichage
       if (!shown && gsap && window.ScrollTrigger && !reduce) {
         shown = true;
-        window.ScrollTrigger.batch('.visit, .task', {
+        window.ScrollTrigger.batch('.visit, .task, .tz', {
           start: 'top 94%', once: true,
           onEnter: function (els) { gsap.fromTo(els, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.06, ease: 'power3.out' }); },
         });
-        gsap.set('.visit, .task', { autoAlpha: 0 });
+        gsap.set('.visit, .task, .tz', { autoAlpha: 0 });
         window.ScrollTrigger.refresh();
       }
     }
@@ -1769,6 +1822,152 @@
         '<button type="button" class="story-card story-card--add" data-story-add><span class="story-card__frame"><span class="story-card__plus">+</span><span class="label">Ajouter une story</span></span><span class="label story-card__when">Espace équipe</span></button>' +
         (items.length ? '' : '<p class="stories__empty">Les stories du mois arrivent bientôt.</p>');
       fbRefresh(storiesEl);
+    }
+
+    /* Idées teasing : plan.js donne la première version, l'équipe la réécrit et l'argumente */
+    var tzEl = document.querySelector('[data-teasing]');
+    var tzSig = '';
+    function lines(v) { return (Array.isArray(v) ? v : String(v || '').split('\n')).filter(function (l) { return String(l).trim(); }); }
+    function tzList() {
+      var E = state.edits || {};
+      return list(PLAN.teasing && PLAN.teasing.ideas).map(function (it, k) {
+        var e = E['teasing-' + it.id] || {};
+        return {
+          id: it.id, key: 'teasing-' + it.id, n: k + 1,
+          title: e.title || it.title || '',
+          text: e.caption != null ? lines(e.caption) : lines(it.text),
+          details: e.details != null ? lines(e.details) : lines(it.details),
+          by: e.at ? e.by || '' : it.by || '', at: e.at || '', edited: !!e.at,
+          notes: list(e.notes),
+        };
+      });
+    }
+    function tzAvatar(name) {
+      var c = (cfg.colors || {})[name];
+      return '<i class="avatar avatar--' + esc(String(name).toLowerCase()) + '"' + (c ? ' style="background:' + esc(c) + '"' : '') + '>' + esc(String(name || '?').charAt(0)) + '</i>';
+    }
+    function tzWho() {
+      return '<div class="admin-form__who"><span class="label">Je suis</span>' + list(cfg.team).map(function (n) {
+        return '<button type="button" class="label chip' + (n === who ? ' is-on' : '') + '" data-who="' + esc(n) + '" aria-pressed="' + (n === who ? 'true' : 'false') + '">' + esc(n) + '</button>';
+      }).join('') + '</div>';
+    }
+    function paintTeasing(force) {
+      if (!tzEl) return;
+      var items = tzList();
+      var sig = JSON.stringify(items) + admin;
+      if (!force && sig === tzSig) return;
+      tzSig = sig;
+      tzEl.innerHTML = items.map(function (t) {
+        return '<article class="tz" id="' + esc(t.key) + '" data-tz="' + esc(t.id) + '">' +
+          '<span class="tz__num" aria-hidden="true">' + pad(t.n) + '</span>' +
+          '<p class="label tz__kicker">Idée ' + pad(t.n) + (t.by ? ' · ' + (t.edited ? 'réécrite par ' : 'proposée par ') + esc(t.by) : '') + (t.at ? ' · ' + shortDate(t.at) : '') + '</p>' +
+          '<div data-tz-body>' +
+          '<h3 class="tz__title">' + esc(t.title) + '</h3>' +
+          '<div class="tz__text">' + t.text.map(function (l) { return '<p>' + esc(l) + '</p>'; }).join('') + '</div>' +
+          (t.details.length ? '<div class="tz__details"><span class="label">À trancher</span><ul>' + t.details.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul></div>' : '') +
+          '</div>' +
+          (t.notes.length ? '<div class="tz__notes"><p class="label tz__notes-title">Arguments · ' + t.notes.length + '</p><ol>' + t.notes.map(function (n) {
+            return '<li class="tz-note">' + tzAvatar(n.who) +
+              '<div class="tz-note__body"><span class="label tz-note__who">' + esc(n.who || '') + (n.at ? ' · ' + shortDate(n.at) : '') + '</span>' +
+              lines(n.text).map(function (l) { return '<p>' + esc(l) + '</p>'; }).join('') + '</div>' +
+              '<button type="button" class="del tz-note__del" data-tz-unnote="' + esc(n.id) + '" aria-label="Retirer cet argument">' + SICONS.close + '</button></li>';
+          }).join('') + '</ol></div>' : '') +
+          '<div class="tz__actions" data-tz-actions>' +
+          '<button type="button" class="label tz__btn" data-tz-edit>' + SICONS.edit + 'Modifier l’idée</button>' +
+          '<button type="button" class="label tz__btn" data-tz-argue>' + SICONS.redaction + 'Argumenter</button>' +
+          '</div>' +
+          '<div data-tz-slot></div>' +
+          '</article>';
+      }).join('');
+    }
+    function tzOpen(card, kind) {
+      var t = tzList().filter(function (x) { return x.id === card.getAttribute('data-tz'); })[0];
+      if (!t) return;
+      tzEl.querySelectorAll('.tz.is-editing, .tz.is-arguing').forEach(function (c) { if (c !== card) tzClose(c); });
+      tzClose(card);
+      var slot = card.querySelector('[data-tz-slot]');
+      if (kind === 'edit') {
+        card.classList.add('is-editing');
+        slot.innerHTML = '<form class="admin-form tz__form" data-tz-form="edit" autocomplete="off">' +
+          '<p class="label admin-form__title">Modifier l’idée ' + pad(t.n) + '</p>' +
+          '<label class="editor__field"><span class="label">Titre</span><input type="text" name="title" maxlength="140" value="' + esc(t.title) + '"></label>' +
+          '<label class="editor__field"><span class="label">L’idée <small>une ligne par paragraphe</small></span><textarea name="caption" rows="8" maxlength="2200">' + esc(t.text.join('\n')) + '</textarea></label>' +
+          '<label class="editor__field"><span class="label">À trancher <small>une question par ligne</small></span><textarea name="details" rows="3" maxlength="900">' + esc(t.details.join('\n')) + '</textarea></label>' +
+          tzWho() +
+          '<div class="admin-form__actions"><button type="submit" class="label admin-form__go">Enregistrer</button>' +
+          '<button type="button" class="label tz__cancel" data-tz-cancel>Annuler</button></div>' +
+          (t.edited ? '<button type="button" class="label tz__reset" data-tz-reset>Revenir à la première version</button>' : '') +
+          '</form>';
+      } else {
+        card.classList.add('is-arguing');
+        slot.innerHTML = '<form class="admin-form tz__form" data-tz-form="argue" autocomplete="off">' +
+          '<p class="label admin-form__title">Argumenter l’idée ' + pad(t.n) + '</p>' +
+          '<textarea name="text" rows="4" maxlength="1200" placeholder="Pourquoi elle marche, ce qu’on changerait, une variante…" required></textarea>' +
+          tzWho() +
+          '<div class="admin-form__actions"><button type="submit" class="label admin-form__go">Publier</button>' +
+          '<button type="button" class="label tz__cancel" data-tz-cancel>Annuler</button></div>' +
+          '</form>';
+      }
+      var f = slot.querySelector('textarea');
+      setTimeout(function () {
+        slot.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (kind !== 'edit' && f) f.focus({ preventScroll: true });
+      }, 60);
+    }
+    function tzClose(card) {
+      card.classList.remove('is-editing', 'is-arguing');
+      var slot = card.querySelector('[data-tz-slot]');
+      if (slot) slot.innerHTML = '';
+    }
+    if (tzEl) {
+      tzEl.addEventListener('click', function (e) {
+        var t, card = e.target.closest('[data-tz]');
+        if (!card) return;
+        if ((t = e.target.closest('[data-tz-edit], [data-tz-argue]'))) {
+          var kind = t.hasAttribute('data-tz-edit') ? 'edit' : 'argue';
+          askCode(function () { var c = document.querySelector('[data-tz="' + card.getAttribute('data-tz') + '"]'); if (c) tzOpen(c, kind); });
+        } else if (e.target.closest('[data-tz-cancel]')) {
+          tzClose(card);
+        } else if (admin && e.target.closest('[data-tz-reset]')) {
+          send({ action: 'edit', kind: 'edits', id: 'teasing-' + card.getAttribute('data-tz'), item: { title: null, caption: null, details: null, by: null, at: null } })
+            .then(function (ok) { if (ok) toast('Première version rétablie.'); });
+        } else if (admin && (t = e.target.closest('[data-tz-unnote]'))) {
+          var nid = t.getAttribute('data-tz-unnote');
+          sheet({
+            kicker: 'Retirer l’argument', title: 'Retirer cet argument ?', ok: 'Retirer', danger: true,
+            submit: function () {
+              return send({ action: 'edit', kind: 'edits', id: 'teasing-' + card.getAttribute('data-tz'), item: { unnote: nid } }).then(function (ok) { return ok || 'Réessayez.'; });
+            },
+          });
+        }
+      });
+      tzEl.addEventListener('submit', function (e) {
+        var f = e.target.closest('[data-tz-form]');
+        if (!f) return;
+        e.preventDefault();
+        if (!admin) return;
+        var card = f.closest('[data-tz]');
+        var item = { added: 'teasing', by: who };
+        if (f.getAttribute('data-tz-form') === 'edit') {
+          item.title = f.elements.title.value.trim();
+          item.caption = f.elements.caption.value.trim();
+          item.details = f.elements.details.value.trim();
+          if (!item.title && !item.caption) { toast('L’idée est vide.'); return; }
+        } else {
+          var txt = f.elements.text.value.trim();
+          if (!txt) { f.elements.text.focus(); return; }
+          item = { added: 'teasing', note: { who: who, text: txt } };
+        }
+        var btn = f.querySelector('.admin-form__go');
+        btn.disabled = true;
+        var argue = !!item.note;
+        send({ action: 'edit', kind: 'edits', id: 'teasing-' + card.getAttribute('data-tz'), item: item }).then(function (ok) {
+          btn.disabled = false;
+          if (!ok) return;
+          paintTeasing(true);
+          toast(argue ? 'Argument publié.' : 'Idée enregistrée.');
+        });
+      });
     }
 
     // Visionneuse plein écran, comme sur Instagram : barres de progression, toucher à gauche / à droite, maintenir pour mettre en pause
@@ -2596,7 +2795,11 @@
         menu(false);
         askCode(function () {
           if (kind === 'inspi') inspi(true);
-          else if (kind === 'stories') {
+          else if (kind === 'teasing') {
+            var tzs = document.getElementById('teasing');
+            if (tzs) window.scrollTo({ top: tzs.getBoundingClientRect().top + window.pageYOffset - 70, behavior: 'smooth' });
+            toast('Touchez « Modifier l’idée » ou « Argumenter » sous une idée.');
+          } else if (kind === 'stories') {
             var sto = document.getElementById('stories');
             if (sto) window.scrollTo({ top: sto.getBoundingClientRect().top + window.pageYOffset - 70, behavior: 'smooth' });
             toast('Touchez « Ajouter une story », ou une story pour la modifier.');
@@ -3321,7 +3524,40 @@
     });
   }
 
+  /* ------------------------------------------------------ compte à rebours */
+  function initCountdown() {
+    var box = document.querySelector('[data-countdown]');
+    if (!box) return;
+    var raw = box.getAttribute('data-countdown');
+    // Heure de Paris si la date n'en précise pas (novembre : UTC+1)
+    var end = new Date(/[zZ]|[+-]\d\d:\d\d$/.test(raw) ? raw : (raw.length <= 10 ? raw + 'T00:00:00' : raw) + '+01:00');
+    var nums = {};
+    box.querySelectorAll('[data-cd]').forEach(function (n) { nums[n.getAttribute('data-cd')] = n; });
+    var last = {};
+    function tick() {
+      var ms = Math.max(0, end - Date.now());
+      var v = { d: Math.floor(ms / 864e5), h: Math.floor(ms / 36e5) % 24, m: Math.floor(ms / 6e4) % 60, s: Math.floor(ms / 1e3) % 60 };
+      Object.keys(v).forEach(function (k) {
+        var txt = k === 'd' && v.d > 99 ? String(v.d) : pad(v[k]);
+        if (last[k] === txt || !nums[k]) return;
+        nums[k].textContent = txt;
+        if (last[k] != null && gsap) gsap.fromTo(nums[k], { yPercent: -45, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.55, ease: 'power3.out' });
+        last[k] = txt;
+      });
+      if (!ms) {
+        box.classList.add('is-done');
+        var d = document.querySelector('[data-countdown-done]');
+        if (d) d.hidden = false;
+        return;
+      }
+      setTimeout(tick, 1000 - (Date.now() % 1000) + 20);
+    }
+    tick();
+  }
+
   /* ------------------------------------------------------------ preloader */
+  // PLAN.introDaily : l'ouverture 18H22 ne se joue qu'à la première visite de la journée (index.html pose « intro-seen »)
+  var INTRO_KEY = 'mp-intro:' + BASE;
   function preload() {
     var loader = document.getElementById('loader');
     var paths = loader.querySelectorAll('.loader__mark path');
@@ -3341,6 +3577,15 @@
     var heroBits = document.querySelectorAll('[data-hero]');
     var rule = document.querySelector('.hero__rule');
 
+    var seen = document.documentElement.classList.contains('intro-seen');
+    if (seen && gsap && !QUICK) {
+      // Déjà vue aujourd'hui : pas d'ouverture, le titre monte simplement
+      done();
+      gsap.fromTo(heroChars, { yPercent: 110 }, { yPercent: 0, duration: 1.1, ease: 'expo.out', stagger: 0.03, delay: 0.1 });
+      gsap.fromTo(heroBits, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08, ease: 'power3.out', delay: 0.2 });
+      if (rule) gsap.fromTo(rule, { scaleY: 0 }, { scaleY: 1, duration: 1.1, ease: 'expo.inOut', delay: 0.4 });
+      return;
+    }
     if (!gsap || reduce || QUICK) {
       done();
       var to = QUICK && QUICK.to && document.getElementById(QUICK.to);
@@ -3348,6 +3593,7 @@
       return;
     }
 
+    if (PLAN.introDaily) { try { localStorage.setItem(INTRO_KEY, iso(new Date())); } catch (e) {} }
     paths.forEach(function (p) {
       var len = p.getTotalLength();
       p.style.strokeDasharray = len + ' ' + len;
@@ -3415,6 +3661,7 @@
   initInlineVideos();
   initViewer();
   initDock();
+  initCountdown();
   initScroll();
   preload();
   }

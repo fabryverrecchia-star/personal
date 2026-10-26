@@ -6,7 +6,13 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur (en ligne : 
 - `index.html` ouvre La Petite Maison (`?c=la-petite-maison`).
 - Contenu : `clients/la-petite-maison/plan.js` (planning du mois dans `months`, feed actuel de @lapetitemaison_paris dans `feedExisting`, couleurs, polices).
   Chaque post a un `id` : les modifications faites depuis l'espace équipe y sont rattachées.
-- Jours de passage (calendrier + liste) et missions en cours, partagés entre tous les visiteurs.
+- Ouverture 18H22 une fois par jour (`introDaily: true`) : aux visites suivantes de la journée, la page s'ouvre directement
+  (`?intro` la rejoue).
+- Grand opening : compte à rebours jusqu'au 19 novembre (`countdown` dans `plan.js`, heure de Paris), juste après le logo.
+- Idées teasing (`teasing` dans `plan.js`) : trois idées, chacune avec ses points « À trancher ». En mode équipe, « Modifier l'idée »
+  (titre, texte, points à trancher, « Revenir à la première version ») et « Argumenter » (arguments signés Fabrizio ou Jade, datés).
+  Gardé dans `data/suivi.json` (rubrique `edits`, `teasing-<id>`).
+- Jours de passage, calendrier et missions : retirés le 26 octobre (`suivi.calendar: false`, `suivi.missions: false`).
 - Repères sur téléphone : « Mode d'emploi » en 3 étapes sous les chiffres clés, et une barre fixe en bas
   (Planning, Retours avec le nombre d'avis donnés, Inspiration, Branding, Équipe) qui remplace les boutons flottants.
 - Feed : toucher une vignette ouvre la publication sur place (visuel, légende, Validé / À revoir, Modifier en mode équipe).
@@ -23,7 +29,7 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur (en ligne : 
 ## Espace équipe (code riviera-9655)
 
 Bouton flottant « Espace équipe » en bas à droite, puis le code (une fois par appareil, majuscules ou minuscules indifférentes).
-Menu : Rendez-vous (calendrier des passages), Publications, Stories, Tâches, Inspiration.
+Menu : Publications, Stories, Idées teasing, Inspiration.
 - Formulaire « Modifier » en parties numérotées : date, visuel, texte.
 - Équipe : Fabrizio (couleurs 18H22), Jade (couleurs La Petite Maison).
 - Planning : en mode équipe, « Ajouter une publication » (fin du mois) crée le post et ouvre son formulaire. Changer une date, ajouter ou supprimer recharge la page (sans l'ouverture 18H22)
