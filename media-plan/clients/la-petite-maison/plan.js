@@ -101,7 +101,7 @@ window.PLAN = {
         rhythm: 'Le dernier teasing, à J-3 de l’ouverture.',
         title: 'Le moment La Petite Maison',
         text: [
-          'Un mélange des inspis citées : les sujets et le format captivant de @bistro_tino, un concept romantique, et l’expérience racontée en plans fixes.',
+          'Un mélange des inspis du coin inspi : les sujets et le format captivant, un concept romantique, et l’expérience racontée en plans fixes.',
           'Des plans fixes posés comme des instants : une table pour deux, une main qui sert le vin, un regard, un rire, les citrons sur le bar, la lumière du soir sur la salle.',
           'Pas de musique forte, un son ASMR : verres, couverts, conversations feutrées. Le mood de l’inspi « WPI », sans être agressif.',
           'Fin : « La Petite Maison. Paris. 19 novembre. »',
