@@ -1274,8 +1274,11 @@ a { color: inherit; }
   display: grid;
   justify-items: end;
   gap: 10px;
+  /* Le conteneur (menu replié compris) ne doit pas capter les touchers de la page en dessous */
+  pointer-events: none;
 }
 .team-fab__btn {
+  pointer-events: auto;
   display: inline-flex;
   align-items: center;
   gap: 8px;
