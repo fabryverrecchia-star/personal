@@ -12,6 +12,7 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur (en ligne : 
 - Idées teasing (`teasing` dans `plan.js`) : trois idées, chacune avec ses points « À trancher ». En mode équipe, « Modifier l'idée »
   (titre, texte, points à trancher, « Revenir à la première version ») et « Argumenter » (arguments signés Fabrizio ou Jade, datés).
   Gardé dans `data/suivi.json` (rubrique `edits`, `teasing-<id>`).
+  Inspirations : seulement le bouton « Voir dans le coin inspi » (aucun lien vers un compte extérieur).
   Tempo : chaque idée a un jour de tournage (`shoot`), de publication (`publish`) et un rythme facultatif (`rhythm`),
   repris dans « Le tempo » (frise jusqu'au grand opening, J-n) et modifiables dans « Modifier l'idée ».
 - Jours de passage, calendrier et missions : retirés le 26 octobre (`suivi.calendar: false`, `suivi.missions: false`).
