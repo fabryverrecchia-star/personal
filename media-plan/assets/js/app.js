@@ -469,7 +469,7 @@
     var name = esc(c.name || '');
     var words = name.split(' ');
     html +=
-      '<section class="hero" id="top">' +
+      '<section class="hero' + (PLAN.heroCompact ? ' hero--compact' : '') + '" id="top">' +
       '<div class="hero__center">' +
       '<div class="hero__lockup" data-hero>' + lockup() + '</div>' +
       '<p class="label hero__kicker" data-hero>' + esc(PLAN.title || 'Media planning') + '</p>' +
@@ -514,7 +514,7 @@
         (PLAN.theme ? ' style="background:' + esc(PLAN.theme.bg) + ';color:' + esc(PLAN.theme.ink) + '"' : '') + '>' +
         '<div class="logo-intro__badge" data-svg="' + esc(src(c.badge)) + '" data-compose data-compose-play></div></div>');
     }
-    if ((PLAN.theme || c.badge) && !PLAN.logoIntro) {
+    if ((PLAN.theme || c.badge) && !PLAN.logoIntro && !PLAN.heroCompact) {
       html +=
         '<section class="brand" id="univers">' +
         (c.badge ? '<div class="brand__badge" data-svg="' + esc(src(c.badge)) + '" data-compose></div>' : '') +
@@ -1560,7 +1560,7 @@
         ? 'Aperçu : les modifications restent sur cet appareil'
         : '';
       // Apparition en cascade au premier affichage
-      if (!shown && gsap && window.ScrollTrigger && !reduce) {
+      if (!shown && gsap && window.ScrollTrigger && !reduce && !PLAN.noScrollAnim) {
         shown = true;
         window.ScrollTrigger.batch('.visit, .task, .tz', {
           start: 'top 94%', once: true,
@@ -1824,14 +1824,36 @@
       var sig = JSON.stringify(items) + admin;
       if (sig === storySig) return;
       storySig = sig;
-      storiesEl.innerHTML = items.map(function (s, k) {
+      function card(s, k, when) {
         return '<button type="button" class="story-card" id="story-' + esc(s.id) + '" data-story-open="' + k + '" aria-label="Voir la story du ' + esc(s.when) + '">' +
           '<span class="story-card__frame">' + storyMedia(s, 'story-card__media') +
           (s.video ? '<span class="story-card__play">' + ICONS.play + '</span>' : '') + '</span>' +
-          '<span class="label story-card__when">' + esc(storyWhen(s)) + '</span>' +
+          '<span class="label story-card__when">' + esc(when) + '</span>' +
           '<span hidden data-fb="story-' + esc(s.id) + '"></span>' +
           '</button>';
-      }).join('') +
+      }
+      // PLAN.storiesByDay : une rangée par jour, sous la date (les stories sans date à la fin)
+      if (PLAN.storiesByDay) {
+        storiesEl.classList.add('is-days');
+        var days = [];
+        items.forEach(function (s, k) {
+          var last = days[days.length - 1];
+          if (!last || last.date !== s.date) days.push(last = { date: s.date, list: [] });
+          last.list.push([s, k]);
+        });
+        storiesEl.innerHTML = days.map(function (d) {
+          var dt = d.date && parseDate(d.date);
+          return '<div class="stories__day">' +
+            '<p class="stories__date">' + (dt ? '<b>' + JOURS_LONGS[dt.getDay()] + ' ' + dt.getDate() + ' ' + MOIS_LONGS[dt.getMonth()].toLowerCase() + '</b>' : '<b>Date à définir</b>') +
+            '<span class="label">' + d.list.length + ' stor' + (d.list.length > 1 ? 'ies' : 'y') + '</span></p>' +
+            '<div class="stories__row">' + d.list.map(function (x) { return card(x[0], x[1], x[0].time || 'Heure à définir'); }).join('') + '</div></div>';
+        }).join('') +
+          '<div class="stories__row stories__row--add"><button type="button" class="story-card story-card--add" data-story-add><span class="story-card__frame"><span class="story-card__plus">+</span><span class="label">Ajouter une story</span></span><span class="label story-card__when">Espace équipe</span></button></div>' +
+          (items.length ? '' : '<p class="stories__empty">Les stories du mois arrivent bientôt.</p>');
+        fbRefresh(storiesEl);
+        return;
+      }
+      storiesEl.innerHTML = items.map(function (s, k) { return card(s, k, storyWhen(s)); }).join('') +
         '<button type="button" class="story-card story-card--add" data-story-add><span class="story-card__frame"><span class="story-card__plus">+</span><span class="label">Ajouter une story</span></span><span class="label story-card__when">Espace équipe</span></button>' +
         (items.length ? '' : '<p class="stories__empty">Les stories du mois arrivent bientôt.</p>');
       fbRefresh(storiesEl);
@@ -2973,7 +2995,6 @@
     var brandBtn = document.querySelector('[data-brand-open]');
     var fab = document.querySelector('[data-fab]');
     var items = [
-      PLAN.menu ? '<button type="button" class="dock__item" data-menu-open>' + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 7h16M4 12h16M4 17h10"/></svg>' + '<span>Menu</span></button>' : '',
       PLAN.menu ? '' : '<a class="dock__item" href="#feed" data-dock="feed">' + SICONS.image + '<span>Planning</span></a>',
       document.getElementById('stories') && !PLAN.menu ? '<a class="dock__item" href="#stories" data-dock="stories">' + SICONS.story + '<span>Stories</span></a>' : '',
       PLAN.feedback ? '<a class="dock__item" href="#retours" data-dock="retours">' + SICONS.meeting + '<span>Retours</span><i class="dock__badge" data-dock-count hidden></i></a>' : '',
@@ -3516,6 +3537,9 @@
       });
     });
 
+    // PLAN.noScrollAnim : rien n'apparaît au défilement, tout est là d'emblée
+    if (PLAN.noScrollAnim) return;
+
     // Couleurs : 18H22 pour l'ouverture, puis fondu vers le branding du client
     var brand = document.querySelector('.brand');
     if (PLAN.theme && brand) {
@@ -3602,94 +3626,110 @@
     });
   }
 
-  /* --------------------------------------- sommaire en accordéon (accueil) */
-  // PLAN.menu : sous le compte à rebours, chaque partie (idées teasing, feed, publications, stories, retours)
-  // est repliée dans un accordéon ; toucher un titre l'ouvre et referme les autres. Lien direct : ?vue=<partie>.
+  /* ---------------------------------------- sommaire en cartes (accueil) */
+  // PLAN.menu : sous le compte à rebours, quatre cartes (idées teasing, feed, publications, stories) ;
+  // toucher une carte affiche son contenu juste en dessous, une partie à la fois. Lien direct : ?vue=<partie>.
   var THEME_TWEEN = null;
   function initMenu() {
     if (!PLAN.menu) return;
     var app = document.getElementById('app');
     var groups = [
-      { id: 'teasing', sel: '#teasing', title: 'Idées teasing', sub: 'Le tempo des tournages et les idées', icon: SICONS.video },
-      { id: 'feed', sel: '#feed', title: 'Le feed', sub: 'Aperçu du profil Instagram', icon: SICONS.image },
-      { id: 'publications', sel: '.week', title: 'Les publications', sub: 'Visuels, légendes et vos avis', icon: SICONS.photo },
-      { id: 'stories', sel: '#stories', title: 'Les stories', sub: 'En plein écran, comme sur Instagram', icon: SICONS.story },
-      { id: 'ads', sel: '#ads', title: 'Sponsorisé', sub: 'Campagnes et budget', icon: SICONS.ads },
-      { id: 'retours', sel: '#retours', title: 'Vos retours', sub: 'Le récapitulatif à nous envoyer', icon: SICONS.meeting },
+      { id: 'teasing', sel: '#teasing', title: 'Idées teasing', solid: true },
+      { id: 'feed', sel: '#feed', title: 'Le feed' },
+      { id: 'publications', sel: '.week', title: 'Les publications' },
+      { id: 'stories', sel: '#stories', title: 'Les stories' },
+      { id: 'ads', sel: '#ads', title: 'Sponsorisé' },
     ].filter(function (g) { return app.querySelector(g.sel); });
-    var panels = [
-      document.querySelector('[data-inspi-open]') ? { act: 'inspi', title: 'Le coin inspi', sub: 'Reels et carrousels du mois', icon: SICONS.spark } : null,
-      document.querySelector('[data-brand-open]') ? { act: 'brand', title: 'Branding', sub: 'Playlists, typographie, banques d’images', icon: SICONS.photo } : null,
-    ].filter(Boolean);
-    function head(attr, g, chev) {
-      return '<button type="button" class="acc__head" ' + attr + '>' + '<span class="acc__icon">' + g.icon + '</span>' +
-        '<span class="acc__txt"><b>' + esc(g.title) + '</b><small>' + esc(g.sub) + '</small></span>' +
-        '<span class="acc__chev" aria-hidden="true">' + (chev ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 9.5l6 6 6-6"/></svg>' : SICONS_NEXT) + '</span></button>';
-    }
-    var acc = el('<section class="acc" id="sommaire"><p class="label acc__kicker">Sommaire</p><div class="acc__list"></div></section>');
-    var listEl = acc.querySelector('.acc__list');
-    groups.forEach(function (g) {
-      var item = el('<div class="acc__item" data-acc="' + g.id + '">' + head('data-acc-toggle aria-expanded="false"', g, true) +
-        '<div class="acc__panel"><div class="acc__in"></div></div></div>');
-      var inner = item.querySelector('.acc__in');
-      app.querySelectorAll(g.sel).forEach(function (n) { inner.appendChild(n); });
-      g.item = item;
-      listEl.appendChild(item);
+    var sum = el('<section class="sum" id="sommaire"><p class="label sum__kicker">Que voulez-vous voir ?</p>' +
+      '<div class="sum__grid"></div><div class="sum__stage"></div></section>');
+    var grid = sum.querySelector('.sum__grid'), stage = sum.querySelector('.sum__stage');
+    groups.forEach(function (g, k) {
+      g.card = el('<button type="button" class="sum__card' + (g.solid ? ' sum__card--solid' : '') + '" data-sum="' + g.id + '" aria-expanded="false">' +
+        '<span class="sum__bg"></span><span class="sum__shade"></span>' +
+        '<span class="sum__num">' + pad(k + 1) + '</span>' +
+        '<span class="sum__txt"><b>' + esc(g.title) + '</b><small class="label" data-sum-meta></small></span>' +
+        '<span class="label sum__open"><i>Voir</i><i>Fermer</i></span></button>');
+      grid.appendChild(g.card);
+      g.pane = el('<div class="sum__pane" data-pane="' + g.id + '" hidden>' +
+        '<header class="sum__head"><p class="label">' + pad(k + 1) + '</p><h2>' + esc(g.title) + '</h2>' +
+        '<button type="button" class="label sum__close" data-sum-close>Fermer</button></header><div class="sum__in"></div>' +
+        '<button type="button" class="label sum__back" data-sum-close>Revenir au sommaire</button></div>');
+      app.querySelectorAll(g.sel).forEach(function (n) { g.pane.querySelector('.sum__in').appendChild(n); });
+      stage.appendChild(g.pane);
     });
-    panels.forEach(function (g) { listEl.appendChild(el('<div class="acc__item acc__item--panel">' + head('data-acc-act="' + g.act + '"', g, false) + '</div>')); });
     var after = document.getElementById('opening') || app.querySelector('.hero');
-    app.insertBefore(acc, after ? after.nextSibling : app.firstChild);
-    document.body.classList.add('has-acc');
+    app.insertBefore(sum, after ? after.nextSibling : app.firstChild);
+    document.body.classList.add('has-sum');
 
-    function refresh() { if (window.ScrollTrigger) window.ScrollTrigger.refresh(); }
-    function toTop(n, smooth) {
-      window.scrollTo({ top: n.getBoundingClientRect().top + window.pageYOffset - 76, behavior: smooth ? 'smooth' : 'instant' });
-    }
-    function setOpen(g, on, then) {
-      groups.forEach(function (x) {
-        var o = x === g ? on : false;
-        if (x.item.classList.contains('is-open') === o) return;
-        x.item.classList.toggle('is-open', o);
-        x.item.querySelector('[data-acc-toggle]').setAttribute('aria-expanded', o ? 'true' : 'false');
-        if (!o) x.item.querySelectorAll('video').forEach(function (v) { try { v.pause(); } catch (e) {} });
+    // Image et chiffre de chaque carte, repris du contenu (les stories arrivent après le chargement des données)
+    function meta() {
+      groups.forEach(function (g) {
+        var img = null, txt = '';
+        if (g.id === 'teasing') {
+          var n = list(PLAN.teasing && PLAN.teasing.ideas).length;
+          txt = n + ' idée' + (n > 1 ? 's' : '') + ' · le tempo';
+        } else if (g.id === 'feed') {
+          img = g.pane.querySelector('[data-grid] img');
+          txt = g.pane.querySelectorAll('[data-grid]').length + ' vignettes';
+        } else if (g.id === 'publications') {
+          img = g.pane.querySelector('.week img');
+          txt = allPosts.length ? allPosts.length + ' publication' + (allPosts.length > 1 ? 's' : '') : 'À venir';
+        } else if (g.id === 'stories') {
+          img = g.pane.querySelector('.story-card:not(.story-card--add) img, .story-card:not(.story-card--add) video');
+          var c = g.pane.querySelectorAll('.story-card:not(.story-card--add)').length;
+          txt = c ? c + ' stor' + (c > 1 ? 'ies' : 'y') : 'À venir';
+        } else txt = adCampaigns().length + ' campagnes';
+        var url = img && (img.getAttribute('poster') || img.currentSrc || img.getAttribute('src'));
+        g.card.querySelector('.sum__bg').style.backgroundImage = url && !/^data:image\/svg/.test(url) ? 'url("' + url.replace(/"/g, '%22') + '")' : '';
+        g.card.classList.toggle('has-img', !!(url && !/^data:image\/svg/.test(url)));
+        g.card.querySelector('[data-sum-meta]').textContent = txt;
       });
+    }
+    meta();
+    var st = document.querySelector('[data-stories]');
+    if (st && window.MutationObserver) new MutationObserver(meta).observe(st, { childList: true, subtree: true });
+
+    var current = null;
+    function show(g, then) {
+      groups.forEach(function (x) {
+        var on = x === g;
+        x.pane.hidden = !on;
+        x.card.classList.toggle('is-on', on);
+        x.card.setAttribute('aria-expanded', on ? 'true' : 'false');
+        if (!on) x.pane.querySelectorAll('video').forEach(function (v) { try { v.pause(); } catch (e) {} });
+      });
+      current = g;
+      sum.classList.toggle('has-open', !!g);
       try {
         var u = new URL(location.href);
-        if (g && on) u.searchParams.set('vue', g.id); else u.searchParams.delete('vue');
+        if (g) u.searchParams.set('vue', g.id); else u.searchParams.delete('vue');
         history.replaceState(null, '', u.pathname + u.search + u.hash);
       } catch (e) {}
-      // Après l'ouverture en douceur : positions des apparitions recalculées, titre de la partie en haut
-      setTimeout(function () {
-        refresh();
-        if (g && on) (then || function () { toTop(g.item, true); })();
-      }, 520);
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+      var to = g ? (then || g.pane) : sum;
+      requestAnimationFrame(function () { window.scrollTo({ top: to.getBoundingClientRect().top + window.pageYOffset - 70, behavior: 'smooth' }); });
     }
-    function groupOf(node) { return groups.filter(function (g) { return g.item.contains(node); })[0]; }
+    function groupOf(node) { return groups.filter(function (g) { return g.pane.contains(node); })[0]; }
     document.addEventListener('click', function (e) {
       var t;
-      if ((t = e.target.closest('[data-acc-toggle]'))) {
-        var g = groupOf(t);
-        setOpen(g, !g.item.classList.contains('is-open'));
-      } else if ((t = e.target.closest('[data-acc-act]'))) {
-        var b = document.querySelector(t.getAttribute('data-acc-act') === 'inspi' ? '[data-inspi-open]' : '[data-brand-open]');
-        if (b) b.click();
-      } else if (e.target.closest('[data-menu-open]')) {
-        e.preventDefault();
-        setOpen(null, false);
-        toTop(acc, true);
+      if ((t = e.target.closest('[data-sum]'))) {
+        var g = groups.filter(function (x) { return x.id === t.getAttribute('data-sum'); })[0];
+        show(current === g ? null : g);
+      } else if (e.target.closest('[data-sum-close]')) {
+        show(null);
       } else if ((t = e.target.closest('a[href^="#"]')) && !t.hasAttribute('data-grid')) {
-        // Lien vers une partie repliée (les vignettes du feed ouvrent la publication sur place) : on l'ouvre, puis on descend jusqu'à l'élément
+        // Lien vers une partie fermée : on l'ouvre, puis on descend jusqu'à l'élément
         var id = t.getAttribute('href').slice(1);
         var target = id && document.getElementById(id);
         var tg = target && groupOf(target);
-        if (!tg || tg.item.classList.contains('is-open')) return;
+        if (!tg || tg === current) return;
         e.preventDefault();
-        setOpen(tg, true, function () { toTop(target, true); });
+        show(tg, target);
       }
     }, true);
     var start = new URLSearchParams(location.search).get('vue');
     var sg = groups.filter(function (g) { return g.id === start; })[0];
-    if (sg) document.addEventListener('mp:ready', function () { setOpen(sg, true); }, { once: true });
+    if (sg) document.addEventListener('mp:ready', function () { show(sg); }, { once: true });
   }
 
   /* ------------------------------------------------------ compte à rebours */
@@ -3749,7 +3789,7 @@
     var logoBox = document.querySelector('[data-logo-intro]');
     // Couleurs du client sur toute la page (sans partie « univers » pour faire le fondu au défilement)
     function clientTheme(dur) {
-      if (!PLAN.logoIntro || !PLAN.theme) return;
+      if (!PLAN.theme || document.querySelector('.brand')) return;
       var to = {};
       Object.keys(PLAN.theme).forEach(function (k) { to['--' + k] = PLAN.theme[k]; });
       var meta = document.querySelector('meta[name="theme-color"]');
@@ -3774,7 +3814,11 @@
           .fromTo(heroChars, { yPercent: 110 }, { yPercent: 0, duration: 1.1, ease: 'expo.out', stagger: 0.03 }, 0.2);
       })();
     }
-    if (logoBox && (seen || QUICK || !gsap || reduce)) { logoBox.remove(); logoBox = null; clientTheme(0); }
+    if (logoBox && (seen || QUICK || !gsap || reduce)) { logoBox.remove(); logoBox = null; }
+    // Sans partie « univers » ni logo écrit : la page est aux couleurs du client dès le départ
+    if (!logoBox) clientTheme(0);
+    // PLAN.intro === false : la page s'ouvre directement sur les logos, sans aucune animation
+    if (PLAN.intro === false) { done(); return; }
     if (seen && gsap && !QUICK) {
       // Déjà vue aujourd'hui : pas d'ouverture, le titre monte simplement
       done();

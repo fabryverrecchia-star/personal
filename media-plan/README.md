@@ -15,11 +15,12 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur (en ligne : 
   Inspirations : seulement le bouton « Voir dans le coin inspi » (aucun lien vers un compte extérieur).
   Tempo : chaque idée a un jour de tournage (`shoot`), de publication (`publish`) et un rythme facultatif (`rhythm`),
   repris dans « Le tempo » (frise jusqu'au grand opening, J-n) et modifiables dans « Modifier l'idée ».
-- Sommaire en accordéon (`menu: true`) : sous le compte à rebours, Idées teasing, Feed, Publications, Stories et Retours sont repliés ;
-  toucher un titre ouvre la partie et referme les autres. « Menu » (barre du bas) remonte au sommaire. Lien direct qui ouvre une partie :
-  `?vue=teasing`, `?vue=feed`, `?vue=publications`, `?vue=stories`, `?vue=retours`.
-- Logo (`logoIntro: true`) : à la première visite du jour, le logo La Petite Maison s'écrit juste après l'ouverture 18H22, puis le voile
-  se lève sur la page aux couleurs du client. La partie « univers » au défilement est retirée.
+- Ouverture directe (`intro: false`, `heroCompact: true`, `noScrollAnim: true`) : la page s'ouvre sur les logos 18H22 × La Petite Maison,
+  aux couleurs du client, sans préloader, sans logo écrit et sans apparition au défilement.
+- Sommaire en cartes (`menu: true`) sous le compte à rebours : Idées teasing, Le feed, Les publications, Les stories, chacune avec
+  son image et son nombre. Toucher une carte affiche la partie juste en dessous (« Fermer » pour revenir). Lien direct : `?vue=teasing`,
+  `?vue=feed`, `?vue=publications`, `?vue=stories`. Barre fixe du bas : Retours, Inspi, Branding, Équipe.
+- Stories jour par jour (`storiesByDay: true`) : une rangée par jour sous sa date, l'heure sous chaque story.
 - Texte d'intro, chiffres clés et légende des formats retirés (`stats: false`).
 - Jours de passage, calendrier et missions : retirés le 26 octobre (`suivi.calendar: false`, `suivi.missions: false`).
 - Repères sur téléphone : « Mode d'emploi » en 3 étapes sous les chiffres clés, et une barre fixe en bas

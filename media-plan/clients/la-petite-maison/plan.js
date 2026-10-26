@@ -20,10 +20,15 @@ window.PLAN = {
   // L'ouverture 18H22 ne se joue qu'à la première visite de la journée
   introDaily: true,
   period: 'Octobre 2026',
-  // Sommaire en accordéon sous le compte à rebours ; « Menu » (barre du bas) y remonte. Lien direct : ?vue=teasing, ?vue=feed…
+  // 26 octobre au soir : la page s'ouvre directement sur les logos, sans animation d'ouverture ni au défilement
+  intro: false,
+  heroCompact: true,
+  noScrollAnim: true,
+  // Sommaire en cartes sous le compte à rebours (teasing, feed, publications, stories). Lien direct : ?vue=teasing, ?vue=feed…
+  // Barre du bas : Retours, Inspi, Branding (et Équipe)
   menu: true,
-  // Le logo s'écrit une fois après l'ouverture 18H22, puis disparaît
-  logoIntro: true,
+  // Stories rangées jour par jour
+  storiesByDay: true,
   // Texte d'intro, chiffres clés et légende retirés le 26 octobre
   stats: false,
 
@@ -115,8 +120,9 @@ window.PLAN = {
     ],
   },
 
-  // Feed actuel de @lapetitemaison_paris au 9 octobre (7 posts, le premier épinglé), affiché après le planning
-  feedExisting: ['media/live-1.jpg', 'media/live-2.jpg', 'media/live-3.jpg', 'media/live-4.jpg', 'media/live-5.jpg', 'media/live-6.jpg', 'media/live-7.jpg'],
+  // Feed actuel de @lapetitemaison_paris au 26 octobre (9 posts, les deux premiers épinglés) : affiche « Thursday, November 19 »,
+  // façade, carte, puis les 6 posts du 9 octobre. Affiché après les publications prévues.
+  feedExisting: ['media/live-0a.jpg', 'media/live-1.jpg', 'media/live-0b.jpg', 'media/live-2.jpg', 'media/live-3.jpg', 'media/live-4.jpg', 'media/live-5.jpg', 'media/live-6.jpg', 'media/live-7.jpg'],
 
   // Bouton « Branding » : playlists de marque, typographie, visuels de démo et banques d'images
   branding: {
