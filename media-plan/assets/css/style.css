@@ -2568,46 +2568,58 @@ body.has-dock .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); }
 .hero--compact + .intro, body.has-sum .intro, body.has-sum .weeknav { display: none; }
 body.has-sum .countdown { padding-top: 36px; padding-bottom: 24px; }
 
-/* Sommaire en cartes (PLAN.menu) : une partie affichée à la fois sous les cartes */
-.sum { max-width: var(--max); margin: 0 auto; padding: 4px var(--gutter) 24px; scroll-margin-top: 70px; }
-.sum__kicker { margin: 0 0 14px; font-size: 9px; color: var(--ink-soft); text-align: center; }
-.sum__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.sum__card {
-  position: relative; overflow: hidden;
-  aspect-ratio: 4 / 5;
-  display: grid; align-content: end; justify-items: start;
-  padding: 14px; border-radius: 6px; text-align: left;
-  background: var(--bg-deep); color: var(--ink);
-  border: 1px solid var(--ink-faint);
-  -webkit-tap-highlight-color: transparent;
-  transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
+/* Sommaire (PLAN.menu) : plein écran, texte seul en grotesque, l'entrée se remplit au survol ou au toucher */
+.sum { --sum-font: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 0 0 24px; scroll-margin-top: 64px; }
+.sum__grid {
+  display: grid;
+  grid-auto-rows: 1fr;
+  min-height: calc(100svh - 64px - 66px - env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--ink);
 }
-.sum__card:active { transform: scale(0.98); }
-.sum__bg { position: absolute; inset: 0; background: center / cover no-repeat; transition: transform 0.8s var(--ease); }
-.sum__card.is-on .sum__bg { transform: scale(1.05); }
-.sum__shade { position: absolute; inset: 0; background: linear-gradient(to top, rgba(43, 26, 22, 0.72) 0%, rgba(43, 26, 22, 0.18) 55%, rgba(43, 26, 22, 0) 100%); opacity: 0; }
-.sum__card.has-img { color: #f6f1e7; border-color: transparent; }
-.sum__card.has-img .sum__shade { opacity: 1; }
-.sum__card--solid { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.sum__num { position: absolute; top: 10px; left: 14px; font-family: var(--display); font-weight: 300; font-size: 30px; line-height: 1; }
-.sum__txt { position: relative; display: grid; gap: 4px; }
-.sum__txt b { font-family: var(--display); font-weight: 400; font-size: 25px; line-height: 1.02; }
-.sum__txt small { font-size: 8.5px; opacity: 0.85; }
-.sum__open { position: relative; margin-top: 12px; padding: 7px 13px 6px; border-radius: 99px; font-size: 8.5px; border: 1px solid currentColor; }
-.sum__open i { font-style: normal; }
-.sum__open i + i, .sum__card.is-on .sum__open i:first-child { display: none; }
-.sum__card.is-on .sum__open i + i { display: inline; }
-.sum__card.is-on { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--ink); }
-.sum.has-open .sum__card:not(.is-on) { opacity: 0.55; }
-.sum__stage { margin: 0 calc(var(--gutter) * -1); }
-.sum__pane { padding-top: 22px; scroll-margin-top: 70px; }
+.sum__card {
+  position: relative;
+  display: grid; grid-template-columns: 28px 26px minmax(0, 1fr) 24px; gap: 14px; align-items: center;
+  width: 100%; min-height: 92px;
+  padding: 18px var(--gutter);
+  border-bottom: 1px solid var(--ink);
+  text-align: left; color: var(--ink);
+  font-family: var(--sum-font);
+  -webkit-tap-highlight-color: transparent;
+  isolation: isolate;
+  overflow: hidden;
+}
+/* Remplissage : la couleur monte du bas et couvre tout le bloc */
+.sum__card::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background: var(--ink);
+  transform: scaleY(0); transform-origin: bottom;
+  transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.sum__card, .sum__card * { transition: color 0.3s ease 0.05s; }
+.sum__card.is-on::before, .sum__card:active::before { transform: scaleY(1); }
+.sum__card.is-on, .sum__card:active { color: var(--bg); }
+@media (hover: hover) {
+  .sum__card:hover::before { transform: scaleY(1); }
+  .sum__card:hover { color: var(--bg); }
+}
+.sum__num { font-size: 12px; font-weight: 500; letter-spacing: 0.02em; opacity: 0.6; font-variant-numeric: tabular-nums; }
+.sum__icon svg { display: block; width: 24px; height: 24px; }
+.sum__txt { display: grid; gap: 4px; min-width: 0; }
+.sum__txt b { font-weight: 500; font-size: clamp(30px, 9vw, 44px); line-height: 1; letter-spacing: -0.025em; }
+.sum__txt small { font-size: 13px; font-weight: 400; letter-spacing: 0.01em; opacity: 0.7; }
+.sum__arrow svg { display: block; width: 22px; height: 22px; transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1); }
+.sum__card.is-on .sum__arrow svg { transform: rotate(90deg); }
+@media (hover: hover) { .sum__card:hover .sum__arrow svg { transform: translateX(4px); } .sum__card.is-on:hover .sum__arrow svg { transform: rotate(90deg); } }
+.sum__pane { padding-top: 8px; scroll-margin-top: 64px; }
 .sum__pane[hidden] { display: none; }
-.sum__head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: baseline; margin: 0 var(--gutter); padding: 14px 0 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink-faint); }
-.sum__head p { margin: 0; font-size: 9px; color: var(--ink-soft); }
-.sum__head h2 { margin: 0; font-family: var(--display); font-weight: 300; font-size: 30px; line-height: 1.05; }
-.sum__close, .sum__back { font-size: 9px; color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px; }
-.sum__back { display: block; margin: 8px auto 0; padding: 10px; }
-.sum__in > .teasing { padding-top: 8px; }
+.sum__head { display: none; }
+.sum__back {
+  display: block; width: calc(100% - var(--gutter) * 2); margin: 16px auto 0; padding: 16px 0 15px;
+  border: 1px solid var(--ink); border-radius: 0;
+  font: 500 13px/1 var(--sum-font); letter-spacing: 0.02em; text-transform: none; text-decoration: none; color: var(--ink);
+}
+.sum__back:active { background: var(--ink); color: var(--bg); }
+.sum__in > .teasing { padding-top: 16px; }
 .sum__in > .teasing > .suivi__head, .sum__in > .stories > .stories__head { display: none; }
 .sum__in > .feed { padding-top: 16px; }
 .sum__in > .feed > .feed__title, .sum__in > .feed > .hero__kicker { display: none; }
@@ -2629,3 +2641,9 @@ body.has-sum .countdown { padding-top: 36px; padding-bottom: 24px; }
 .stories__row::-webkit-scrollbar { display: none; }
 .stories__row--add { display: none; }
 .is-admin .stories__row--add { display: flex; }
+
+/* Publication dont la date est passée : en ligne */
+.post__live { white-space: nowrap; flex: none; display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px 4px; border-radius: 99px; background: var(--ink); color: var(--bg); font-size: 8.5px; }
+.post__live svg { width: 12px; height: 12px; }
+.post__meta { gap: 10px; }
+.post__meta .post__live + .post__index { margin-left: auto; }

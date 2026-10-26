@@ -267,6 +267,8 @@
       '</div>' +
       '<div class="post__body">' +
       '<div class="post__meta" data-reveal><span class="slot" data-slot="tag">' + tagHtml(post) + '</span>' +
+      // Date passée : la publication est en ligne
+      (d < today() ? '<span class="label post__live">' + SICONS_CHECK + 'En ligne</span>' : '') +
       '<span class="label post__index">' + JOURS_LONGS[d.getDay()] + '</span></div>' +
       '<div class="slot" data-slot="media">' + mediaHtml(post) + '</div>' +
       '<div class="caption" data-reveal data-slot="caption">' + captionHtml(post) + '</div>' +
@@ -277,6 +279,7 @@
     );
   }
 
+  var SICONS_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   var SHARE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M6 11H5v9h14v-9h-1"/></svg>';
   // Équipe : la vidéo d'un reel se télécharge telle qu'elle a été envoyée
   var DL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19h14"/></svg>';
@@ -573,7 +576,8 @@
       '<div class="grid">' +
       feed.map(function (p) {
         var n = list(p.options).length;
-        return '<a href="#' + p._id + '" data-grid' + (n > 1 ? ' data-grid-options="' + p._id + '"' : '') + '>' + gridInner(p) + '</a>';
+        var on = p._date < today();
+        return '<a href="#' + p._id + '"' + (on ? ' class="is-live"' : '') + ' data-grid' + (n > 1 ? ' data-grid-options="' + p._id + '"' : '') + '>' + gridInner(p) + '</a>';
       }).join('') +
       live.map(function (img) {
         return '<a class="is-live" data-grid><img src="' + esc(src(img)) + '" alt="" loading="lazy" decoding="async"><span class="label grid__live">En ligne</span></a>';
@@ -608,7 +612,7 @@
     return (isVidPath(img)
       ? '<video src="' + esc(vidSrc(img)) + '#t=0.1" muted playsinline preload="metadata"></video>'
       : '<img src="' + esc(src(img)) + '" alt="" loading="lazy" decoding="async">') + icon +
-      '<span class="label grid__day">' + JOURS[p._date.getDay()] + ' ' + pad(p._date.getDate()) + '</span>';
+      (p._date < today() ? '<span class="label grid__live">En ligne</span>' : '<span class="label grid__day">' + JOURS[p._date.getDay()] + ' ' + pad(p._date.getDate()) + '</span>');
   }
 
   /* ------------------------------------------------ campagnes sponsorisées */
@@ -3634,21 +3638,21 @@
     if (!PLAN.menu) return;
     var app = document.getElementById('app');
     var groups = [
-      { id: 'teasing', sel: '#teasing', title: 'Idées teasing', solid: true },
-      { id: 'feed', sel: '#feed', title: 'Le feed' },
-      { id: 'publications', sel: '.week', title: 'Les publications' },
-      { id: 'stories', sel: '#stories', title: 'Les stories' },
-      { id: 'ads', sel: '#ads', title: 'Sponsorisé' },
+      { id: 'teasing', sel: '#teasing', title: 'Idées teasing', icon: SICONS.video },
+      { id: 'feed', sel: '#feed', title: 'Le feed', icon: SICONS.image },
+      { id: 'publications', sel: '.week', title: 'Publications', icon: SICONS.photo },
+      { id: 'stories', sel: '#stories', title: 'Stories', icon: SICONS.story },
+      { id: 'ads', sel: '#ads', title: 'Sponsorisé', icon: SICONS.ads },
     ].filter(function (g) { return app.querySelector(g.sel); });
-    var sum = el('<section class="sum" id="sommaire"><p class="label sum__kicker">Que voulez-vous voir ?</p>' +
+    var sum = el('<section class="sum" id="sommaire">' +
       '<div class="sum__grid"></div><div class="sum__stage"></div></section>');
     var grid = sum.querySelector('.sum__grid'), stage = sum.querySelector('.sum__stage');
     groups.forEach(function (g, k) {
-      g.card = el('<button type="button" class="sum__card' + (g.solid ? ' sum__card--solid' : '') + '" data-sum="' + g.id + '" aria-expanded="false">' +
-        '<span class="sum__bg"></span><span class="sum__shade"></span>' +
+      g.card = el('<button type="button" class="sum__card" data-sum="' + g.id + '" aria-expanded="false">' +
         '<span class="sum__num">' + pad(k + 1) + '</span>' +
-        '<span class="sum__txt"><b>' + esc(g.title) + '</b><small class="label" data-sum-meta></small></span>' +
-        '<span class="label sum__open"><i>Voir</i><i>Fermer</i></span></button>');
+        '<span class="sum__icon">' + g.icon + '</span>' +
+        '<span class="sum__txt"><b>' + esc(g.title) + '</b><small data-sum-meta></small></span>' +
+        '<span class="sum__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>');
       grid.appendChild(g.card);
       g.pane = el('<div class="sum__pane" data-pane="' + g.id + '" hidden>' +
         '<header class="sum__head"><p class="label">' + pad(k + 1) + '</p><h2>' + esc(g.title) + '</h2>' +
@@ -3661,27 +3665,21 @@
     app.insertBefore(sum, after ? after.nextSibling : app.firstChild);
     document.body.classList.add('has-sum');
 
-    // Image et chiffre de chaque carte, repris du contenu (les stories arrivent après le chargement des données)
+    // Chiffre de chaque entrée, repris du contenu (les stories arrivent après le chargement des données)
     function meta() {
       groups.forEach(function (g) {
-        var img = null, txt = '';
+        var txt = '';
         if (g.id === 'teasing') {
           var n = list(PLAN.teasing && PLAN.teasing.ideas).length;
           txt = n + ' idée' + (n > 1 ? 's' : '') + ' · le tempo';
         } else if (g.id === 'feed') {
-          img = g.pane.querySelector('[data-grid] img');
           txt = g.pane.querySelectorAll('[data-grid]').length + ' vignettes';
         } else if (g.id === 'publications') {
-          img = g.pane.querySelector('.week img');
           txt = allPosts.length ? allPosts.length + ' publication' + (allPosts.length > 1 ? 's' : '') : 'À venir';
         } else if (g.id === 'stories') {
-          img = g.pane.querySelector('.story-card:not(.story-card--add) img, .story-card:not(.story-card--add) video');
           var c = g.pane.querySelectorAll('.story-card:not(.story-card--add)').length;
           txt = c ? c + ' stor' + (c > 1 ? 'ies' : 'y') : 'À venir';
         } else txt = adCampaigns().length + ' campagnes';
-        var url = img && (img.getAttribute('poster') || img.currentSrc || img.getAttribute('src'));
-        g.card.querySelector('.sum__bg').style.backgroundImage = url && !/^data:image\/svg/.test(url) ? 'url("' + url.replace(/"/g, '%22') + '")' : '';
-        g.card.classList.toggle('has-img', !!(url && !/^data:image\/svg/.test(url)));
         g.card.querySelector('[data-sum-meta]').textContent = txt;
       });
     }

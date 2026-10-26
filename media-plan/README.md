@@ -17,9 +17,11 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur (en ligne : 
   repris dans « Le tempo » (frise jusqu'au grand opening, J-n) et modifiables dans « Modifier l'idée ».
 - Ouverture directe (`intro: false`, `heroCompact: true`, `noScrollAnim: true`) : la page s'ouvre sur les logos 18H22 × La Petite Maison,
   aux couleurs du client, sans préloader, sans logo écrit et sans apparition au défilement.
-- Sommaire en cartes (`menu: true`) sous le compte à rebours : Idées teasing, Le feed, Les publications, Les stories, chacune avec
-  son image et son nombre. Toucher une carte affiche la partie juste en dessous (« Fermer » pour revenir). Lien direct : `?vue=teasing`,
-  `?vue=feed`, `?vue=publications`, `?vue=stories`. Barre fixe du bas : Retours, Inspi, Branding, Équipe.
+- Sommaire (`menu: true`) sous le compte à rebours, en plein écran : Idées teasing, Le feed, Publications, Stories, en grand texte
+  Helvetica Neue avec icône et nombre, sans photo. Survol ou toucher : le bloc se remplit de la couleur du texte. Toucher affiche la
+  partie juste en dessous (« Revenir au sommaire »). Lien direct : `?vue=teasing`, `?vue=feed`, `?vue=publications`, `?vue=stories`.
+  Barre fixe du bas : Retours, Inspi, Branding, Équipe.
+- En ligne automatiquement : une publication dont la date est passée porte « En ligne » sur sa fiche et sur sa vignette du feed (voilée).
 - Stories jour par jour (`storiesByDay: true`) : une rangée par jour sous sa date, l'heure sous chaque story.
 - Texte d'intro, chiffres clés et légende des formats retirés (`stats: false`).
 - Jours de passage, calendrier et missions : retirés le 26 octobre (`suivi.calendar: false`, `suivi.missions: false`).
