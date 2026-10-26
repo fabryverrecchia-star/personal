@@ -491,6 +491,8 @@
     html +=
       '<section class="intro">' +
       (PLAN.intro ? '<p class="intro__text" data-reveal>' + PLAN.intro + '</p>' : '') +
+      // stats: false retire les chiffres clés et la légende des formats
+      (PLAN.stats === false ? '' :
       '<div class="stats" data-reveal>' +
       '<div class="stat"><span class="stat__num" data-count="' + weeks.length + '">' + weeks.length + '</span><span class="label">' + (monthly ? 'Mois' : 'Semaines') + '</span></div>' +
       '<div class="stat"><span class="stat__num" data-count="' + total + '">' + total + '</span><span class="label">Publications</span></div>' +
@@ -500,7 +502,7 @@
       '<span>' + ICONS.post.replace('<svg', '<svg width="13" height="13"') + 'Post</span>' +
       '<span>' + ICONS.carousel.replace('<svg', '<svg width="13" height="13"') + 'Carrousel</span>' +
       '<span>' + ICONS.reel.replace('<svg', '<svg width="13" height="13"') + 'Reel</span>' +
-      '</div>' +
+      '</div>') +
       guideHtml() +
       '</section>';
 

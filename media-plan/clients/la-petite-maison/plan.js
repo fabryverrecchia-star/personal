@@ -20,8 +20,8 @@ window.PLAN = {
   // L'ouverture 18H22 ne se joue qu'à la première visite de la journée
   introDaily: true,
   period: 'Octobre 2026',
-  intro:
-    '7 rue du Boccador, Paris 8. Ici, le feed tel qu’il est aujourd’hui, les <em>prochaines publications</em>, et vos retours avant chaque mise en ligne.',
+  // Texte d'intro, chiffres clés et légende retirés le 26 octobre
+  stats: false,
 
   // Couleurs du site : crème, terracotta, texte presque noir. Bascule en fondu après l'ouverture 18H22.
   theme: {
