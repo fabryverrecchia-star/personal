@@ -2087,8 +2087,14 @@
       b.setAttribute('aria-label', svMuted ? 'Activer le son' : 'Couper le son');
     }
     function svOpen(k) {
-      svItems = storyList();
-      if (!svItems.length) return;
+      var all = storyList();
+      if (!all[k || 0]) return;
+      // PLAN.storiesByDay : on ne fait défiler que les stories du jour touché
+      if (PLAN.storiesByDay) {
+        var day = all[k || 0].date;
+        svItems = all.filter(function (s) { return s.date === day; });
+        k = svItems.indexOf(all[k || 0]);
+      } else svItems = all;
       sv.querySelector('[data-sview-bars]').innerHTML = svItems.map(function () { return '<i><b></b></i>'; }).join('');
       sv.classList.add('is-open');
       sv.setAttribute('aria-hidden', 'false');
