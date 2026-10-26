@@ -2157,15 +2157,22 @@
       if (p >= 1) { svShow(svK + 1); return; }
       svRaf = requestAnimationFrame(svTick);
     }
+    // Toucher à gauche / à droite, ou glisser : story précédente / suivante ; glisser vers le bas : fermer ; appui long : pause
+    var svX = 0, svY = 0;
     svStage.addEventListener('pointerdown', function (e) {
       if (e.target.closest('button')) return;
       svDown = performance.now();
+      svX = e.clientX; svY = e.clientY;
       svHold = true;
+      try { svStage.setPointerCapture(e.pointerId); } catch (err) {}
     });
     svStage.addEventListener('pointerup', function (e) {
       if (!svHold) return;
       svHold = false;
-      if (performance.now() - svDown > 350) return;
+      var dx = e.clientX - svX, dy = e.clientY - svY;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { svShow(dx < 0 ? svK + 1 : svK - 1); return; }
+      if (dy > 90) { svClose(); return; }
+      if (performance.now() - svDown > 350 || Math.abs(dx) > 12 || Math.abs(dy) > 12) return;
       var r = svStage.getBoundingClientRect();
       svShow(e.clientX - r.left < r.width * 0.33 ? svK - 1 : svK + 1);
     });
