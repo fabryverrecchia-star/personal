@@ -3708,6 +3708,9 @@
     function barH() { var b = document.getElementById('bar'); return b ? b.offsetHeight : 60; }
     function show(g, then) {
       var prev = current;
+      // Repère : l'entrée touchée garde sa place à l'écran pendant que l'ancienne partie se replie
+      var anchor = g ? g.card : prev && prev.card;
+      var was = anchor ? anchor.getBoundingClientRect().top : 0;
       groups.forEach(function (x) {
         var on = x === g;
         x.pane.hidden = !on;
@@ -3723,6 +3726,7 @@
         if (g) u.searchParams.set('vue', g.id); else u.searchParams.delete('vue');
         history.replaceState(null, '', u.pathname + u.search + u.hash);
       } catch (e) {}
+      if (anchor) window.scrollTo({ top: anchor.getBoundingClientRect().top + window.pageYOffset - was, behavior: 'instant' });
       if (window.ScrollTrigger) window.ScrollTrigger.refresh();
       // L'entrée ouverte vient se caler sous l'en-tête (elle y reste, avec « Fermer », pendant la lecture)
       var to = g ? (then || g.card) : prev && prev.card;
