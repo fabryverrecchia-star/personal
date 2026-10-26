@@ -44,7 +44,7 @@ Menu : Publications, Stories, Idées teasing, Inspiration.
   reste listée en mode équipe avec « Rétablir » ; une publication ajoutée puis supprimée est effacée.
 - Photos et légendes : un bouton « Modifier » apparaît sous chaque post.
   - Posts : date et heure de publication.
-  - Remplacer, ajouter (le post devient un carrousel) ou retirer des photos. La photo est réduite sur le téléphone avant l'envoi.
+  - Remplacer, ajouter (le post devient un carrousel) ou retirer des photos ; les flèches de chaque visuel changent l'ordre du carrousel. La photo est réduite sur le téléphone avant l'envoi.
   - Carrousel : « Ajouter une vidéo » glisse une vidéo (MP4 ou MOV) parmi les photos ; elle est recadrée au format des photos (4:5)
     et lue en boucle sans le son quand la slide est à l'écran. Une vidéo seule dans un post photo en fait un carrousel.
   - Grosses vidéos : au-delà de 8 Mo, l'envoi part en morceaux de 8 Mo (reconstitués dans `data/parts/`), ce qui contourne la limite

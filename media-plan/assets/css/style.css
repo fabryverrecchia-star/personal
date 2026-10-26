@@ -2599,3 +2599,6 @@ body.has-focus .teasing { padding-top: 36px; }
 .menu__go svg { width: 16px; height: 16px; color: var(--ink-soft); }
 .menu__sep { margin: 22px 0 2px; font-size: 9px; color: var(--ink-soft); }
 .menu__all { display: block; width: 100%; margin-top: 18px; padding: 14px 0 13px; border: 1px solid var(--ink); border-radius: 99px; font-size: 10px; text-align: center; }
+/* Carrousel : changer l'ordre des visuels */
+.ed-tile__move { position: absolute; top: 6px; right: 6px; display: flex; gap: 6px; z-index: 1; }
+.ed-tile__move svg { width: 14px; height: 14px; }

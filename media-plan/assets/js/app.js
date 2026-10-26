@@ -2335,9 +2335,14 @@
       if (list(v.options).length > 1) return [list(v.options)[0]];
       return list(v.media).map(edPath);
     }
-    function edTile(path, n, slot, k, removable) {
+    function edTile(path, n, slot, k, removable, total) {
       var vid = isVidPath(path);
       return '<figure class="ed-tile' + (vid ? ' ed-tile--slidevid' : '') + '">' +
+        // Carrousel : flèches pour changer l'ordre des visuels
+        (total > 1 ? '<div class="ed-tile__move">' +
+          (k > 0 ? '<button type="button" class="ed-tile__del" data-ed-move="' + k + '" data-dir="-1" aria-label="Avancer d’une place">' + SICONS.prev + '</button>' : '') +
+          (k < total - 1 ? '<button type="button" class="ed-tile__del" data-ed-move="' + k + '" data-dir="1" aria-label="Reculer d’une place">' + SICONS.next + '</button>' : '') +
+          '</div>' : '') +
         (vid ? '<video src="' + esc(vidSrc(path)) + '#t=0.3" muted playsinline preload="metadata"></video>' : '<img src="' + esc(src(path)) + '" alt="">') +
         (n || vid ? '<figcaption class="label">' + (n || '') + (vid ? (n ? ' · ' : '') + 'Vidéo' : '') + '</figcaption>' : '') +
         '<div class="ed-tile__acts"><button type="button" class="label" data-ed-pick="' + slot + '" data-k="' + k + '"' + (vid ? ' data-vid' : '') + '>Remplacer</button>' +
@@ -2383,13 +2388,13 @@
         var imgs = edList();
         var withVid = imgs.some(isVidPath);
         label.textContent = ed.kind === 'ad' ? 'Visuel' : imgs.length > 1 ? 'Visuel · carrousel de ' + imgs.length + (withVid ? ' photos et vidéos' : ' photos') : 'Visuel';
-        edBox.innerHTML = imgs.map(function (m, k) { return edTile(m, imgs.length > 1 ? k + 1 : '', 'media', k, imgs.length > 1); }).join('') +
+        edBox.innerHTML = imgs.map(function (m, k) { return edTile(m, imgs.length > 1 ? k + 1 : '', 'media', k, imgs.length > 1, ed.kind === 'post' ? imgs.length : 0); }).join('') +
           (ed.kind === 'post' && imgs.length < 10
             ? '<button type="button" class="ed-add" data-ed-pick="media" data-k="-1"><span>+</span><small class="label">Ajouter une photo</small></button>' +
               '<button type="button" class="ed-add" data-ed-pick="media" data-k="-1" data-vid><span>+</span><small class="label">Ajouter une vidéo</small></button>' : '');
         hint.textContent = ed.kind === 'ad'
           ? 'Format conseillé 4:5 (1080 × 1350).'
-          : imgs.length > 1 ? 'Remplacez ou retirez une photo ou une vidéo ; un ajout se place à la fin. Les vidéos sont recadrées au format des photos (4:5).' : 'Format conseillé 4:5 (1080 × 1350). Ajouter une photo ou une vidéo en fait un carrousel ; la vidéo est recadrée au format des photos.';
+          : imgs.length > 1 ? 'Les flèches changent l’ordre. Remplacez ou retirez une photo ou une vidéo ; un ajout se place à la fin. Les vidéos sont recadrées au format des photos (4:5).' : 'Format conseillé 4:5 (1080 × 1350). Ajouter une photo ou une vidéo en fait un carrousel ; la vidéo est recadrée au format des photos.';
       }
       if (ed.busy) edBox.insertAdjacentHTML('afterbegin', '<div class="ed-busy label" data-ed-busy>' + ed.busy + '</div>');
       if (window.ScrollTrigger) window.ScrollTrigger.refresh();
@@ -2642,6 +2647,12 @@
         // Dans un post, la fenêtre de choix propose aussi les vidéos (une vidéo se glisse dans le carrousel)
         edFile.accept = ed.kind === 'post' && ed.slot === 'media' ? 'image/*,video/*,.mp4,.MP4,.mov,.MOV,.m4v' : 'image/*';
         input.click();
+      } else if ((t = e.target.closest('[data-ed-move]'))) {
+        if (ed.busy) return;
+        var ml = edList(), mk = +t.getAttribute('data-ed-move'), mj = mk + +t.getAttribute('data-dir');
+        if (mj < 0 || mj >= ml.length) return;
+        var mv = ml[mk]; ml[mk] = ml[mj]; ml[mj] = mv;
+        send({ action: 'edit', kind: 'edits', id: ed.key, item: { media: ml } }).then(function () { edPaintMedia(); edEl.querySelector('[data-ed-reset]').hidden = false; });
       } else if ((t = e.target.closest('[data-ed-remove]'))) {
         if (ed.busy) return;
         var l = edList();
