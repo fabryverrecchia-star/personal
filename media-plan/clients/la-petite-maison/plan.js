@@ -63,11 +63,15 @@ window.PLAN = {
   teasing: {
     kicker: 'Avant le 19 novembre',
     title: 'Idées <em>teasing</em>',
-    lead: 'Trois pistes pour faire monter l’attente. Chaque idée se modifie ou s’argumente depuis l’espace équipe.',
+    lead: 'Trois pistes pour faire monter l’attente, tournées le 4 novembre et publiées jusqu’à l’ouverture. Chaque idée se modifie ou s’argumente depuis l’espace équipe.',
+    // Tempo : shoot = jour de tournage, publish = jour de publication, rhythm = précision (série, story…)
     ideas: [
       {
         id: 't1',
         by: 'Fabrizio',
+        shoot: '2026-11-04',
+        publish: '2026-11-17',
+        rhythm: 'Le reel phare, à J-2 de l’ouverture.',
         title: 'Le serveur descend les Champs',
         text: [
           'Un serveur de La Petite Maison, sans jamais montrer son visage : on ne voit que sa tenue et des petits détails.',
@@ -78,6 +82,8 @@ window.PLAN = {
       },
       {
         id: 't2',
+        shoot: '2026-11-04',
+        publish: '2026-11-12',
         title: 'Le citron de Nice à Paris',
         text: [
           'Un citron de la Riviera quitte Nice : cueilli, posé dans une cagette, il voyage de main en main jusqu’à Paris.',
@@ -88,6 +94,9 @@ window.PLAN = {
       },
       {
         id: 't3',
+        shoot: '2026-11-04',
+        publish: '2026-11-09',
+        rhythm: 'Puis un détail tous les deux ou trois jours jusqu’au 18.',
         title: 'Derrière la porte',
         text: [
           'Chaque jour jusqu’à l’ouverture, un détail de ce qui se prépare derrière la porte, jamais la salle en entier : la poignée, une nappe qu’on déplie, les citrons sur le bar, une assiette de tomates, une main qui dresse la table.',

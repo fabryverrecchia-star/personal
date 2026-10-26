@@ -13,8 +13,9 @@
  *        { action: "refresh", kind: "inspirations" }  → récupère le contenu Instagram manquant
  *        { action: "edit",   kind: "edits", id, item: { title, caption, media, poster, video, format, date, time, budget, spent, status, start, end,
  *                                                  objective, audience, cta, added: "post"|"ad"|"story"|"teasing", deleted: true,
- *                                                  details, by, note: { who, text }, unnote: id } }
- *                            (idées teasing : id "teasing-<id de plan.js>", note ajoute un argument, unnote le retire)
+ *                                                  details, by, rhythm, note: { who, text }, unnote: id } }
+ *                            (idées teasing : id "teasing-<id de plan.js>", start = tournage, date = publication,
+ *                             note ajoute un argument, unnote le retire)
  *                            (format : "reel" pour passer un post photo en vidéo, "photo" pour l'inverse)
  *                            (une valeur null rétablit celle du planning)
  *        { action: "reset",  kind: "edits", id }      → revient au post ou à la campagne d'origine
@@ -309,6 +310,7 @@ if ($kind === 'edits') {
         if ($lines) $e[$k] = implode("\n", $lines); else unset($e[$k]);
       }
       elseif ($k === 'by') { $t = clean($v, 30); if ($t !== '') $e[$k] = $t; }
+      elseif ($k === 'rhythm') { $t = clean($v, 140); if ($t !== '') $e[$k] = $t; else unset($e[$k]); }
       elseif ($k === 'note' && is_array($v)) {
         $lines = array_filter(array_map(function ($l) { return clean($l, 1200); }, preg_split('/\r\n|\r|\n/', (string) (isset($v['text']) ? $v['text'] : ''))), 'strlen');
         $t = implode("\n", $lines);

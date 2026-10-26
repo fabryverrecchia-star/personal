@@ -445,6 +445,8 @@
       '<h2 class="suivi__title" data-reveal>' + (tz.title || 'Idées <em>teasing</em>') + '</h2>' +
       (tz.lead ? '<p class="suivi__lead" data-reveal>' + esc(tz.lead) + '</p>' : '') +
       '</header>' +
+      '<p class="label tempo__head" data-reveal>Le tempo, tournages et publications</p>' +
+      '<ol class="tempo" data-tz-tempo aria-label="Tempo jusqu’à l’ouverture"></ol>' +
       '<div class="tz-list" data-teasing></div>' +
       '</section>';
   }
@@ -1247,6 +1249,7 @@
             if (v == null) delete cur[k]; else cur[k] = v;
           });
           if (cur.added === 'teasing' && ('title' in op.item || 'caption' in op.item || 'details' in op.item)) cur.at = iso(new Date());
+          if (cur.rhythm === '') delete cur.rhythm;
           if (Object.keys(cur).length) d.edits[op.id] = cur; else delete d.edits[op.id];
         }
         try { localStorage.setItem(LOCAL, JSON.stringify(d)); } catch (e) { toast('Mémoire de l’appareil pleine : la photo ne sera pas gardée après fermeture.'); }
@@ -1839,6 +1842,9 @@
           details: e.details != null ? lines(e.details) : lines(it.details),
           by: e.at ? e.by || '' : it.by || '', at: e.at || '', edited: !!e.at,
           notes: list(e.notes),
+          // Tempo : jour de tournage (edits.start) et de publication (edits.date), rythme en clair
+          shoot: e.start || it.shoot || '', publish: e.date || it.publish || '',
+          rhythm: e.rhythm != null ? e.rhythm : it.rhythm || '',
         };
       });
     }
@@ -1851,18 +1857,59 @@
         return '<button type="button" class="label chip' + (n === who ? ' is-on' : '') + '" data-who="' + esc(n) + '" aria-pressed="' + (n === who ? 'true' : 'false') + '">' + esc(n) + '</button>';
       }).join('') + '</div>';
     }
+    var tempoEl = document.querySelector('[data-tz-tempo]');
+    function tzNames(ids) {
+      return (ids.length > 1 ? 'Idées ' : 'Idée ') + ids.map(function (t, k) {
+        return (k && k === ids.length - 1 ? ' et ' : k ? ', ' : '') + '<a href="#' + esc(t.key) + '">' + pad(t.n) + '</a>';
+      }).join('');
+    }
+    // Tempo jusqu'à l'ouverture : tournages groupés par jour, publications, grand opening
+    function paintTempo(items) {
+      if (!tempoEl) return;
+      var ev = {}, t0 = today();
+      function at(d, kind) { var k = d + '|' + kind; return (ev[k] = ev[k] || { date: d, kind: kind, ideas: [] }); }
+      items.forEach(function (t) {
+        if (t.shoot) at(t.shoot, 'shoot').ideas.push(t);
+        if (t.publish) at(t.publish, 'publish').ideas.push(t);
+      });
+      var open = PLAN.countdown && String(PLAN.countdown.date || '').slice(0, 10);
+      if (open) at(open, 'open');
+      var rows = Object.keys(ev).map(function (k) { return ev[k]; }).sort(function (a, b) {
+        var o = { shoot: 0, publish: 1, open: 2 };
+        return a.date < b.date ? -1 : a.date > b.date ? 1 : o[a.kind] - o[b.kind];
+      });
+      var KINDS = { shoot: 'Tournage', publish: 'Publication', open: 'Grand opening' };
+      var nextDone = false;
+      tempoEl.innerHTML = rows.map(function (r) {
+        var d = parseDate(r.date), n = Math.round((d - t0) / 864e5), past = n < 0;
+        var next = !past && !nextDone; if (next) nextDone = true;
+        var rh = r.kind === 'publish' ? r.ideas.map(function (t) { return t.rhythm; }).filter(Boolean)[0] : '';
+        return '<li class="tempo__row tempo__row--' + r.kind + (past ? ' is-past' : '') + (next ? ' is-next' : '') + '">' +
+          '<span class="tempo__date"><span class="label">' + JOURS[d.getDay()] + '</span><strong>' + pad(d.getDate()) + '</strong><span class="label">' + MOIS[d.getMonth()] + '</span></span>' +
+          '<span class="tempo__body"><span class="label tempo__kind">' + (r.kind === 'shoot' ? SICONS.video : r.kind === 'publish' ? SICONS.image : SICONS.spark) + KINDS[r.kind] + '</span>' +
+          '<span class="tempo__title">' + (r.kind === 'open' ? 'La Petite Maison ouvre ses portes' : tzNames(r.ideas) + (r.ideas.length === 1 ? ' · ' + esc(r.ideas[0].title) : '')) + '</span>' +
+          (rh ? '<small class="tempo__rhythm">' + esc(rh) + '</small>' : '') + '</span>' +
+          '<span class="label tempo__when">' + (past ? 'Fait' : n === 0 ? 'Aujourd’hui' : 'J-' + n) + '</span>' +
+          '</li>';
+      }).join('');
+    }
     function paintTeasing(force) {
       if (!tzEl) return;
       var items = tzList();
       var sig = JSON.stringify(items) + admin;
       if (!force && sig === tzSig) return;
       tzSig = sig;
+      paintTempo(items);
       tzEl.innerHTML = items.map(function (t) {
         return '<article class="tz" id="' + esc(t.key) + '" data-tz="' + esc(t.id) + '">' +
           '<span class="tz__num" aria-hidden="true">' + pad(t.n) + '</span>' +
           '<p class="label tz__kicker">Idée ' + pad(t.n) + (t.by ? ' · ' + (t.edited ? 'réécrite par ' : 'proposée par ') + esc(t.by) : '') + (t.at ? ' · ' + shortDate(t.at) : '') + '</p>' +
           '<div data-tz-body>' +
           '<h3 class="tz__title">' + esc(t.title) + '</h3>' +
+          (t.shoot || t.publish ? '<p class="tz__tempo">' +
+            (t.shoot ? '<span class="label">' + SICONS.video + 'Tournage · ' + shortDate(t.shoot) + '</span>' : '') +
+            (t.publish ? '<span class="label">' + SICONS.image + 'Publication · ' + shortDate(t.publish) + '</span>' : '') + '</p>' : '') +
+          (t.rhythm ? '<p class="tz__rhythm">' + esc(t.rhythm) + '</p>' : '') +
           '<div class="tz__text">' + t.text.map(function (l) { return '<p>' + esc(l) + '</p>'; }).join('') + '</div>' +
           (t.details.length ? '<div class="tz__details"><span class="label">À trancher</span><ul>' + t.details.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul></div>' : '') +
           '</div>' +
@@ -1893,6 +1940,9 @@
           '<label class="editor__field"><span class="label">Titre</span><input type="text" name="title" maxlength="140" value="' + esc(t.title) + '"></label>' +
           '<label class="editor__field"><span class="label">L’idée <small>une ligne par paragraphe</small></span><textarea name="caption" rows="8" maxlength="2200">' + esc(t.text.join('\n')) + '</textarea></label>' +
           '<label class="editor__field"><span class="label">À trancher <small>une question par ligne</small></span><textarea name="details" rows="3" maxlength="900">' + esc(t.details.join('\n')) + '</textarea></label>' +
+          '<div class="admin-form__row"><label class="editor__field"><span class="label">Tournage</span><input type="date" name="start" value="' + esc(t.shoot) + '"></label>' +
+          '<label class="editor__field"><span class="label">Publication</span><input type="date" name="date" value="' + esc(t.publish) + '"></label></div>' +
+          '<label class="editor__field"><span class="label">Rythme <small>facultatif</small></span><input type="text" name="rhythm" maxlength="140" value="' + esc(t.rhythm) + '" placeholder="Ex. puis un détail tous les deux jours"></label>' +
           tzWho() +
           '<div class="admin-form__actions"><button type="submit" class="label admin-form__go">Enregistrer</button>' +
           '<button type="button" class="label tz__cancel" data-tz-cancel>Annuler</button></div>' +
@@ -1929,7 +1979,7 @@
         } else if (e.target.closest('[data-tz-cancel]')) {
           tzClose(card);
         } else if (admin && e.target.closest('[data-tz-reset]')) {
-          send({ action: 'edit', kind: 'edits', id: 'teasing-' + card.getAttribute('data-tz'), item: { title: null, caption: null, details: null, by: null, at: null } })
+          send({ action: 'edit', kind: 'edits', id: 'teasing-' + card.getAttribute('data-tz'), item: { title: null, caption: null, details: null, by: null, at: null, start: null, date: null, rhythm: null } })
             .then(function (ok) { if (ok) toast('Première version rétablie.'); });
         } else if (admin && (t = e.target.closest('[data-tz-unnote]'))) {
           var nid = t.getAttribute('data-tz-unnote');
@@ -1952,6 +2002,9 @@
           item.title = f.elements.title.value.trim();
           item.caption = f.elements.caption.value.trim();
           item.details = f.elements.details.value.trim();
+          item.start = f.elements.start.value || null;
+          item.date = f.elements.date.value || null;
+          item.rhythm = f.elements.rhythm.value.trim();
           if (!item.title && !item.caption) { toast('L’idée est vide.'); return; }
         } else {
           var txt = f.elements.text.value.trim();
