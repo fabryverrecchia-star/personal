@@ -3645,21 +3645,25 @@
       { id: 'ads', sel: '#ads', title: 'Sponsorisé', icon: SICONS.ads },
     ].filter(function (g) { return app.querySelector(g.sel); });
     var sum = el('<section class="sum" id="sommaire">' +
-      '<div class="sum__grid"></div><div class="sum__stage"></div></section>');
-    var grid = sum.querySelector('.sum__grid'), stage = sum.querySelector('.sum__stage');
+      '<div class="sum__grid"></div></section>');
+    var grid = sum.querySelector('.sum__grid');
     groups.forEach(function (g, k) {
       g.card = el('<button type="button" class="sum__card" data-sum="' + g.id + '" aria-expanded="false">' +
         '<span class="sum__num">' + pad(k + 1) + '</span>' +
         '<span class="sum__icon">' + g.icon + '</span>' +
         '<span class="sum__txt"><b>' + esc(g.title) + '</b><small data-sum-meta></small></span>' +
-        '<span class="sum__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>');
-      grid.appendChild(g.card);
+        '<span class="sum__arrow" aria-hidden="true"><svg class="sum__go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9.5l6 6 6-6"/></svg>' +
+        '<span class="sum__x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg><small>Fermer</small></span></span></button>');
+      var item = el('<div class="sum__item"></div>');
+      item.appendChild(g.card);
+      grid.appendChild(item);
       g.pane = el('<div class="sum__pane" data-pane="' + g.id + '" hidden>' +
         '<header class="sum__head"><p class="label">' + pad(k + 1) + '</p><h2>' + esc(g.title) + '</h2>' +
         '<button type="button" class="label sum__close" data-sum-close>Fermer</button></header><div class="sum__in"></div>' +
-        '<button type="button" class="label sum__back" data-sum-close>Revenir au sommaire</button></div>');
+        '<button type="button" class="sum__back" data-sum-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14.5l6-6 6 6"/></svg>Fermer ' + esc(g.title.toLowerCase()) + '</button></div>');
       app.querySelectorAll(g.sel).forEach(function (n) { g.pane.querySelector('.sum__in').appendChild(n); });
-      stage.appendChild(g.pane);
+      // Vrai accordéon : le contenu s'ouvre juste sous son entrée (l'entrée reste collée en haut tant qu'on lit sa partie)
+      item.appendChild(g.pane);
     });
     var after = document.getElementById('opening') || app.querySelector('.hero');
     app.insertBefore(sum, after ? after.nextSibling : app.firstChild);
@@ -3688,7 +3692,9 @@
     if (st && window.MutationObserver) new MutationObserver(meta).observe(st, { childList: true, subtree: true });
 
     var current = null;
+    function barH() { var b = document.getElementById('bar'); return b ? b.offsetHeight : 60; }
     function show(g, then) {
+      var prev = current;
       groups.forEach(function (x) {
         var on = x === g;
         x.pane.hidden = !on;
@@ -3698,14 +3704,19 @@
       });
       current = g;
       sum.classList.toggle('has-open', !!g);
+      sum.style.setProperty('--sum-top', barH() + 'px');
       try {
         var u = new URL(location.href);
         if (g) u.searchParams.set('vue', g.id); else u.searchParams.delete('vue');
         history.replaceState(null, '', u.pathname + u.search + u.hash);
       } catch (e) {}
       if (window.ScrollTrigger) window.ScrollTrigger.refresh();
-      var to = g ? (then || g.pane) : sum;
-      requestAnimationFrame(function () { window.scrollTo({ top: to.getBoundingClientRect().top + window.pageYOffset - 70, behavior: 'smooth' }); });
+      // L'entrée ouverte vient se caler sous l'en-tête (elle y reste, avec « Fermer », pendant la lecture)
+      var to = g ? (then || g.card) : prev && prev.card;
+      if (to) requestAnimationFrame(function () {
+        var top = to.getBoundingClientRect().top + window.pageYOffset - barH() - (then ? g.card.offsetHeight + 8 : 0);
+        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      });
     }
     function groupOf(node) { return groups.filter(function (g) { return g.pane.contains(node); })[0]; }
     document.addEventListener('click', function (e) {

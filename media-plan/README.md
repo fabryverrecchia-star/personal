@@ -18,8 +18,9 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur (en ligne : 
 - Ouverture directe (`intro: false`, `heroCompact: true`, `noScrollAnim: true`) : la page s'ouvre sur les logos 18H22 × La Petite Maison,
   aux couleurs du client, sans préloader, sans logo écrit et sans apparition au défilement.
 - Sommaire (`menu: true`) sous le compte à rebours, en plein écran : Idées teasing, Le feed, Publications, Stories, en grand texte
-  Helvetica Neue avec icône et nombre, sans photo. Survol ou toucher : le bloc se remplit de la couleur du texte. Toucher affiche la
-  partie juste en dessous (« Revenir au sommaire »). Lien direct : `?vue=teasing`, `?vue=feed`, `?vue=publications`, `?vue=stories`.
+  Helvetica Neue avec icône et nombre, sans photo. Survol ou toucher : le bloc se remplit de la couleur du texte. Accordéon : toucher ouvre la
+  partie juste sous son bloc, qui reste collé en haut avec « × Fermer » pendant la lecture ; un bouton « Fermer … » termine
+  chaque partie. Une seule partie ouverte à la fois. Lien direct : `?vue=teasing`, `?vue=feed`, `?vue=publications`, `?vue=stories`.
   Barre fixe du bas : Retours, Inspi, Branding, Équipe.
 - En ligne automatiquement : une publication dont la date est passée porte « En ligne » sur sa fiche et sur sa vignette du feed (voilée).
 - Stories jour par jour (`storiesByDay: true`) : une rangée par jour sous sa date, l'heure sous chaque story.

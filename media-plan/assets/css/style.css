@@ -2571,11 +2571,15 @@ body.has-sum .countdown { padding-top: 36px; padding-bottom: 24px; }
 /* Sommaire (PLAN.menu) : plein écran, texte seul en grotesque, l'entrée se remplit au survol ou au toucher */
 .sum { --sum-font: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 0 0 24px; scroll-margin-top: 64px; }
 .sum__grid {
-  display: grid;
-  grid-auto-rows: 1fr;
+  display: flex; flex-direction: column;
   min-height: calc(100svh - 64px - 66px - env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--ink);
 }
+/* Rien d'ouvert : les entrées se partagent l'écran ; une partie ouverte : chaque entrée reprend sa hauteur */
+.sum:not(.has-open) .sum__item { flex: 1 1 0; display: flex; }
+.sum:not(.has-open) .sum__card { flex: 1 1 auto; }
+.sum.has-open .sum__grid { min-height: 0; }
+.sum__card.is-on { position: sticky; top: var(--sum-top, 60px); z-index: 6; min-height: 72px; }
 .sum__card {
   position: relative;
   display: grid; grid-template-columns: 28px 26px minmax(0, 1fr) 24px; gap: 14px; align-items: center;
@@ -2607,17 +2611,24 @@ body.has-sum .countdown { padding-top: 36px; padding-bottom: 24px; }
 .sum__txt { display: grid; gap: 4px; min-width: 0; }
 .sum__txt b { font-weight: 500; font-size: clamp(30px, 9vw, 44px); line-height: 1; letter-spacing: -0.025em; }
 .sum__txt small { font-size: 13px; font-weight: 400; letter-spacing: 0.01em; opacity: 0.7; }
-.sum__arrow svg { display: block; width: 22px; height: 22px; transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1); }
-.sum__card.is-on .sum__arrow svg { transform: rotate(90deg); }
-@media (hover: hover) { .sum__card:hover .sum__arrow svg { transform: translateX(4px); } .sum__card.is-on:hover .sum__arrow svg { transform: rotate(90deg); } }
-.sum__pane { padding-top: 8px; scroll-margin-top: 64px; }
+.sum__arrow { justify-self: end; }
+.sum__go { display: block; width: 22px; height: 22px; transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1); }
+@media (hover: hover) { .sum__card:hover .sum__go { transform: translateY(3px); } }
+.sum__x { display: none; flex-direction: column; align-items: center; gap: 3px; }
+.sum__x svg { display: block; width: 22px; height: 22px; }
+.sum__x small { font: 500 9px/1 var(--sum-font); letter-spacing: 0.06em; text-transform: uppercase; }
+.sum__card.is-on .sum__go { display: none; }
+.sum__card.is-on .sum__x { display: flex; }
+.sum__card.is-on { grid-template-columns: 28px 26px minmax(0, 1fr) 40px; }
+.sum__pane { padding: 8px 0 28px; border-bottom: 1px solid var(--ink); }
 .sum__pane[hidden] { display: none; }
 .sum__head { display: none; }
 .sum__back {
-  display: block; width: calc(100% - var(--gutter) * 2); margin: 16px auto 0; padding: 16px 0 15px;
+  display: flex; align-items: center; justify-content: center; gap: 8px; width: calc(100% - var(--gutter) * 2); margin: 16px auto 0; padding: 16px 0 15px;
   border: 1px solid var(--ink); border-radius: 0;
   font: 500 13px/1 var(--sum-font); letter-spacing: 0.02em; text-transform: none; text-decoration: none; color: var(--ink);
 }
+.sum__back svg { width: 16px; height: 16px; flex: none; }
 .sum__back:active { background: var(--ink); color: var(--bg); }
 .sum__in > .teasing { padding-top: 16px; }
 .sum__in > .teasing > .suivi__head, .sum__in > .stories > .stories__head { display: none; }
