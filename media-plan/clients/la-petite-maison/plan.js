@@ -97,8 +97,8 @@ window.PLAN = {
       {
         id: 't3',
         shoot: '2026-11-04',
-        publish: '2026-11-17',
-        rhythm: 'Le dernier teasing, à J-2 de l’ouverture.',
+        publish: '2026-11-16',
+        rhythm: 'Le dernier teasing, à J-3 de l’ouverture.',
         title: 'Le moment La Petite Maison',
         text: [
           'Un mélange des inspis citées : les sujets et le format captivant de @bistro_tino, un concept romantique, et l’expérience racontée en plans fixes.',
