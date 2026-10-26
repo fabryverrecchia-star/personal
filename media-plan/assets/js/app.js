@@ -2954,8 +2954,9 @@
     var brandBtn = document.querySelector('[data-brand-open]');
     var fab = document.querySelector('[data-fab]');
     var items = [
-      '<a class="dock__item" href="#feed" data-dock="feed">' + SICONS.image + '<span>Planning</span></a>',
-      document.getElementById('stories') ? '<a class="dock__item" href="#stories" data-dock="stories">' + SICONS.story + '<span>Stories</span></a>' : '',
+      PLAN.menu ? '<button type="button" class="dock__item" data-menu-open>' + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 7h16M4 12h16M4 17h10"/></svg>' + '<span>Menu</span></button>' : '',
+      PLAN.menu ? '' : '<a class="dock__item" href="#feed" data-dock="feed">' + SICONS.image + '<span>Planning</span></a>',
+      document.getElementById('stories') && !PLAN.menu ? '<a class="dock__item" href="#stories" data-dock="stories">' + SICONS.story + '<span>Stories</span></a>' : '',
       PLAN.feedback ? '<a class="dock__item" href="#retours" data-dock="retours">' + SICONS.meeting + '<span>Retours</span><i class="dock__badge" data-dock-count hidden></i></a>' : '',
       inspiBtn ? '<button type="button" class="dock__item" data-dock-inspi>' + SICONS.spark + '<span>Inspi</span></button>' : '',
       brandBtn ? '<button type="button" class="dock__item" data-dock-brand>' + SICONS.photo + '<span>Branding</span></button>' : '',
@@ -3506,7 +3507,7 @@
         to['--' + k] = PLAN.theme[k];
       });
       var meta = document.querySelector('meta[name="theme-color"]');
-      gsap.fromTo(root, from, Object.assign({}, to, {
+      THEME_TWEEN = gsap.fromTo(root, from, Object.assign({}, to, {
         ease: 'none',
         immediateRender: false,
         scrollTrigger: {
@@ -3580,6 +3581,106 @@
       scaleY: 0, ease: 'none',
       scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true },
     });
+  }
+
+  /* -------------------------------------------- menu : une partie à la fois */
+  // PLAN.menu : le bouton « Menu » de la barre du bas liste les parties ; en choisir une n'affiche qu'elle
+  // (sans l'ouverture), « Tout afficher » revient à la page entière. Lien direct : ?vue=<partie>.
+  var THEME_TWEEN = null;
+  function initMenu() {
+    if (!PLAN.menu) return;
+    var app = document.getElementById('app');
+    var groups = [
+      { id: 'opening', sel: '#opening', title: 'Grand opening', sub: 'Le compte à rebours', icon: SICONS.spark },
+      { id: 'teasing', sel: '#teasing', title: 'Idées teasing', sub: 'Le tempo des tournages et les idées', icon: SICONS.video },
+      { id: 'feed', sel: '#feed', title: 'Le feed', sub: 'Aperçu du profil Instagram', icon: SICONS.image },
+      { id: 'publications', sel: '.week', title: 'Les publications', sub: 'Visuels, légendes et vos avis', icon: SICONS.photo },
+      { id: 'stories', sel: '#stories', title: 'Les stories', sub: 'En plein écran, comme sur Instagram', icon: SICONS.story },
+      { id: 'ads', sel: '#ads', title: 'Sponsorisé', sub: 'Campagnes et budget', icon: SICONS.ads },
+      { id: 'retours', sel: '#retours', title: 'Vos retours', sub: 'Le récapitulatif à nous envoyer', icon: SICONS.meeting },
+    ].filter(function (g) { return app.querySelector(g.sel); });
+    var panels = [
+      document.querySelector('[data-inspi-open]') ? { act: 'inspi', title: 'Le coin inspi', sub: 'Reels et carrousels du mois', icon: SICONS.spark } : null,
+      document.querySelector('[data-brand-open]') ? { act: 'brand', title: 'Branding', sub: 'Playlists, typographie, banques d’images', icon: SICONS.photo } : null,
+    ].filter(Boolean);
+    function row(attr, g) {
+      return '<button type="button" class="menu__row" ' + attr + '>' + '<span class="menu__icon">' + g.icon + '</span>' +
+        '<span class="menu__txt"><b>' + esc(g.title) + '</b><small>' + esc(g.sub) + '</small></span>' +
+        '<span class="menu__go" aria-hidden="true">' + SICONS_NEXT + '</span></button>';
+    }
+    var sheet = el('<div class="menu" data-menu aria-hidden="true" role="dialog" aria-modal="true" aria-label="Menu">' +
+      '<div class="menu__backdrop" data-menu-close></div>' +
+      '<div class="menu__panel">' +
+      '<header class="menu__head"><div><p class="label menu__kicker">Afficher seulement</p><h3 class="menu__title">Que voulez-vous voir ?</h3></div>' +
+      '<button type="button" class="inspi__close" data-menu-close aria-label="Fermer">' + SICONS.close + '</button></header>' +
+      '<div class="menu__list">' +
+      groups.map(function (g) { return row('data-vue="' + g.id + '"', g); }).join('') +
+      (panels.length ? '<p class="label menu__sep">Panneaux</p>' + panels.map(function (g) { return row('data-menu-act="' + g.act + '"', g); }).join('') : '') +
+      '</div>' +
+      '<button type="button" class="label menu__all" data-vue="">Tout afficher</button>' +
+      '</div></div>');
+    document.body.appendChild(sheet);
+    var bar = el('<div class="focusbar"><button type="button" class="focusbar__menu" data-menu-open>' + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 7h16M4 12h16M4 17h10"/></svg>' +
+      '<span><small class="label">Vous regardez</small><b data-focus-title></b></span></button>' +
+      '<button type="button" class="label focusbar__all" data-vue="">Tout afficher</button></div>');
+    app.insertBefore(bar, app.firstChild);
+    var current = '';
+    function open(on) {
+      sheet.classList.toggle('is-open', on);
+      sheet.setAttribute('aria-hidden', on ? 'false' : 'true');
+      document.body.classList.toggle('is-locked', on);
+      sheet.querySelectorAll('[data-vue]').forEach(function (b) { b.classList.toggle('is-on', b.getAttribute('data-vue') === current && !!current); });
+    }
+    function theme(on) {
+      // Sans l'ouverture, la page est directement aux couleurs du client
+      var st = THEME_TWEEN && THEME_TWEEN.scrollTrigger;
+      if (on) {
+        if (st) st.disable(false);
+        Object.keys(PLAN.theme || {}).forEach(function (k) { document.documentElement.style.setProperty('--' + k, PLAN.theme[k]); });
+      } else if (st) st.enable();
+    }
+    function setVue(id, keepScroll) {
+      var g = groups.filter(function (x) { return x.id === id; })[0];
+      current = g ? g.id : '';
+      app.querySelectorAll('.is-focus').forEach(function (x) { x.classList.remove('is-focus'); });
+      document.body.classList.toggle('has-focus', !!g);
+      if (g) {
+        app.querySelectorAll(g.sel).forEach(function (x) { x.classList.add('is-focus'); });
+        bar.querySelector('[data-focus-title]').textContent = g.title;
+      }
+      theme(!!g);
+      try {
+        var u = new URL(location.href);
+        if (g) u.searchParams.set('vue', g.id); else u.searchParams.delete('vue');
+        history.replaceState(null, '', u.pathname + u.search + u.hash);
+      } catch (e) {}
+      if (!keepScroll) window.scrollTo({ top: 0, behavior: 'instant' });
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+      if (g && !keepScroll && gsap && !reduce) gsap.fromTo(app.querySelectorAll('.is-focus, .focusbar'), { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.05, ease: 'power3.out', clearProps: 'transform' });
+    }
+    document.addEventListener('click', function (e) {
+      var t;
+      if (e.target.closest('[data-menu-open]')) { e.preventDefault(); open(true); }
+      else if (e.target.closest('[data-menu-close]')) open(false);
+      else if ((t = e.target.closest('[data-vue]'))) { open(false); setVue(t.getAttribute('data-vue')); }
+      else if ((t = e.target.closest('[data-menu-act]'))) {
+        open(false);
+        var b = document.querySelector(t.getAttribute('data-menu-act') === 'inspi' ? '[data-inspi-open]' : '[data-brand-open]');
+        if (b) b.click();
+      } else if (current && (t = e.target.closest('a[href^="#"]'))) {
+        // Lien vers une partie masquée : on passe sur cette partie
+        var target = t.getAttribute('href').length > 1 && document.getElementById(t.getAttribute('href').slice(1));
+        if (!target || target.offsetParent !== null || target.closest('.focusbar')) return;
+        var g = groups.filter(function (x) { var n = app.querySelector(x.sel); return [].some.call(app.querySelectorAll(x.sel), function (s) { return s === target || s.contains(target); }); })[0];
+        if (!g) return;
+        e.preventDefault();
+        setVue(g.id, true);
+        setTimeout(function () { window.scrollTo({ top: target.getBoundingClientRect().top + window.pageYOffset - 90, behavior: 'smooth' }); }, 60);
+      }
+    }, true);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sheet.classList.contains('is-open')) open(false); });
+    var start = new URLSearchParams(location.search).get('vue');
+    if (start) document.addEventListener('mp:ready', function () { setVue(start, false); }, { once: true });
   }
 
   /* ------------------------------------------------------ compte à rebours */
@@ -3719,6 +3820,7 @@
   initInlineVideos();
   initViewer();
   initDock();
+  initMenu();
   initCountdown();
   initScroll();
   preload();
