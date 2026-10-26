@@ -20,8 +20,10 @@ window.PLAN = {
   // L'ouverture 18H22 ne se joue qu'à la première visite de la journée
   introDaily: true,
   period: 'Octobre 2026',
-  // Bouton « Menu » (barre du bas) : n'afficher qu'une partie à la fois. Lien direct : ?vue=teasing, ?vue=feed…
+  // Sommaire en accordéon sous le compte à rebours ; « Menu » (barre du bas) y remonte. Lien direct : ?vue=teasing, ?vue=feed…
   menu: true,
+  // Le logo s'écrit une fois après l'ouverture 18H22, puis disparaît
+  logoIntro: true,
   // Texte d'intro, chiffres clés et légende retirés le 26 octobre
   stats: false,
 

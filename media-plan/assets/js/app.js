@@ -134,9 +134,11 @@
     });
     info.forEach(function (o) { o.p.style.strokeDasharray = o.len + ' ' + o.len; o.p.style.strokeDashoffset = o.len; });
     path.setAttribute('mask', 'url(#' + id + ')');
-    var tl = gsap.timeline({
-      scrollTrigger: { trigger: box, start: 'top 90%', end: 'bottom 45%', scrub: 0.6 },
-    });
+    // data-compose-play : écriture jouée dans le temps (ouverture), sinon au rythme du défilement
+    var tl = box.hasAttribute('data-compose-play')
+      ? gsap.timeline({ paused: true })
+      : gsap.timeline({ scrollTrigger: { trigger: box, start: 'top 90%', end: 'bottom 45%', scrub: 0.6 } });
+    box._write = tl;
     var at = 0;
     info.forEach(function (o) {
       var dur = Math.max(0.15, o.len / 400);
@@ -506,7 +508,13 @@
       guideHtml() +
       '</section>';
 
-    if (PLAN.theme || c.badge) {
+    // PLAN.logoIntro : le logo du client s'écrit une fois, juste après l'ouverture 18H22, puis disparaît (pas de partie « univers »)
+    if (PLAN.logoIntro && c.badge && !document.querySelector('[data-logo-intro]')) {
+      document.body.insertAdjacentHTML('beforeend', '<div class="logo-intro" data-logo-intro aria-hidden="true"' +
+        (PLAN.theme ? ' style="background:' + esc(PLAN.theme.bg) + ';color:' + esc(PLAN.theme.ink) + '"' : '') + '>' +
+        '<div class="logo-intro__badge" data-svg="' + esc(src(c.badge)) + '" data-compose data-compose-play></div></div>');
+    }
+    if ((PLAN.theme || c.badge) && !PLAN.logoIntro) {
       html +=
         '<section class="brand" id="univers">' +
         (c.badge ? '<div class="brand__badge" data-svg="' + esc(src(c.badge)) + '" data-compose></div>' : '') +
@@ -3594,15 +3602,14 @@
     });
   }
 
-  /* -------------------------------------------- menu : une partie à la fois */
-  // PLAN.menu : le bouton « Menu » de la barre du bas liste les parties ; en choisir une n'affiche qu'elle
-  // (sans l'ouverture), « Tout afficher » revient à la page entière. Lien direct : ?vue=<partie>.
+  /* --------------------------------------- sommaire en accordéon (accueil) */
+  // PLAN.menu : sous le compte à rebours, chaque partie (idées teasing, feed, publications, stories, retours)
+  // est repliée dans un accordéon ; toucher un titre l'ouvre et referme les autres. Lien direct : ?vue=<partie>.
   var THEME_TWEEN = null;
   function initMenu() {
     if (!PLAN.menu) return;
     var app = document.getElementById('app');
     var groups = [
-      { id: 'opening', sel: '#opening', title: 'Grand opening', sub: 'Le compte à rebours', icon: SICONS.spark },
       { id: 'teasing', sel: '#teasing', title: 'Idées teasing', sub: 'Le tempo des tournages et les idées', icon: SICONS.video },
       { id: 'feed', sel: '#feed', title: 'Le feed', sub: 'Aperçu du profil Instagram', icon: SICONS.image },
       { id: 'publications', sel: '.week', title: 'Les publications', sub: 'Visuels, légendes et vos avis', icon: SICONS.photo },
@@ -3614,84 +3621,75 @@
       document.querySelector('[data-inspi-open]') ? { act: 'inspi', title: 'Le coin inspi', sub: 'Reels et carrousels du mois', icon: SICONS.spark } : null,
       document.querySelector('[data-brand-open]') ? { act: 'brand', title: 'Branding', sub: 'Playlists, typographie, banques d’images', icon: SICONS.photo } : null,
     ].filter(Boolean);
-    function row(attr, g) {
-      return '<button type="button" class="menu__row" ' + attr + '>' + '<span class="menu__icon">' + g.icon + '</span>' +
-        '<span class="menu__txt"><b>' + esc(g.title) + '</b><small>' + esc(g.sub) + '</small></span>' +
-        '<span class="menu__go" aria-hidden="true">' + SICONS_NEXT + '</span></button>';
+    function head(attr, g, chev) {
+      return '<button type="button" class="acc__head" ' + attr + '>' + '<span class="acc__icon">' + g.icon + '</span>' +
+        '<span class="acc__txt"><b>' + esc(g.title) + '</b><small>' + esc(g.sub) + '</small></span>' +
+        '<span class="acc__chev" aria-hidden="true">' + (chev ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 9.5l6 6 6-6"/></svg>' : SICONS_NEXT) + '</span></button>';
     }
-    var sheet = el('<div class="menu" data-menu aria-hidden="true" role="dialog" aria-modal="true" aria-label="Menu">' +
-      '<div class="menu__backdrop" data-menu-close></div>' +
-      '<div class="menu__panel">' +
-      '<header class="menu__head"><div><p class="label menu__kicker">Afficher seulement</p><h3 class="menu__title">Que voulez-vous voir ?</h3></div>' +
-      '<button type="button" class="inspi__close" data-menu-close aria-label="Fermer">' + SICONS.close + '</button></header>' +
-      '<div class="menu__list">' +
-      groups.map(function (g) { return row('data-vue="' + g.id + '"', g); }).join('') +
-      (panels.length ? '<p class="label menu__sep">Panneaux</p>' + panels.map(function (g) { return row('data-menu-act="' + g.act + '"', g); }).join('') : '') +
-      '</div>' +
-      '<button type="button" class="label menu__all" data-vue="">Tout afficher</button>' +
-      '</div></div>');
-    document.body.appendChild(sheet);
-    var bar = el('<div class="focusbar"><button type="button" class="focusbar__menu" data-menu-open>' + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 7h16M4 12h16M4 17h10"/></svg>' +
-      '<span><small class="label">Vous regardez</small><b data-focus-title></b></span></button>' +
-      '<button type="button" class="label focusbar__all" data-vue="">Tout afficher</button></div>');
-    app.insertBefore(bar, app.firstChild);
-    var current = '';
-    function open(on) {
-      sheet.classList.toggle('is-open', on);
-      sheet.setAttribute('aria-hidden', on ? 'false' : 'true');
-      document.body.classList.toggle('is-locked', on);
-      sheet.querySelectorAll('[data-vue]').forEach(function (b) { b.classList.toggle('is-on', b.getAttribute('data-vue') === current && !!current); });
+    var acc = el('<section class="acc" id="sommaire"><p class="label acc__kicker">Sommaire</p><div class="acc__list"></div></section>');
+    var listEl = acc.querySelector('.acc__list');
+    groups.forEach(function (g) {
+      var item = el('<div class="acc__item" data-acc="' + g.id + '">' + head('data-acc-toggle aria-expanded="false"', g, true) +
+        '<div class="acc__panel"><div class="acc__in"></div></div></div>');
+      var inner = item.querySelector('.acc__in');
+      app.querySelectorAll(g.sel).forEach(function (n) { inner.appendChild(n); });
+      g.item = item;
+      listEl.appendChild(item);
+    });
+    panels.forEach(function (g) { listEl.appendChild(el('<div class="acc__item acc__item--panel">' + head('data-acc-act="' + g.act + '"', g, false) + '</div>')); });
+    var after = document.getElementById('opening') || app.querySelector('.hero');
+    app.insertBefore(acc, after ? after.nextSibling : app.firstChild);
+    document.body.classList.add('has-acc');
+
+    function refresh() { if (window.ScrollTrigger) window.ScrollTrigger.refresh(); }
+    function toTop(n, smooth) {
+      window.scrollTo({ top: n.getBoundingClientRect().top + window.pageYOffset - 76, behavior: smooth ? 'smooth' : 'instant' });
     }
-    function theme(on) {
-      // Sans l'ouverture, la page est directement aux couleurs du client
-      var st = THEME_TWEEN && THEME_TWEEN.scrollTrigger;
-      if (on) {
-        if (st) st.disable(false);
-        Object.keys(PLAN.theme || {}).forEach(function (k) { document.documentElement.style.setProperty('--' + k, PLAN.theme[k]); });
-      } else if (st) st.enable();
-    }
-    function setVue(id, keepScroll) {
-      var g = groups.filter(function (x) { return x.id === id; })[0];
-      current = g ? g.id : '';
-      app.querySelectorAll('.is-focus').forEach(function (x) { x.classList.remove('is-focus'); });
-      document.body.classList.toggle('has-focus', !!g);
-      if (g) {
-        app.querySelectorAll(g.sel).forEach(function (x) { x.classList.add('is-focus'); });
-        bar.querySelector('[data-focus-title]').textContent = g.title;
-      }
-      theme(!!g);
+    function setOpen(g, on, then) {
+      groups.forEach(function (x) {
+        var o = x === g ? on : false;
+        if (x.item.classList.contains('is-open') === o) return;
+        x.item.classList.toggle('is-open', o);
+        x.item.querySelector('[data-acc-toggle]').setAttribute('aria-expanded', o ? 'true' : 'false');
+        if (!o) x.item.querySelectorAll('video').forEach(function (v) { try { v.pause(); } catch (e) {} });
+      });
       try {
         var u = new URL(location.href);
-        if (g) u.searchParams.set('vue', g.id); else u.searchParams.delete('vue');
+        if (g && on) u.searchParams.set('vue', g.id); else u.searchParams.delete('vue');
         history.replaceState(null, '', u.pathname + u.search + u.hash);
       } catch (e) {}
-      if (!keepScroll) window.scrollTo({ top: 0, behavior: 'instant' });
-      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
-      if (g && !keepScroll && gsap && !reduce) gsap.fromTo(app.querySelectorAll('.is-focus, .focusbar'), { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.05, ease: 'power3.out', clearProps: 'transform' });
+      // Après l'ouverture en douceur : positions des apparitions recalculées, titre de la partie en haut
+      setTimeout(function () {
+        refresh();
+        if (g && on) (then || function () { toTop(g.item, true); })();
+      }, 520);
     }
+    function groupOf(node) { return groups.filter(function (g) { return g.item.contains(node); })[0]; }
     document.addEventListener('click', function (e) {
       var t;
-      if (e.target.closest('[data-menu-open]')) { e.preventDefault(); open(true); }
-      else if (e.target.closest('[data-menu-close]')) open(false);
-      else if ((t = e.target.closest('[data-vue]'))) { open(false); setVue(t.getAttribute('data-vue')); }
-      else if ((t = e.target.closest('[data-menu-act]'))) {
-        open(false);
-        var b = document.querySelector(t.getAttribute('data-menu-act') === 'inspi' ? '[data-inspi-open]' : '[data-brand-open]');
+      if ((t = e.target.closest('[data-acc-toggle]'))) {
+        var g = groupOf(t);
+        setOpen(g, !g.item.classList.contains('is-open'));
+      } else if ((t = e.target.closest('[data-acc-act]'))) {
+        var b = document.querySelector(t.getAttribute('data-acc-act') === 'inspi' ? '[data-inspi-open]' : '[data-brand-open]');
         if (b) b.click();
-      } else if (current && (t = e.target.closest('a[href^="#"]'))) {
-        // Lien vers une partie masquée : on passe sur cette partie
-        var target = t.getAttribute('href').length > 1 && document.getElementById(t.getAttribute('href').slice(1));
-        if (!target || target.offsetParent !== null || target.closest('.focusbar')) return;
-        var g = groups.filter(function (x) { var n = app.querySelector(x.sel); return [].some.call(app.querySelectorAll(x.sel), function (s) { return s === target || s.contains(target); }); })[0];
-        if (!g) return;
+      } else if (e.target.closest('[data-menu-open]')) {
         e.preventDefault();
-        setVue(g.id, true);
-        setTimeout(function () { window.scrollTo({ top: target.getBoundingClientRect().top + window.pageYOffset - 90, behavior: 'smooth' }); }, 60);
+        setOpen(null, false);
+        toTop(acc, true);
+      } else if ((t = e.target.closest('a[href^="#"]')) && !t.hasAttribute('data-grid')) {
+        // Lien vers une partie repliée (les vignettes du feed ouvrent la publication sur place) : on l'ouvre, puis on descend jusqu'à l'élément
+        var id = t.getAttribute('href').slice(1);
+        var target = id && document.getElementById(id);
+        var tg = target && groupOf(target);
+        if (!tg || tg.item.classList.contains('is-open')) return;
+        e.preventDefault();
+        setOpen(tg, true, function () { toTop(target, true); });
       }
     }, true);
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sheet.classList.contains('is-open')) open(false); });
     var start = new URLSearchParams(location.search).get('vue');
-    if (start) document.addEventListener('mp:ready', function () { setVue(start, false); }, { once: true });
+    var sg = groups.filter(function (g) { return g.id === start; })[0];
+    if (sg) document.addEventListener('mp:ready', function () { setOpen(sg, true); }, { once: true });
   }
 
   /* ------------------------------------------------------ compte à rebours */
@@ -3748,6 +3746,35 @@
     var rule = document.querySelector('.hero__rule');
 
     var seen = document.documentElement.classList.contains('intro-seen');
+    var logoBox = document.querySelector('[data-logo-intro]');
+    // Couleurs du client sur toute la page (sans partie « univers » pour faire le fondu au défilement)
+    function clientTheme(dur) {
+      if (!PLAN.logoIntro || !PLAN.theme) return;
+      var to = {};
+      Object.keys(PLAN.theme).forEach(function (k) { to['--' + k] = PLAN.theme[k]; });
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', PLAN.theme.bg);
+      if (gsap && dur) gsap.to(document.documentElement, Object.assign({ duration: dur, ease: 'power2.inOut' }, to));
+      else Object.keys(to).forEach(function (k) { document.documentElement.style.setProperty(k, to[k]); });
+    }
+    // Le logo s'écrit (2,5 s environ), reste un instant, puis le voile se lève sur la page aux couleurs du client
+    function playLogo() {
+      if (!logoBox) return;
+      var t0 = Date.now();
+      (function wait() {
+        var badge = logoBox.querySelector('.logo-intro__badge');
+        var tl = badge && badge._write;
+        if (!tl && Date.now() - t0 < 1500) { setTimeout(wait, 60); return; }
+        var write = tl ? tl.duration() : 0;
+        var speed = write > 2.6 ? write / 2.6 : 1;
+        if (tl) tl.timeScale(speed).play(0);
+        gsap.timeline({ delay: (write / speed) + 0.5, onComplete: function () { logoBox.remove(); } })
+          .add(function () { clientTheme(0); }, 0)
+          .to(logoBox, { autoAlpha: 0, duration: 0.9, ease: 'power2.inOut' }, 0)
+          .fromTo(heroChars, { yPercent: 110 }, { yPercent: 0, duration: 1.1, ease: 'expo.out', stagger: 0.03 }, 0.2);
+      })();
+    }
+    if (logoBox && (seen || QUICK || !gsap || reduce)) { logoBox.remove(); logoBox = null; clientTheme(0); }
     if (seen && gsap && !QUICK) {
       // Déjà vue aujourd'hui : pas d'ouverture, le titre monte simplement
       done();
@@ -3795,7 +3822,7 @@
     intro.play();
 
     Promise.all([ready, new Promise(function (res) { intro.eventCallback('onComplete', res); })]).then(function () {
-      gsap.timeline({ onComplete: done })
+      gsap.timeline({ onComplete: function () { done(); playLogo(); } })
         .to(inner, { scale: 0.92, autoAlpha: 0, duration: 0.7, ease: 'power3.in' }, 0.2)
         .set(curtain, { transformOrigin: 'bottom' }, 0)
         .to(curtain, { scaleY: 1, duration: 0.8, ease: 'expo.inOut' }, 0.45)

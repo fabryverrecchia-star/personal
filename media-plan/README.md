@@ -15,9 +15,11 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur (en ligne : 
   Inspirations : seulement le bouton « Voir dans le coin inspi » (aucun lien vers un compte extérieur).
   Tempo : chaque idée a un jour de tournage (`shoot`), de publication (`publish`) et un rythme facultatif (`rhythm`),
   repris dans « Le tempo » (frise jusqu'au grand opening, J-n) et modifiables dans « Modifier l'idée ».
-- Menu (`menu: true`) : bouton « Menu » dans la barre du bas. On choisit une partie (Grand opening, Idées teasing, Feed,
-  Publications, Stories, Retours) et seule celle-ci s'affiche, sans l'ouverture, avec « Tout afficher » pour revenir à la page entière.
-  Lien direct vers une partie : `?vue=opening`, `?vue=teasing`, `?vue=feed`, `?vue=publications`, `?vue=stories`, `?vue=retours`.
+- Sommaire en accordéon (`menu: true`) : sous le compte à rebours, Idées teasing, Feed, Publications, Stories et Retours sont repliés ;
+  toucher un titre ouvre la partie et referme les autres. « Menu » (barre du bas) remonte au sommaire. Lien direct qui ouvre une partie :
+  `?vue=teasing`, `?vue=feed`, `?vue=publications`, `?vue=stories`, `?vue=retours`.
+- Logo (`logoIntro: true`) : à la première visite du jour, le logo La Petite Maison s'écrit juste après l'ouverture 18H22, puis le voile
+  se lève sur la page aux couleurs du client. La partie « univers » au défilement est retirée.
 - Texte d'intro, chiffres clés et légende des formats retirés (`stats: false`).
 - Jours de passage, calendrier et missions : retirés le 26 octobre (`suivi.calendar: false`, `suivi.missions: false`).
 - Repères sur téléphone : « Mode d'emploi » en 3 étapes sous les chiffres clés, et une barre fixe en bas

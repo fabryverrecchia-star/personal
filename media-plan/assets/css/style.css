@@ -2545,60 +2545,50 @@ body.has-dock .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); }
 }
 .tz__ref svg { width: 13px; height: 13px; flex: none; }
 
-/* Menu : une partie à la fois (PLAN.menu) */
-body.has-focus #app > section:not(.is-focus), body.has-focus #app > nav.weeknav { display: none; }
-.focusbar { display: none; }
-body.has-focus .focusbar {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  max-width: var(--max);
-  margin: 0 auto;
-  padding: calc(env(safe-area-inset-top, 0px) + 78px) var(--gutter) 14px;
-  border-bottom: 1px solid var(--ink-faint);
-}
-.focusbar__menu { display: flex; align-items: center; gap: 12px; min-width: 0; text-align: left; -webkit-tap-highlight-color: transparent; }
-.focusbar__menu svg { flex: none; width: 22px; height: 22px; }
-.focusbar__menu span { display: grid; gap: 2px; min-width: 0; }
-.focusbar__menu small { font-size: 8.5px; color: var(--ink-soft); }
-.focusbar__menu b { font-family: var(--display); font-weight: 300; font-size: 26px; line-height: 1.05; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.focusbar__all { flex: none; padding: 4px 0; font-size: 9px; color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px; }
-body.has-focus .countdown { padding-top: 48px; }
-body.has-focus .teasing { padding-top: 36px; }
-
-.menu { position: fixed; inset: 0; z-index: 60; visibility: hidden; pointer-events: none; }
-.menu.is-open { visibility: visible; pointer-events: auto; }
-.menu__backdrop { position: absolute; inset: 0; background: rgba(20, 16, 14, 0.38); opacity: 0; transition: opacity 0.45s var(--ease); }
-.menu.is-open .menu__backdrop { opacity: 1; }
-.menu__panel {
-  position: absolute; left: 0; right: 0; bottom: 0;
-  max-height: 88vh; max-height: 88svh;
-  overflow-y: auto; overscroll-behavior: contain;
-  padding: 20px var(--gutter) calc(env(safe-area-inset-bottom, 0px) + 20px);
-  background: var(--bg);
-  border-radius: 18px 18px 0 0;
-  transform: translateY(100%);
-  transition: transform 0.55s var(--ease);
-}
-.menu.is-open .menu__panel { transform: none; }
-.menu__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
-.menu__kicker { margin: 0; font-size: 9px; color: var(--ink-soft); }
-.menu__title { margin: 4px 0 0; font-family: var(--display); font-weight: 300; font-size: 32px; line-height: 1.05; }
-.menu__list { display: grid; }
-.menu__row {
-  display: grid; grid-template-columns: 36px minmax(0, 1fr) 18px; gap: 12px; align-items: center;
-  width: 100%; padding: 14px 0; text-align: left;
-  border-bottom: 1px solid var(--ink-faint);
-  -webkit-tap-highlight-color: transparent;
-}
-.menu__row:active { background: var(--tint); }
-.menu__icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--ink-faint); }
-.menu__icon svg { width: 18px; height: 18px; }
-.menu__row.is-on .menu__icon { background: var(--ink); border-color: var(--ink); color: var(--bg); }
-.menu__txt { display: grid; gap: 2px; min-width: 0; }
-.menu__txt b { font-family: var(--display); font-weight: 300; font-size: 23px; line-height: 1.1; }
-.menu__txt small { font-size: 15px; color: var(--ink-soft); line-height: 1.3; }
-.menu__go svg { width: 16px; height: 16px; color: var(--ink-soft); }
-.menu__sep { margin: 22px 0 2px; font-size: 9px; color: var(--ink-soft); }
-.menu__all { display: block; width: 100%; margin-top: 18px; padding: 14px 0 13px; border: 1px solid var(--ink); border-radius: 99px; font-size: 10px; text-align: center; }
 /* Carrousel : changer l'ordre des visuels */
 .ed-tile__move { position: absolute; top: 6px; right: 6px; display: flex; gap: 6px; z-index: 1; }
 .ed-tile__move svg { width: 14px; height: 14px; }
+
+/* Logo du client écrit à l'ouverture (PLAN.logoIntro), puis retiré */
+.logo-intro {
+  position: fixed; inset: 0; z-index: 90;
+  display: grid; place-items: center;
+  background: var(--bg); color: var(--ink);
+}
+.intro-seen .logo-intro { display: none; }
+.logo-intro__badge { width: min(52vw, 230px); }
+.logo-intro__badge > svg { display: block; width: 100%; height: auto; }
+
+/* Sommaire en accordéon (PLAN.menu) : une partie ouverte à la fois */
+body.has-acc .intro, body.has-acc .weeknav { display: none; }
+body.has-acc .countdown { padding-bottom: 28px; }
+.acc { max-width: var(--max); margin: 0 auto; padding: 8px 0 40px; scroll-margin-top: 76px; }
+.acc__kicker { margin: 0 0 6px; font-size: 9px; color: var(--ink-soft); text-align: center; }
+.acc__list { border-top: 1px solid var(--ink-faint); margin: 0 var(--gutter); }
+.acc__in { margin: 0 calc(var(--gutter) * -1); }
+.acc__item { border-bottom: 1px solid var(--ink-faint); }
+.acc__head {
+  display: grid; grid-template-columns: 38px minmax(0, 1fr) 20px; gap: 12px; align-items: center;
+  width: calc(100% + var(--gutter) * 2); margin: 0 calc(var(--gutter) * -1); padding: 16px var(--gutter); text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+.acc__icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--ink-faint); transition: background 0.4s var(--ease), color 0.4s var(--ease); }
+.acc__icon svg { width: 18px; height: 18px; }
+.acc__txt { display: grid; gap: 2px; min-width: 0; }
+.acc__txt b { font-family: var(--display); font-weight: 300; font-size: 25px; line-height: 1.1; }
+.acc__txt small { font-size: 15px; line-height: 1.3; color: var(--ink-soft); }
+.acc__chev svg { width: 18px; height: 18px; transition: transform 0.5s var(--ease); }
+.acc__item.is-open .acc__chev svg { transform: rotate(180deg); }
+.acc__item.is-open .acc__icon { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.acc__panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.5s var(--ease); }
+.acc__item.is-open .acc__panel { grid-template-rows: 1fr; }
+.acc__in { min-height: 0; overflow: hidden; }
+.acc__item:not(.is-open) .acc__in { visibility: hidden; transition: visibility 0s linear 0.5s; }
+/* Dans l'accordéon : les parties gardent leur contenu, sans leurs grands titres ni marges d'ouverture */
+.acc__in > .teasing { padding-top: 4px; }
+.acc__in > .teasing > .suivi__head, .acc__in > .stories > .stories__head { display: none; }
+.acc__in > .feed { padding-top: 8px; }
+.acc__in > .feed > .feed__title, .acc__in > .feed > .hero__kicker { display: none; }
+.acc__in > .stories { padding-top: 8px; }
+.acc__in > .week:first-child { padding-top: 16px; }
+.acc__in > .fb-send { margin-top: 8px; }
