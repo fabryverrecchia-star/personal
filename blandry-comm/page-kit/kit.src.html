@@ -1,0 +1,314 @@
+<title>Kit Benjamin Landry</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..600;1,6..96,400..600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+  /* Mise en page : un bandeau basalte badigeonné en tête (comme le recto de la carte),
+     puis des chapitres sur fond lin (comme le verso), chacun avec ses visuels et ses textes à copier. */
+  :root {
+    --lin: #f3efe8; --lin-2: #e9e3d8; --basalte: #24211e; --encre: #1a1917;
+    --ocre: #a8773d; --ocre-clair: #cf9c58; --taupe: #6f675c; --filet: rgb(26 25 23 / .14);
+    --bg: var(--lin); --fg: var(--encre); --muted: var(--taupe); --card: #fbf9f5; --accent: var(--ocre); --rule: var(--filet); --code: #efe9de;
+    --serif: 'Bodoni Moda', Didot, 'Bodoni 72', Georgia, serif;
+    --sans: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #1e1c19; --fg: #efe9df; --muted: #b3a998; --card: #2a2724; --accent: var(--ocre-clair); --rule: rgb(243 239 232 / .14); --code: #2f2b27; color-scheme: dark } }
+  :root[data-theme="dark"] { --bg: #1e1c19; --fg: #efe9df; --muted: #b3a998; --card: #2a2724; --accent: var(--ocre-clair); --rule: rgb(243 239 232 / .14); --code: #2f2b27; color-scheme: dark }
+
+  body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 16px; line-height: 1.6; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1, h2, h3 { text-wrap: balance; font-weight: 500; }
+  h2 { font-family: var(--serif); font-size: clamp(30px, 4.4vw, 44px); line-height: 1.08; letter-spacing: -.005em; }
+  h3 { font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  p { max-width: 68ch; }
+  a { color: var(--accent); }
+  .lead { font-size: 18px; color: var(--muted); }
+  .caps { font-size: 12px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; }
+
+  /* En-tête */
+  .hero { background: var(--basalte) url('{{img:badigeon.jpg}}') center / cover; color: #f3efe8; }
+  .hero .wrap { padding-block: 56px 48px; display: grid; gap: 22px; }
+  .hero .mono { width: 64px; }
+  .hero h1 { font-family: var(--serif); font-size: clamp(36px, 6vw, 64px); line-height: 1.02; }
+  .hero h1 em { color: var(--ocre-clair); }
+  .hero p { color: #d9d1c4; font-size: 18px; }
+  .hero nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .hero nav a { color: #f3efe8; text-decoration: none; border: 1px solid rgb(243 239 232 / .3); padding: 7px 14px; font-size: 13px; font-weight: 600; letter-spacing: .06em; }
+  .hero nav a:hover, .hero nav a:focus-visible { border-color: var(--ocre-clair); color: var(--ocre-clair); outline: none; }
+
+  section.ch { padding-block: 64px; border-top: 1px solid var(--rule); }
+  section.ch > .wrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  code { overflow-wrap: anywhere; }
+  .intro { display: grid; gap: 12px; }
+
+  .answer { background: var(--card); border-left: 3px solid var(--accent); padding: 20px 22px; display: grid; gap: 8px; }
+  .answer b { font-weight: 700; }
+
+  /* Étapes de la fiche Google : vraie séquence, donc numérotée */
+  ol.steps { list-style: none; counter-reset: s; display: grid; gap: 14px; }
+  ol.steps > li { counter-increment: s; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 4px 16px; padding: 18px 0; border-bottom: 1px solid var(--rule); }
+  ol.steps > li::before { content: counter(s, decimal-leading-zero); font-family: var(--serif); font-size: 26px; color: var(--accent); line-height: 1.1; grid-row: span 2; }
+  ol.steps b { font-weight: 700; }
+  .steps .d { color: var(--muted); }
+  .steps ul { grid-column: 2; margin: 6px 0 0 18px; color: var(--muted); }
+
+  /* Champs à copier */
+  .fields { display: grid; gap: 14px; }
+  .field { background: var(--card); border: 1px solid var(--rule); display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+  .field .h { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--rule); }
+  .field .h span { font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+  .field .h small { color: var(--muted); font-size: 12px; }
+  .field pre { grid-column: 1 / -1; margin: 0; padding: 14px 16px 16px; white-space: pre-wrap; word-break: break-word; font-family: var(--sans); font-size: 15px; line-height: 1.55; }
+  button.copy { font: 600 12px var(--sans); letter-spacing: .08em; text-transform: uppercase; background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 6px 12px; cursor: pointer; flex: none; }
+  button.copy:hover, button.copy:focus-visible { background: var(--accent); color: var(--bg); outline: none; }
+  button.copy.ok { background: var(--accent); color: var(--bg); }
+
+  .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .four { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; align-items: start; }
+  figure { display: grid; gap: 8px; margin: 0; min-width: 0; }
+  figure img { width: 100%; height: auto; display: block; background: var(--code); }
+  figure.shadow img { box-shadow: 0 10px 28px -12px rgb(30 24 18 / .45); }
+  figcaption { font-size: 13px; color: var(--muted); }
+  figcaption b { color: var(--fg); font-weight: 600; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .tbl { overflow-x: auto; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* DA */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .sw { border: 1px solid var(--rule); background: var(--card); }
+  .sw i { display: block; height: 70px; }
+  .sw div { padding: 8px 10px; font-size: 13px; }
+  .sw code { font-size: 12px; color: var(--muted); }
+  .types { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .type { background: var(--card); border: 1px solid var(--rule); padding: 18px; display: grid; gap: 6px; }
+  .type .s1 { font-family: var(--serif); font-size: 36px; line-height: 1.1; }
+  .type .s2 { font-size: 15px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+  ul.rules { display: grid; gap: 8px; margin-left: 18px; }
+
+  .note { font-size: 14px; color: var(--muted); }
+  footer { padding-block: 40px 56px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 14px; }
+
+  @media (max-width: 860px) { .four { grid-template-columns: repeat(2, minmax(0, 1fr)); } .three { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 640px) { .two, .types { grid-template-columns: minmax(0, 1fr); } .field { grid-template-columns: minmax(0, 1fr); } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <img class="mono" src="{{img:mono-lin.png}}" alt="Monogramme BL">
+    <h1>Benjamin Landry,<br><em>kit de communication</em></h1>
+    <p>Plâtrerie, peinture, carrelage. Tout ce qu’il faut pour être trouvé sur Google et rester cohérent partout : fiche Google, carte de visite, présentoir et publicités.</p>
+    <nav aria-label="Sommaire">
+      <a href="#google">Fiche Google</a><a href="#da">Direction artistique</a><a href="#cartes">Cartes de visite</a><a href="#presentoir">Présentoir</a><a href="#pubs">Publicités sponsorisées</a>
+    </nav>
+  </div>
+</header>
+
+<section class="ch" id="google">
+  <div class="wrap">
+    <div class="intro">
+      <h3>Fiche Google · Google Business Profile</h3>
+      <h2>Être trouvé quand on tape « Benjamin Landry » ou « plaquiste Riom »</h2>
+    </div>
+    <div class="answer">
+      <p><b>Oui, l’absence de fiche Google joue beaucoup.</b> Pour un artisan, c’est la fiche qui apparaît sur Google Maps et dans l’encadré à droite (ou en haut sur mobile) quand on cherche son nom ou « plâtrier près de chez moi ». Sans fiche, ces emplacements restent vides.</p>
+      <p>Le site, lui, dépend de la <b>Google Search Console</b> : il faut y déclarer benjaminlandry.fr et envoyer le plan du site (<code>https://benjaminlandry.fr/sitemap.xml</code>). Les deux se complètent : la fiche renvoie vers le site, et le site confirme la fiche.</p>
+    </div>
+
+    <ol class="steps">
+      <li><b>Créer la fiche</b><div class="d">Sur <a href="https://business.google.com" target="_blank" rel="noopener">business.google.com</a>, connecté avec le compte Google de Benjamin (idéalement benjaminlandry10@gmail.com, le même partout).</div></li>
+      <li><b>Nom : « Benjamin Landry » et rien d’autre</b><div class="d">Le nom doit être celui de l’entreprise, tel qu’il figure au SIRET. Ajouter des mots-clés (« Benjamin Landry Plâtrier Peintre Clermont ») est interdit par Google et peut faire suspendre la fiche.</div></li>
+      <li><b>Catégories</b><div class="d">Principale : <b>Plâtrier</b>, le cœur du métier. Secondaires : <b>Peintre en bâtiment</b>, <b>Carreleur</b>, puis <b>Entreprise d’isolation</b> si elle apparaît dans la liste. Google ne propose que ses propres intitulés : tape le début du mot et choisis dans la liste.</div></li>
+      <li><b>Zone d’intervention, adresse masquée</b><div class="d">Benjamin travaille chez ses clients : choisis « Je me déplace chez mes clients » et masque l’adresse du domicile. Ajoute les communes de la liste ci-dessous (20 maximum).</div></li>
+      <li><b>Coordonnées</b><div class="d">Téléphone 06 58 38 78 37 et le lien du site ci-dessous, qui permet de mesurer les visites venues de la fiche. Les horaires sont à renseigner (par exemple du lundi au vendredi, 8 h à 18 h).</div></li>
+      <li><b>Description, services et premières photos</b><div class="d">Copie les textes ci-dessous. Mets le logo et la couverture, puis au moins dix vraies photos de chantiers (avant, pendant, après).</div></li>
+      <li><b>Validation</b><div class="d">Google demande en général une courte vidéo : le camion ou l’outillage, un chantier en cours, un justificatif (Kbis ou facture au nom de l’entreprise). Tant que la fiche n’est pas validée, elle n’apparaît pas.</div></li>
+      <li><b>Faire vivre la fiche</b><div class="d">C’est ce qui fait monter une fiche dans les résultats :</div>
+        <ul><li>des avis réguliers, avec une réponse à chacun ;</li><li>une publication par semaine, avec les visuels ci-dessous ;</li><li>de nouvelles photos à chaque chantier ;</li><li>exactement les mêmes nom, téléphone et site partout (site, Instagram, Facebook, PagesJaunes).</li></ul></li>
+    </ol>
+
+    <div class="fields">
+      <div class="field"><div class="h"><span>Description</span><small>≈ 600 / 750 caractères</small><button class="copy" type="button">Copier</button></div>
+<pre>Benjamin Landry, artisan plâtrier, peintre et carreleur installé aux Ancizes-Comps (Puy-de-Dôme). Je réalise vos travaux de A à Z : cloisons et faux plafonds en plaques de plâtre, isolation des murs et des combles, bandes et enduits, peinture intérieure et extérieure, carrelage de sols, faïence et salles de bains. Un seul interlocuteur du devis à la réception, un devis détaillé poste par poste et la garantie décennale. J’interviens dans les Combrailles, à Riom, à Clermont-Ferrand et dans un rayon d’environ 1 h 30 de route. Visite et devis gratuits au 06 58 38 78 37.</pre></div>
+
+      <div class="field"><div class="h"><span>Lien du site</span><small>avec suivi des visites</small><button class="copy" type="button">Copier</button></div>
+<pre>https://benjaminlandry.fr/?utm_source=google&amp;utm_medium=organic&amp;utm_campaign=fiche_google</pre></div>
+
+      <div class="field"><div class="h"><span>Zone d’intervention</span><small>20 communes ou secteurs</small><button class="copy" type="button">Copier</button></div>
+<pre>Les Ancizes-Comps, Saint-Georges-de-Mons, Manzat, Pontgibaud, Saint-Gervais-d’Auvergne, Combronde, Volvic, Châtel-Guyon, Riom, Mozac, Ennezat, Cébazat, Gerzat, Clermont-Ferrand, Chamalières, Royat, Beaumont, Aubière, Pont-du-Château, Puy-de-Dôme</pre></div>
+
+      <div class="field"><div class="h"><span>Services</span><small>un service par ligne, avec sa description</small><button class="copy" type="button">Copier</button></div>
+<pre>Cloisons en plaques de plâtre : cloisons sur ossature métallique, droites et prêtes à peindre.
+Faux plafonds : plafonds suspendus, plafonds rampants et soffites.
+Isolation des murs et des combles : doublages isolants et aménagement de combles.
+Bandes, enduits et finitions : joints invisibles, lissage et ponçage avant peinture.
+Peinture intérieure : murs, plafonds et boiseries, préparation comprise.
+Peinture extérieure : façades et menuiseries, dans le respect des teintes autorisées.
+Carrelage de sol : pose droite ou décalée, grands formats.
+Faïence et salles de bains : murs de douche, douche à l’italienne et étanchéité.
+Rénovation complète d’une pièce : du placo à la dernière couche, un seul interlocuteur.</pre></div>
+
+      <div class="field"><div class="h"><span>Demande d’avis</span><small>SMS ou WhatsApp après chaque chantier</small><button class="copy" type="button">Copier</button></div>
+<pre>Bonjour, merci encore pour votre confiance. Si vous êtes satisfait du chantier, un petit avis sur Google m’aiderait beaucoup : [lien d’avis de la fiche]. Bonne journée, Benjamin Landry</pre></div>
+
+      <div class="field"><div class="h"><span>Réponse à un avis</span><small>à personnaliser avec le prénom et le chantier</small><button class="copy" type="button">Copier</button></div>
+<pre>Merci [prénom] pour votre avis. Ce fut un plaisir de réaliser [la salle de bains / les cloisons / la peinture du séjour] chez vous. N’hésitez pas à me recontacter pour vos prochains travaux. Benjamin</pre></div>
+    </div>
+
+    <p class="note">Le lien d’avis se trouve dans la fiche, rubrique « Demander des avis ». Imprime-le aussi en QR code, à glisser avec la facture.</p>
+
+    <h3>Visuels de la fiche</h3>
+    <div class="two">
+      <figure class="shadow"><img src="{{img:google-couverture-1200x675.jpg}}" alt="Couverture : monogramme, nom, trois métiers et nuancier en éventail sur badigeon basalte"><figcaption><b>Photo de couverture</b>, 1200 × 675 px. Le texte reste au centre, car Google recadre les bords sur mobile.</figcaption></figure>
+      <figure class="shadow" style="max-width:260px"><img src="{{img:google-logo-720.jpg}}" alt="Logo : monogramme BL clair sur badigeon basalte"><figcaption><b>Logo</b>, 720 × 720 px. Google l’affiche dans un rond, d’où le monogramme bien centré.</figcaption></figure>
+    </div>
+    <div class="three">
+      <figure class="shadow"><img src="{{img:google-post-platrerie.jpg}}" alt="Publication plâtrerie"><figcaption><b>Post plâtrerie</b>, 1200 × 900 px</figcaption></figure>
+      <figure class="shadow"><img src="{{img:google-post-peinture.jpg}}" alt="Publication peinture"><figcaption><b>Post peinture</b>, 1200 × 900 px</figcaption></figure>
+      <figure class="shadow"><img src="{{img:google-post-carrelage.jpg}}" alt="Publication carrelage"><figcaption><b>Post carrelage</b>, 1200 × 900 px</figcaption></figure>
+    </div>
+
+    <div class="fields">
+      <div class="field"><div class="h"><span>Post 1 · Plâtrerie</span><small>bouton « Appeler »</small><button class="copy" type="button">Copier</button></div>
+<pre>Cloisons, faux plafonds, isolation des combles : je pose vos plaques de plâtre sur ossature, avec des murs droits et des joints invisibles une fois peints. Visite et devis gratuits dans les Combrailles, à Riom et à Clermont-Ferrand. 06 58 38 78 37</pre></div>
+      <div class="field"><div class="h"><span>Post 2 · Peinture</span><small>bouton « En savoir plus »</small><button class="copy" type="button">Copier</button></div>
+<pre>Une peinture qui dure commence par une bonne préparation : rebouchage, enduit, ponçage, impression, puis deux couches. Murs, plafonds, boiseries et façades. Devis gratuit au 06 58 38 78 37.</pre></div>
+      <div class="field"><div class="h"><span>Post 3 · Carrelage</span><small>bouton « Appeler »</small><button class="copy" type="button">Copier</button></div>
+<pre>Salle de bains, douche à l’italienne, sol de cuisine : je pose votre carrelage et votre faïence, avec l’étanchéité dans les pièces d’eau et des joints réguliers. Visite et devis gratuits. 06 58 38 78 37</pre></div>
+    </div>
+
+    <p class="note">Google demande des photos qui montrent la vraie entreprise. Si les trois photos d’artisan sont des visuels d’illustration, garde-les pour les posts et les publicités, et mets en photos de la fiche de vrais chantiers de Benjamin.</p>
+  </div>
+</section>
+
+<section class="ch" id="da">
+  <div class="wrap">
+    <div class="intro">
+      <h3>Direction artistique</h3>
+      <h2>Un mur passé à la brosse, un nuancier qui s’ouvre</h2>
+      <p class="lead">Le fond « badigeon » (basalte ou chaux) rappelle le geste du peintre. Le nuancier en éventail reprend celui du site. Les trois métiers sont toujours écrits en ocre et en capitales.</p>
+    </div>
+    <div class="swatches">
+      <div class="sw"><i style="background:#24211e"></i><div>Basalte<br><code>#24211E</code></div></div>
+      <div class="sw"><i style="background:#1a1917"></i><div>Encre<br><code>#1A1917</code></div></div>
+      <div class="sw"><i style="background:#f3efe8"></i><div>Lin<br><code>#F3EFE8</code></div></div>
+      <div class="sw"><i style="background:#cf9c58"></i><div>Ocre clair, sur fond sombre<br><code>#CF9C58</code></div></div>
+      <div class="sw"><i style="background:#a8773d"></i><div>Ocre, sur fond clair<br><code>#A8773D</code></div></div>
+    </div>
+    <div class="swatches">
+      <div class="sw"><i style="background:#E2DACB"></i><div>Chaux<br><code>#E2DACB</code></div></div>
+      <div class="sw"><i style="background:#C08A3E"></i><div>Limagne<br><code>#C08A3E</code></div></div>
+      <div class="sw"><i style="background:#9B4B34"></i><div>Tuile<br><code>#9B4B34</code></div></div>
+      <div class="sw"><i style="background:#3F5A45"></i><div>Sioule<br><code>#3F5A45</code></div></div>
+      <div class="sw"><i style="background:#8DA3B3"></i><div>Puys<br><code>#8DA3B3</code></div></div>
+      <div class="sw"><i style="background:#56595C"></i><div>Volvic<br><code>#56595C</code></div></div>
+    </div>
+    <p class="note">Les six teintes du nuancier ne servent qu’à l’éventail, jamais pour du texte ou un fond.</p>
+    <div class="types">
+      <div class="type"><span class="caps" style="color:var(--muted)">Titres, téléphone, site</span><span class="s1">06 58 38 78 37</span><span>Bodoni Moda, en romain ou en italique</span></div>
+      <div class="type"><span class="caps" style="color:var(--muted)">Nom, métiers, informations</span><span class="s2">Plâtrerie · Peinture · Carrelage</span><span>Hanken Grotesk, capitales espacées</span></div>
+    </div>
+    <ul class="rules">
+      <li>Le monogramme BL est toujours en lin sur le basalte, et en encre sur la chaux.</li>
+      <li>Le nom « BENJAMIN LANDRY » est en capitales espacées, jamais en Bodoni sur un fond sombre.</li>
+      <li>Le nuancier part toujours d’un coin et peut déborder du bord.</li>
+      <li>Les photos ne montrent que les trois métiers, sans filtre coloré.</li>
+      <li>Instagram s’écrit toujours avec son icône : @benjamin_landry_finitions.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="ch" id="cartes">
+  <div class="wrap">
+    <div class="intro">
+      <h3>Carte de visite</h3>
+      <h2>Badigeon basalte et nuancier en éventail</h2>
+    </div>
+    <figure class="shadow"><img src="{{img:carte-mockup.jpg}}" alt="Carte de visite, recto et verso, posés sur un plan clair"><figcaption><b>Mise en situation</b>, recto et verso</figcaption></figure>
+    <div class="two">
+      <figure class="shadow"><img src="{{img:carte-recto.jpg}}" alt="Recto : monogramme, nom, trois métiers en ocre, nuancier en éventail"><figcaption><b>Recto</b>, 85 × 55 mm</figcaption></figure>
+      <figure class="shadow"><img src="{{img:carte-verso.jpg}}" alt="Verso : nom, métiers, téléphone, site, e-mail, adresse, Instagram, SIRET"><figcaption><b>Verso</b>, 85 × 55 mm</figcaption></figure>
+    </div>
+    <div class="tbl"><table>
+      <tr><th>Fichier</th><td>carte-visite-recto-verso-89x59mm-fonds-perdus-2mm.pdf (une page par face)</td></tr>
+      <tr><th>Format</th><td class="n">85 × 55 mm fini, 89 × 59 mm avec 2 mm de fond perdu, sans traits de coupe</td></tr>
+      <tr><th>Papier</th><td>Mat épais, 400 g ou plus, pelliculage mat toucher doux</td></tr>
+    </table></div>
+  </div>
+</section>
+
+<section class="ch" id="presentoir">
+  <div class="wrap">
+    <div class="intro">
+      <h3>Présentoir de comptoir</h3>
+      <h2>Pocket Display A5, chez Pixartprinting</h2>
+    </div>
+    <div class="two">
+      <figure class="shadow"><img src="{{img:presentoir-face.jpg}}" alt="Présentoir monté vu de face : panneau basalte avec les trois photos de métiers, poche claire avec monogramme, téléphone et Instagram"><figcaption><b>Monté, vu de face</b>. Les cartes se rangent dans la poche.</figcaption></figure>
+      <figure><img src="{{img:presentoir-plat.jpg}}" alt="Présentoir à plat sur le gabarit, avec les lignes de coupe et de pli"><figcaption><b>À plat sur le gabarit</b> : coupe en magenta, plis en pointillé, zones de sécurité en rouge</figcaption></figure>
+    </div>
+    <div class="tbl"><table>
+      <tr><th>Fichier</th><td>presentoir-pocket-display-A5-impression.pdf (358,4 × 412,6 mm, échelle 1:1, fond perdu 5 mm, seule la ligne verte est conservée)</td></tr>
+      <tr><th>Poche</th><td class="n">≈ 108 × 64 mm. Les cartes à l’horizontale y disparaissent : place une petite cale de 2 cm au fond, ou range-les à la verticale.</td></tr>
+      <tr><th>Couleurs</th><td>Pixartprinting demande du CMJN Fogra 39. Le fichier est en RVB : leur contrôle le convertit en général, mais l’ocre peut légèrement ternir.</td></tr>
+    </table></div>
+  </div>
+</section>
+
+<section class="ch" id="pubs">
+  <div class="wrap">
+    <div class="intro">
+      <h3>Publicités sponsorisées · Facebook et Instagram</h3>
+      <h2>Trois campagnes, 450 € par mois</h2>
+      <p class="lead">Mêmes codes que la carte : photo du métier, bandeau badigeon, métier en ocre, téléphone en Bodoni et le nuancier qui dépasse du coin.</p>
+    </div>
+    <div class="four">
+      <figure class="shadow"><img src="{{img:meta-fil-platrerie.jpg}}" alt="Publicité plâtrerie, format fil 4:5"><figcaption><b>Fil · Plâtrerie</b>, 1080 × 1350</figcaption></figure>
+      <figure class="shadow"><img src="{{img:meta-fil-peinture.jpg}}" alt="Publicité peinture, format fil 4:5"><figcaption><b>Fil · Peinture</b>, 1080 × 1350</figcaption></figure>
+      <figure class="shadow"><img src="{{img:meta-fil-carrelage.jpg}}" alt="Publicité carrelage, format fil 4:5"><figcaption><b>Fil · Carrelage</b>, 1080 × 1350</figcaption></figure>
+      <figure class="shadow"><img src="{{img:meta-story-3-metiers.jpg}}" alt="Story avec les trois métiers et le téléphone"><figcaption><b>Story · 3 métiers</b>, 1080 × 1920</figcaption></figure>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>Campagne</th><th>Objectif</th><th>Visuels</th><th>Budget</th></tr></thead>
+      <tr><td><b>1 · Notoriété</b></td><td>Faire connaître Benjamin à 60 km autour des Ancizes-Comps, en stories et en reels</td><td>Story 3 métiers</td><td class="n">3 €/jour · 90 €/mois</td></tr>
+      <tr><td><b>2 · Demandes de devis</b></td><td>Formulaire instantané « Devis Benjamin Landry »</td><td>Les 3 visuels de fil</td><td class="n">9 €/jour · 270 €/mois</td></tr>
+      <tr><td><b>3 · Reciblage</b></td><td>Relancer les visiteurs du site et ceux qui ont vu les vidéos</td><td>Les 3 visuels de fil</td><td class="n">3 €/jour · 90 €/mois</td></tr>
+      <tr><td></td><td><b>Total</b></td><td></td><td class="n"><b>450 €/mois</b></td></tr>
+    </table></div>
+    <div class="fields">
+      <div class="field"><div class="h"><span>Texte principal · Demandes de devis</span><small>bouton « Obtenir un devis »</small><button class="copy" type="button">Copier</button></div>
+<pre>Cloisons, faux plafonds, peinture, carrelage : un seul artisan pour tout le chantier, du placo à la dernière couche. Visite et devis gratuits dans les Combrailles, à Riom et à Clermont-Ferrand.</pre></div>
+      <div class="field"><div class="h"><span>Titres par visuel</span><small>un par publicité</small><button class="copy" type="button">Copier</button></div>
+<pre>Plâtrerie : Cloisons droites, joints invisibles
+Peinture : La bonne teinte, posée dans les règles
+Carrelage : Des sols nets, des pièces d’eau étanches</pre></div>
+      <div class="field"><div class="h"><span>Texte principal · Notoriété</span><small>bouton « En savoir plus »</small><button class="copy" type="button">Copier</button></div>
+<pre>Plâtrerie, peinture, carrelage : je réalise tout le chantier, de l’ossature en plaques de plâtre à la dernière couche. Artisan aux Ancizes-Comps, j’interviens dans les Combrailles, à Riom et à Clermont-Ferrand. @benjamin_landry_finitions</pre></div>
+      <div class="field"><div class="h"><span>Texte principal · Reciblage</span><small>bouton « Obtenir un devis » ou « Appeler »</small><button class="copy" type="button">Copier</button></div>
+<pre>Garantie décennale, devis détaillé poste par poste au prix ferme, un seul interlocuteur du devis à la réception. Parlons de votre chantier : 06 58 38 78 37.</pre></div>
+    </div>
+    <p class="note">Pour suivre les résultats, le lien des publicités porte <code>utm_source=meta&amp;utm_medium=paid_social</code>. Ajouter le Pixel Meta au site obligera à mettre un bandeau cookies et à mettre à jour la politique de confidentialité.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Benjamin Landry · 59 rue du Boucheix, 63770 Les Ancizes-Comps · 06 58 38 78 37 · benjaminlandry.fr · @benjamin_landry_finitions · SIRET 822 175 519 00021</div>
+</footer>
+
+<script>
+  document.querySelectorAll('.field').forEach((f) => {
+    const b = f.querySelector('button.copy'), pre = f.querySelector('pre');
+    b.addEventListener('click', () => {
+      const done = () => { b.textContent = 'Copié'; b.classList.add('ok'); setTimeout(() => { b.textContent = 'Copier'; b.classList.remove('ok'); }, 1600); };
+      const fallback = () => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Sélectionné'; };
+      try { navigator.clipboard.writeText(pre.textContent).then(done, fallback); } catch (e) { fallback(); }
+    });
+  });
+</script>

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Visuels numériques — Benjamin Landry</title>
+<style>
+  /* DA validée (carte de visite et présentoir) : badigeon basalte, monogramme lin, métiers en ocre,
+     Bodoni pour le téléphone, nuancier en éventail, photos des trois métiers.
+     Rendu : node scripts/shoot.mjs templates/digital.html livrables/web */
+  @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-normal.woff2') format('woff2'); font-weight: 400 900; }
+  @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-italic.woff2') format('woff2'); font-weight: 400 900; font-style: italic; }
+  @font-face { font-family: 'Hanken'; src: url('../fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+  :root { --lin: #f3efe8; --ink: #1a1917; --ocre: #cf9c58; --serif: 'Bodoni', Didot, Georgia, serif; --sans: 'Hanken', Arial, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #777; display: flex; flex-wrap: wrap; gap: 40px; padding: 40px; align-items: flex-start; font-family: var(--sans); }
+  .v { position: relative; overflow: hidden; flex: none; color: var(--lin); background: #24211e url('../livrables/print/presentoir/badigeon-basalte.png') 30% 40% / 2400px auto; }
+  .mono { display: inline-block; aspect-ratio: 659 / 806; background: url('../photos/logo-bl-lin.png') center / contain no-repeat; }
+  .caps { text-transform: uppercase; font-weight: 600; letter-spacing: .2em; }
+  .ocre { color: var(--ocre); }
+  .serif { font-family: var(--serif); font-variation-settings: 'opsz' 11; }
+  svg.fan { position: absolute; overflow: visible; }
+  .ph { position: absolute; background-size: cover; background-repeat: no-repeat; }
+  .ig { display: inline-flex; align-items: center; gap: .45em; font-weight: 700; letter-spacing: .02em; }
+  .ig svg { width: 1.15em; height: 1.15em; }
+
+  /* Fiche Google : logo (affiché en rond par Google, d'où le monogramme bien centré) */
+  .logo { width: 720px; height: 720px; display: grid; place-items: center; }
+  .logo .mono { height: 380px; }
+
+  /* Fiche Google : couverture 16:9 (contenu au centre, Google recadre les bords sur mobile) */
+  .cover { width: 1200px; height: 675px; }
+  .cover .tx { position: absolute; left: 150px; top: 120px; display: grid; justify-items: start; }
+  .cover .mono { height: 150px; margin-bottom: 44px; }
+  .cover .nom { font-size: 34px; margin-bottom: 22px; }
+  .cover .met { font-size: 28px; line-height: 1.55; }
+
+  /* Fiche Google : posts 4:3 et publicités Meta 4:5 — photo en haut, bandeau badigeon en bas */
+  .post { width: 1200px; height: 900px; }
+  .post .ph { inset: 0 0 230px 0; }
+  .post .band { position: absolute; left: 0; right: 0; bottom: 0; height: 230px; padding: 0 70px; display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 40px; }
+  .post .k { font-size: 26px; margin-bottom: 14px; }
+  .post .t { font-size: 46px; line-height: 1.1; }
+  .post .mono { height: 120px; }
+
+  .feed { width: 1080px; height: 1350px; }
+  .feed .ph { inset: 0 0 450px 0; }
+  .feed .band { position: absolute; left: 0; right: 0; bottom: 0; height: 450px; padding: 64px 72px 60px; display: grid; grid-template-rows: auto auto 1fr auto; }
+  .feed .k { font-size: 28px; margin-bottom: 18px; }
+  .feed .t { font-size: 58px; line-height: 1.08; }
+  .feed .pied { display: flex; align-items: end; justify-content: space-between; }
+  .feed .tel { font-size: 52px; line-height: 1; }
+  .feed .dv { font-size: 22px; margin-bottom: 14px; }
+  .feed .mono { height: 110px; }
+
+  /* Story 9:16 : zones hautes (250 px) et basses (340 px) laissées libres pour l'interface Instagram */
+  .story { width: 1080px; height: 1920px; }
+  .story .tete { position: absolute; left: 90px; right: 90px; top: 270px; display: flex; align-items: center; gap: 36px; }
+  .story .tete .mono { height: 120px; }
+  .story .tete .nom { font-size: 34px; }
+  .story .grid { position: absolute; left: 90px; right: 90px; top: 470px; display: grid; gap: 22px; }
+  .story .row { position: relative; height: 290px; border-radius: 10px; overflow: hidden; }
+  .story .row .ph { inset: 0; }
+  .story .row span { position: absolute; left: 28px; bottom: 24px; font-size: 30px; padding: 10px 18px 9px; background: rgb(26 25 23 / .82); }
+  .story .bas { position: absolute; left: 90px; right: 90px; top: 1430px; display: grid; gap: 10px; }
+  .story .bas .dv { font-size: 30px; }
+  .story .bas .tel { font-size: 76px; line-height: 1.05; }
+</style>
+</head>
+<body>
+
+<!-- ── Fiche Google ── -->
+<section class="v logo" data-out="google-logo-720"><span class="mono"></span></section>
+
+<section class="v cover" data-out="google-couverture-1200x675" data-fan="1010,690,560,140,7">
+  <div class="tx">
+    <span class="mono"></span>
+    <p class="nom caps">Benjamin Landry</p>
+    <p class="met caps ocre">Plâtrerie<br>Peinture<br>Carrelage</p>
+  </div>
+</section>
+
+<section class="v post" data-out="google-post-platrerie">
+  <div class="ph" style="background-image:url('../photos/artisan-placo.jpg');background-position:50% 48%"></div>
+  <div class="band"><div><p class="k caps ocre">Plâtrerie · Isolation</p><p class="t serif">Cloisons, plafonds et isolation, posés au cordeau</p></div><span class="mono"></span></div>
+</section>
+<section class="v post" data-out="google-post-peinture">
+  <div class="ph" style="background-image:url('../photos/artisan-peinture.jpg');background-position:50% 32%"></div>
+  <div class="band"><div><p class="k caps ocre">Peinture</p><p class="t serif">Une teinte bien posée, une finition qui dure</p></div><span class="mono"></span></div>
+</section>
+<section class="v post" data-out="google-post-carrelage">
+  <div class="ph" style="background-image:url('../photos/artisan-carrelage.jpg');background-position:50% 55%"></div>
+  <div class="band"><div><p class="k caps ocre">Carrelage · Faïence</p><p class="t serif">Sols et salles de bains, joints réguliers et étanchéité</p></div><span class="mono"></span></div>
+</section>
+
+<!-- ── Publicités Meta (fil 4:5) ── -->
+<section class="v feed" data-out="meta-fil-platrerie" data-fan="1035,1395,330,82,7">
+  <div class="ph" style="background-image:url('../photos/artisan-placo.jpg');background-position:50% 45%"></div>
+  <div class="band"><p class="k caps ocre">Plâtrerie · Isolation</p><p class="t serif">Cloisons droites,<br>joints invisibles</p><span></span>
+    <div class="pied"><div><p class="dv caps">Devis gratuit</p><p class="tel serif">06 58 38 78 37</p></div></div></div>
+</section>
+<section class="v feed" data-out="meta-fil-peinture" data-fan="1035,1395,330,82,7">
+  <div class="ph" style="background-image:url('../photos/artisan-peinture.jpg');background-position:50% 30%"></div>
+  <div class="band"><p class="k caps ocre">Peinture</p><p class="t serif">La bonne teinte,<br>posée dans les règles</p><span></span>
+    <div class="pied"><div><p class="dv caps">Devis gratuit</p><p class="tel serif">06 58 38 78 37</p></div></div></div>
+</section>
+<section class="v feed" data-out="meta-fil-carrelage" data-fan="1035,1395,330,82,7">
+  <div class="ph" style="background-image:url('../photos/artisan-carrelage.jpg');background-position:50% 50%"></div>
+  <div class="band"><p class="k caps ocre">Carrelage · Faïence</p><p class="t serif">Des sols nets,<br>des pièces d’eau étanches</p><span></span>
+    <div class="pied"><div><p class="dv caps">Devis gratuit</p><p class="tel serif">06 58 38 78 37</p></div></div></div>
+</section>
+
+<!-- ── Story 9:16 (Meta + stories Instagram) ── -->
+<section class="v story" data-out="meta-story-3-metiers">
+  <div class="tete"><span class="mono"></span><div><p class="nom caps">Benjamin Landry</p><p class="ig" style="font-size:28px;margin-top:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.3"/><circle cx="17.6" cy="6.4" r="1.2" fill="currentColor" stroke="none"/></svg>@benjamin_landry_finitions</p></div></div>
+  <div class="grid">
+    <div class="row"><div class="ph" style="background-image:url('../photos/artisan-placo.jpg');background-position:50% 42%"></div><span class="caps ocre">Plâtrerie</span></div>
+    <div class="row"><div class="ph" style="background-image:url('../photos/artisan-peinture.jpg');background-position:50% 30%"></div><span class="caps ocre">Peinture</span></div>
+    <div class="row"><div class="ph" style="background-image:url('../photos/artisan-carrelage.jpg');background-position:50% 55%"></div><span class="caps ocre">Carrelage</span></div>
+  </div>
+  <div class="bas"><p class="dv caps">Devis gratuit · Combrailles, Riom, Clermont</p><p class="tel serif">06 58 38 78 37</p></div>
+</section>
+
+<script>
+  // Nuancier en éventail (même dessin que la carte) : data-fan="pivotX,pivotY,longueur,largeur,écart"
+  const TEINTES = ['#E2DACB', '#C08A3E', '#9B4B34', '#3F5A45', '#8DA3B3', '#56595C'];
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, a) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const mix = (hex, t) => { const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255], w = [251, 249, 245]; return `rgb(${c.map((v, i) => Math.round(v * t + w[i] * (1 - t))).join(' ')})`; };
+  document.querySelectorAll('[data-fan]').forEach((sec) => {
+    const [px, py, L, W, step] = sec.dataset.fan.split(',').map(Number);
+    const s = el('svg', { class: 'fan', width: sec.offsetWidth, height: sec.offsetHeight, viewBox: `0 0 ${sec.offsetWidth} ${sec.offsetHeight}` });
+    s.style.left = 0; s.style.top = 0;
+    const b = W / 23 * 1.9;
+    TEINTES.slice().reverse().forEach((c, k) => {
+      const i = TEINTES.length - 1 - k, a = -(5 + i * step);
+      const g = el('g', { transform: `rotate(${a} ${px} ${py})` });
+      const x = px - W / 2, y = py - L;
+      g.append(el('rect', { x: x - b * .32, y: y - b * .32, width: W + b * .64, height: L + b * .64, rx: b, fill: '#1a1917' }));
+      g.append(el('rect', { x, y, width: W, height: L, rx: b * .75, fill: '#fbf9f5' }));
+      g.append(el('rect', { x: x + b, y: y + b, width: W - 2 * b, height: L * .44, fill: c }));
+      g.append(el('rect', { x: x + b, y: y + b + L * .44 + b * .6, width: W - 2 * b, height: L * .13, fill: mix(c, .68) }));
+      g.append(el('rect', { x: x + b, y: y + b + L * .57 + b * 1.2, width: W - 2 * b, height: L * .13, fill: mix(c, .42) }));
+      s.append(g);
+    });
+    sec.append(s);
+  });
+</script>
+</body>
+</html>
