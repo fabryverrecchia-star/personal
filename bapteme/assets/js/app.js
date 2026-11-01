@@ -452,8 +452,9 @@
 
   /* ───────────── Album partagé ───────────── */
 
-  var galSec = $("#galerie"), galEl = $("#gallery"), galMore = $("#galMore"), galCount = $("#galCount");
-  var gal = { items: [], ids: {}, next: 0, total: 0, live: false, loading: false };
+  var galSec = $("#galerie"), galEl = $("#gallery"), galCount = $("#galCount");
+  var galDl = $("#galDl"), galZipSize = $("#galZipSize");
+  var gal = { items: [], ids: {}, total: 0, bytes: 0, live: false, loading: false };
 
   function tile(it, atTop) {
     if (gal.ids[it.id] || it.kind === "audio") return;
@@ -475,39 +476,58 @@
     var n = gal.items.length > gal.total ? gal.items.length : gal.total;
     galCount.textContent = n ? n + (n > 1 ? " souvenirs partagés par vos proches" : " souvenir partagé") : "";
     galSec.hidden = !n;
+    // le ZIP n'existe qu'avec le serveur (pas dans l'aperçu)
+    galDl.hidden = !n || !gal.live;
+    galZipSize.textContent = gal.bytes ? "· " + fmtBytes(gal.bytes) : "";
   }
-  function galleryAdd(it) { tile(it, true); gal.total++; paintCount(); }
+  function galleryAdd(it) { tile(it, true); gal.total++; if (it.size) gal.bytes += it.size; paintCount(); }
 
-  function loadPage(reset) {
+  // Tout l'album, par paquets de 100, sans bouton « Voir plus ».
+  function loadAll() {
     if (gal.loading) return;
     gal.loading = true;
-    var offset = reset ? 0 : gal.next;
-    fetch("api/gallery.php?offset=" + offset + "&limit=24", { cache: "no-store" })
-      .then(function (r) { return r.json(); })
-      .then(function (j) {
-        if (!j || !j.ok || j.disabled) return;
-        if (reset) j.items.slice().reverse().forEach(function (it) { tile(it, true); });
-        else j.items.forEach(function (it) { tile(it, false); });
-        gal.total = j.total;
-        if (!reset) gal.next = j.next == null ? gal.items.length : j.next;
-        galMore.hidden = j.next == null || gal.items.length >= gal.total;
-        paintCount();
-      })
-      .catch(function () {})
-      .then(function () { gal.loading = false; });
+    var fresh = [];
+    (function page(offset) {
+      fetch("api/gallery.php?offset=" + offset + "&limit=100", { cache: "no-store" })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (!j || !j.ok || j.disabled) { gal.loading = false; return; }
+          fresh = fresh.concat(j.items);
+          gal.total = j.total;
+          gal.bytes = j.bytes || 0;
+          if (j.next != null) { page(j.next); return; }
+          // les nouveautés arrivent en tête, le reste garde sa place
+          var known = gal.items.length;
+          fresh.forEach(function (it, i) { if (!gal.ids[it.id] && known) tile(it, true); else tile(it, false); });
+          if (known) reorder(fresh);
+          paintCount();
+          gal.loading = false;
+        })
+        .catch(function () { gal.loading = false; });
+    })(0);
+  }
+  // remet la grille dans l'ordre du serveur (le plus récent d'abord) après une mise à jour
+  function reorder(list) {
+    var byId = {};
+    gal.items.forEach(function (it, i) { byId[it.id] = { it: it, el: galEl.children[i] }; });
+    var items = [], frag = document.createDocumentFragment();
+    list.forEach(function (it) { var x = byId[it.id]; if (x) { items.push(x.it); frag.appendChild(x.el); delete byId[it.id]; } });
+    // ce que le serveur ne liste plus (masqué ou supprimé dans l'admin) disparaît
+    Object.keys(byId).forEach(function (id) { if (byId[id].el) byId[id].el.remove(); delete gal.ids[id]; });
+    gal.items = items;
+    galEl.appendChild(frag);
   }
   function initGallery(info) {
     if (demo || !info || !info.gallery) return;
     gal.live = true;
-    loadPage(false);
-    // l'album se remplit tout seul pendant la fête (toutes les 45 s quand il est visible)
+    loadAll();
+    // l'album se met à jour tout seul (toutes les 45 s quand il est à l'écran)
     setInterval(function () {
       if (document.hidden) return;
       var r = galSec.getBoundingClientRect();
-      if (r.top < window.innerHeight * 2 && r.bottom > -window.innerHeight) loadPage(true);
+      if (r.top < window.innerHeight * 2 && r.bottom > -window.innerHeight) loadAll();
     }, 45000);
   }
-  galMore.addEventListener("click", function () { loadPage(false); });
 
   /* ───────────── Visionneuse (assets/js/viewer.js) ───────────── */
 

@@ -405,7 +405,150 @@ function media_public(array $m): array
         'h' => $m['h'] ?? null,
         'duration' => $m['duration'] ?? null,
         'mime' => $m['mime'],
+        'size' => (int) ($m['size'] ?? 0),
         'src' => 'api/media.php?id=' . $id,
         'thumb' => !empty($m['thumb']) ? 'api/media.php?id=' . $id . '&v=thumb' : null,
     ];
+}
+
+/* ───────────── ZIP à la volée (album complet) ───────────── */
+
+/**
+ * Sends a ZIP of the given files straight to the browser, one file after the other:
+ * nothing is copied on the server (no temporary archive), files are stored as-is
+ * (photos and videos are already compressed), the download size is known in advance
+ * (the browser shows real progress), and ZIP64 kicks in past 4 GB.
+ *
+ * $entries: [['path' => absolute file, 'name' => name inside the zip], …]
+ * $extra:   [['name' => …, 'data' => string], …] small text files added at the end
+ */
+function zip_stream(array $entries, string $downloadName, array $extra = [])
+{
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+    @set_time_limit(0);
+    ignore_user_abort(false);
+    // pas de compression gzip par le serveur : elle fausserait la taille annoncée
+    @ini_set('zlib.output_compression', 'Off');
+    if (function_exists('apache_setenv')) {
+        @apache_setenv('no-gzip', '1');
+    }
+    while (ob_get_level() > 0) {
+        @ob_end_clean();
+    }
+
+    $files = [];
+    foreach ($entries as $e) {
+        if (is_file($e['path'])) {
+            $files[] = ['name' => $e['name'], 'path' => $e['path'], 'size' => (int) filesize($e['path']), 'time' => (int) filemtime($e['path'])];
+        }
+    }
+    foreach ($extra as $e) {
+        $files[] = ['name' => $e['name'], 'data' => (string) $e['data'], 'size' => strlen((string) $e['data']), 'time' => time()];
+    }
+
+    // Exact layout first, to announce the total size.
+    $offset = 0;
+    foreach ($files as &$f) {
+        $f['offset'] = $offset;
+        $offset += 30 + strlen($f['name']) + $f['size'] + 16;       // local header + data + data descriptor
+    }
+    unset($f);
+    $cdStart = $offset;
+    $cdSize = 0;
+    foreach ($files as $f) {
+        $cdSize += 46 + strlen($f['name']) + ($f['offset'] >= 0xFFFFFFFF ? 12 : 0);
+    }
+    $zip64 = $cdStart + $cdSize >= 0xFFFFFFFF || count($files) >= 0xFFFF;
+    $length = $cdStart + $cdSize + ($zip64 ? 56 + 20 : 0) + 22;
+
+    header('Content-Type: application/zip');
+    header("Content-Disposition: attachment; filename*=UTF-8''" . rawurlencode($downloadName));
+    header('Content-Length: ' . $length);
+    header('Cache-Control: private, no-store');
+    header('X-Content-Type-Options: nosniff');
+
+    $dos = function (int $t): array {
+        $d = getdate($t);
+        return [
+            (($d['hours'] & 31) << 11) | (($d['minutes'] & 63) << 5) | (int) floor($d['seconds'] / 2),
+            ((max(1980, $d['year']) - 1980) << 9) | ($d['mon'] << 5) | $d['mday'],
+        ];
+    };
+    $flags = 0x0008 | 0x0800;                                         // sizes after the data · UTF-8 names
+
+    foreach ($files as $i => $f) {
+        [$dt, $dd] = $dos($f['time']);
+        $files[$i]['dt'] = $dt;
+        $files[$i]['dd'] = $dd;
+        echo pack('VvvvvvVVVvv', 0x04034b50, 20, $flags, 0, $dt, $dd, 0, 0, 0, strlen($f['name']), 0), $f['name'];
+        $h = hash_init('crc32b');
+        if (isset($f['data'])) {
+            hash_update($h, $f['data']);
+            echo $f['data'];
+        } else {
+            $fp = fopen($f['path'], 'rb');
+            while ($fp && !feof($fp)) {
+                $buf = fread($fp, 1048576);
+                if ($buf === false || $buf === '') {
+                    break;
+                }
+                hash_update($h, $buf);
+                echo $buf;
+                flush();
+                if (connection_aborted()) {
+                    fclose($fp);
+                    exit;
+                }
+            }
+            if ($fp) {
+                fclose($fp);
+            }
+        }
+        $crc = unpack('N', hash_final($h, true))[1];
+        $files[$i]['crc'] = $crc;
+        echo pack('VVVV', 0x08074b50, $crc, $f['size'], $f['size']);
+    }
+
+    foreach ($files as $f) {
+        $big = $f['offset'] >= 0xFFFFFFFF;
+        $extraField = $big ? pack('vvP', 0x0001, 8, $f['offset']) : '';
+        // créé « sous Unix » avec des droits de lecture normaux (sinon le Mac peut extraire des fichiers illisibles)
+        echo pack('VvvvvvvVVVvvvvvVV', 0x02014b50, (3 << 8) | 45, $big ? 45 : 20, $flags, 0, $f['dt'], $f['dd'],
+            $f['crc'], $f['size'], $f['size'], strlen($f['name']), strlen($extraField), 0, 0, 0, 0100644 << 16,
+            $big ? 0xFFFFFFFF : $f['offset']), $f['name'], $extraField;
+    }
+    $n = count($files);
+    if ($zip64) {
+        $eocd64 = $cdStart + $cdSize;
+        echo pack('VPvvVVPPPP', 0x06064b50, 44, 45, 45, 0, 0, $n, $n, $cdSize, $cdStart);
+        echo pack('VVPV', 0x07064b50, 0, $eocd64, 1);
+    }
+    echo pack('VvvvvVVv', 0x06054b50, 0, 0, min($n, 0xFFFF), min($n, 0xFFFF),
+        min($cdSize, 0xFFFFFFFF), $zip64 ? 0xFFFFFFFF : $cdStart, 0);
+    flush();
+    exit;
+}
+
+/** Readable, unique names inside the album zip: "Prénom/fichier.jpg". */
+function zip_entries(array $media): array
+{
+    $out = [];
+    $used = [];
+    foreach ($media as $m) {
+        if (empty($m['file']) || str_contains($m['file'], '..')) {
+            continue;
+        }
+        $who = trim(preg_replace('/[\\\\\/:*?"<>|\x00-\x1F]+/u', '', (string) ($m['guest'] ?? '')) ?? '');
+        $who = $who !== '' ? mb_substr($who, 0, 60) : 'Invité';
+        $file = preg_replace('/[\\\\\/:*?"<>|\x00-\x1F]+/u', '-', (string) ($m['original'] ?: basename($m['file']))) ?: basename($m['file']);
+        $name = $who . '/' . $file;
+        if (isset($used[strtolower($name)])) {
+            $name = $who . '/' . pathinfo($file, PATHINFO_FILENAME) . '-' . substr((string) $m['id'], 0, 6) . (pathinfo($file, PATHINFO_EXTENSION) !== '' ? '.' . pathinfo($file, PATHINFO_EXTENSION) : '');
+        }
+        $used[strtolower($name)] = true;
+        $out[] = ['path' => storage_dir() . '/' . $m['file'], 'name' => $name];
+    }
+    return $out;
 }

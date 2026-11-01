@@ -85,54 +85,17 @@ if ($authed && isset($_GET['f'])) {
     stream_file($path, (string) $item['mime'], (string) ($item['original'] ?: basename($path)), isset($_GET['dl']), 'private, max-age=86400');
 }
 
-/* ───────────── Tout télécharger (ZIP, sans recompression) ───────────── */
+/* ───────────── Tout télécharger (ZIP envoyé à la volée, rien n'est copié sur le serveur) ───────────── */
 
 if ($authed && isset($_GET['zip'])) {
-    if (!class_exists('ZipArchive')) {
-        http_response_code(500);
-        exit('L’extension PHP « zip » n’est pas disponible : téléchargez le dossier storage/uploads par FTP.');
-    }
-    @set_time_limit(0);
-    session_write_close();
-    $tmp = storage_dir('tmp') . '/album-' . bin2hex(random_bytes(6)) . '.zip';
-    $zip = new ZipArchive();
-    if ($zip->open($tmp, ZipArchive::CREATE) !== true) {
-        http_response_code(500);
-        exit('Impossible de créer le fichier ZIP.');
-    }
-    $used = [];
-    foreach (media_all() as $m) {
-        $path = storage_dir() . '/' . $m['file'];
-        if (str_contains($m['file'], '..') || !is_file($path)) {
-            continue;
-        }
-        $who = preg_replace('/[^A-Za-z0-9 _-]+/', '', (function_exists('iconv') ? @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', (string) ($m['guest'] ?: 'invite')) : (string) $m['guest']) ?: 'invite');
-        $name = trim($who) . '/' . basename($path);
-        if (isset($used[$name])) {
-            $name = trim($who) . '/' . $m['id'] . '_' . basename($path);
-        }
-        $used[$name] = true;
-        $zip->addFile($path, $name);
-        if (method_exists($zip, 'setCompressionName')) {
-            $zip->setCompressionName($name, ZipArchive::CM_STORE);   // photos et vidéos sont déjà compressées
-        }
-    }
     $msgs = read_jsonl(storage_file('messages.jsonl'));
-    if ($msgs) {
-        $txt = '';
-        foreach ($msgs as $n) {
-            $txt .= $n['name'] . ' — ' . $n['time'] . "\n" . $n['message'] . "\n\n";
-        }
-        $zip->addFromString('livre-d-or.txt', $txt);
+    $txt = '';
+    foreach ($msgs as $n) {
+        $txt .= $n['name'] . ' — ' . $n['time'] . "\r\n" . $n['message'] . "\r\n\r\n";
     }
-    $zip->close();
-    if (!is_file($tmp)) {
-        exit('Rien à télécharger pour l’instant.');
-    }
-    register_shutdown_function(function () use ($tmp) { @unlink($tmp); });
-    stream_file($tmp, 'application/zip', 'bapteme-lou-album.zip', true, 'private, no-store');
+    // tout, y compris ce qui est masqué de l'album public
+    zip_stream(zip_entries(media_all()), 'Bapteme de Lou - tout.zip', $txt !== '' ? [['name' => 'Livre d’or.txt', 'data' => $txt]] : []);
 }
-
 
 /* ───────────── Livre d'or à imprimer (→ « Enregistrer en PDF ») ───────────── */
 

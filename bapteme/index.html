@@ -128,8 +128,14 @@
     <p class="eyebrow" data-reveal>L'album</p>
     <h2 class="title" data-reveal>Souvenirs <span class="i">partagés</span></h2>
     <p class="sub gallery__count" id="galCount"></p>
+    <div class="gallery__dl" id="galDl" hidden>
+      <a class="btn btn--ghost" id="galZip" href="api/album.php" download>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 19.5h14"/></svg>
+        <span>Tout télécharger <small id="galZipSize"></small></span>
+      </a>
+      <p class="hint">Toutes les photos et vidéos en qualité d'origine, rangées par prénom (fichier .zip).</p>
+    </div>
     <div class="gallery" id="gallery"></div>
-    <button class="btn btn--ghost gallery__more" id="galMore" type="button" hidden>Voir plus</button>
   </section>
 
   <!-- ───────────── Livre d'or ───────────── -->
