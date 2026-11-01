@@ -12,8 +12,13 @@ RedirectMatch 404 ^/(.*/)?storage(/|$)
   Header always set X-Content-Type-Options "nosniff"
   Header always set Referrer-Policy "same-origin"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
-  <FilesMatch "\.(woff2|svg|css|js)$">
+  # Polices et images : gardées 7 jours. Scripts et styles : toujours revérifiés
+  # (sinon, après une mise à jour, un navigateur mélange l'ancien script et la nouvelle page).
+  <FilesMatch "\.(woff2|svg|webp|jpg|png)$">
     Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+  <FilesMatch "\.(css|js)$">
+    Header set Cache-Control "no-cache"
   </FilesMatch>
   <FilesMatch "\.html$">
     Header set Cache-Control "no-cache"

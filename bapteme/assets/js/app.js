@@ -474,11 +474,11 @@
   }
   function paintCount() {
     var n = gal.items.length > gal.total ? gal.items.length : gal.total;
-    galCount.textContent = n ? n + (n > 1 ? " souvenirs partagés par vos proches" : " souvenir partagé") : "";
+    if (galCount) galCount.textContent = n ? n + (n > 1 ? " souvenirs partagés par vos proches" : " souvenir partagé") : "";
     galSec.hidden = !n;
     // le ZIP n'existe qu'avec le serveur (pas dans l'aperçu)
-    galDl.hidden = !n || !gal.live;
-    galZipSize.textContent = gal.bytes ? "· " + fmtBytes(gal.bytes) : "";
+    if (galDl) galDl.hidden = !n || !gal.live;
+    if (galZipSize) galZipSize.textContent = gal.bytes ? "· " + fmtBytes(gal.bytes) : "";
   }
   function galleryAdd(it) { tile(it, true); gal.total++; if (it.size) gal.bytes += it.size; paintCount(); }
 
@@ -518,7 +518,7 @@
     galEl.appendChild(frag);
   }
   function initGallery(info) {
-    if (demo || !info || !info.gallery) return;
+    if (demo || !info || !info.gallery || !galSec || !galEl) return;
     gal.live = true;
     loadAll();
     // l'album se met à jour tout seul (toutes les 45 s quand il est à l'écran)
