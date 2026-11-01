@@ -357,7 +357,7 @@
     }
     else if (item.status === "cancelled") { li.remove(); delete rows[item.key]; }
     else if (item.status === "queued") meta.textContent = "En attente · " + fmtBytes(item.file.size);
-    else meta.textContent = Math.round(pct * 100) + " % · " + fmtBytes(item.file.size);
+    else meta.textContent = Math.round(pct * 100) + " % · " + fmtBytes(item.file.size) + (item.note ? " · " + item.note : "");
   }
   function updateTotals(st) {
     totalBox.hidden = !st.count;

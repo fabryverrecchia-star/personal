@@ -4,7 +4,8 @@
  *
  * Body: a normal form (multipart/form-data) with the chunk as file "chunk" and
  *       uploadId, index, total, name, size, type, guest, [w, h, duration].
- *       (A raw body with the same values in X- headers is also accepted.)
+ *       Or a raw application/octet-stream body with the same values in the query
+ *       string (or in X- headers): some hosts' firewalls answer 403 to binary forms.
  * Chunk size is chosen by the page from api/status.php, to fit this server's
  * upload_max_filesize / post_max_size (often only 2 MB on shared hosting).
  *
@@ -25,11 +26,15 @@ if ($contentLength > ini_bytes((string) ini_get('post_max_size'))) {
     fail('chunk_too_big', 413, 'chunk_too_big');
 }
 
-// Fields come from a normal form (FormData) or, for older clients, from X- headers.
+// Fields come from a normal form (FormData), from the query string (raw-body mode,
+// used when the host's firewall refuses multipart chunks), or from X- headers.
 function field(string $name, string $header): string
 {
     if (isset($_POST[$name])) {
         return (string) $_POST[$name];
+    }
+    if (isset($_GET[$name])) {
+        return (string) $_GET[$name];
     }
     return (string) ($_SERVER['HTTP_' . $header] ?? '');
 }
