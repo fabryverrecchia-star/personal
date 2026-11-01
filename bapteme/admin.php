@@ -253,6 +253,7 @@ function plural(int $n, string $one, string $many): string
 <meta name="theme-color" content="#fcfaf8">
 <title>Espace privé · Baptême de Lou</title>
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/viewer.css">
 <style>
   <?= $fonts ?>
   :root { color-scheme: light; --paper:#fcfaf8; --card:#fff; --ink:#6f6968; --strong:#4f4a49; --soft:#8f8988; --line:rgba(111,105,104,.18); --sage:#6d8770; --forest:#2f4a3c; --terra:#cf7a62; }
@@ -285,6 +286,8 @@ function plural(int $n, string $one, string $many): string
   .tile img, .tile video { width:100%; height:100%; object-fit:cover; display:block; }
   .tile .cap { position:absolute; left:0; right:0; bottom:0; padding:20px 8px 6px; font-size:14px; color:#fff; background:linear-gradient(transparent, rgba(40,36,35,.7)); display:flex; justify-content:space-between; gap:6px; }
   .tile .cap a { text-decoration:none; font-size:18px; line-height:1; }
+  .cap__tools { display:flex; gap:12px; }
+  .tile a.js-view img { cursor:zoom-in; }
   .tile .badge { position:absolute; top:6px; left:6px; background:rgba(47,74,60,.85); color:#fff; font-size:11px; letter-spacing:.14em; padding:2px 8px; border-radius:99px; text-transform:uppercase; }
   .tile.is-hidden > :not(.mod):not(.badge--hidden) { opacity:.35; }
   .tile .badge--hidden { left:auto; right:6px; background:var(--terra); }
@@ -353,7 +356,7 @@ function plural(int $n, string $one, string $many): string
     <?php if (!$media): ?><p class="empty">Pas encore de photo ni de vidéo.</p><?php endif; ?>
     <div class="grid">
       <?php foreach ($media as $m): $src = 'admin.php?f=' . rawurlencode($m['id']); $isHidden = isset($hidden[$m['id']]); ?>
-        <div class="tile<?= $isHidden ? ' is-hidden' : '' ?>" id="m-<?= h($m['id']) ?>">
+        <div class="tile<?= $isHidden ? ' is-hidden' : '' ?>" id="m-<?= h($m['id']) ?>" data-kind="<?= h($m['kind']) ?>" data-src="<?= h($src) ?>" data-guest="<?= h($m['guest'] ?? '') ?>" data-viewable="<?= ($m['kind'] === 'video' || ($m['kind'] === 'photo' && preg_match('/image\/(jpeg|png|gif|webp|avif|heic|heif)/', (string) $m['mime']))) ? '1' : '' ?>">
           <?php if ($m['kind'] === 'video'): ?>
             <video src="<?= h($src) ?>#t=0.1" preload="metadata" controls playsinline></video>
             <span class="badge">Vidéo</span>
@@ -361,14 +364,17 @@ function plural(int $n, string $one, string $many): string
             <audio src="<?= h($src) ?>" preload="none" controls style="width:100%;margin-top:40%"></audio>
             <span class="badge">Audio</span>
           <?php elseif (preg_match('/image\/(jpeg|png|gif|webp|avif)/', (string) $m['mime'])): ?>
-            <a href="<?= h($src) ?>" target="_blank" rel="noopener"><img src="<?= h($src) ?>" loading="lazy" alt=""></a>
+            <a href="<?= h($src) ?>" target="_blank" rel="noopener" class="js-view"><img src="<?= h($src) ?>" loading="lazy" alt=""></a>
           <?php else: ?>
             <a href="<?= h($src) ?>&amp;dl=1" style="display:grid;place-items:center;height:100%;text-decoration:none" class="small"><?= h(strtoupper(pathinfo($m['file'], PATHINFO_EXTENSION))) ?></a>
           <?php endif; ?>
           <?php if ($isHidden): ?><span class="badge badge--hidden">Masquée</span><?php endif; ?>
           <div class="cap">
             <span><?= h($m['guest'] ?: '—') ?> · <?= human_size((int) $m['size']) ?></span>
-            <a href="<?= h($src) ?>&amp;dl=1" aria-label="Télécharger">⤓</a>
+            <span class="cap__tools">
+              <?php if ($m['kind'] === 'video'): ?><a href="#" class="js-view" aria-label="Agrandir">⤢</a><?php endif; ?>
+              <a href="<?= h($src) ?>&amp;dl=1" aria-label="Télécharger">⤓</a>
+            </span>
           </div>
           <form method="post" class="mod">
             <input type="hidden" name="csrf" value="<?= h($_SESSION['csrf']) ?>">
@@ -382,7 +388,24 @@ function plural(int $n, string $one, string $many): string
   <?php endif; ?>
 <?php endif; ?>
 </div>
+<script src="assets/js/viewer.js"></script>
 <script>
+  // Photos et vidéos en grand : ajustées à l'écran, zoom au clic, molette, glisser.
+  (function () {
+    var tiles = Array.prototype.slice.call(document.querySelectorAll('.tile[data-viewable="1"]'));
+    var list = tiles.map(function (t) {
+      return { kind: t.dataset.kind, src: t.dataset.src, guest: t.dataset.guest, dl: t.dataset.src + '&dl=1' };
+    });
+    document.querySelectorAll('.js-view').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        var i = tiles.indexOf(a.closest('.tile'));
+        if (i < 0 || !window.LouViewer) return;     // sinon : ouverture dans un nouvel onglet
+        e.preventDefault();
+        window.LouViewer.open(list, i);
+      });
+    });
+  })();
+
   // Supprimer demande confirmation dans la page : le premier appui arme le bouton.
   document.querySelectorAll('[data-confirm]').forEach(function (b) {
     b.addEventListener('click', function (e) {

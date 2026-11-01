@@ -1,0 +1,56 @@
+/* Visionneuse plein écran (assets/js/viewer.js) — album et espace privé */
+html.lv-open, html.lv-open body { overflow: hidden; }
+.lv {
+  position: fixed; inset: 0; z-index: 100; overflow: hidden;
+  color: #fff; font-family: "Cormorant", Garamond, serif;
+  -webkit-user-select: none; user-select: none;
+  animation: lvIn .28s ease both;
+}
+.lv[hidden] { display: none; }
+/* fond plein ; il s'éclaircit seulement quand on glisse la photo vers le bas pour fermer */
+.lv::before { content: ""; position: absolute; inset: 0; background: #181615; opacity: var(--lv-bg, 1); }
+@keyframes lvIn { from { opacity: 0; } }
+.lv__frame { position: absolute; inset: 0; touch-action: none; cursor: zoom-in; }
+.lv.is-zoomed .lv__frame { cursor: grab; }
+.lv.is-dragging .lv__frame { cursor: grabbing; }
+.lv.is-video .lv__frame { cursor: default; display: grid; place-items: center; padding: 64px 12px 80px; }
+.lv__media { display: block; border-radius: 4px; box-shadow: 0 20px 60px -20px rgba(0, 0, 0, .6); }
+img.lv__media {
+  position: absolute; left: 50%; top: 50%; max-width: none; max-height: none;
+  transform-origin: center center; will-change: transform; -webkit-user-drag: none;
+}
+.lv.is-zoomed img.lv__media { border-radius: 0; }
+video.lv__media { max-width: 100%; max-height: 100%; width: auto; height: auto; }
+
+.lv__top {
+  position: absolute; z-index: 2; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center;
+  padding: calc(10px + env(safe-area-inset-top)) 10px 10px 18px; pointer-events: none;
+  background: linear-gradient(rgba(0, 0, 0, .35), transparent);
+}
+.lv__count { font-size: 14px; letter-spacing: .2em; opacity: .75; }
+.lv__tools { display: flex; gap: 8px; pointer-events: auto; }
+.lv__btn, .lv__nav {
+  display: grid; place-items: center; width: 46px; height: 46px; padding: 0; border: 0; border-radius: 50%;
+  background: rgba(255, 255, 255, .14); color: #fff; cursor: pointer; text-decoration: none;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transition: background .2s;
+}
+.lv__btn[hidden] { display: none; }
+.lv__btn:hover, .lv__nav:hover { background: rgba(255, 255, 255, .28); }
+.lv__btn svg, .lv__nav svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.lv.is-zoomed .lv__zoom { background: rgba(255, 255, 255, .9); color: #2f4a3c; }
+.lv__nav { position: absolute; z-index: 2; top: 50%; margin-top: -26px; width: 52px; height: 52px; }
+.lv__prev { left: 16px; } .lv__next { right: 16px; }
+.lv.is-single .lv__nav, .lv.is-zoomed .lv__nav { display: none; }
+@media (hover: none) { .lv__nav { display: none; } }
+.lv__cap {
+  position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; margin: 0; text-align: center; pointer-events: none;
+  padding: 30px 16px calc(16px + env(safe-area-inset-bottom)); font-style: italic; font-size: 19px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, .35));
+}
+.lv__hint { position: absolute; z-index: 2; left: 0; right: 0; bottom: calc(52px + env(safe-area-inset-bottom)); margin: 0; text-align: center; font-size: 13px; letter-spacing: .08em; opacity: 0; pointer-events: none; animation: lvHint 3.6s ease .5s; }
+@keyframes lvHint { 15%, 75% { opacity: .65; } }
+@media (hover: none) { .lv__hint { display: none; } }
+.lv.is-zoomed .lv__cap, .lv.is-zoomed .lv__hint, .lv.is-video .lv__hint { opacity: 0; animation: none; }
+.lv__msg { position: absolute; z-index: 1; top: 50%; left: 20px; right: 20px; transform: translateY(-50%); text-align: center; font-size: 20px; font-style: italic; }
+.lv__msg a { color: #fff; }
+@media (prefers-reduced-motion: reduce) { .lv { animation: none; } }

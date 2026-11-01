@@ -509,45 +509,15 @@
   }
   galMore.addEventListener("click", function () { loadPage(false); });
 
-  /* ───────────── Visionneuse ───────────── */
+  /* ───────────── Visionneuse (assets/js/viewer.js) ───────────── */
 
-  var viewer = $("#viewer"), stage = $(".viewer__stage", viewer), cap = $(".viewer__cap", viewer);
-  var vIndex = 0;
-  function showItem(i) {
-    if (!gal.items.length) return;
-    vIndex = (i + gal.items.length) % gal.items.length;
-    var it = gal.items[vIndex];
-    stage.innerHTML = it.kind === "video"
-      ? '<video src="' + esc(it.src) + '" controls autoplay playsinline></video>'
-      : '<img src="' + esc(it.src) + '" alt="">';
-    cap.textContent = it.guest ? "par " + it.guest : "";
-  }
   function openViewer(i) {
-    viewer.hidden = false;
-    document.body.style.overflow = "hidden";
-    showItem(i);
+    if (!window.LouViewer) { window.open(gal.items[i].src, "_blank"); return; }
+    window.LouViewer.open(gal.items.map(function (it) {
+      return {
+        kind: it.kind, src: it.src, thumb: it.thumb, guest: it.guest,
+        dl: /^api\//.test(it.src) ? it.src + "&dl=1" : null
+      };
+    }), i);
   }
-  function closeViewer() {
-    viewer.hidden = true;
-    stage.innerHTML = "";
-    document.body.style.overflow = "";
-  }
-  $(".viewer__close").addEventListener("click", closeViewer);
-  $(".viewer__prev").addEventListener("click", function () { showItem(vIndex - 1); });
-  $(".viewer__next").addEventListener("click", function () { showItem(vIndex + 1); });
-  viewer.addEventListener("click", function (e) { if (e.target === viewer || e.target === stage) closeViewer(); });
-  document.addEventListener("keydown", function (e) {
-    if (viewer.hidden) return;
-    if (e.key === "Escape") closeViewer();
-    if (e.key === "ArrowLeft") showItem(vIndex - 1);
-    if (e.key === "ArrowRight") showItem(vIndex + 1);
-  });
-  var sx = null;
-  viewer.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; }, { passive: true });
-  viewer.addEventListener("touchend", function (e) {
-    if (sx == null) return;
-    var dx = e.changedTouches[0].clientX - sx;
-    if (Math.abs(dx) > 50) showItem(vIndex + (dx < 0 ? 1 : -1));
-    sx = null;
-  }, { passive: true });
 })();

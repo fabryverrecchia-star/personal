@@ -18,6 +18,7 @@
 <link rel="preload" href="assets/img/vines.webp" as="image">
 <link rel="preload" href="assets/img/dove.webp" as="image">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/viewer.css">
 <script>document.documentElement.className += " intro";</script>
 </head>
 <body>
@@ -178,21 +179,13 @@
   <a href="#livre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h9.5A3.5 3.5 0 0 1 18 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3.5 3.5 0 0 1 3.5-3.5H18"/></svg>Livre d'or</a>
 </nav>
 
-<!-- Visionneuse plein écran -->
-<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Photo">
-  <button class="viewer__close" type="button" aria-label="Fermer">×</button>
-  <button class="viewer__nav viewer__prev" type="button" aria-label="Précédente">‹</button>
-  <figure class="viewer__stage"></figure>
-  <button class="viewer__nav viewer__next" type="button" aria-label="Suivante">›</button>
-  <p class="viewer__cap"></p>
-</div>
-
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="assets/js/infos.js"></script>
 <script src="assets/vendor/gsap.min.js" defer></script>
 <script src="assets/js/scene.js" defer></script>
 <script src="assets/js/uploader.js" defer></script>
+<script src="assets/js/viewer.js" defer></script>
 <script src="assets/js/app.js" defer></script>
 </body>
 </html>
