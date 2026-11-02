@@ -1,6 +1,6 @@
 # Baptême de Lou — réglages Apache
 # (no "Options" line on purpose: many shared hosts forbid it and answer 500 for the whole site)
-DirectoryIndex index.html
+DirectoryIndex index.php index.html
 
 # Private files
 <FilesMatch "^(config|lib)\.php$|\.(md|jsonl|ini)$">

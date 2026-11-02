@@ -5,6 +5,16 @@
 (function () {
   "use strict";
 
+  // Une ancienne page encore en mémoire dans le navigateur (d'avant une mise à jour)
+  // charge ce script récent : on bascule une fois sur la page à jour.
+  if (!window.LOU_FRESH && location.protocol !== "file:") {
+    var tried = false;
+    try { tried = sessionStorage.getItem("lou_fresh") === "1"; sessionStorage.setItem("lou_fresh", "1"); } catch (e) { /* */ }
+    if (!tried) { location.replace("index.php?r=" + Date.now() + location.hash); return; }
+  }
+  try { sessionStorage.removeItem("lou_fresh"); } catch (e) { /* */ }
+  document.documentElement.classList.add("js-reveal");
+
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var INFO = window.LOU || {};

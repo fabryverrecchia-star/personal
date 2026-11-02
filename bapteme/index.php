@@ -1,0 +1,218 @@
+<?php
+/*
+ * La page des invités. Servie par PHP pour qu'aucun navigateur ni hébergeur ne la garde
+ * en mémoire (sinon, après une mise à jour, une vieille page mélangée aux nouveaux
+ * scripts peut s'afficher vide). Chaque script / style porte sa date de modification :
+ * une mise à jour est vue tout de suite, sans rien vider.
+ */
+header('Content-Type: text/html; charset=utf-8');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
+function v(string $f): string
+{
+    $t = @filemtime(__DIR__ . '/' . $f);
+    return $t ? (string) $t : '1';
+}
+?>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Le baptême de Lou · 31 octobre 2026</title>
+<meta name="description" content="Le baptême de Lou, le samedi 31 octobre 2026 à Riom. Les infos, le repas chez Augustine Bistronomie 1890, vos photos du jour J et le livre d'or.">
+<meta name="theme-color" content="#fcfaf8">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Le baptême de Lou · 31 octobre 2026">
+<meta property="og:description" content="Les infos, vos photos du jour J et le livre d'or.">
+<meta property="og:image" content="assets/img/share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="preload" href="assets/fonts/cormorant.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/cormorant-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/img/vines.webp" as="image">
+<link rel="preload" href="assets/img/dove.webp" as="image">
+<link rel="stylesheet" href="assets/css/style.css?v=<?= v('assets/css/style.css') ?>">
+<link rel="stylesheet" href="assets/css/viewer.css?v=<?= v('assets/css/viewer.css') ?>">
+<script>
+  window.LOU_FRESH = true;
+  document.documentElement.className += " intro";
+  window.addEventListener("error", function () { document.documentElement.classList.add("js-failed"); });
+</script>
+</head>
+<body>
+
+<canvas id="scene" aria-hidden="true"></canvas>
+
+<!-- Ouverture : la colombe arrive en battant des ailes, le prénom s'écrit -->
+<div class="loader" id="loader" aria-hidden="true">
+  <span class="loader__fly"><img class="loader__dove" src="assets/img/dove.webp" alt="" width="436" height="361"></span>
+  <p class="loader__pre i">le baptême de</p>
+  <p class="loader__name"><span>L</span><span>o</span><span>u</span></p>
+  <span class="loader__line"><i></i></span>
+  <p class="loader__date">31 · 10 · 2026</p>
+</div>
+
+<main>
+  <!-- ───────────── Accueil ───────────── -->
+  <header class="hero" id="haut">
+    <div class="crest" aria-hidden="true">
+      <img class="crest__vines" src="assets/img/vines.webp" alt="" width="775" height="745">
+      <img class="crest__church" src="assets/img/church.webp" alt="" width="775" height="745">
+    </div>
+    <p class="hero__pre i">le baptême de</p>
+    <h1 class="hero__name">Lou</h1>
+    <p class="hero__date i" data-fill="dateLongue">le 31 octobre 2026</p>
+
+    <div class="count" id="count" aria-live="polite">
+      <div><b data-c="j">–</b><span>jours</span></div>
+      <div><b data-c="h">–</b><span>heures</span></div>
+      <div><b data-c="m">–</b><span>minutes</span></div>
+    </div>
+    <p class="count__today i" id="today" hidden>C'est aujourd'hui !</p>
+
+    <a class="scrollhint" href="#infos" aria-label="Voir les infos"><span></span></a>
+  </header>
+
+  <!-- ───────────── Mot d'accueil ───────────── -->
+  <section class="intro" data-reveal>
+    <img class="intro__dove float" src="assets/img/dove.webp" alt="" width="436" height="361">
+    <p class="lead">Nous serons heureux de vous accueillir pour célébrer le baptême de notre fille <span class="name-inline">Lou</span>, entourée de celles et ceux qui comptent pour elle.</p>
+  </section>
+
+  <!-- ───────────── Programme ───────────── -->
+  <section class="block" id="infos">
+    <p class="eyebrow" data-reveal>Le programme</p>
+    <h2 class="title" data-reveal><span class="i">samedi</span> 31 octobre</h2>
+
+    <ol class="steps">
+      <li class="step" data-reveal>
+        <span class="step__dot" aria-hidden="true"></span>
+        <p class="step__time" data-fill="ceremonie.heure"></p>
+        <h3>La cérémonie</h3>
+        <p class="step__place" data-fill="ceremonie.lieu"></p>
+        <p class="step__addr" data-fill="ceremonie.adresse"></p>
+        <p class="step__note i" data-fill="ceremonie.note"></p>
+        <div class="actions" data-maps="ceremonie"></div>
+      </li>
+
+      <li class="step" data-reveal>
+        <span class="step__dot" aria-hidden="true"></span>
+        <p class="step__kicker i">à suivre</p>
+        <p class="step__time" data-fill="repas.heure"></p>
+        <h3>Un repas convivial</h3>
+        <p class="step__place" data-fill="repas.lieu"></p>
+        <p class="step__addr" data-fill="repas.adresse"></p>
+        <p class="step__note i" data-fill="repas.note"></p>
+        <div class="actions" data-maps="repas"></div>
+      </li>
+    </ol>
+
+    <div class="cal" data-reveal>
+      <button class="btn btn--ghost" type="button" id="addCal">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+        Ajouter à mon agenda
+      </button>
+    </div>
+  </section>
+
+  <!-- ───────────── Photos du jour J ───────────── -->
+  <section class="block block--tint" id="photos">
+    <p class="eyebrow" data-reveal>Le jour J</p>
+    <h2 class="title" data-reveal>Vos <span class="i">photos</span></h2>
+    <p class="sub" data-reveal>Pendant la cérémonie, au dessert ou au moment d'un fou rire&nbsp;: partagez vos photos et vidéos, en qualité d'origine. Elles rejoindront l'album de Lou.</p>
+
+    <div class="drop" data-reveal>
+      <label class="field">
+        <span>Votre prénom</span>
+        <input type="text" id="upName" class="js-name" maxlength="80" autocomplete="given-name" placeholder="Ex. Tata Claire">
+      </label>
+      <label class="btn btn--big" id="pickLabel">
+        <input type="file" id="pick" accept="image/*,video/*" multiple>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.3" r="3.4"/></svg>
+        Choisir des photos
+      </label>
+      <p class="hint">Photos et vidéos · plusieurs à la fois · vous pouvez continuer à naviguer pendant l'envoi.</p>
+
+      <div class="total" id="total" hidden>
+        <div class="total__bar"><i id="totalBar"></i></div>
+        <p id="totalText"></p>
+      </div>
+      <ul class="queue" id="queue"></ul>
+    </div>
+  </section>
+
+  <!-- ───────────── Galerie ───────────── -->
+  <section class="block" id="galerie" hidden>
+    <p class="eyebrow" data-reveal>L'album</p>
+    <h2 class="title" data-reveal>Souvenirs <span class="i">partagés</span></h2>
+    <p class="sub gallery__count" id="galCount"></p>
+    <div class="gallery__dl" id="galDl" hidden>
+      <a class="btn btn--ghost" id="galZip" href="api/album.php" download>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 19.5h14"/></svg>
+        <span>Tout télécharger <small id="galZipSize"></small></span>
+      </a>
+      <p class="hint">Toutes les photos et vidéos en qualité d'origine, rangées par prénom (fichier .zip).</p>
+    </div>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <!-- ───────────── Livre d'or ───────────── -->
+  <section class="block" id="livre">
+    <p class="eyebrow" data-reveal>Pour Lou</p>
+    <h2 class="title" data-reveal>Le livre <span class="i">d'or</span></h2>
+    <p class="sub" data-reveal>Un vœu, un souvenir, un conseil pour la vie… Lou le lira quand elle sera grande.</p>
+
+    <form class="book" id="book" novalidate data-reveal>
+      <label class="field">
+        <span>Votre prénom</span>
+        <input type="text" name="name" class="js-name" maxlength="80" autocomplete="name" required placeholder="Ex. Mamie Jo">
+      </label>
+      <label class="field">
+        <span>Votre message</span>
+        <textarea name="message" rows="5" maxlength="2000" required placeholder="Chère Lou…"></textarea>
+        <small class="field__count"><b id="msgCount">0</b> / 2000</small>
+      </label>
+      <label class="hp" aria-hidden="true">Site web <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+      <button class="btn btn--big" type="submit" id="bookSend">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 20 4l-4.5 16-4-6.5z"/><path d="m11.5 13.5 4-5"/></svg>
+        Envoyer mon message
+      </button>
+      <p class="status" id="bookStatus" role="status"></p>
+    </form>
+
+    <div class="thanks" id="thanks" hidden>
+      <img class="thanks__dove" src="assets/img/dove.webp" alt="" width="436" height="361">
+      <p class="thanks__big i">Merci&nbsp;!</p>
+      <p>Votre message est bien arrivé dans le livre d'or de Lou.</p>
+      <button class="link" type="button" id="bookAgain">Écrire un autre message</button>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <img src="assets/img/dove.webp" alt="" width="436" height="361" class="foot__dove">
+    <p class="foot__sign i" data-fill="signature">Avec tout notre amour</p>
+    <p class="foot__name">Lou</p>
+    <p class="foot__date">31 · 10 · 2026</p>
+  </footer>
+</main>
+
+<!-- Barre de navigation (mobile) -->
+<nav class="dock" id="dock" aria-label="Sections">
+  <a href="#infos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Infos</a>
+  <a href="#photos" class="dock__main"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.3" r="3.4"/></svg>Photos<i class="dock__ring" id="dockRing" hidden></i></a>
+  <a href="#livre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h9.5A3.5 3.5 0 0 1 18 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3.5 3.5 0 0 1 3.5-3.5H18"/></svg>Livre d'or</a>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/infos.js?v=<?= v('assets/js/infos.js') ?>"></script>
+<script src="assets/vendor/gsap.min.js?v=<?= v('assets/vendor/gsap.min.js') ?>" defer></script>
+<script src="assets/js/scene.js?v=<?= v('assets/js/scene.js') ?>" defer></script>
+<script src="assets/js/uploader.js?v=<?= v('assets/js/uploader.js') ?>" defer></script>
+<script src="assets/js/viewer.js?v=<?= v('assets/js/viewer.js') ?>" defer></script>
+<script src="assets/js/app.js?v=<?= v('assets/js/app.js') ?>" defer></script>
+</body>
+</html>

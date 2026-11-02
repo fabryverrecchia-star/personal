@@ -216,7 +216,7 @@ function plural(int $n, string $one, string $many): string
 <meta name="theme-color" content="#fcfaf8">
 <title>Espace privé · Baptême de Lou</title>
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="assets/css/viewer.css?v=20261101b">
+<link rel="stylesheet" href="assets/css/viewer.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/viewer.css') ?>">
 <style>
   <?= $fonts ?>
   :root { color-scheme: light; --paper:#fcfaf8; --card:#fff; --ink:#6f6968; --strong:#4f4a49; --soft:#8f8988; --line:rgba(111,105,104,.18); --sage:#6d8770; --forest:#2f4a3c; --terra:#cf7a62; }
@@ -351,7 +351,7 @@ function plural(int $n, string $one, string $many): string
   <?php endif; ?>
 <?php endif; ?>
 </div>
-<script src="assets/js/viewer.js?v=20261101b"></script>
+<script src="assets/js/viewer.js?v=<?= (int) @filemtime(__DIR__ . '/assets/js/viewer.js') ?>"></script>
 <script>
   // Photos et vidéos en grand : ajustées à l'écran, zoom au clic, molette, glisser.
   (function () {
