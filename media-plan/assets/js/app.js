@@ -821,6 +821,7 @@
   var postSig = {};
   function applyEdits(edits) {
     EDITS = edits && typeof edits === 'object' && !Array.isArray(edits) ? edits : {};
+    setTimeout(function () { fbRefresh(); }, 0);
     allPosts.forEach(function (p) {
       var v = postView(p);
       var sig = JSON.stringify(v);
@@ -851,8 +852,23 @@
     var data = {};
     try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch (e) {}
     function save() { try { localStorage.setItem(key, JSON.stringify(data)); } catch (e) {} }
+    // Modification de l'équipe (suivi.php : edits[clé].mod) postérieure à un « À revoir » : l'avis est levé,
+    // la nouvelle version attend un nouveau regard du client
+    function modOf(id) {
+      var p = allPosts.filter(function (x) { return x._id === id; })[0];
+      var e = EDITS[p ? p._key : String(id).replace(/^story-/, '')];
+      return e && e.mod ? e.mod * 1000 : 0;
+    }
     function paint(box) {
-      var d = data[box.getAttribute('data-fb')] || {};
+      var fid = box.getAttribute('data-fb');
+      var d = data[fid] || {};
+      var mod = modOf(fid);
+      // d.m : version vue par le client quand il a donné son avis (pas d'heure comparée : horloges différentes)
+      if (d.status === 'revoir' && mod && mod !== (d.m || 0)) { d.status = ''; d.redo = mod; save(); }
+      box.classList.toggle('is-redo', !!d.redo);
+      var hint = box.querySelector('.fb__redo');
+      if (d.redo && !hint) box.insertAdjacentHTML('afterbegin', '<p class="label fb__redo">Nouvelle version depuis votre retour · à revoir</p>');
+      else if (!d.redo && hint) hint.remove();
       box.querySelectorAll('[data-fb-status]').forEach(function (b) {
         var on = d.status === b.getAttribute('data-fb-status');
         b.classList.toggle('is-on', on);
@@ -890,6 +906,8 @@
       var d = data[id] || (data[id] = {});
       var v = b.getAttribute('data-fb-status');
       d.status = d.status === v ? '' : v;
+      d.m = modOf(id);
+      d.redo = 0;
       paint(box); save(); count();
     });
     document.addEventListener('input', function (e) {

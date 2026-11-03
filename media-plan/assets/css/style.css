@@ -2689,3 +2689,6 @@ body.has-sum .countdown { padding-top: 36px; padding-bottom: 24px; }
 }
 .vid-err span { font-size: 9px; opacity: 0.8; }
 .vid-err a { font-size: 9px; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Avis « À revoir » levé par une nouvelle version de l'équipe */
+.fb__redo { margin: 0 0 10px; font-size: 9px; color: var(--ink); opacity: 0.75; }
