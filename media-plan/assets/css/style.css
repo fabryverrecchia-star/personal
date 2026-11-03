@@ -2220,7 +2220,8 @@ body.has-dock .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); }
 }
 .story-card:active .story-card__frame { transform: scale(0.97); }
 .story-card__media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.story-soon { display: grid; place-items: center; padding: 10px; font-size: 8px; color: var(--ink-soft); }
+.story-soon { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 12px; font-size: 8px; color: var(--ink-soft); text-align: center; }
+.story-soon__txt { display: block; font-family: var(--serif, inherit); font-weight: 400; font-size: 15px; line-height: 1.25; letter-spacing: 0; text-transform: none; color: var(--ink); }
 .story-card__play { position: absolute; top: 8px; right: 8px; z-index: 2; width: 18px; height: 18px; color: #f1eee6; filter: drop-shadow(0 1px 3px rgba(14, 20, 36, 0.5)); }
 .story-card__play svg { width: 100%; height: 100%; }
 .story-card__when { font-size: 8.5px; color: var(--ink-soft); line-height: 1.4; }

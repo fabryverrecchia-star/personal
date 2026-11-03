@@ -1094,7 +1094,7 @@
       (PLAN.ads ? '<button type="button" class="team-fab__item" role="menuitem" data-goto="ads">' + SICONS.ads + '<span><b>Sponsorisé</b><small class="label">Dépensé, budget, campagnes</small></span></button>' : '') +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="stories">' + SICONS.story + '<span><b>Stories</b><small class="label">Proposer, programmer, prévisualiser</small></span></button>' +
       (noTasks ? '' : '<button type="button" class="team-fab__item" role="menuitem" data-goto="missions">' + SICONS.redaction + '<span><b>Tâches</b><small class="label">Missions en cours</small></span></button>') +
-      (PLAN.teasing ? '<button type="button" class="team-fab__item" role="menuitem" data-goto="teasing">' + SICONS.spark + '<span><b>Idées teasing</b><small class="label">Modifier, argumenter</small></span></button>' : '') +
+      (PLAN.teasing ? '<button type="button" class="team-fab__item" role="menuitem" data-goto="teasing">' + SICONS.spark + '<span><b>' + esc(String(PLAN.teasing.title || 'Idées teasing').replace(/<[^>]+>/g, '')) + '</b><small class="label">Modifier, argumenter</small></span></button>' : '') +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="inspi">' + SICONS.spark + '<span><b>Inspiration</b><small class="label">Reels et carrousels du mois</small></span></button>' +
       '<button type="button" class="team-fab__item team-fab__quit" role="menuitem" data-fab-quit>' + SICONS.close + '<span><b>Fermer l’espace équipe</b></span></button>' +
       '</div>' +
@@ -1806,10 +1806,19 @@
       var d = parseDate(s.date);
       return (long ? JOURS_LONGS[d.getDay()] : JOURS[d.getDay()] + '.') + ' ' + d.getDate() + ' ' + MOIS[d.getMonth()] + (s.time ? ' · ' + s.time : '');
     }
+    // PLAN.stories : stories proposées dans plan.js (id, date, time, caption, media / video + poster) ;
+    // les modifications de l'équipe (même id) passent par-dessus, « Supprimer » les masque (deleted).
+    var PLAN_STORIES = {};
+    list(PLAN.stories).forEach(function (p) {
+      if (!p || !p.id) return;
+      PLAN_STORIES[p.id] = { added: 'story', format: p.video ? 'reel' : 'photo', date: p.date || '', time: p.time || '', caption: list(p.caption).join('\n'), media: list(p.media), video: p.video || '', poster: p.poster || '' };
+    });
     function storyList() {
-      var E = state.edits || {};
-      return Object.keys(E).filter(function (k) { return E[k] && E[k].added === 'story'; }).map(function (k) {
-        var e = E[k], vid = e.format === 'reel' && e.video ? e.video : '';
+      var E = state.edits || {}, all = {};
+      Object.keys(PLAN_STORIES).forEach(function (k) { all[k] = Object.assign({}, PLAN_STORIES[k], E[k] || {}); });
+      Object.keys(E).forEach(function (k) { if (!all[k] && E[k] && E[k].added === 'story') all[k] = E[k]; });
+      return Object.keys(all).filter(function (k) { return !all[k].deleted; }).map(function (k) {
+        var e = all[k], vid = e.format === 'reel' && e.video ? e.video : '';
         var s = { id: k, date: e.date || '', time: e.time || '', caption: e.caption || '', video: vid, image: vid ? e.poster || '' : list(e.media)[0] || '' };
         s.when = storyWhen(s, true);
         return s;
@@ -1822,7 +1831,9 @@
     function storyMedia(s, cls) {
       if (s.video) return '<video class="' + cls + '" src="' + esc(src(s.video)) + '#t=0.3"' + (s.image ? ' poster="' + esc(src(s.image)) + '"' : '') + ' muted playsinline preload="metadata"></video>';
       if (s.image) return '<img class="' + cls + '" src="' + esc(src(s.image)) + '" alt="" loading="lazy" decoding="async">';
-      return '<span class="' + cls + ' story-soon label">Visuel à venir</span>';
+      // Sans visuel : la première ligne du texte prévu, pour savoir de quoi parle la story
+      var first = String(s.caption || '').split('\n')[0];
+      return '<span class="' + cls + ' story-soon label">' + (first ? '<b class="story-soon__txt">' + esc(first) + '</b>' : '') + 'Visuel à venir</span>';
     }
     var storySig = '';
     function paintStories() {
@@ -2335,7 +2346,8 @@
           ok: 'Supprimer',
           danger: true,
           submit: function () {
-            return send({ action: 'reset', kind: 'edits', id: del }).then(function (ok) {
+            // Story proposée dans plan.js : masquée ; story ajoutée depuis la page : effacée
+            return (PLAN_STORIES[del] ? send({ action: 'edit', kind: 'edits', id: del, item: { deleted: true } }) : send({ action: 'reset', kind: 'edits', id: del })).then(function (ok) {
               if (ok) { seBusy = ''; seClose(); toast('Story supprimée.'); }
               return true;
             });
@@ -3664,7 +3676,7 @@
     if (!PLAN.menu) return;
     var app = document.getElementById('app');
     var groups = [
-      { id: 'teasing', sel: '#teasing', title: 'Idées teasing', icon: SICONS.video },
+      { id: 'teasing', sel: '#teasing', title: (PLAN.teasing && String(PLAN.teasing.title || '').replace(/<[^>]+>/g, '')) || 'Idées teasing', icon: SICONS.video },
       { id: 'feed', sel: '#feed', title: 'Le feed', icon: SICONS.image },
       { id: 'publications', sel: '.week', title: 'Publications', icon: SICONS.photo },
       { id: 'stories', sel: '#stories', title: 'Stories', icon: SICONS.story },
