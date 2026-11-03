@@ -329,7 +329,7 @@
           // Vidéo glissée dans le carrousel : recadrée au format des photos, lue en boucle sans le son
           if (isVidPath(m)) {
             return '<div class="slide slide--video" data-k="' + k + '">' +
-              '<video muted loop playsinline preload="metadata" src="' + esc(vidSrc(m)) + '#t=0.1" data-autoplay data-video="' + esc(vidSrc(m)) + '"></video>' +
+              '<video muted loop playsinline preload="none" data-autoplay data-video="' + esc(vidSrc(m)) + '"></video>' +
               '<span class="label slide__tag">' + ICONS.play + 'Vidéo</span></div>';
           }
           return '<img src="' + esc(src(m)) + '" alt="" loading="lazy" decoding="async" data-k="' + k + '">';
@@ -614,7 +614,7 @@
     var icon = n > 1 ? '<span class="label grid__options">' + LETTRES.slice(0, n).split('').join(' / ') + '</span>'
       : (p.type || 'post') === 'post' ? '' : '<span class="grid__icon">' + ICONS[p.type] + '</span>';
     return (isVidPath(img)
-      ? '<video src="' + esc(vidSrc(img)) + '#t=0.1" muted playsinline preload="metadata"></video>'
+      ? '<video data-video="' + esc(vidSrc(img)) + '" muted playsinline preload="none"></video>'
       : '<img src="' + esc(src(img)) + '" alt="" loading="lazy" decoding="async">') + icon +
       (p._date < today() ? '<span class="label grid__live">En ligne</span>' : '<span class="label grid__day">' + JOURS[p._date.getDay()] + ' ' + pad(p._date.getDate()) + '</span>');
   }
@@ -2433,7 +2433,7 @@
           (k > 0 ? '<button type="button" class="ed-tile__del" data-ed-move="' + k + '" data-dir="-1" aria-label="Avancer d’une place">' + SICONS.prev + '</button>' : '') +
           (k < total - 1 ? '<button type="button" class="ed-tile__del" data-ed-move="' + k + '" data-dir="1" aria-label="Reculer d’une place">' + SICONS.next + '</button>' : '') +
           '</div>' : '') +
-        (vid ? '<video src="' + esc(vidSrc(path)) + '#t=0.3" muted playsinline preload="metadata"></video>' : '<img src="' + esc(src(path)) + '" alt="">') +
+        (vid ? '<video data-video="' + esc(vidSrc(path)) + '" muted playsinline preload="none"></video>' : '<img src="' + esc(src(path)) + '" alt="">') +
         (n || vid ? '<figcaption class="label">' + (n || '') + (vid ? (n ? ' · ' : '') + 'Vidéo' : '') + '</figcaption>' : '') +
         '<div class="ed-tile__acts"><button type="button" class="label" data-ed-pick="' + slot + '" data-k="' + k + '"' + (vid ? ' data-vid' : '') + '>Remplacer</button>' +
         (removable ? '<button type="button" class="ed-tile__del" data-ed-remove="' + k + '" aria-label="Retirer">' + SICONS.close + '</button>' : '') +
@@ -3360,19 +3360,38 @@
 
   // Vidéos dans les carrousels : lecture muette seulement quand la slide est à l'écran
   function initInlineVideos() {
-    var vids = document.querySelectorAll('video[data-autoplay]');
-    if (!vids.length) return;
-    if (!('IntersectionObserver' in window)) {
-      vids.forEach(function (v) { attachVideo(v, v.getAttribute('data-video')).then(playVideo); });
-      return;
+    // Vignettes vidéo (feed, éditeur) : chargées comme les slides, puis arrêtées sur une image du début.
+    // Toute vidéo [data-video] ajoutée plus tard (post modifié, éditeur) est prise en charge aussi.
+    function still(v) {
+      attachVideo(v, v.getAttribute('data-video')).then(function () {
+        var seek = function () { try { v.currentTime = 0.3; } catch (e) {} };
+        if (v.readyState >= 1) seek(); else v.addEventListener('loadedmetadata', seek, { once: true });
+      });
     }
+    function hook(root) {
+      root.querySelectorAll('video[data-video]').forEach(function (v) {
+        if (v._hooked) return;
+        v._hooked = true;
+        if (!v.hasAttribute('data-autoplay')) { if (pre) pre.observe(v); else still(v); return; }
+        if (!io) { attachVideo(v, v.getAttribute('data-video')).then(playVideo); return; }
+        pre.observe(v); io.observe(v);
+      });
+    }
+    if (window.MutationObserver) new MutationObserver(function (ms) {
+      ms.forEach(function (m) { m.addedNodes.forEach(function (n) { if (n.nodeType === 1) hook(n.tagName === 'VIDEO' ? n.parentNode || n : n); }); });
+    }).observe(document.body, { childList: true, subtree: true });
+    var pre = null, io = null;
+    if (!('IntersectionObserver' in window)) { hook(document); return; }
     // Préchargement un peu avant que la slide arrive
-    var pre = new IntersectionObserver(function (entries) {
+    pre = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
-        if (e.isIntersecting) { videoUrl(e.target.getAttribute('data-video')); pre.unobserve(e.target); }
+        if (!e.isIntersecting) return;
+        pre.unobserve(e.target);
+        if (e.target.hasAttribute('data-autoplay')) videoUrl(e.target.getAttribute('data-video'));
+        else still(e.target);
       });
     }, { rootMargin: '600px 600px' });
-    var io = new IntersectionObserver(function (entries) {
+    io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         var v = e.target;
         v._visible = e.isIntersecting && e.intersectionRatio > 0.5;
@@ -3381,7 +3400,7 @@
         } else if (!v.paused) v.pause();
       });
     }, { threshold: [0, 0.5, 1] });
-    vids.forEach(function (v) { pre.observe(v); io.observe(v); });
+    hook(document);
 
     // Reels : on précharge la vidéo quand la vignette approche
     var reels = new IntersectionObserver(function (entries) {
