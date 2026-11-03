@@ -104,3 +104,9 @@ L'hébergement doit accepter les requêtes partielles (Range, standard sur Apach
 Utiliser le zip « mise à jour » : il ne contient ni `data/`, ni `uploads/`, ni les images de `inspi/`, ni `config.php`
 (seulement les `.htaccess` de protection de `uploads/` et `inspi/`).
 Le décompresser par-dessus le dossier en ligne : le planning modifié, les photos, vidéos et le code équipe restent intacts.
+
+## Vidéos ProRes, HEVC, MOV
+
+Avant l'envoi depuis l'espace équipe, une vidéo qui n'est pas en H.264 (ProRes, HEVC, MOV…) est convertie sur l'appareil
+en MP4 H.264 1080 px (ffmpeg.wasm, `assets/vendor/ffmpeg/`, chargé seulement à ce moment-là, environ 32 Mo). Compter
+1 à 2 minutes pour 10 s de ProRes. Si l'appareil n'y arrive pas, la vidéo part telle quelle avec un message.

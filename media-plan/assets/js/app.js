@@ -1177,6 +1177,100 @@
     );
   }
 
+  /* ------------------------------------------- vidéo convertie avant l'envoi */
+  // ProRes, HEVC ou autre format que les navigateurs ne lisent pas partout : converti sur l'appareil
+  // en MP4 H.264 (ffmpeg.wasm, chargé seulement à ce moment-là), puis envoyé.
+  var FF_BASE = 'assets/vendor/ffmpeg/';
+  function loadScript(url) {
+    return new Promise(function (res, rej) {
+      var sc = document.createElement('script');
+      sc.src = url; sc.onload = res; sc.onerror = rej;
+      document.head.appendChild(sc);
+    });
+  }
+  function videoCodecs(file) {
+    // L'entête des pistes (moov) est au début ou à la fin du fichier : on lit les 4 premiers et les 4 derniers Mo
+    var M = 4 * 1048576;
+    var parts = [file.slice(0, M)];
+    if (file.size > M) parts.push(file.slice(Math.max(M, file.size - M)));
+    return Promise.all(parts.map(function (b) {
+      return new Promise(function (res) {
+        var r = new FileReader();
+        r.onload = function () { res(new Uint8Array(r.result)); };
+        r.onerror = function () { res(new Uint8Array(0)); };
+        r.readAsArrayBuffer(b);
+      });
+    })).then(function (arrs) {
+      var found = {};
+      var tags = ['avc1', 'avc3', 'hvc1', 'hev1', 'apcn', 'apch', 'apcs', 'apco', 'ap4h', 'ap4x', 'mp4v', 'vp09', 'av01'];
+      arrs.forEach(function (a) {
+        for (var i = 0; i < a.length - 4; i++) {
+          if (a[i] !== 0x61 && a[i] !== 0x68 && a[i] !== 0x6d && a[i] !== 0x76) continue; // a, h, m, v
+          var t = String.fromCharCode(a[i], a[i + 1], a[i + 2], a[i + 3]);
+          if (tags.indexOf(t) >= 0) found[t] = true;
+        }
+      });
+      return found;
+    });
+  }
+  function needsConvert(file) {
+    return videoCodecs(file).then(function (f) {
+      if (f.avc1 || f.avc3) return false;
+      return !!(f.hvc1 || f.hev1 || f.apcn || f.apch || f.apcs || f.apco || f.ap4h || f.ap4x || f.mp4v || f.vp09 || f.av01 || /\.mov$/i.test(file.name || ''));
+    });
+  }
+  var FF = null;
+  function ffmpeg() {
+    // Fichiers du moteur servis en blob : pas de souci de type MIME (.wasm) sur l'hébergement
+    var blobUrl = function (u, type) {
+      return fetch(u).then(function (r) { if (!r.ok) throw r.status; return r.arrayBuffer(); })
+        .then(function (b) { return URL.createObjectURL(new Blob([b], { type: type })); });
+    };
+    if (!FF) FF = loadScript(FF_BASE + 'ffmpeg.js').then(function () {
+      return Promise.all([blobUrl(FF_BASE + 'ffmpeg-core.js', 'text/javascript'), blobUrl(FF_BASE + 'ffmpeg-core.wasm', 'application/wasm')]);
+    }).then(function (urls) {
+      var ff = new window.FFmpegWASM.FFmpeg();
+      return ff.load({ coreURL: urls[0], wasmURL: urls[1] }).then(function () { return ff; });
+    }).catch(function (e) { FF = null; throw e; });
+    return FF;
+  }
+  // onMsg(texte, alerte) : avancement affiché pendant la conversion ; alerte = message à montrer en toast
+  function prepVideo(file, onMsg) {
+    return needsConvert(file).then(function (need) {
+      if (!need || !window.WebAssembly) return file;
+      onMsg('Préparation de la vidéo…');
+      return ffmpeg().then(function (ff) {
+        var onProg = function (ev) { onMsg('Conversion de la vidéo… ' + Math.max(0, Math.min(99, Math.round((ev.progress || 0) * 100))) + ' %'); };
+        ff.on('progress', onProg);
+        var name = String(file.name || 'video').replace(/\.[^.]+$/, '') || 'video';
+        return file.arrayBuffer().then(function (buf) {
+          return ff.writeFile('in', new Uint8Array(buf));
+        }).then(function () {
+          onMsg('Conversion de la vidéo… 0 %');
+          return ff.exec(['-i', 'in', '-map', '0:v:0', '-map', '0:a:0?', '-dn', '-sn',
+            '-vf', "scale='min(1080,iw)':-2", '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p',
+            '-c:a', 'aac', '-b:a', '160k', '-write_tmcd', '0', '-movflags', '+faststart', 'out.mp4']);
+        }).then(function (code) {
+          if (code) throw code;
+          return ff.readFile('out.mp4');
+        }).then(function (data) {
+          ff.off('progress', onProg);
+          ff.deleteFile('in').catch(function () {});
+          ff.deleteFile('out.mp4').catch(function () {});
+          return new File([data], name + '.mp4', { type: 'video/mp4' });
+        }, function (e) {
+          ff.off('progress', onProg);
+          ff.deleteFile('in').catch(function () {});
+          throw e;
+        });
+      }).catch(function () {
+        // Conversion impossible (appareil sans assez de mémoire…) : la vidéo part telle quelle
+        onMsg('Envoi de la vidéo…', 'Conversion impossible sur cet appareil : la vidéo est envoyée telle quelle. Préférez un export MP4 (H.264).');
+        return file;
+      });
+    });
+  }
+
   /* ------------------------------------------------- données de suivi.php */
   // Requête avec délai : un hébergement qui ne répond plus ne laisse jamais la page tourner sans fin
   function fetchT(url, opts, ms) {
@@ -2335,10 +2429,15 @@
           r.readAsDataURL(b);
         });
       }
-      var ready = isVideo ? Promise.resolve(file) : prepImage(file, 2048, 0.86);
+      var ready = isVideo ? prepVideo(file, function (m, warn) {
+        if (warn) toast(warn);
+        seBusy = m;
+        var bb = se.querySelector('[data-sedit-busy]');
+        if (bb) bb.textContent = m;
+      }) : prepImage(file, 2048, 0.86);
       return ready.then(function (blob) {
         return sendFile({ action: 'upload', kind: 'edits', id: id, slot: isVideo ? 'video' : 'media', index: 0, base: [] },
-          blob, isVideo ? (file.name || 'video.mp4') : 'photo.jpg', function (r) {
+          blob, isVideo ? (blob.name || file.name || 'video.mp4') : 'photo.jpg', function (r) {
             seBusy = (isVideo ? 'Envoi de la vidéo… ' : 'Envoi de la photo… ') + Math.round(r * 100) + ' %';
             var b = se.querySelector('[data-sedit-busy]');
             if (b) b.textContent = seBusy;
@@ -2635,11 +2734,16 @@
           r.readAsDataURL(b);
         });
       }
-      var ready = isVideo ? Promise.resolve(file) : prepImage(file, 2048, 0.86);
+      var ready = isVideo ? prepVideo(file, function (m, warn) {
+        if (warn) toast(warn);
+        e.busy = m;
+        var bb = edBox.querySelector('[data-ed-busy]');
+        if (bb) bb.textContent = m;
+      }) : prepImage(file, 2048, 0.86);
       return ready.then(function (blob) {
         // Le visuel provisoire d'une nouvelle publication (image générée) n'est pas envoyé
         return sendFile({ action: 'upload', kind: 'edits', id: e.key, slot: slot, index: k, base: base.map(function (m) { return /^data:/.test(m) ? '' : m; }) },
-          blob, isVideo ? (file.name || 'video.mp4') : 'photo.jpg', function (r) {
+          blob, isVideo ? (blob.name || file.name || 'video.mp4') : 'photo.jpg', function (r) {
             var b = edBox.querySelector('[data-ed-busy]');
             e.busy = (isVideo ? 'Envoi de la vidéo… ' : 'Envoi de la photo… ') + Math.round(r * 100) + ' %';
             if (b) b.textContent = e.busy;
