@@ -22,6 +22,9 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur (en ligne : 
   partie juste sous son bloc, qui reste collé en haut avec « × Fermer » pendant la lecture ; un bouton « Fermer … » termine
   chaque partie. Une seule partie ouverte à la fois. Lien direct : `?vue=teasing`, `?vue=feed`, `?vue=publications`, `?vue=stories`.
   Barre fixe du bas : Retours, Inspi, Branding, Équipe.
+- `pubsInFeed: true` : plus de rubrique Publications. Toucher une vignette du feed ouvre la publication en fenêtre (visuel,
+  légende, Validé / À revoir, commentaire, Modifier, Partager). En mode équipe, une vignette vide « + » en haut à gauche du
+  feed ajoute une publication ; après l'ajout la page s'ouvre sur sa fenêtre et son formulaire.
 - En ligne automatiquement : une publication dont la date est passée porte « En ligne » sur sa fiche et sur sa vignette du feed (voilée).
 - Stories jour par jour (`storiesByDay: true`) : une rangée par jour sous sa date, l'heure sous chaque story.
 - Texte d'intro, chiffres clés et légende des formats retirés (`stats: false`).

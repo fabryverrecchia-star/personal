@@ -2666,3 +2666,19 @@ body.has-sum .countdown { padding-top: 36px; padding-bottom: 24px; }
 .post__live svg { width: 12px; height: 12px; }
 .post__meta { gap: 10px; }
 .post__meta .post__live + .post__index { margin-left: auto; }
+
+/* Feed seul (PLAN.pubsInFeed) : vignette vide « + » en tête du feed pour l'équipe */
+.pubstore[hidden] { display: none; }
+.grid__add {
+  display: none; position: relative; aspect-ratio: 3 / 4;
+  background: transparent; box-shadow: inset 0 0 0 1px var(--ink-faint);
+  color: var(--ink); -webkit-tap-highlight-color: transparent;
+}
+.is-admin .grid__add { display: block; }
+.grid__add i::before, .grid__add i::after {
+  content: ''; position: absolute; left: 50%; top: 50%; background: currentColor;
+  width: 28px; height: 1.5px; transform: translate(-50%, -50%);
+}
+.grid__add i::after { transform: translate(-50%, -50%) rotate(90deg); }
+.grid__add:active { background: var(--tint); }
+.feed .restore { margin-top: 16px; }

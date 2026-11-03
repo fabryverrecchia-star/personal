@@ -27,6 +27,8 @@ window.PLAN = {
   // Sommaire en cartes sous le compte à rebours (teasing, feed, publications, stories). Lien direct : ?vue=teasing, ?vue=feed…
   // Barre du bas : Retours, Inspi, Branding (et Équipe)
   menu: true,
+  // Plus de rubrique Publications : chaque post s'ouvre en fenêtre depuis le feed, « + » en tête du feed pour en ajouter
+  pubsInFeed: true,
   // Stories rangées jour par jour
   storiesByDay: true,
   // Texte d'intro, chiffres clés et légende retirés le 26 octobre

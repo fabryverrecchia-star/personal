@@ -574,6 +574,8 @@
       '<p class="label hero__kicker" data-reveal>Aperçu du profil · touchez un post pour le détail</p>' +
       '<h2 class="feed__title" data-reveal>Le <em>feed</em></h2>' +
       '<div class="grid">' +
+      // PLAN.pubsInFeed : vignette vide « + » en haut à gauche pour ajouter une publication (espace équipe)
+      (PLAN.pubsInFeed && PLAN.suivi ? '<button type="button" class="grid__add" data-add-post="' + iso(today()).slice(0, 7) + '" aria-label="Ajouter une publication"><i></i></button>' : '') +
       feed.map(function (p) {
         var n = list(p.options).length;
         var on = p._date < today();
@@ -584,8 +586,10 @@
       }).join('') +
       '</div>' +
       (live.length ? '<p class="label" style="margin-top:14px;opacity:.7">Voilés : publications déjà en ligne</p>' : '') +
+      (PLAN.pubsInFeed && PLAN.suivi ? restoreHtml('post') : '') +
       '</section>' +
-      weeksHtml +
+      // PLAN.pubsInFeed : plus de rubrique Publications, chaque post ne s'ouvre qu'en fenêtre depuis le feed
+      (PLAN.pubsInFeed ? '<div class="pubstore" hidden>' + weeksHtml + '</div>' : weeksHtml) +
       storiesHtml();
 
     html += adsHtml();
@@ -3169,6 +3173,15 @@
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && box.classList.contains('is-open') && !document.querySelector('.editor.is-open')) close();
     });
+    // Après un ajout, une date ou une suppression (PLAN.pubsInFeed) : retour sur le feed, la publication ouverte
+    if (PLAN.pubsInFeed && QUICK && QUICK.to) document.addEventListener('mp:ready', function () {
+      var t = document.getElementById(QUICK.to);
+      var inStore = t && t.closest('.pubstore');
+      if (!inStore && !/^s\d+$/.test(QUICK.to)) return;
+      var fb = document.querySelector('[data-sum="feed"]');
+      if (fb && fb.getAttribute('aria-expanded') !== 'true') fb.click();
+      if (inStore && t.classList.contains('post')) setTimeout(function () { open(t); }, 350);
+    }, { once: true });
     // Lien partagé (share.php → ?post=<id>) : la publication s'ouvre à l'arrivée
     var want = new URLSearchParams(location.search).get('post');
     if (want) document.addEventListener('mp:ready', function () {
@@ -3656,7 +3669,7 @@
       { id: 'publications', sel: '.week', title: 'Publications', icon: SICONS.photo },
       { id: 'stories', sel: '#stories', title: 'Stories', icon: SICONS.story },
       { id: 'ads', sel: '#ads', title: 'Sponsorisé', icon: SICONS.ads },
-    ].filter(function (g) { return app.querySelector(g.sel); });
+    ].filter(function (g) { return app.querySelector(g.sel) && !(g.id === 'publications' && PLAN.pubsInFeed); });
     var sum = el('<section class="sum" id="sommaire">' +
       '<div class="sum__grid"></div></section>');
     var grid = sum.querySelector('.sum__grid');
@@ -3856,7 +3869,7 @@
     if (!gsap || reduce || QUICK) {
       done();
       var to = QUICK && QUICK.to && document.getElementById(QUICK.to);
-      if (to) setTimeout(function () { window.scrollTo(0, to.getBoundingClientRect().top + window.pageYOffset - 90); }, 60);
+      if (to && to.offsetParent) setTimeout(function () { window.scrollTo(0, to.getBoundingClientRect().top + window.pageYOffset - 90); }, 60);
       return;
     }
 
