@@ -29,6 +29,9 @@ window.PLAN = {
   menu: true,
   // Plus de rubrique Publications : chaque post s'ouvre en fenêtre depuis le feed, « + » en tête du feed pour en ajouter
   pubsInFeed: true,
+  // Sommaire : le feed d'abord (ouvert à l'arrivée), puis les stories, puis les idées teasing
+  menuOrder: ['feed', 'stories', 'teasing'],
+  menuOpen: 'feed',
   // Stories rangées jour par jour
   storiesByDay: true,
   // Texte d'intro, chiffres clés et légende retirés le 26 octobre

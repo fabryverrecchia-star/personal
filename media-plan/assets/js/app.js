@@ -3670,6 +3670,12 @@
       { id: 'stories', sel: '#stories', title: 'Stories', icon: SICONS.story },
       { id: 'ads', sel: '#ads', title: 'Sponsorisé', icon: SICONS.ads },
     ].filter(function (g) { return app.querySelector(g.sel) && !(g.id === 'publications' && PLAN.pubsInFeed); });
+    // PLAN.menuOrder : ordre des entrées (ex. ['feed', 'stories', 'teasing']), les autres suivent
+    var order = list(PLAN.menuOrder);
+    if (order.length) groups.sort(function (a, b) {
+      var i = order.indexOf(a.id), j = order.indexOf(b.id);
+      return (i < 0 ? 99 : i) - (j < 0 ? 99 : j);
+    });
     var sum = el('<section class="sum" id="sommaire">' +
       '<div class="sum__grid"></div></section>');
     var grid = sum.querySelector('.sum__grid');
@@ -3719,7 +3725,7 @@
 
     var current = null;
     function barH() { var b = document.getElementById('bar'); return b ? b.offsetHeight : 60; }
-    function show(g, then) {
+    function show(g, then, still) {
       var prev = current;
       // Repère : l'entrée touchée garde sa place à l'écran pendant que l'ancienne partie se replie
       var anchor = g ? g.card : prev && prev.card;
@@ -3734,7 +3740,7 @@
       current = g;
       sum.classList.toggle('has-open', !!g);
       sum.style.setProperty('--sum-top', barH() + 'px');
-      try {
+      if (!still) try {
         var u = new URL(location.href);
         if (g) u.searchParams.set('vue', g.id); else u.searchParams.delete('vue');
         history.replaceState(null, '', u.pathname + u.search + u.hash);
@@ -3743,7 +3749,7 @@
       if (window.ScrollTrigger) window.ScrollTrigger.refresh();
       // L'entrée ouverte vient se caler sous l'en-tête (elle y reste, avec « Fermer », pendant la lecture)
       var to = g ? (then || g.card) : prev && prev.card;
-      if (to) requestAnimationFrame(function () {
+      if (to && !still) requestAnimationFrame(function () {
         var top = to.getBoundingClientRect().top + window.pageYOffset - barH() - (then ? g.card.offsetHeight + 8 : 0);
         window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
       });
@@ -3768,7 +3774,10 @@
     }, true);
     var start = new URLSearchParams(location.search).get('vue');
     var sg = groups.filter(function (g) { return g.id === start; })[0];
+    // PLAN.menuOpen : partie ouverte d'office à l'arrivée (sans faire défiler la page)
+    var dflt = !sg && groups.filter(function (g) { return g.id === PLAN.menuOpen; })[0];
     if (sg) document.addEventListener('mp:ready', function () { show(sg); }, { once: true });
+    else if (dflt) show(dflt, null, true);
   }
 
   /* ------------------------------------------------------ compte à rebours */
