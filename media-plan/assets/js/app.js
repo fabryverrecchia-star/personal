@@ -3321,12 +3321,13 @@
   // lit depuis la mémoire (blob:), ce qui marche partout. Repli sur l'URL directe si besoin.
   var blobs = {};
   var ready = {};
+  var fails = {};
   function videoUrl(url) {
     if (!blobs[url]) {
       blobs[url] = !window.fetch ? Promise.resolve(url) : fetch(url)
         .then(function (r) { return r.ok ? r.blob() : Promise.reject(r.status); })
         .then(function (b) { return (ready[url] = URL.createObjectURL(new Blob([b], { type: 'video/mp4' }))); })
-        .catch(function () { return url; });
+        .catch(function (st) { fails[url] = st; return url; });
     }
     return blobs[url];
   }
@@ -3345,6 +3346,10 @@
   }
 
   function attachVideo(v, url) {
+    if (!v._errHook) {
+      v._errHook = true;
+      v.addEventListener('error', function () { videoBroken(v, url); });
+    }
     return videoUrl(url).then(function (u) {
       if (v.getAttribute('data-loaded') !== u) {
         v.src = u;
@@ -3352,6 +3357,17 @@
       }
       return v;
     });
+  }
+  // Vidéo que le navigateur ne sait pas lire (format, fichier abîmé, introuvable) : on le dit sur la vignette,
+  // avec un lien direct vers le fichier pour vérifier
+  function videoBroken(v, url) {
+    var box = v.parentNode;
+    if (!box || box.querySelector('.vid-err')) return;
+    var st = fails[url];
+    var why = st === 404 ? 'Fichier introuvable sur le serveur' : st ? 'Le serveur refuse le fichier (' + st + ')' : 'Format non lisible par ce navigateur';
+    box.classList.add('has-vid-err');
+    box.insertAdjacentHTML('beforeend', '<p class="vid-err"><span class="label">' + why + '</span>' +
+      '<a class="label" href="' + esc(url) + '" target="_blank" rel="noopener">Ouvrir le fichier</a></p>');
   }
   function playVideo(v) {
     var p = v.play();
