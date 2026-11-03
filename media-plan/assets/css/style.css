@@ -845,7 +845,7 @@ a { color: inherit; }
 .viewer {
   position: fixed;
   inset: 0;
-  z-index: 80;
+  z-index: 88; /* au-dessus de la fenêtre du post (82) et de l'éditeur (85) */
   pointer-events: none;
   visibility: hidden;
 }

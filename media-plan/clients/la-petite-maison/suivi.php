@@ -81,6 +81,8 @@ if ($method === 'GET' && isset($_GET['diag'])) {
 if ($method === 'GET') {
   $raw = is_file($FILE) ? file_get_contents($FILE) : '';
   $data = $raw ? json_decode($raw, true) : null;
+  // Fichier illisible (écriture coupée) : dernière version saine
+  if (!is_array($data) && is_file($FILE . '.prev')) { $prev = json_decode((string) file_get_contents($FILE . '.prev'), true); if (is_array($prev)) $data = $prev; }
   if (is_array($data) && (!isset($data['edits']) || !$data['edits'])) $data['edits'] = new stdClass();
   out(is_array($data) ? $data : empty_data());
 }
@@ -104,7 +106,8 @@ if (!is_array($in)) out(['error' => 'json'], 400);
 $code = isset($_POST['code']) ? (string) $_POST['code'] : (isset($in['code']) ? (string) $in['code'] : '');
 if ($code === '' && isset($_SERVER['HTTP_X_ADMIN_CODE'])) $code = (string) $_SERVER['HTTP_X_ADMIN_CODE'];
 // Majuscules ou minuscules : indifférent (le code d'origine a été haché tel quel, en minuscules)
-if ($code === '' || !(password_verify(strtoupper(trim($code)), $config['admin_hash']) || password_verify(strtolower(trim($code)), $config['admin_hash']))) {
+// Le code tel qu'enregistré (minuscules) d'abord : une seule vérification dans le cas courant
+if ($code === '' || !(password_verify(strtolower(trim($code)), $config['admin_hash']) || password_verify(strtoupper(trim($code)), $config['admin_hash']))) {
   usleep(700000); // freine les essais au hasard
   out(['error' => 'code'], 403);
 }
@@ -251,11 +254,21 @@ if ($kind === 'edits' && $action === 'upload') {
 }
 
 // Lecture + écriture sous verrou : deux personnes qui modifient en même temps ne s'écrasent pas
-$fp = @fopen($FILE, 'c+');
+// Verrou sur un fichier à part : le fichier de données est remplacé d'un bloc (jamais lu à moitié écrit)
+$fp = @fopen($FILE . '.lock', 'c');
+if (!$fp) $fp = @fopen($FILE, 'c+');
 if (!$fp) out(['error' => 'storage'], 500);
-flock($fp, LOCK_EX);
-$raw = stream_get_contents($fp);
-$data = $raw ? json_decode($raw, true) : null;
+// Verrou bloqué (requête restée en route) : on n'attend pas indéfiniment
+$t0 = microtime(true);
+while (!flock($fp, LOCK_EX | LOCK_NB)) {
+  if (microtime(true) - $t0 > 15) out(['error' => 'busy'], 503);
+  usleep(150000);
+}
+$raw = is_file($FILE) ? (string) file_get_contents($FILE) : '';
+$data = $raw !== '' ? json_decode($raw, true) : null;
+// Fichier illisible : on repart de la dernière version saine plutôt que d'un planning vide
+if (!is_array($data) && is_file($FILE . '.prev')) $data = json_decode((string) file_get_contents($FILE . '.prev'), true);
+if (!is_array($data) && $raw !== '') { flock($fp, LOCK_UN); out(['error' => 'storage'], 500); }
 if (!is_array($data)) $data = empty_data();
 if (!isset($data[$kind]) || !is_array($data[$kind])) $data[$kind] = [];
 
@@ -422,10 +435,19 @@ if ($kind === 'edits') {
   out(['error' => 'action'], 400);
 }
 
-ftruncate($fp, 0);
-rewind($fp);
-fwrite($fp, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-fflush($fp);
+$json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | (defined('JSON_INVALID_UTF8_SUBSTITUTE') ? JSON_INVALID_UTF8_SUBSTITUTE : 0));
+if (!is_string($json) || $json === '') { flock($fp, LOCK_UN); out(['error' => 'storage'], 500); }
+// Copie de la version précédente, puis écriture dans un fichier temporaire renommé d'un coup
+if ($raw !== '' && json_decode($raw, true) !== null) @file_put_contents($FILE . '.prev', $raw);
+$tmp = $FILE . '.tmp' . getmypid();
+$saved = @file_put_contents($tmp, $json) === strlen($json) && @rename($tmp, $FILE);
+if (!$saved) {
+  @unlink($tmp);
+  // Dossier sans droit de création : écriture directe dans le fichier
+  $saved = @file_put_contents($FILE, $json, LOCK_EX) === strlen($json);
+}
+@chmod($FILE, 0644);
 flock($fp, LOCK_UN);
+if (!$saved) { fclose($fp); out(['error' => 'storage'], 500); }
 fclose($fp);
 out($data);

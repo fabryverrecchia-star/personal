@@ -1178,6 +1178,17 @@
   }
 
   /* ------------------------------------------------- données de suivi.php */
+  // Requête avec délai : un hébergement qui ne répond plus ne laisse jamais la page tourner sans fin
+  function fetchT(url, opts, ms) {
+    opts = opts || {};
+    var ctl = window.AbortController ? new AbortController() : null;
+    if (ctl) opts.signal = ctl.signal;
+    var timer;
+    return Promise.race([
+      fetch(url, opts),
+      new Promise(function (res, rej) { timer = setTimeout(function () { if (ctl) ctl.abort(); rej('timeout'); }, ms); }),
+    ]).then(function (r) { clearTimeout(timer); return r; }, function (e) { clearTimeout(timer); throw e === 'timeout' || (e && e.name === 'AbortError') ? 'timeout' : 'network'; });
+  }
   function json(r) {
     if (!r.ok) return Promise.reject(r.status);
     return r.text().then(function (t) { return JSON.parse(t); });
@@ -1193,10 +1204,24 @@
     var cfg = PLAN.suivi;
     var API = cfg.api ? src(cfg.api) : '';
     var LOCAL = 'suivi:' + BASE;
-    var fromApi = API ? fetch(API + '?t=' + Date.now(), { cache: 'no-store' }).then(json) : Promise.reject();
-    return fromApi.then(function (d) {
-      if (!valid(d)) throw 0;
-      return { d: d, mode: 'api' };
+    var CACHE = 'suivi-cache:' + BASE;
+    function get() { return fetchT(API + '?t=' + Date.now(), { cache: 'no-store' }, 12000); }
+    // Serveur lent ou réseau coupé : un second essai, puis la dernière version reçue du serveur.
+    // Les modifications partent quand même au serveur (jamais gardées seulement sur le téléphone).
+    var fromApi = API ? get().catch(function (e) { if (e === 'timeout' || e === 'network') return get(); throw e; }) : Promise.reject('none');
+    return fromApi.then(function (r) {
+      return json(r).then(function (d) {
+        if (!valid(d)) throw 'nophp';
+        try { localStorage.setItem(CACHE, JSON.stringify(d)); } catch (e) {}
+        return { d: d, mode: 'api' };
+      }, function () { throw r.status >= 500 ? 'server' : 'nophp'; });
+    }).catch(function (why) {
+      if (why === 'timeout' || why === 'network' || why === 'server') {
+        var c = null;
+        try { c = JSON.parse(localStorage.getItem(CACHE)); } catch (e) {}
+        return { d: valid(c) ? c : { passages: [], missions: [], inspirations: [], edits: {} }, mode: 'api', slow: true };
+      }
+      throw why;
     }).catch(function () {
       var saved = null;
       try { saved = JSON.parse(localStorage.getItem(LOCAL)); } catch (e) {}
@@ -1233,6 +1258,7 @@
     var mode = 'api';
     var admin = false;
     var month = null;
+    var slowNow = false;
     var wantsAdmin = new URLSearchParams(location.search).has('admin');
     var code = '';
     try { code = localStorage.getItem(CODE) || ''; } catch (e) {}
@@ -1250,6 +1276,8 @@
         mode = r.mode;
         state = valid(r.d) ? r.d : { passages: [], missions: [] };
         paint();
+        slowNow = !!r.slow;
+        if (r.slow) toast('Le serveur répond lentement : dernière version affichée. Rechargez dans un instant.');
       });
     }
 
@@ -1300,7 +1328,9 @@
       var body = new URLSearchParams();
       body.set('p64', pack(op));
       body.set('code', c);
-      return fetch(API + '?t=' + Date.now(), { method: 'POST', body: body, cache: 'no-store', credentials: 'same-origin' });
+      // Ajout d'une inspiration : le serveur va chercher l'image et la vidéo sur Instagram, plus long
+      var slow = op.kind === 'inspirations' && (op.action === 'add' || op.action === 'refresh');
+      return fetchT(API + '?t=' + Date.now(), { method: 'POST', body: body, cache: 'no-store', credentials: 'same-origin' }, slow ? 190000 : 30000);
     }
     function why(r) {
       return r.text().then(function (t) {
@@ -1308,6 +1338,7 @@
         try { e = JSON.parse(t).error; } catch (x) {}
         if (e === 'code') return 'Code incorrect.';
         if (e === 'storage') return 'Le dossier data n’est pas accessible en écriture sur l’hébergement.';
+        if (e === 'busy') return 'Une autre modification est en cours d’enregistrement. Réessayez dans quelques secondes.';
         if (e === 'too_big') return 'Fichier trop lourd pour l’hébergement' + (JSON.parse(t).max ? ' (maximum ' + JSON.parse(t).max + ')' : '') + '.';
         if (e === 'type') return 'Format non reconnu : photo JPG, PNG ou WebP, vidéo MP4 ou MOV.';
         if (e === 'uploads') return 'Le dossier uploads n’est pas accessible en écriture sur l’hébergement.';
@@ -1321,7 +1352,12 @@
         return json(r);
       });
       return p.then(function (d) { if (valid(d)) { state = d; paint(); } return true; })
-        .catch(function (e) { if (e !== 'code') toast(typeof e === 'string' ? e : 'La modification n’a pas pu être enregistrée. Réessayez.'); return false; });
+        .catch(function (e) {
+          if (e === 'timeout') e = 'Le serveur ne répond pas : rien n’a été perdu, réessayez dans un instant.';
+          else if (e === 'network') e = 'Connexion impossible. Vérifiez le réseau et réessayez.';
+          if (e !== 'code') toast(typeof e === 'string' ? e : 'La modification n’a pas pu être enregistrée. Réessayez.');
+          return false;
+        });
     }
 
     // Envoi d'un fichier (photo, vidéo). Au-delà de 8 Mo, en morceaux de 8 Mo : la limite d'envoi
@@ -1340,6 +1376,9 @@
           rej(errMsg(d && d.error, d) || 'Envoi impossible (' + x.status + '). Réessayez.');
         };
         x.onerror = function () { rej('Connexion impossible. Réessayez.'); };
+        // Morceau de 8 Mo au plus : 3 minutes suffisent même en 4G faible
+        x.timeout = 180000;
+        x.ontimeout = function () { rej('Le serveur ne répond pas. Réessayez.'); };
         x.send(fd);
       });
     }
@@ -2982,7 +3021,7 @@
       // Hébergement lent : le planning s'est affiché avant les données ; s'il y a des ajouts, retraits ou dates, on recharge une fois
       var E = state.edits || {};
       var moved = Object.keys(E).some(function (k) { var e = E[k] || {}; return e.added !== 'story' && (e.added || e.deleted || e.date || e.start || e.end); });
-      if (!STRUCT_OK && moved && !(QUICK && QUICK.retry)) { relaunch({ retry: true, admin: admin }); return; }
+      if (!STRUCT_OK && moved && !slowNow && !(QUICK && QUICK.retry)) { relaunch({ retry: true, admin: admin }); return; }
       if (code && mode === 'api') setAdmin(true);
       if (QUICK) {
         if (QUICK.admin && !admin) setAdmin(true);
@@ -3958,8 +3997,15 @@
   // Le planning tient compte des ajouts, retraits et dates de l'équipe : données lues avant le rendu (3 s au plus)
   if (PLAN.suivi) {
     FIRST = getSuivi();
-    Promise.race([FIRST, new Promise(function (res) { setTimeout(res, 5000); })]).then(function (r) {
-      if (r && r.d) { applyStructure(r.d.edits); STRUCT_OK = true; }
+    // Serveur lent : on affiche tout de suite la dernière version reçue (gardée sur l'appareil) au lieu d'un planning vide ;
+    // si le serveur répond ensuite, la page se recharge une fois sur ses données
+    var cached = function () {
+      var c = null;
+      try { c = JSON.parse(localStorage.getItem('suivi-cache:' + BASE)); } catch (e) {}
+      return c && c.edits ? { d: c, cached: true } : null;
+    };
+    Promise.race([FIRST, new Promise(function (res) { setTimeout(function () { res(cached()); }, 5000); })]).then(function (r) {
+      if (r && r.d) { applyStructure(r.d.edits); STRUCT_OK = !r.cached; }
       boot();
     });
   } else boot();
