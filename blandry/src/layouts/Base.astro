@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import bodoniWoff from '@fontsource-variable/bodoni-moda/files/bodoni-moda-latin-standard-normal.woff2?url';
+import hankenWoff from '@fontsource-variable/hanken-grotesk/files/hanken-grotesk-latin-wght-normal.woff2?url';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MobileBar from '../components/MobileBar.astro';
@@ -28,7 +30,7 @@ const business = {
   url: site.url + '/',
   telephone: site.telephone.replace(/\s/g, ''),
   email: site.email,
-  image: `${site.url}/og.png`,
+  image: `${site.url}/og.jpg`,
   priceRange: '€€',
   address: {
     '@type': 'PostalAddress',
@@ -87,10 +89,12 @@ const ld = [business, ...schema];
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={`${site.url}/og.png`} />
+    <meta property="og:image" content={`${site.url}/og.jpg`} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content={theme} />
     <link rel="icon" href={u('/favicon.png')} type="image/png" />
+    <link rel="preload" href={bodoniWoff} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={hankenWoff} as="font" type="font/woff2" crossorigin />
     <script is:inline>
       document.documentElement.classList.add('js');
       // Diagnostic sur téléphone : ajouter ?debug à l'adresse

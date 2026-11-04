@@ -152,7 +152,8 @@ function prepareVideo(v: HTMLVideoElement) {
   if (v.dataset.ready) return;
   v.dataset.ready = '1';
   const src = v.querySelector<HTMLSourceElement>('source');
-  if (src?.dataset.srcSm && innerWidth <= 800) src.src = src.dataset.srcSm;
+  // Une seule version téléchargée : la petite sur téléphone, la grande ailleurs
+  if (src) src.src = (src.dataset.srcSm && innerWidth <= 800 ? src.dataset.srcSm : src.dataset.src) ?? src.src;
   v.preload = 'auto';
   v.load();
 }
@@ -282,7 +283,16 @@ if (contact && mbar) {
     onScroll();
   }).observe(contact);
 }
+let themeQueued = false;
 function headerTheme() {
+  if (themeQueued) return;
+  themeQueued = true;
+  requestAnimationFrame(() => {
+    themeQueued = false;
+    applyHeaderTheme();
+  });
+}
+function applyHeaderTheme() {
   const el = document
     .elementsFromPoint(innerWidth / 2, 40)
     .find((n) => !header.contains(n) && !n.closest('.cursor, .loader, .menu, [data-float]'));

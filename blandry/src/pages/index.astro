@@ -109,7 +109,7 @@ const svcImg = visuel;
         poster={u('/videos/metier-poster.jpg')}
         aria-label="Au travail : ponçage d’un plafond, application d’enduit, reprise des joints"
       >
-        <source src={u('/videos/metier-1280.mp4')} type="video/mp4" data-src-sm={u('/videos/metier-720.mp4')} />
+        <source data-src={u('/videos/metier-1280.mp4')} type="video/mp4" data-src-sm={u('/videos/metier-720.mp4')} />
       </video>
       <figcaption class="label atelier__cap">Ponçage, enduit, reprise des joints</figcaption>
     </figure>
@@ -281,7 +281,7 @@ const svcImg = visuel;
           [0, 1, 2, 3].map((k) =>
             marques.map((m) => (
               <li class="brand" aria-hidden={k > 0 ? 'true' : undefined}>
-                {m.logo ? <img src={m.logo.src} alt={k > 0 ? '' : m.nom} class={`brand__logo brand__logo--${m.id}`} loading="lazy" /> : <span class="display brand__name">{m.nom}</span>}
+                {m.logo ? <Image src={m.logo} alt={k > 0 ? '' : m.nom} width={320} format="webp" class={`brand__logo brand__logo--${m.id}`} loading="lazy" decoding="async" /> : <span class="display brand__name">{m.nom}</span>}
               </li>
             )),
           )

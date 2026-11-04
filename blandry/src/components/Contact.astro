@@ -23,7 +23,7 @@ const communes = zones.flatMap((z) => z.communes);
       poster={u('/videos/peinture-poster.jpg')}
       aria-label="Préparation d’une peinture blanche, malaxée dans son seau"
     >
-      <source src={u('/videos/peinture-1080.mp4')} type="video/mp4" data-src-sm={u('/videos/peinture-720.mp4')} />
+      <source data-src={u('/videos/peinture-1080.mp4')} type="video/mp4" data-src-sm={u('/videos/peinture-720.mp4')} />
     </video>
     <span class="contact__veil" aria-hidden="true"></span>
     <span class="contact__mono" data-contact-mono><Logo class="contact__logo" /></span>
