@@ -67,6 +67,10 @@ const ld = [business, ...schema];
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
+    <script is:inline>
+      // Secours si l'hébergeur ne redirige pas http vers https
+      if (location.protocol === 'http:' && /(^|\.)benjaminlandry\.fr$/.test(location.hostname)) location.replace('https://benjaminlandry.fr' + location.pathname + location.search + location.hash);
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
