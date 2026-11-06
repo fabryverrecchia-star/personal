@@ -1,0 +1,15 @@
+/* Jost (SIL Open Font License) : sans géométrique fine, proche du logo Sounds Like */
+@font-face {
+  font-family: 'Jost Sounds';
+  src: url('Jost-Light.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Jost Sounds';
+  src: url('Jost-LightItalic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
