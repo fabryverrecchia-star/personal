@@ -3,7 +3,7 @@
 Nouveau planning du 6 novembre 2026, sur le modèle La Petite Maison (mise à jour du 3 novembre).
 
 - `index.html` ouvre Sounds Like Paris (`clients/sounds-like-paris/plan.js`). En ligne : https://18h22.com/soundslikeplan/
-- Novembre et décembre 2026 : le lundi « Sound of the week » (n° 1 : Tanya), le mercredi une photo ou un carrousel, le samedi un reel.
+- 9 posts du 9 au 28 novembre 2026 : le lundi « Sound of the week » (n° 1 : Tanya), le mercredi une photo ou un carrousel, le samedi un reel.
 - Sommaire : le feed (ouvert à l'arrivée, chaque post s'ouvre en fenêtre, « + » pour ajouter), puis les campagnes sponsorisées (380 € par mois).
 - Pas de stories ni de teasing (`stories: false`, pas de `teasing`), ni calendrier ni missions.
 - Équipe : Fabrizio, Manon, Clément. Code de l'espace équipe : haché dans `clients/sounds-like-paris/config.php`.
