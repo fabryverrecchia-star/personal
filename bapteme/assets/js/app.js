@@ -607,8 +607,20 @@
     proEl.appendChild(frag);
   }
 
+  // Une image qui échoue (serveur occupé à la récupérer) est redemandée jusqu'à 4 fois.
+  document.addEventListener("error", function (e) {
+    var im = e.target;
+    if (!im || im.tagName !== "IMG" || !/drive_img\.php|api\/media\.php/.test(im.src)) return;
+    var n = Number(im.dataset.retry || 0);
+    if (n >= 4) return;
+    im.dataset.retry = n + 1;
+    var base = im.src.replace(/&r=\d+/, "");
+    setTimeout(function () { im.src = base + "&r=" + (n + 1); }, 1500 * (n + 1));
+  }, true);
+
   /* ── Accueil « GIF » : les photos de groupe en boucle rapide derrière « Merci » ── */
-  function heroLoop(items) {
+  function heroLoop(items, attempt) {
+    attempt = attempt || 0;
     var box = $("#heroLoop"), hero = $(".hero");
     if (!box || !hero) return;
     var photos = items.filter(function (it) { return it.kind === "photo"; });
@@ -636,8 +648,11 @@
       return im.decode ? im.decode().catch(function () {}) : new Promise(function (r) { im.onload = im.onerror = r; });
     });
     Promise.all(ready).then(function () {
-      // la première photo n'a pas pu se charger : on garde la couronne plutôt qu'un cadre vide
-      if (!imgs[0].naturalWidth) return;
+      // la première photo n'a pas pu se charger : on garde la couronne, et on réessaie un peu plus tard
+      if (!imgs[0].naturalWidth) {
+        if (attempt < 3) setTimeout(function () { heroLoop(items, attempt + 1); }, 3000 * (attempt + 1));
+        return;
+      }
       imgs.forEach(function (im) { box.appendChild(im); });
       var i = 0, slow = reduceMotion;
       box.style.setProperty("--loop-fade", slow ? "900ms" : "140ms");

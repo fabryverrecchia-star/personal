@@ -148,11 +148,22 @@
       img.src = it.src;
     }
     img.onload = function () { if (img === shown && !natW) measure(img.naturalWidth, img.naturalHeight); };
+    var tries = 0;
     img.onerror = function () {
       if (img !== shown) return;
+      // image momentanément indisponible (serveur occupé) : on réessaie avant d'abandonner
+      if (tries < 4) {
+        tries++;
+        var again = img.src.replace(/([?&])r=\d+/, "").replace(/[?&]$/, "");
+        setTimeout(function () { if (img === shown) img.src = again + (again.indexOf("?") < 0 ? "?" : "&") + "r=" + tries; }, 1200 * tries);
+        return;
+      }
       img.remove();
       msg.hidden = false;
-      msg.innerHTML = "Cette photo ne peut pas s'afficher dans ce navigateur (format iPhone HEIC)." +
+      var heic = /\.(heic|heif)$/i.test(it.name || it.src || "");
+      msg.innerHTML = (heic
+        ? "Cette photo est au format iPhone HEIC, que ce navigateur ne sait pas afficher."
+        : "Cette photo n'a pas pu se charger pour l'instant. Réessayez dans un moment.") +
         (it.dl ? '<br><a href="' + it.dl + '">La télécharger</a>' : "");
     };
     natW = natH = 0;

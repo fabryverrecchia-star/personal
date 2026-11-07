@@ -799,7 +799,7 @@ function drive_fallback_items(): array
     $folder = $m[1];
     $cache = storage_file('drive-cache.json');
     $c = is_file($cache) ? json_decode((string) @file_get_contents($cache), true) : null;
-    if (is_array($c) && ($c['folder'] ?? '') === $folder && time() - (int) ($c['time'] ?? 0) < 600) {
+    if (is_array($c) && ($c['v'] ?? 0) === 2 && ($c['folder'] ?? '') === $folder && time() - (int) ($c['time'] ?? 0) < 600) {
         return $c['items'];
     }
     $tmp = storage_dir('tmp') . '/drive-' . bin2hex(random_bytes(4)) . '.html';
@@ -815,6 +815,7 @@ function drive_fallback_items(): array
         }
         $id = rawurlencode($e[1]);
         $items[] = [
+            'drive' => $e[1],
             'id' => 'd' . substr(hash('sha256', $e[1]), 0, 15),
             'kind' => 'photo',
             'name' => $name,
@@ -822,17 +823,18 @@ function drive_fallback_items(): array
             'h' => null,
             'size' => 0,
             'mime' => 'image/jpeg',
-            'src' => 'https://drive.google.com/thumbnail?id=' . $id . '&sz=w2400',
-            'thumb' => 'https://drive.google.com/thumbnail?id=' . $id . '&sz=w600',
-            'full' => 'https://drive.google.com/thumbnail?id=' . $id . '&sz=w8000',
+            // servies par ce serveur (copie gardée en cache) : Google refuse les rafales d'images en direct
+            'src' => 'api/drive_img.php?id=' . $id . '&s=2400',
+            'thumb' => 'api/drive_img.php?id=' . $id . '&s=600',
+            'full' => 'api/drive_img.php?id=' . $id . '&s=4000',
             'dl' => 'https://drive.google.com/uc?export=download&id=' . $id,
             'hero' => false,
         ];
     }
     usort($items, function ($a, $b) { return strnatcasecmp($a['name'], $b['name']); });
     if ($items) {
-        @file_put_contents($cache, json_encode(['folder' => $folder, 'time' => time(), 'items' => $items]), LOCK_EX);
-    } elseif (is_array($c) && !empty($c['items'])) {
+        @file_put_contents($cache, json_encode(['v' => 2, 'folder' => $folder, 'time' => time(), 'items' => $items]), LOCK_EX);
+    } elseif (is_array($c) && ($c['v'] ?? 0) === 2 && !empty($c['items'])) {
         return $c['items'];                 // Drive injoignable un instant : la dernière liste connue
     }
     return $items;
