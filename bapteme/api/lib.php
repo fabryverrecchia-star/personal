@@ -839,3 +839,41 @@ function drive_fallback_items(): array
     }
     return $items;
 }
+
+
+/**
+ * The group photos looping behind « Merci », ready to be written straight into the page
+ * (no wait for the script): the names listed in infos.js (accueilPhotos), from the imported
+ * reportage if it is there, else from the Google Drive folder (served by drive_img.php).
+ */
+function hero_frames(): array
+{
+    $infos = (string) @file_get_contents(dirname(__DIR__) . '/assets/js/infos.js');
+    if (!preg_match('/accueilPhotos:\s*\[([^\]]*)\]/', $infos, $m)) {
+        return [];
+    }
+    preg_match_all('/"([^"]+)"/', $m[1], $nn);
+    $key = function ($n) { return strtolower(preg_replace('/\.[a-z0-9]+$/i', '', (string) $n)); };
+    $wanted = array_map($key, $nn[1]);
+    if (!$wanted) {
+        return [];
+    }
+    $by = [];
+    foreach (pro_all() as $p) {
+        if (($p['kind'] ?? '') === 'photo' && !empty($p['web'])) {
+            $by[$key($p['original'])] = 'api/media.php?set=pro&id=' . rawurlencode($p['id']) . '&v=web';
+        }
+    }
+    if (!$by) {
+        foreach (drive_fallback_items() as $it) {
+            $by[$key($it['name'])] = 'api/drive_img.php?id=' . rawurlencode($it['drive']) . '&s=2400';
+        }
+    }
+    $out = [];
+    foreach ($wanted as $w) {
+        if (isset($by[$w])) {
+            $out[] = $by[$w];
+        }
+    }
+    return $out;
+}

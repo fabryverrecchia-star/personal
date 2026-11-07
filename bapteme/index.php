@@ -33,6 +33,16 @@ $base = ($https ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localho
 $shareImg = $after && is_file(__DIR__ . '/assets/img/share-merci.jpg') ? 'assets/img/share-merci.jpg' : 'assets/img/share.jpg';
 $shareUrl = $base . $shareImg . '?v=' . v($shareImg);
 $pageUrl = $base . ($after ? '?merci' : '');
+// Accueil « Merci » : les photos de groupe écrites directement dans la page (pas d'attente du script)
+$heroFrames = [];
+if ($after) {
+    require_once __DIR__ . '/api/lib.php';
+    try {
+        $heroFrames = hero_frames();
+    } catch (\Throwable $e) {
+        $heroFrames = [];
+    }
+}
 // lettres de l'ouverture, une à une
 $letters = function (string $word) {
     $out = '';
@@ -68,7 +78,9 @@ $letters = function (string $word) {
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 <link rel="preload" href="assets/fonts/cormorant.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/cormorant-italic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/img/vines.webp" as="image">
+<?php if ($heroFrames): ?><link rel="preload" href="<?= $h($heroFrames[0]) ?>" as="image" fetchpriority="high">
+<?php else: ?><link rel="preload" href="assets/img/vines.webp" as="image">
+<?php endif; ?>
 <link rel="preload" href="assets/img/dove.webp" as="image">
 <link rel="stylesheet" href="assets/css/style.css?v=<?= v('assets/css/style.css') ?>">
 <link rel="stylesheet" href="assets/css/viewer.css?v=<?= v('assets/css/viewer.css') ?>">
@@ -100,10 +112,10 @@ $letters = function (string $word) {
 
 <main>
   <!-- ───────────── Accueil ───────────── -->
-  <header class="hero" id="haut">
+  <header class="hero<?= $heroFrames ? ' has-loop' : '' ?>" id="haut">
 <?php if ($after): ?>
-    <!-- photos de groupe en boucle, comme un GIF (remplies par app.js) -->
-    <div class="loop" id="heroLoop" aria-hidden="true"></div>
+    <!-- photos de groupe en boucle, comme un GIF (déjà dans la page ; app.js les fait défiler) -->
+    <div class="loop" id="heroLoop" aria-hidden="true"><?php foreach ($heroFrames as $i => $src): ?><img src="<?= $h($src) ?>" alt=""<?= $i === 0 ? ' class="is-on" fetchpriority="high"' : ' loading="eager"' ?> decoding="async"><?php endforeach; ?></div>
     <img class="hero__dove" src="assets/img/dove.webp" alt="" width="436" height="361">
 <?php endif; ?>
     <div class="crest" aria-hidden="true">

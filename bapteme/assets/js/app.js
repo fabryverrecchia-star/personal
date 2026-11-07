@@ -624,10 +624,29 @@
   }, true);
 
   /* ── Accueil « GIF » : les photos de groupe en boucle rapide derrière « Merci » ── */
+  // Boucle déjà écrite dans la page par le serveur : on la fait défiler tout de suite.
+  function runLoop(imgs, hero) {
+    var i = 0, slow = reduceMotion;
+    hero.querySelector(".loop").style.setProperty("--loop-fade", slow ? "900ms" : "140ms");
+    if (imgs.length < 2) return;
+    setInterval(function () {
+      if (document.hidden || hero.getBoundingClientRect().bottom < 0) return;
+      var next = (i + 1) % imgs.length;
+      if (!imgs[next].complete || !imgs[next].naturalWidth) return;   // pas encore chargée : on garde l'image
+      imgs[i].classList.toggle("is-on", false);
+      imgs[next].classList.toggle("is-on", true);
+      i = next;
+    }, slow ? 2600 : 850);
+  }
+  (function () {
+    var hero = $(".hero"), pre = $$("#heroLoop img");
+    if (hero && pre.length) { hero.dataset.loopReady = "1"; runLoop(pre, hero); }
+  })();
+
   function heroLoop(items, attempt) {
     attempt = attempt || 0;
     var box = $("#heroLoop"), hero = $(".hero");
-    if (!box || !hero) return;
+    if (!box || !hero || hero.dataset.loopReady) return;
     var photos = items.filter(function (it) { return it.kind === "photo"; });
     // 1) les photos nommées dans infos.js, dans leur ordre ; 2) celles étoilées dans l'espace privé ; 3) une dizaine au hasard
     var wanted = (INFO.accueilPhotos || []).map(function (n) { return String(n).toLowerCase().replace(/\.[a-z0-9]+$/, ""); });
