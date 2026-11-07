@@ -1962,13 +1962,21 @@
       var E = state.edits || {};
       return Object.keys(E).filter(function (k) { return E[k] && E[k].added === 'story'; }).map(function (k) {
         var e = E[k], vid = e.format === 'reel' && e.video ? e.video : '';
-        var s = { id: k, date: e.date || '', time: e.time || '', caption: e.caption || '', video: vid, image: vid ? e.poster || '' : list(e.media)[0] || '' };
+        var s = { id: k, date: e.date || '', time: e.time || '', caption: e.caption || '', video: vid, image: vid ? e.poster || '' : list(e.media)[0] || '', orig: e.orig || '' };
         s.when = storyWhen(s, true);
         return s;
       }).sort(function (a, b) {
         if (a.date !== b.date) return !a.date ? 1 : !b.date ? -1 : a.date < b.date ? -1 : 1;
         return timeVal(a.time) - timeVal(b.time);
       });
+    }
+    // Téléchargement de la story en résolution originale (fichier envoyé par l'équipe), sinon la version du site
+    function storyDl(s) {
+      var f = s.orig || s.video || s.image;
+      if (!f || /^(blob|data):/.test(f)) return '';
+      var ext = (String(f).match(/\.([a-z0-9]{2,5})(?:$|[?#])/i) || [0, s.video ? 'mp4' : 'jpg'])[1].toLowerCase();
+      var name = ('story-' + (s.date || '') + '-' + String(s.time || '').replace(/[^0-9a-z]/gi, '')).replace(/-+$/, '');
+      return '<a class="label sview__edit sview__dl" href="' + esc(src(f)) + '" download="' + esc(name + '.' + ext) + '">' + DL_ICON + 'Télécharger' + (s.orig ? ' (original)' : '') + '</a>';
     }
     function storyGet(id) { return storyList().filter(function (s) { return s.id === id; })[0] || null; }
     function storyMedia(s, cls) {
@@ -2283,7 +2291,8 @@
       t.hidden = !s.caption;
       var foot = sv.querySelector('[data-sview-foot]');
       foot.innerHTML = feedbackHtml({ _id: 'story-' + s.id }).replace(' data-reveal', '') +
-        '<button type="button" class="label sview__edit" data-sview-edit>' + SICONS.edit + 'Modifier cette story</button>';
+        '<div class="sview__actions"><button type="button" class="label sview__edit" data-sview-edit>' + SICONS.edit + 'Modifier cette story</button>' +
+        storyDl(s) + '</div>';
       fbRefresh(foot);
       svVid = m.querySelector('video');
       svDone = 0; svStart = performance.now(); svFoot = false;
@@ -2460,10 +2469,18 @@
             seBusy = (isVideo ? 'Envoi de la vidéo… ' : 'Envoi de la photo… ') + Math.round(r * 100) + ' %';
             var b = se.querySelector('[data-sedit-busy]');
             if (b) b.textContent = seBusy;
-          });
-      }).then(function (d) {
-        state = d;
+          }).then(function (d) { return { d: d, same: blob === file }; });
+      }).then(function (r) {
+        state = r.d;
         paint();
+        // Story réduite ou convertie pour le site : le fichier d'origine est aussi gardé, pour le télécharger en résolution originale
+        if (r.same) return;
+        return sendFile({ action: 'upload', kind: 'edits', id: id, slot: 'orig' }, file, file.name || (isVideo ? 'video.mov' : 'photo.jpg'), function (x) {
+          seBusy = 'Envoi de l’original… ' + Math.round(x * 100) + ' %';
+          var b = se.querySelector('[data-sedit-busy]');
+          if (b) b.textContent = seBusy;
+        }).then(function (d) { state = d; }, function () { toast('L’original n’a pas pu être gardé : la version du site reste téléchargeable.'); });
+      }).then(function () {
         return send({ action: 'edit', kind: 'edits', id: id, item: after });
       }).then(function () {
         done();

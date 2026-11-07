@@ -159,7 +159,7 @@ function edit_key($id) { $id = (string) $id; return preg_match('/^[A-Za-z0-9-]{1
 function uploads_of($e) {
   $out = [];
   if (!is_array($e)) return $out;
-  foreach (['poster', 'video'] as $k) if (!empty($e[$k]) && strpos($e[$k], 'uploads/') === 0) $out[] = $e[$k];
+  foreach (['poster', 'video', 'orig'] as $k) if (!empty($e[$k]) && strpos($e[$k], 'uploads/') === 0) $out[] = $e[$k];
   if (!empty($e['media']) && is_array($e['media'])) foreach ($e['media'] as $m) if (is_string($m) && strpos($m, 'uploads/') === 0) $out[] = $m;
   return $out;
 }
@@ -167,7 +167,7 @@ function cleanup_uploads($before, $data) {
   $used = [];
   foreach ((array) $data['edits'] as $e) $used = array_merge($used, uploads_of($e));
   foreach (array_diff($before, $used) as $f) {
-    if (preg_match('~^uploads/[a-z0-9-]+\.(jpg|png|webp|mp4|mov)$~', $f)) @unlink(__DIR__ . '/' . $f);
+    if (preg_match('~^uploads/[a-z0-9-]+\.(jpg|png|webp|heic|mp4|mov)$~', $f)) @unlink(__DIR__ . '/' . $f);
   }
 }
 $STATUS = ['todo', 'doing', 'done'];
@@ -217,7 +217,7 @@ function with_fetched($x, $f) {
 $stored = '';
 if ($kind === 'edits' && $action === 'upload') {
   $slot = isset($in['slot']) ? $in['slot'] : '';
-  if (edit_key(isset($in['id']) ? $in['id'] : '') === '' || !in_array($slot, ['media', 'poster', 'video'], true)) out(['error' => 'item'], 400);
+  if (edit_key(isset($in['id']) ? $in['id'] : '') === '' || !in_array($slot, ['media', 'poster', 'video', 'orig'], true)) out(['error' => 'item'], 400);
   // Fichier reconstitué à partir de ses morceaux, ou envoyé en une fois
   $part = isset($in['part']) ? preg_replace('/[^a-z0-9]/', '', strtolower((string) $in['part'])) : '';
   if ($part !== '') {
@@ -234,7 +234,12 @@ if ($kind === 'edits' && $action === 'upload') {
   // MP4 / MOV : la boîte « ftyp » est au début du fichier
   $head = (string) @file_get_contents($f['tmp_name'], false, null, 0, 16);
   // Une vidéo peut aussi être glissée dans un carrousel (slot media)
-  if ($slot === 'video' || ($slot === 'media' && substr($head, 4, 4) === 'ftyp')) {
+  // Original d'une story (photo ou vidéo telle qu'envoyée, avant réduction ou conversion) : gardé pour le téléchargement
+  $heif = substr($head, 4, 4) === 'ftyp' && in_array(substr($head, 8, 4), ['heic', 'heix', 'hevc', 'heim', 'heis', 'mif1', 'msf1'], true);
+  if ($slot === 'orig' && $heif) {
+    $ext = 'heic';
+    if ($f['size'] > 40 * 1048576) { $drop(); out(['error' => 'too_big', 'max' => '40 Mo'], 413); }
+  } elseif ($slot === 'video' || (($slot === 'media' || $slot === 'orig') && substr($head, 4, 4) === 'ftyp')) {
     if (substr($head, 4, 4) === 'ftyp') $ext = substr($head, 8, 2) === 'qt' ? 'mov' : 'mp4';
     if ($f['size'] > $VIDEO_MAX * 1048576) { $drop(); out(['error' => 'too_big', 'max' => $VIDEO_MAX . ' Mo'], 413); }
   } else {
@@ -294,6 +299,8 @@ if ($kind === 'edits') {
     } else {
       $e[$slot] = $stored;
     }
+    // Nouveau visuel : l'ancien original ne correspond plus (la page renvoie le nouvel original juste après)
+    if ($slot === 'media' || $slot === 'video') unset($e['orig']);
   } elseif ($action === 'edit') {
     $it = isset($in['item']) && is_array($in['item']) ? $in['item'] : [];
     // Idée teasing réécrite : date de la dernière version
