@@ -15,7 +15,7 @@
 require __DIR__ . '/lib.php';
 
 require_post();
-@set_time_limit(300);
+time_limit(300);
 ignore_user_abort(true);
 
 const MAX_CHUNK = 12 * 1024 * 1024;   // client sends ≤ 4 MB; generous margin
@@ -218,35 +218,17 @@ $duration = filter_var(field('duration', 'X_DURATION'), FILTER_VALIDATE_FLOAT);
 $duration = $duration !== false && $duration > 0 && $duration < 36000 ? round($duration, 1) : null;
 
 if ($pro) {
-    // Le reportage : l'original est gardé tel quel, plus une version « écran » (2400 px)
-    // pour l'afficher vite, et une miniature pour la grille.
-    @ini_set('memory_limit', '768M');
-    @set_time_limit(300);
-    $short = substr(strtolower($id), 0, 16);
-    $web = $thumb = null;
-    if ($kind === 'photo') {
-        storage_dir('pro/web');
-        storage_dir('pro/thumbs');
-        try {
-            $sz = make_thumb($dest, storage_dir() . '/pro/web/' . $short . '.jpg', 2400, 86);
-            if ($sz) {
-                [$w, $h] = $sz;
-                $web = 'pro/web/' . $short . '.jpg';
-            }
-            if (make_thumb($dest, storage_dir() . '/pro/thumbs/' . $short . '.jpg', 800, 80)) {
-                $thumb = 'pro/thumbs/' . $short . '.jpg';
-            }
-        } catch (\Throwable $e) {
-            // pas de version allégée : l'original sera affiché
-        }
-    }
+    // Le reportage : l'original est gardé tel quel. Les aperçus (2400 px + miniature)
+    // sont préparés par le navigateur de l'espace privé (previews=client), sinon ici
+    // quand la mémoire du serveur le permet.
+    time_limit(300);
     $record = [
-        'id' => $short,
+        'id' => substr(strtolower($id), 0, 16),
         'time' => date('c'),
         'original' => $name,
         'file' => 'pro/originals/' . $stored,
-        'web' => $web,
-        'thumb' => $thumb,
+        'web' => null,
+        'thumb' => null,
         'size' => $finalSize,
         'mime' => $mime,
         'kind' => $kind,
@@ -257,7 +239,13 @@ if ($pro) {
     flock($lock, LOCK_UN);
     fclose($lock);
     rrmdir($tmpDir);
-    json_out(['ok' => true, 'done' => true, 'item' => pro_public($record)]);
+    if ($kind === 'photo' && field('previews', 'X_PREVIEWS') !== 'client') {
+        $prev = pro_server_previews($record);
+        if ($prev) {
+            $record = pro_update($record['id'], $prev) ?: $record;
+        }
+    }
+    json_out(['ok' => true, 'done' => true, 'item' => pro_public($record), 'needsPreview' => $kind === 'photo' && empty($record['thumb'])]);
 }
 
 $thumb = null;

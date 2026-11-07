@@ -304,6 +304,11 @@ function plural(int $n, string $one, string $many): string
   .pqueue li.ok span:last-child { color:var(--sage); }
   .pqueue li.ko span:last-child { color:var(--terra); cursor:pointer; }
   .pro__note { text-align:center; margin:-14px 0 20px; }
+  .drive__form { display:flex; gap:8px; max-width:560px; margin:14px auto 0; }
+  .drive__form input { flex:1; min-width:0; font:inherit; font-size:16px; padding:10px 14px; border:1px solid var(--line); border-radius:999px; background:var(--paper); color:var(--strong); }
+  .drive__form .pill { min-height:44px; letter-spacing:.16em; }
+  .ptile__wait { height:100%; display:grid; place-items:center; text-align:center; padding:10px; }
+  @media (max-width:520px) { .drive__form { flex-direction:column; } }
   .ptile img { cursor:zoom-in; }
 </style>
 </head>
@@ -355,8 +360,19 @@ function plural(int $n, string $one, string $many): string
     </div>
   <?php elseif ($tab === 'pro'): ?>
     <section class="pro">
+      <div class="drop drive">
+        <p class="drop__title">Importer depuis Google Drive</p>
+        <p class="drop__hint">Collez le lien du dossier partagé (« Tous les utilisateurs disposant du lien »). Votre serveur va chercher les photos directement chez Google, en qualité d’origine. Vous pouvez relancer l’import plus tard : seules les nouvelles photos seront ajoutées.</p>
+        <form class="drive__form" id="driveForm">
+          <input type="url" id="driveUrl" placeholder="https://drive.google.com/drive/folders/…" required>
+          <button type="submit" class="pill pill--dark" id="driveGo">Importer</button>
+        </form>
+        <div class="ptotal" id="driveTotal" hidden><i id="driveBar"></i></div>
+        <p class="small" id="driveText"></p>
+        <ul class="pqueue" id="driveQueue"></ul>
+      </div>
       <div class="drop" id="proDrop">
-        <p class="drop__title">Le reportage du photographe</p>
+        <p class="drop__title">Ou envoyer depuis cet ordinateur</p>
         <p class="small drop__sub">Glissez les photos ici, ou</p>
         <label class="pill pill--dark">
           <input type="file" id="proPick" accept="image/*,video/*" multiple hidden>
@@ -378,10 +394,11 @@ function plural(int $n, string $one, string $many): string
       <?php endif; ?>
       <div class="grid" id="proGrid">
         <?php foreach ($pro as $m): $b = 'api/media.php?set=pro&id=' . rawurlencode($m['id']); ?>
-          <div class="tile ptile" data-kind="<?= h($m['kind']) ?>" data-src="<?= h($b . (!empty($m['web']) ? '&v=web' : '')) ?>" data-thumb="<?= h(!empty($m['thumb']) ? $b . '&v=thumb' : '') ?>" data-name="<?= h($m['original']) ?>">
+          <div class="tile ptile" data-id="<?= h($m['id']) ?>" data-kind="<?= h($m['kind']) ?>" data-src="<?= h($b . (!empty($m['web']) ? '&v=web' : '')) ?>" data-thumb="<?= h(!empty($m['thumb']) ? $b . '&v=thumb' : '') ?>" data-name="<?= h($m['original']) ?>"<?= ($m['kind'] === 'photo' && empty($m['thumb'])) ? ' data-needs="1"' : '' ?>>
             <?php if ($m['kind'] === 'video'): ?>
               <video src="<?= h($b) ?>#t=0.1" preload="metadata" muted playsinline></video><span class="badge">Vidéo</span>
-            <?php else: ?>
+            <?php elseif (empty($m['thumb'])): ?>
+              <div class="ptile__wait small">Aperçu en préparation…</div>
               <img src="<?= h(!empty($m['thumb']) ? $b . '&v=thumb' : $b) ?>" loading="lazy" alt="">
             <?php endif; ?>
             <div class="cap">
@@ -438,9 +455,13 @@ function plural(int $n, string $one, string $many): string
 <?php if ($authed && $tab === 'pro'): ?>
 <script src="assets/js/uploader.js?v=<?= (int) @filemtime(__DIR__ . '/assets/js/uploader.js') ?>"></script>
 <script>
-  // Reportage du photographe : envoi (glisser-déposer ou sélection) et visionneuse.
+  // Reportage du photographe : import Google Drive, envoi depuis l'ordinateur,
+  // aperçus préparés dans le navigateur quand le serveur manque de mémoire, visionneuse.
   (function () {
-    var tiles = Array.prototype.slice.call(document.querySelectorAll('.ptile'));
+    var $ = function (id) { return document.getElementById(id); };
+
+    /* ── visionneuse ── */
+    var tiles = Array.prototype.slice.call(document.querySelectorAll('.ptile:not([data-needs])'));
     var list = tiles.map(function (t) {
       return { kind: t.dataset.kind, src: t.dataset.src, thumb: t.dataset.thumb || null, guest: t.dataset.name, dl: t.dataset.src.replace(/&v=web$/, '') + '&dl=1' };
     });
@@ -449,10 +470,132 @@ function plural(int $n, string $one, string $many): string
       if (media) media.addEventListener('click', function (e) { e.preventDefault(); if (window.LouViewer) window.LouViewer.open(list, i); });
     });
 
-    var drop = document.getElementById('proDrop'), pick = document.getElementById('proPick');
-    var queue = document.getElementById('proQueue'), bar = document.getElementById('proBar');
-    var totalBox = document.getElementById('proTotal'), text = document.getElementById('proText');
-    var rows = {}, seq = 0, sent = 0;
+    /* ── aperçus faits par le navigateur (2400 px + miniature 800 px) ── */
+    function scaled(bmp, max, q) {
+      var k = Math.min(1, max / Math.max(bmp.width, bmp.height));
+      var w = Math.max(1, Math.round(bmp.width * k)), h = Math.max(1, Math.round(bmp.height * k));
+      var c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      var ctx = c.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      // réduction en deux temps : plus net qu'un seul grand saut
+      if (bmp.width > w * 2.5) {
+        var mid = document.createElement('canvas');
+        mid.width = w * 2; mid.height = h * 2;
+        var mctx = mid.getContext('2d');
+        mctx.imageSmoothingQuality = 'high';
+        mctx.drawImage(bmp, 0, 0, mid.width, mid.height);
+        ctx.drawImage(mid, 0, 0, w, h);
+      } else {
+        ctx.drawImage(bmp, 0, 0, w, h);
+      }
+      return new Promise(function (r) { c.toBlob(r, 'image/jpeg', q); });
+    }
+    function sendPreviews(id, blob) {
+      return createImageBitmap(blob, { imageOrientation: 'from-image' }).then(function (bmp) {
+        return Promise.all([scaled(bmp, 2400, 0.86), scaled(bmp, 800, 0.8)]).then(function (out) {
+          var fd = new FormData();
+          fd.append('id', id);
+          fd.append('w', String(bmp.width));
+          fd.append('h', String(bmp.height));
+          fd.append('web', out[0], 'web.jpg');
+          fd.append('thumb', out[1], 'thumb.jpg');
+          if (bmp.close) bmp.close();
+          return fetch('api/pro_preview.php', { method: 'POST', body: fd }).then(function (r) { return r.json(); });
+        });
+      });
+    }
+    // photos déjà en ligne sans aperçu : on les prépare à partir de l'original
+    function fixMissing(ids, report) {
+      var k = 0;
+      (function next() {
+        if (k >= ids.length) { report && report(null); return; }
+        var id = ids[k++];
+        report && report(k + ' / ' + ids.length);
+        fetch('api/media.php?set=pro&id=' + id + '&dl=1').then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+          .then(function (b) { return sendPreviews(id, b); })
+          .catch(function () {}).then(next);
+      })();
+    }
+
+    /* ── import Google Drive ── */
+    var dForm = $('driveForm'), dUrl = $('driveUrl'), dGo = $('driveGo');
+    var dQueue = $('driveQueue'), dBar = $('driveBar'), dTotal = $('driveTotal'), dText = $('driveText');
+    try { dUrl.value = localStorage.getItem('lou_drive') || ''; } catch (e) { /* */ }
+    function line(name) {
+      var li = document.createElement('li');
+      li.innerHTML = '<span></span><span></span>';
+      li.firstChild.textContent = name;
+      dQueue.appendChild(li);
+      return li;
+    }
+    var REASONS = { not_public: 'dossier non public', drive_private: 'dossier non partagé', drive_unreachable: 'Drive injoignable depuis le serveur', bad_folder: 'lien non reconnu', admin_only: 'session expirée, reconnectez-vous', download_failed: 'téléchargement impossible' };
+    dForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      try { localStorage.setItem('lou_drive', dUrl.value.trim()); } catch (err) { /* */ }
+      dGo.disabled = true;
+      dQueue.innerHTML = '';
+      dText.textContent = 'Lecture du dossier…';
+      fetch('api/drive.php?folder=' + encodeURIComponent(dUrl.value.trim()), { cache: 'no-store' })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (!j.ok) throw new Error(REASONS[j.code] || j.error || 'erreur');
+          var todo = j.items.filter(function (i) { return !i.done; });
+          if (!todo.length) { dText.textContent = j.total + ' photo(s) dans le dossier, toutes déjà importées.'; dGo.disabled = false; return; }
+          dTotal.hidden = false;
+          var done = 0, failed = 0, needs = [], k = 0, PAR = 2;
+          var rows = todo.map(function (it) { var li = line(it.name); li.lastChild.textContent = 'en attente'; return li; });
+          function paint() {
+            dBar.style.transform = 'scaleX(' + ((done + failed) / todo.length) + ')';
+            dText.textContent = 'Import ' + (done + failed) + ' / ' + todo.length + (j.total > todo.length ? ' (' + (j.total - todo.length) + ' déjà importées)' : '') + (failed ? ' · ' + failed + ' échec(s)' : '');
+          }
+          function one(n, attempt) {
+            var it = todo[n], li = rows[n];
+            li.className = '';
+            li.lastChild.textContent = attempt ? 'nouvel essai…' : 'import…';
+            var fd = new FormData();
+            fd.append('id', it.id);
+            fd.append('name', it.name);
+            return fetch('api/drive.php', { method: 'POST', body: fd })
+              .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'HTTP ' + r.status }; }); })
+              .then(function (res) {
+                if (!res.ok) throw new Error(REASONS[res.code] || res.error || 'erreur');
+                done++;
+                li.className = 'ok';
+                li.lastChild.textContent = res.skipped ? 'déjà là ✓' : '✓';
+                if (res.needsPreview && res.item) needs.push(res.item.id);
+              })
+              .catch(function (err) {
+                if (attempt < 2) return new Promise(function (r) { setTimeout(r, 3000 * (attempt + 1)); }).then(function () { return one(n, attempt + 1); });
+                failed++;
+                li.className = 'ko';
+                li.lastChild.textContent = 'échec · ' + err.message;
+              })
+              .then(paint);
+          }
+          function worker() { if (k >= todo.length) return Promise.resolve(); var n = k++; return one(n, 0).then(worker); }
+          window.onbeforeunload = function () { return 'Import en cours'; };
+          var ws = []; for (var p = 0; p < PAR; p++) ws.push(worker());
+          return Promise.all(ws).then(function () {
+            if (!needs.length) return;
+            return new Promise(function (resolve) {
+              fixMissing(needs, function (msg) { if (msg) dText.textContent = 'Préparation des aperçus ' + msg + '…'; else resolve(); });
+            });
+          }).then(function () {
+            window.onbeforeunload = null;
+            dText.textContent = done + ' photo(s) importée(s)' + (failed ? ', ' + failed + ' échec(s) : relancez l’import pour réessayer' : '') + '.';
+            if (done && !failed) setTimeout(function () { location.href = 'admin.php?tab=pro'; }, 1500);
+            dGo.disabled = false;
+          });
+        })
+        .catch(function (err) { dText.textContent = 'Impossible : ' + err.message; dGo.disabled = false; });
+    });
+
+    /* ── envoi depuis l'ordinateur ── */
+    var drop = $('proDrop'), pick = $('proPick');
+    var queue = $('proQueue'), bar = $('proBar'), totalBox = $('proTotal'), text = $('proText');
+    var rows = {}, seq = 0, sent = 0, pending = [];
     function row(item) {
       if (!item.key) item.key = 'p' + (++seq);
       var li = rows[item.key];
@@ -470,17 +613,27 @@ function plural(int $n, string $one, string $many): string
         : item.status === 'queued' ? 'en attente' : pct + ' %' + (item.note ? ' · ' + item.note : '');
     }
     var up = new window.LouUploader({
-      fields: { pro: '1' },
+      fields: { pro: '1', previews: 'client' },
       onAdd: row, onUpdate: row,
       onProgress: function () {
         var st = up.stats();
         totalBox.hidden = !st.count;
         bar.style.transform = 'scaleX(' + st.pct + ')';
-        text.textContent = st.done === st.count ? st.count + ' photo(s) envoyée(s) — rechargez la page pour les voir'
+        text.textContent = st.done === st.count ? st.count + ' photo(s) envoyée(s)'
           : 'Envoi ' + st.done + ' / ' + st.count + ' · ' + Math.round(st.pct * 100) + ' %';
       },
-      onDone: function () { sent++; },
-      onIdle: function () { if (sent) setTimeout(function () { location.href = 'admin.php?tab=pro'; }, 1500); }
+      onDone: function (item) {
+        sent++;
+        // aperçus faits ici, à partir du fichier déjà sur l'ordinateur
+        if (item.result && item.result.kind === 'photo') {
+          pending.push(sendPreviews(item.result.id, item.file).catch(function () {}));
+        }
+      },
+      onIdle: function () {
+        if (!sent) return;
+        text.textContent = 'Préparation des aperçus…';
+        Promise.all(pending).then(function () { setTimeout(function () { location.href = 'admin.php?tab=pro'; }, 800); });
+      }
     });
     function add(files) {
       files = Array.prototype.filter.call(files || [], function (f) { return /^(image|video)\//.test(f.type) || /\.(jpe?g|png|heic|heif|tiff?|dng|webp|mp4|mov)$/i.test(f.name); });
@@ -491,6 +644,22 @@ function plural(int $n, string $one, string $many): string
     ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('is-over'); }); });
     drop.addEventListener('drop', function (e) { add(e.dataTransfer.files); });
     window.addEventListener('beforeunload', function (e) { if (up.busy()) { e.preventDefault(); e.returnValue = ''; } });
+
+    /* ── au chargement : photos encore sans aperçu ── */
+    // (une seule tentative par photo et par visite, pour ne jamais tourner en boucle)
+    var tried = {};
+    try { tried = JSON.parse(sessionStorage.getItem('lou_prev_tried') || '{}'); } catch (e) { /* */ }
+    var missing = Array.prototype.map.call(document.querySelectorAll('.ptile[data-needs]'), function (t) { return t.dataset.id; })
+      .filter(function (id) { return !tried[id]; });
+    missing.forEach(function (id) { tried[id] = 1; });
+    try { sessionStorage.setItem('lou_prev_tried', JSON.stringify(tried)); } catch (e) { /* */ }
+    if (missing.length) {
+      dText.textContent = 'Préparation de ' + missing.length + ' aperçu(s)…';
+      fixMissing(missing, function (msg) {
+        if (msg) dText.textContent = 'Préparation des aperçus ' + msg + '…';
+        else location.href = 'admin.php?tab=pro';
+      });
+    }
   })();
 </script>
 <?php endif; ?>

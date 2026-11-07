@@ -10,7 +10,21 @@ if (PHP_SAPI !== 'cli' && basename($_SERVER['SCRIPT_FILENAME'] ?? '') === 'lib.p
 
 // If PHP itself fails (missing extension, old version…), answer with the exact
 // reason as JSON instead of a bare "500": the page then shows what to fix.
-@ini_set('display_errors', '0');
+// some hosts disable ini_set(): every call goes through this guard
+function ini_try(string $k, string $v): void
+{
+    if (function_exists('ini_set')) {
+        @ini_set($k, $v);
+    }
+}
+ini_try('display_errors', '0');
+
+function time_limit(int $seconds): void
+{
+    if (function_exists('set_time_limit')) {
+        @set_time_limit($seconds);
+    }
+}
 register_shutdown_function(function () {
     $e = error_get_last();
     if (!$e || !in_array($e['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
@@ -330,7 +344,7 @@ function stream_file(string $path, string $mime, string $name, bool $download, s
         header("Content-Range: bytes $start-$end/$size");
     }
     header('Content-Length: ' . ($end - $start + 1));
-    @set_time_limit(0);
+    time_limit(0);
     $fp = fopen($path, 'rb');
     fseek($fp, $start);
     $left = $end - $start + 1;
@@ -359,8 +373,11 @@ function make_thumb(string $src, string $dest, int $max = 720, int $quality = 78
         return null;
     }
     [$w, $h, $type] = $info;
-    if ($w < 1 || $h < 1 || $w * $h > 60000000) {
+    if ($w < 1 || $h < 1 || $w * $h > 120000000) {
         return null;
+    }
+    if (!memory_for_image($w, $h)) {
+        return null;              // pas assez de mémoire : mieux vaut pas d'aperçu qu'une erreur fatale
     }
     $img = false;
     if ($type === IMAGETYPE_JPEG) {
@@ -433,10 +450,10 @@ function zip_stream(array $entries, string $downloadName, array $extra = [])
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_write_close();
     }
-    @set_time_limit(0);
+    time_limit(0);
     ignore_user_abort(false);
     // pas de compression gzip par le serveur : elle fausserait la taille annoncée
-    @ini_set('zlib.output_compression', 'Off');
+    ini_try('zlib.output_compression', 'Off');
     if (function_exists('apache_setenv')) {
         @apache_setenv('no-gzip', '1');
     }
@@ -621,4 +638,145 @@ function pro_public(array $m): array
         'thumb' => !empty($m['thumb']) ? $base . '&v=thumb' : null,
         'dl' => pro_download_allowed() ? $base . '&dl=1' : null,
     ];
+}
+
+
+/** "128M" → bytes ; -1 → illimité */
+function memory_limit_bytes(): int
+{
+    $v = (string) ini_get('memory_limit');
+    return $v === '' || $v === '-1' ? PHP_INT_MAX : ini_bytes($v);
+}
+
+/**
+ * GD needs ~5 bytes per pixel to open a photo (a 33 Mpx camera JPEG ≈ 160 MB).
+ * Raises memory_limit when the host allows it; says false when it won't fit.
+ */
+function memory_for_image(int $w, int $h): bool
+{
+    $need = (int) ($w * $h * 5.2) + 24 * 1048576;
+    $free = memory_limit_bytes() - memory_get_usage(true);
+    if ($free >= $need) {
+        return true;
+    }
+    $want = memory_get_usage(true) + $need + 64 * 1048576;
+    ini_try('memory_limit', (string) (int) ceil($want / 1048576) . 'M');
+    return memory_limit_bytes() - memory_get_usage(true) >= $need;
+}
+
+/** Rewrite some fields of one line of pro.jsonl. */
+function pro_update(string $id, array $fields): ?array
+{
+    $file = storage_file('pro.jsonl');
+    $fp = @fopen($file, 'c+');
+    if (!$fp) {
+        return null;
+    }
+    flock($fp, LOCK_EX);
+    $out = '';
+    $found = null;
+    while (($line = fgets($fp)) !== false) {
+        $row = json_decode($line, true);
+        if (is_array($row) && hash_equals((string) $row['id'], $id)) {
+            $row = array_merge($row, $fields);
+            $found = $row;
+            $line = json_encode($row, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n";
+        }
+        $out .= $line;
+    }
+    ftruncate($fp, 0);
+    rewind($fp);
+    fwrite($fp, $out);
+    flock($fp, LOCK_UN);
+    fclose($fp);
+    return $found;
+}
+
+/** Web (2400 px) + thumbnail (800 px) of a photographer's photo, made on the server when memory allows. */
+function pro_server_previews(array $m): array
+{
+    $short = (string) $m['id'];
+    $src = storage_dir() . '/' . $m['file'];
+    storage_dir('pro/web');
+    storage_dir('pro/thumbs');
+    $out = [];
+    try {
+        $sz = make_thumb($src, storage_dir() . '/pro/web/' . $short . '.jpg', 2400, 86);
+        if ($sz) {
+            $out['web'] = 'pro/web/' . $short . '.jpg';
+            [$out['w'], $out['h']] = $sz;
+            // la miniature part de la version écran : bien plus léger que l'original
+            if (make_thumb(storage_dir() . '/' . $out['web'], storage_dir() . '/pro/thumbs/' . $short . '.jpg', 800, 80)) {
+                $out['thumb'] = 'pro/thumbs/' . $short . '.jpg';
+            }
+        }
+    } catch (\Throwable $e) {
+        // pas d'aperçu : l'espace privé le préparera dans le navigateur
+    }
+    return $out;
+}
+
+/** Stream a URL to a file (curl, or fopen as a fallback). Returns [ok, bytes, contentType, error]. */
+function http_download(string $url, string $dest, int $maxBytes): array
+{
+    $out = @fopen($dest, 'wb');
+    if (!$out) {
+        return [false, 0, '', 'storage_not_writable'];
+    }
+    $bytes = 0;
+    $type = '';
+    $err = '';
+    if (function_exists('curl_init')) {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => 6,
+            CURLOPT_CONNECTTIMEOUT => 20,
+            CURLOPT_TIMEOUT => 600,
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (bapteme-lou import)',
+            CURLOPT_WRITEFUNCTION => function ($ch, $data) use ($out, &$bytes, $maxBytes) {
+                $bytes += strlen($data);
+                if ($bytes > $maxBytes) {
+                    return 0;                                   // trop gros : on coupe
+                }
+                return fwrite($out, $data);
+            },
+        ]);
+        $ok = curl_exec($ch);
+        $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        $type = (string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        if (!$ok || $code >= 400) {
+            $err = $code >= 400 ? 'HTTP ' . $code : curl_error($ch);
+        }
+        curl_close($ch);
+    } elseif (filter_var(ini_get('allow_url_fopen'), FILTER_VALIDATE_BOOLEAN)) {
+        $ctx = stream_context_create(['http' => ['follow_location' => 1, 'timeout' => 600, 'user_agent' => 'Mozilla/5.0 (bapteme-lou import)']]);
+        $in = @fopen($url, 'rb', false, $ctx);
+        if (!$in) {
+            $err = 'download_failed';
+        } else {
+            while (!feof($in)) {
+                $buf = fread($in, 1048576);
+                if ($buf === false) {
+                    break;
+                }
+                $bytes += strlen($buf);
+                if ($bytes > $maxBytes) {
+                    $err = 'too_big';
+                    break;
+                }
+                fwrite($out, $buf);
+            }
+            foreach ($http_response_header ?? [] as $hdr) {
+                if (stripos($hdr, 'content-type:') === 0) {
+                    $type = trim(substr($hdr, 13));
+                }
+            }
+            fclose($in);
+        }
+    } else {
+        $err = 'no_curl';
+    }
+    fclose($out);
+    return [$err === '', $bytes, $type, $err];
 }

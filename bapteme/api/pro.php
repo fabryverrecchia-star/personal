@@ -5,7 +5,10 @@
  */
 require __DIR__ . '/lib.php';
 
-$all = pro_all();
+// une photo dont les aperçus ne sont pas encore prêts attend (sinon on chargerait 50 Mo pour une vignette)
+$all = array_values(array_filter(pro_all(), function ($m) {
+    return ($m['kind'] ?? '') === 'video' || !empty($m['thumb']);
+}));
 $bytes = 0;
 foreach ($all as $m) {
     $bytes += (int) ($m['size'] ?? 0);
