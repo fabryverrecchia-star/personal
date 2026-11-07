@@ -638,6 +638,7 @@ function pro_public(array $m): array
         'thumb' => !empty($m['thumb']) ? $base . '&v=thumb' : null,
         'dl' => pro_download_allowed() ? $base . '&dl=1' : null,
         'full' => pro_download_allowed() && ($m['kind'] ?? '') === 'photo' ? $base . '&v=orig' : null,
+        'hero' => !empty($m['hero']),
     ];
 }
 

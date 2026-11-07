@@ -556,19 +556,18 @@
       .then(function (j) {
         if (!j || !j.ok || !j.items.length) return;
         pro.items = j.items;
-        var frag = document.createDocumentFragment();
-        j.items.forEach(function (it, i) {
-          var b = document.createElement("button");
-          b.type = "button";
-          b.className = "tile";
-          var ratio = it.w && it.h ? ' style="aspect-ratio:' + it.w + "/" + it.h + '"' : "";
-          b.innerHTML = it.kind === "video"
-            ? '<video src="' + esc(it.src) + '#t=0.1" preload="metadata" muted playsinline' + ratio + '></video><span class="tile__play"></span>'
-            : '<img src="' + esc(it.thumb || it.src) + '" alt="Photo ' + (i + 1) + ' du reportage" loading="lazy" decoding="async"' + ratio + ">";
-          b.addEventListener("click", function () { openPro(i); });
-          frag.appendChild(b);
-        });
-        proEl.appendChild(frag);
+        heroLoop(j.items);
+        slideshow(j.items.filter(function (it) { return it.kind === "photo"; }));
+        // la mosaïque, construite seulement si on la demande
+        var mosaic = $("#proMosaic");
+        if (mosaic) {
+          mosaic.hidden = false;
+          mosaic.addEventListener("click", function () {
+            if (!proEl.children.length) buildMosaic(j.items);
+            proEl.hidden = !proEl.hidden;
+            mosaic.textContent = proEl.hidden ? "Voir toutes les photos en mosaïque" : "Masquer la mosaïque";
+          });
+        }
         var n = j.items.length, who = String(INFO.photographe || "").trim();
         $("#proCount").textContent = n + (n > 1 ? " photos" : " photo") + (who ? " de " + who : "");
         if (j.download && $("#proDl")) {
@@ -585,6 +584,184 @@
         $$("[data-reveal]", proSec).forEach(function (el) { el.classList.add("in"); });
       })
       .catch(function () {});
+  }
+
+  function buildMosaic(items) {
+    var frag = document.createDocumentFragment();
+    items.forEach(function (it, i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "tile";
+      var ratio = it.w && it.h ? ' style="aspect-ratio:' + it.w + "/" + it.h + '"' : "";
+      b.innerHTML = it.kind === "video"
+        ? '<video src="' + esc(it.src) + '#t=0.1" preload="metadata" muted playsinline' + ratio + '></video><span class="tile__play"></span>'
+        : '<img src="' + esc(it.thumb || it.src) + '" alt="Photo ' + (i + 1) + ' du reportage" loading="lazy" decoding="async"' + ratio + ">";
+      b.addEventListener("click", function () { openPro(i); });
+      frag.appendChild(b);
+    });
+    proEl.appendChild(frag);
+  }
+
+  /* ── Accueil « GIF » : les photos de groupe en boucle rapide derrière « Merci » ── */
+  function heroLoop(items) {
+    var box = $("#heroLoop"), hero = $(".hero");
+    if (!box || !hero) return;
+    var photos = items.filter(function (it) { return it.kind === "photo"; });
+    var frames = photos.filter(function (it) { return it.hero; });
+    if (!frames.length) {                       // rien de choisi dans l'espace privé : une dizaine, réparties
+      var n = Math.min(10, photos.length), step = photos.length / Math.max(1, n);
+      for (var k = 0; k < n; k++) frames.push(photos[Math.floor(k * step)]);
+    }
+    if (!frames.length) return;
+    var big = window.innerWidth * (window.devicePixelRatio || 1) > 1100;
+    var imgs = frames.map(function (it) {
+      var im = new Image();
+      im.alt = "";
+      im.decoding = "async";
+      im.src = big ? it.src : (it.thumb || it.src);
+      return im;
+    });
+    // on démarre quand les premières images sont prêtes (les autres arrivent pendant la boucle)
+    var ready = imgs.slice(0, Math.min(3, imgs.length)).map(function (im) {
+      return im.decode ? im.decode().catch(function () {}) : new Promise(function (r) { im.onload = im.onerror = r; });
+    });
+    Promise.all(ready).then(function () {
+      imgs.forEach(function (im) { box.appendChild(im); });
+      var i = 0, slow = reduceMotion;
+      box.style.setProperty("--loop-fade", slow ? "900ms" : "140ms");
+      imgs[0].classList.add("is-on");
+      hero.classList.add("has-loop");
+      if (imgs.length < 2) return;
+      setInterval(function () {
+        if (document.hidden) return;
+        var r = hero.getBoundingClientRect();
+        if (r.bottom < 0) return;                 // hors écran : on ne dépense rien
+        var next = (i + 1) % imgs.length;
+        if (!imgs[next].complete) return;         // pas encore chargée : on garde l'image
+        imgs[i].classList.remove("is-on");
+        imgs[next].classList.add("is-on");
+        i = next;
+      }, slow ? 2600 : 850);
+    });
+  }
+
+  /* ── Diaporama du reportage : fondu, Ken Burns, flèches, glisser, miniatures, plein écran ── */
+  function slideshow(items) {
+    var root = $("#proShow");
+    if (!root || !items.length) return;
+    var DUR = 5000;
+    var stage = $("#showStage"), layers = $$(".show__img", stage), bar = $("#showBar");
+    var count = $("#showCount"), strip = $("#showStrip");
+    var i = -1, front = 0, playing = !reduceMotion, timer = 0, t0 = 0, raf = 0, visible = false;
+    root.style.setProperty("--show-dur", (DUR + 900) + "ms");
+    root.hidden = false;
+
+    // miniatures (chargées au fil du défilement de la bande)
+    var thumbs = items.map(function (it, k) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("aria-label", "Photo " + (k + 1));
+      b.innerHTML = '<img src="' + esc(it.thumb || it.src) + '" alt="" loading="lazy" decoding="async">';
+      b.addEventListener("click", function () { go(k, true); });
+      strip.appendChild(b);
+      return b;
+    });
+
+    function preload(k) { var it = items[(k + items.length) % items.length]; if (it) { var im = new Image(); im.src = it.src; } }
+
+    function go(k, user) {
+      k = (k + items.length) % items.length;
+      if (k === i) return;
+      var it = items[k];
+      var next = layers[1 - front];
+      var show = function () {
+        layers[front].classList.remove("is-on");
+        next.classList.remove("is-on");
+        void next.offsetWidth;                    // relance le Ken Burns
+        next.classList.add("is-on");
+        front = 1 - front;
+      };
+      next.alt = "Photo " + (k + 1) + " sur " + items.length + " du reportage";
+      next.onload = show;
+      next.src = it.src;
+      if (next.complete && next.naturalWidth) { next.onload = null; show(); }
+      if (thumbs[i]) thumbs[i].classList.remove("is-on");
+      thumbs[k].classList.add("is-on");
+      // garde la miniature active au centre de la bande (sans faire défiler la page)
+      strip.scrollLeft = thumbs[k].offsetLeft - strip.clientWidth / 2 + thumbs[k].offsetWidth / 2;
+      i = k;
+      count.textContent = (k + 1) + " / " + items.length;
+      preload(k + 1);
+      if (user) restart();
+    }
+
+    function tick(now) {
+      if (!playing || !visible || document.hidden) { raf = 0; return; }
+      var p = Math.min(1, (now - t0) / DUR);
+      bar.style.transform = "scaleX(" + p + ")";
+      if (p >= 1) { go(i + 1); t0 = now; }
+      raf = requestAnimationFrame(tick);
+    }
+    function restart() {
+      t0 = performance.now();
+      bar.style.transform = "scaleX(0)";
+      if (playing && visible && !raf) raf = requestAnimationFrame(tick);
+    }
+    function setPlaying(on) {
+      playing = on;
+      root.classList.toggle("is-paused", !on);
+      $("#showPlay").setAttribute("aria-label", on ? "Mettre en pause" : "Lancer le diaporama");
+      restart();
+    }
+
+    $("#showPrev").addEventListener("click", function () { go(i - 1, true); });
+    $("#showNext").addEventListener("click", function () { go(i + 1, true); });
+    $("#showPlay").addEventListener("click", function () { setPlaying(!playing); });
+    $("#showZoom").addEventListener("click", function () { setPlaying(false); openPro(pro.items.indexOf(items[i])); });
+    layers.forEach(function (l) { l.addEventListener("click", function () { if (!moved) { setPlaying(false); openPro(pro.items.indexOf(items[i])); } }); });
+
+    // plein écran dans la page (fonctionne aussi sur iPhone)
+    function full(on) {
+      root.classList.toggle("is-full", on);
+      document.documentElement.classList.toggle("show-open", on);
+      $("#showFull").setAttribute("aria-label", on ? "Quitter le plein écran" : "Diaporama plein écran");
+      if (on) { visible = true; setPlaying(true); }
+    }
+    $("#showFull").addEventListener("click", function () { full(!root.classList.contains("is-full")); });
+
+    // glisser du doigt ou de la souris
+    var sx = null, moved = false;
+    stage.addEventListener("pointerdown", function (e) { if (e.target.closest("button")) return; sx = e.clientX; moved = false; });
+    stage.addEventListener("pointermove", function (e) { if (sx != null && Math.abs(e.clientX - sx) > 8) moved = true; });
+    stage.addEventListener("pointerup", function (e) {
+      if (sx == null) return;
+      var dx = e.clientX - sx;
+      sx = null;
+      if (Math.abs(dx) > 50) go(i + (dx < 0 ? 1 : -1), true);
+      setTimeout(function () { moved = false; }, 0);
+    });
+
+    // clavier : flèches, espace, Échap — quand le diaporama est à l'écran
+    document.addEventListener("keydown", function (e) {
+      if (!visible || document.documentElement.classList.contains("lv-open")) return;
+      if (/input|textarea/i.test((e.target.tagName || ""))) return;
+      if (e.key === "ArrowRight") go(i + 1, true);
+      else if (e.key === "ArrowLeft") go(i - 1, true);
+      else if (e.key === " " && root.classList.contains("is-full")) { e.preventDefault(); setPlaying(!playing); }
+      else if (e.key === "Escape" && root.classList.contains("is-full")) full(false);
+    });
+
+    // ne défile que lorsqu'il est visible
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (en) {
+        visible = en[0].isIntersecting || root.classList.contains("is-full");
+        if (visible) restart();
+      }, { threshold: 0.35 }).observe(stage);
+    } else visible = true;
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) restart(); });
+
+    root.classList.toggle("is-paused", !playing);
+    go(0);
   }
 
   function openPro(i) {

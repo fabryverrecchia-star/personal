@@ -86,6 +86,11 @@ $letters = function (string $word) {
 <main>
   <!-- ───────────── Accueil ───────────── -->
   <header class="hero" id="haut">
+<?php if ($after): ?>
+    <!-- photos de groupe en boucle, comme un GIF (remplies par app.js) -->
+    <div class="loop" id="heroLoop" aria-hidden="true"></div>
+    <img class="hero__dove" src="assets/img/dove.webp" alt="" width="436" height="361">
+<?php endif; ?>
     <div class="crest" aria-hidden="true">
       <img class="crest__vines" src="assets/img/vines.webp" alt="" width="775" height="745">
       <img class="crest__church" src="assets/img/church.webp" alt="" width="775" height="745">
@@ -135,7 +140,26 @@ $letters = function (string $word) {
       </a>
       <p class="hint">Toutes les photos du photographe en pleine résolution, telles qu'il nous les a remises (fichier .zip, ou directement sur Google Drive).</p>
     </div>
-    <div class="gallery gallery--pro" id="proGallery"></div>
+    <div class="show" id="proShow" hidden>
+      <div class="show__stage" id="showStage" role="region" aria-roledescription="diaporama" aria-label="Diaporama du reportage">
+        <img class="show__img" alt="">
+        <img class="show__img" alt="">
+        <button class="show__nav show__prev" type="button" id="showPrev" aria-label="Photo précédente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7"/></svg></button>
+        <button class="show__nav show__next" type="button" id="showNext" aria-label="Photo suivante"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5 7 7-7 7"/></svg></button>
+        <div class="show__bar"><i id="showBar"></i></div>
+        <div class="show__ui">
+          <span class="show__count" id="showCount" aria-live="polite"></span>
+          <span class="show__tools">
+            <button type="button" id="showPlay" aria-label="Mettre en pause"><svg viewBox="0 0 24 24" aria-hidden="true" class="i-pause"><path d="M8.5 5v14M15.5 5v14"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" class="i-play"><path d="M8 5.5v13l11-6.5z"/></svg></button>
+            <button type="button" id="showZoom" aria-label="Agrandir et zoomer"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5M10.5 8v5M8 10.5h5"/></svg></button>
+            <button type="button" id="showFull" aria-label="Diaporama plein écran"><svg viewBox="0 0 24 24" aria-hidden="true" class="i-open"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" class="i-close"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+          </span>
+        </div>
+      </div>
+      <div class="show__strip" id="showStrip"></div>
+    </div>
+    <p class="show__switch"><button class="link" type="button" id="proMosaic" hidden>Voir toutes les photos en mosaïque</button></p>
+    <div class="gallery gallery--pro" id="proGallery" hidden></div>
   </section>
 
   <!-- ───────────── Galerie ───────────── -->

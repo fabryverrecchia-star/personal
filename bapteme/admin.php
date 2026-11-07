@@ -71,6 +71,14 @@ if ($authed && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['ac
             jsonl_delete('pro.jsonl', $id);
             header('Location: admin.php?tab=pro');
             exit;
+        } elseif ($action === 'pro_hero') {
+            // photo de groupe qui défile en boucle sur l'accueil
+            $m = pro_find($id);
+            if ($m) {
+                pro_update($id, ['hero' => empty($m['hero'])]);
+            }
+            header('Location: admin.php?tab=pro#p-' . rawurlencode($id));
+            exit;
         }
     }
     header('Location: admin.php?tab=media#m-' . rawurlencode($id));
@@ -310,6 +318,11 @@ function plural(int $n, string $one, string $many): string
   .ptile__wait { height:100%; display:grid; place-items:center; text-align:center; padding:10px; }
   @media (max-width:520px) { .drive__form { flex-direction:column; } }
   .ptile img { cursor:zoom-in; }
+  .mod button.star { background:rgba(252,250,248,.94); color:#9a7a2c; }
+  .ptile.is-hero { outline:3px solid #d6ac67; outline-offset:-3px; }
+  .ptile.is-hero .mod { opacity:1; }
+  .ptile.is-hero .mod button.star { background:#d6ac67; color:#fff; }
+  .pro__hero { text-align:center; margin:-10px auto 18px; max-width:40em; }
 </style>
 </head>
 <body>
@@ -389,12 +402,14 @@ function plural(int $n, string $one, string $many): string
           <a class="pill" href="./#reportage" target="_blank" rel="noopener">Voir sur le site</a>
         </p>
         <p class="small pro__note"><?= pro_download_allowed() ? 'Les invités peuvent voir et télécharger ces photos.' : 'Les invités peuvent voir ces photos, sans les télécharger.' ?></p>
+        <?php $nHero = count(array_filter($pro, function ($m) { return !empty($m['hero']); })); ?>
+        <p class="pro__hero"><?= $nHero ? '★ ' . $nHero . ' photo(s) de groupe défilent en boucle sur l’accueil.' : 'Touchez « ☆ Accueil » sur les photos de groupe pour les faire défiler en boucle sur l’accueil, derrière « Merci » (sinon le site en choisit une dizaine).' ?></p>
       <?php else: ?>
         <p class="empty">Pas encore de photo du photographe.</p>
       <?php endif; ?>
       <div class="grid" id="proGrid">
         <?php foreach ($pro as $m): $b = 'api/media.php?set=pro&id=' . rawurlencode($m['id']); ?>
-          <div class="tile ptile" data-id="<?= h($m['id']) ?>" data-kind="<?= h($m['kind']) ?>" data-src="<?= h($b . (!empty($m['web']) ? '&v=web' : '')) ?>" data-thumb="<?= h(!empty($m['thumb']) ? $b . '&v=thumb' : '') ?>" data-name="<?= h($m['original']) ?>"<?= ($m['kind'] === 'photo' && empty($m['thumb'])) ? ' data-needs="1"' : '' ?>>
+          <div class="tile ptile<?= !empty($m['hero']) ? ' is-hero' : '' ?>" id="p-<?= h($m['id']) ?>" data-id="<?= h($m['id']) ?>" data-kind="<?= h($m['kind']) ?>" data-src="<?= h($b . (!empty($m['web']) ? '&v=web' : '')) ?>" data-thumb="<?= h(!empty($m['thumb']) ? $b . '&v=thumb' : '') ?>" data-name="<?= h($m['original']) ?>"<?= ($m['kind'] === 'photo' && empty($m['thumb'])) ? ' data-needs="1"' : '' ?>>
             <?php if ($m['kind'] === 'video'): ?>
               <video src="<?= h($b) ?>#t=0.1" preload="metadata" muted playsinline></video><span class="badge">Vidéo</span>
             <?php elseif (empty($m['thumb'])): ?>
@@ -408,6 +423,7 @@ function plural(int $n, string $one, string $many): string
             <form method="post" class="mod">
               <input type="hidden" name="csrf" value="<?= h($_SESSION['csrf']) ?>">
               <input type="hidden" name="id" value="<?= h($m['id']) ?>">
+              <?php if ($m['kind'] === 'photo'): ?><button name="action" value="pro_hero" class="star" title="Faire défiler cette photo sur l’accueil"><?= !empty($m['hero']) ? '★ Accueil' : '☆ Accueil' ?></button><?php endif; ?>
               <button name="action" value="pro_delete" class="del" data-confirm>Supprimer</button>
             </form>
           </div>
