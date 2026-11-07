@@ -782,3 +782,58 @@ function http_download(string $url, string $dest, int $maxBytes): array
     fclose($out);
     return [$err === '', $bytes, $type, $err];
 }
+
+/* ───────────── Plan B : le reportage lu directement sur Google Drive ───────────── */
+
+/**
+ * Photos of the shared Drive folder named in assets/js/infos.js (driveReportage),
+ * shown to guests while the photographer's photos are not imported on this server yet.
+ * The list is cached 10 minutes; the images themselves are served by Google.
+ */
+function drive_fallback_items(): array
+{
+    $infos = (string) @file_get_contents(dirname(__DIR__) . '/assets/js/infos.js');
+    if (!preg_match('#driveReportage:\s*"[^"]*/folders/([A-Za-z0-9_-]{10,})#', $infos, $m)) {
+        return [];
+    }
+    $folder = $m[1];
+    $cache = storage_file('drive-cache.json');
+    $c = is_file($cache) ? json_decode((string) @file_get_contents($cache), true) : null;
+    if (is_array($c) && ($c['folder'] ?? '') === $folder && time() - (int) ($c['time'] ?? 0) < 600) {
+        return $c['items'];
+    }
+    $tmp = storage_dir('tmp') . '/drive-' . bin2hex(random_bytes(4)) . '.html';
+    [$ok] = http_download('https://drive.google.com/embeddedfolderview?id=' . rawurlencode($folder), $tmp, 20 * 1048576);
+    $html = $ok ? (string) @file_get_contents($tmp) : '';
+    @unlink($tmp);
+    preg_match_all('#<div class="flip-entry" id="entry-([A-Za-z0-9_-]+)".*?<a href="([^"]*)".*?<div class="flip-entry-title">([^<]*)</div>#s', $html, $mm, PREG_SET_ORDER);
+    $items = [];
+    foreach ($mm as $e) {
+        $name = html_entity_decode($e[3], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        if (strpos($e[2], '/file/d/') === false || !preg_match('/\.(jpe?g|png|webp|heic)$/i', $name)) {
+            continue;
+        }
+        $id = rawurlencode($e[1]);
+        $items[] = [
+            'id' => 'd' . substr(hash('sha256', $e[1]), 0, 15),
+            'kind' => 'photo',
+            'name' => $name,
+            'w' => null,
+            'h' => null,
+            'size' => 0,
+            'mime' => 'image/jpeg',
+            'src' => 'https://drive.google.com/thumbnail?id=' . $id . '&sz=w2400',
+            'thumb' => 'https://drive.google.com/thumbnail?id=' . $id . '&sz=w600',
+            'full' => 'https://drive.google.com/thumbnail?id=' . $id . '&sz=w8000',
+            'dl' => 'https://drive.google.com/uc?export=download&id=' . $id,
+            'hero' => false,
+        ];
+    }
+    usort($items, function ($a, $b) { return strnatcasecmp($a['name'], $b['name']); });
+    if ($items) {
+        @file_put_contents($cache, json_encode(['folder' => $folder, 'time' => time(), 'items' => $items]), LOCK_EX);
+    } elseif (is_array($c) && !empty($c['items'])) {
+        return $c['items'];                 // Drive injoignable un instant : la dernière liste connue
+    }
+    return $items;
+}

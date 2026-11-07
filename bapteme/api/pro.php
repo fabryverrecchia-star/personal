@@ -14,6 +14,13 @@ foreach ($all as $m) {
     $bytes += (int) ($m['size'] ?? 0);
 }
 header('Cache-Control: no-cache');
+// rien d'importé encore : les photos directement depuis le dossier Google Drive
+if (!$all) {
+    $drive = drive_fallback_items();
+    if ($drive) {
+        json_out(['ok' => true, 'items' => $drive, 'total' => count($drive), 'bytes' => 0, 'download' => true, 'source' => 'drive']);
+    }
+}
 json_out([
     'ok' => true,
     'items' => array_map('pro_public', $all),

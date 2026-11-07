@@ -575,6 +575,8 @@
         if ($("#proCount")) $("#proCount").textContent = n + (n > 1 ? " photos" : " photo") + (who ? " de " + who : "");
         if (j.download && $("#proDl")) {
           $("#proDl").hidden = false;
+          // photos lues sur Google Drive (pas encore importées) : le téléchargement se fait sur Drive
+          if (j.source === "drive" && $("#proZip")) $("#proZip").hidden = true;
           $("#proZipSize").textContent = j.bytes ? "· " + fmtBytes(j.bytes) : "";
           var drive = String(INFO.driveReportage || "").trim();
           if (/^https:\/\/drive\.google\.com\//.test(drive) && $("#proDrive")) {
@@ -634,6 +636,8 @@
       return im.decode ? im.decode().catch(function () {}) : new Promise(function (r) { im.onload = im.onerror = r; });
     });
     Promise.all(ready).then(function () {
+      // la première photo n'a pas pu se charger : on garde la couronne plutôt qu'un cadre vide
+      if (!imgs[0].naturalWidth) return;
       imgs.forEach(function (im) { box.appendChild(im); });
       var i = 0, slow = reduceMotion;
       box.style.setProperty("--loop-fade", slow ? "900ms" : "140ms");
