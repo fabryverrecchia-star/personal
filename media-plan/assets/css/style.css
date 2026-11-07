@@ -2323,8 +2323,6 @@ body.has-dock .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); }
 .sview__edit { display: none; justify-self: center; align-items: center; gap: 6px; padding: 8px 14px 7px; border: 1px solid var(--ink-faint); border-radius: 99px; font-size: 8.5px; color: var(--ink-soft); }
 .sview__edit svg { width: 13px; height: 13px; }
 .is-admin .sview__edit { display: inline-flex; }
-.sview__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-.sview__dl { text-decoration: none; }
 
 /* Fiche d'une story (espace équipe) */
 .sedit { z-index: 84; }
@@ -2653,6 +2651,15 @@ body.has-sum .countdown { padding-top: 36px; padding-bottom: 24px; }
 .stories__date { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 0 var(--gutter) 10px; padding-bottom: 8px; border-bottom: 1px solid var(--ink-faint); }
 .stories__date b { font-family: var(--display); font-weight: 400; font-size: 22px; }
 .stories__date .label { font-size: 8.5px; color: var(--ink-soft); }
+/* Téléchargement des stories en résolution originale : un jour, ou toutes */
+.stories__dl { display: inline-flex; align-items: center; gap: 7px; margin: -2px var(--gutter) 12px; padding: 4px 0; font-size: 9px; color: var(--ink); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--ink-faint); touch-action: manipulation; }
+.stories__dl svg { width: 14px; height: 14px; flex: none; }
+.stories__dl:disabled { opacity: 0.6; }
+.stories__dl.is-ready { text-decoration-color: currentColor; }
+.stories__dl--all { display: flex; margin: 0 var(--gutter) 18px; font-size: 9.5px; }
+.sview__dlbtn:disabled { opacity: 0.5; }
+.sview__dlbtn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.sview__dlbtn.is-ready { background: rgba(241, 238, 230, 0.18); border-radius: 50%; }
 .stories__row {
   display: flex; gap: 12px;
   padding: 2px var(--gutter) 6px;

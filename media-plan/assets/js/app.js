@@ -1970,13 +1970,67 @@
         return timeVal(a.time) - timeVal(b.time);
       });
     }
-    // Téléchargement de la story en résolution originale (fichier envoyé par l'équipe), sinon la version du site
-    function storyDl(s) {
+    // Téléchargement des stories en résolution originale (fichier envoyé par l'équipe, sinon la version du site).
+    // Sur téléphone : feuille de partage (« Enregistrer l'image / les images » dans Photos) ; sinon un fichier après l'autre, sans zip.
+    function storyFile(s, k) {
       var f = s.orig || s.video || s.image;
-      if (!f || /^(blob|data):/.test(f)) return '';
-      var ext = (String(f).match(/\.([a-z0-9]{2,5})(?:$|[?#])/i) || [0, s.video ? 'mp4' : 'jpg'])[1].toLowerCase();
-      var name = ('story-' + (s.date || '') + '-' + String(s.time || '').replace(/[^0-9a-z]/gi, '')).replace(/-+$/, '');
-      return '<a class="label sview__edit sview__dl" href="' + esc(src(f)) + '" download="' + esc(name + '.' + ext) + '">' + DL_ICON + 'Télécharger' + (s.orig ? ' (original)' : '') + '</a>';
+      if (!f || /^blob:/.test(f)) return null;
+      var ext = /^data:image\/png/.test(f) ? 'png' : /^data:/.test(f) ? 'jpg' : (String(f).match(/\.([a-z0-9]{2,5})(?:$|[?#])/i) || [0, s.video ? 'mp4' : 'jpg'])[1].toLowerCase();
+      var name = ['story', s.date || '', String(s.time || '').replace(/[^0-9a-z]/gi, ''), k != null ? pad(k + 1) : ''].filter(Boolean).join('-');
+      return { url: src(f), name: name + '.' + ext };
+    }
+    var MIME = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', heic: 'image/heic', mp4: 'video/mp4', mov: 'video/quicktime', m4v: 'video/mp4' };
+    function dlAnchors(files) {
+      files.reduce(function (p, f) {
+        return p.then(function () {
+          var u = URL.createObjectURL(f), a = document.createElement('a');
+          a.href = u; a.download = f.name; a.rel = 'noopener';
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(u); }, 60000);
+          return new Promise(function (r) { setTimeout(r, 450); });
+        });
+      }, Promise.resolve());
+    }
+    function saveStories(items, btn) {
+      var label = btn.getAttribute('data-label') || btn.innerHTML;
+      btn.setAttribute('data-label', label);
+      var reset = function () { btn._files = null; btn.disabled = false; btn.classList.remove('is-ready'); btn.innerHTML = label; };
+      var share = function (files) {
+        return navigator.share({ files: files }).then(reset, function (er) {
+          if (er && er.name === 'AbortError') return reset();
+          // Partage refusé par le navigateur (délai depuis le toucher) : un second toucher l'ouvre tout de suite
+          if (er && er.name === 'NotAllowedError' && !btn._files) {
+            btn._files = files; btn.disabled = false; btn.classList.add('is-ready');
+            btn.innerHTML = DL_ICON + '<span>Enregistrer ' + (files.length > 1 ? 'les ' + files.length + ' fichiers' : 'le fichier') + '</span>';
+            toast('Prêt : touchez encore pour enregistrer sur le téléphone.');
+            return;
+          }
+          dlAnchors(files); reset();
+        });
+      };
+      if (btn._files) return share(btn._files);
+      var list = items.map(storyFile).filter(Boolean);
+      if (!list.length) { toast('Aucun visuel à télécharger.'); return; }
+      btn.disabled = true;
+      btn.innerHTML = DL_ICON + '<span>Préparation… 0 / ' + list.length + '</span>';
+      var n = 0;
+      Promise.all(list.map(function (x) {
+        return fetch(x.url, { cache: 'force-cache' }).then(function (r) {
+          if (!r.ok) throw r.status;
+          return r.blob();
+        }).then(function (b) {
+          n++;
+          btn.innerHTML = DL_ICON + '<span>Préparation… ' + n + ' / ' + list.length + '</span>';
+          var ext = x.name.split('.').pop();
+          return new File([b], x.name, { type: b.type && b.type !== 'application/octet-stream' ? b.type : MIME[ext] || '' });
+        });
+      })).then(function (files) {
+        var mobile = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+        if (mobile && navigator.canShare && navigator.share && navigator.canShare({ files: files })) return share(files);
+        dlAnchors(files);
+        toast(files.length > 1 ? files.length + ' fichiers téléchargés.' : 'Fichier téléchargé.');
+        reset();
+      }).catch(function () { reset(); toast('Téléchargement impossible. Réessayez.'); });
     }
     function storyGet(id) { return storyList().filter(function (s) { return s.id === id; })[0] || null; }
     function storyMedia(s, cls) {
@@ -2009,11 +2063,12 @@
           if (!last || last.date !== s.date) days.push(last = { date: s.date, list: [] });
           last.list.push([s, k]);
         });
-        storiesEl.innerHTML = days.map(function (d) {
+        storiesEl.innerHTML = (items.length > 1 ? '<button type="button" class="label stories__dl stories__dl--all" data-story-dl="*">' + DL_ICON + '<span>Télécharger toutes les stories (' + items.length + ')</span></button>' : '') + days.map(function (d) {
           var dt = d.date && parseDate(d.date);
           return '<div class="stories__day">' +
             '<p class="stories__date">' + (dt ? '<b>' + JOURS_LONGS[dt.getDay()] + ' ' + dt.getDate() + ' ' + MOIS_LONGS[dt.getMonth()].toLowerCase() + '</b>' : '<b>Date à définir</b>') +
             '<span class="label">' + d.list.length + ' stor' + (d.list.length > 1 ? 'ies' : 'y') + '</span></p>' +
+            '<button type="button" class="label stories__dl" data-story-dl="' + esc(d.date) + '">' + DL_ICON + '<span>Télécharger ' + (d.list.length > 1 ? 'les ' + d.list.length + ' stories' : 'la story') + '</span></button>' +
             '<div class="stories__row">' + d.list.map(function (x) { return card(x[0], x[1], x[0].time || 'Heure à définir'); }).join('') + '</div></div>';
         }).join('') +
           '<div class="stories__row stories__row--add"><button type="button" class="story-card story-card--add" data-story-add><span class="story-card__frame"><span class="story-card__plus">+</span><span class="label">Ajouter une story</span></span><span class="label story-card__when">Espace équipe</span></button></div>' +
@@ -2021,7 +2076,7 @@
         fbRefresh(storiesEl);
         return;
       }
-      storiesEl.innerHTML = items.map(function (s, k) { return card(s, k, storyWhen(s)); }).join('') +
+      storiesEl.innerHTML = (items.length ? '<button type="button" class="label stories__dl stories__dl--all" data-story-dl="*">' + DL_ICON + '<span>Télécharger ' + (items.length > 1 ? 'toutes les stories (' + items.length + ')' : 'la story') + '</span></button>' : '') + items.map(function (s, k) { return card(s, k, storyWhen(s)); }).join('') +
         '<button type="button" class="story-card story-card--add" data-story-add><span class="story-card__frame"><span class="story-card__plus">+</span><span class="label">Ajouter une story</span></span><span class="label story-card__when">Espace équipe</span></button>' +
         (items.length ? '' : '<p class="stories__empty">Les stories du mois arrivent bientôt.</p>');
       fbRefresh(storiesEl);
@@ -2235,6 +2290,7 @@
       '<header class="sview__head"><i class="sview__avatar">' + esc(INITIALS || '18') + '</i>' +
       '<span class="sview__who"><b>' + esc(IG || (PLAN.client || {}).name || '') + '</b><small data-sview-when></small></span>' +
       '<button type="button" class="sview__btn" data-sview-sound aria-label="Son" hidden></button>' +
+      '<button type="button" class="sview__btn sview__dlbtn" data-sview-dl aria-label="Télécharger la story (original)">' + DL_ICON + '</button>' +
       '<button type="button" class="sview__btn" data-sview-close aria-label="Fermer">' + SICONS.close + '</button></header>' +
       '<p class="sview__text" data-sview-text hidden></p>' +
       '</div>' +
@@ -2291,8 +2347,7 @@
       t.hidden = !s.caption;
       var foot = sv.querySelector('[data-sview-foot]');
       foot.innerHTML = feedbackHtml({ _id: 'story-' + s.id }).replace(' data-reveal', '') +
-        '<div class="sview__actions"><button type="button" class="label sview__edit" data-sview-edit>' + SICONS.edit + 'Modifier cette story</button>' +
-        storyDl(s) + '</div>';
+        '<button type="button" class="label sview__edit" data-sview-edit>' + SICONS.edit + 'Modifier cette story</button>';
       fbRefresh(foot);
       svVid = m.querySelector('video');
       svDone = 0; svStart = performance.now(); svFoot = false;
@@ -2352,8 +2407,12 @@
     // Le client donne son avis : la story attend
     sv.querySelector('[data-sview-foot]').addEventListener('pointerdown', function () { svFoot = true; });
     sv.addEventListener('click', function (e) {
+      var dlb;
       if (e.target.closest('[data-sview-close]')) svClose();
-      else if (e.target.closest('[data-sview-sound]')) {
+      else if ((dlb = e.target.closest('[data-sview-dl]'))) {
+        svFoot = true;
+        if (svItems[svK]) saveStories([svItems[svK]], dlb);
+      } else if (e.target.closest('[data-sview-sound]')) {
         svMuted = !svMuted;
         if (svVid) { svVid.muted = svMuted; svVid.play().catch(function () {}); }
         svSound();
@@ -2531,6 +2590,12 @@
       storySave().then(function (ok) { if (ok && seClose()) toast('Story programmée.'); });
     });
     if (storiesEl) storiesEl.addEventListener('click', function (e) {
+      var dlb = e.target.closest('[data-story-dl]');
+      if (dlb) {
+        var day = dlb.getAttribute('data-story-dl');
+        saveStories(storyList().filter(function (s) { return day === '*' || s.date === day; }), dlb);
+        return;
+      }
       var t;
       if (e.target.closest('[data-story-add]')) askCode(storyAdd);
       else if ((t = e.target.closest('[data-story-open]'))) svOpen(+t.getAttribute('data-story-open'));
