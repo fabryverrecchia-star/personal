@@ -26,6 +26,13 @@ if (in_array($_GET['mode'] ?? '', ['avant', 'apres'], true)) {
 }
 $after = $mode === 'apres' || ($mode === 'auto' && date('Y-m-d') > $eventDate);
 $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); };
+// Aperçu du lien (WhatsApp, Messenger, SMS…) : adresses complètes et image versionnée,
+// pour que ces applications reprennent la nouvelle vignette au lieu de leur ancienne copie.
+$https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+$base = ($https ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/') . '/';
+$shareImg = $after && is_file(__DIR__ . '/assets/img/share-merci.jpg') ? 'assets/img/share-merci.jpg' : 'assets/img/share.jpg';
+$shareUrl = $base . $shareImg . '?v=' . v($shareImg);
+$pageUrl = $base . ($after ? '?merci' : '');
 // lettres de l'ouverture, une à une
 $letters = function (string $word) {
     $out = '';
@@ -45,10 +52,18 @@ $letters = function (string $word) {
 <meta name="description" content="Le baptême de Lou, le samedi 31 octobre 2026 à Riom. Les infos, le repas chez Augustine Bistronomie 1890, vos photos du jour J et le livre d'or.">
 <meta name="theme-color" content="#fcfaf8">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Le baptême de Lou · 31 octobre 2026">
-<meta property="og:description" content="<?= $after ? 'Merci ! Les photos du photographe, vos photos et le livre d’or.' : 'Les infos, vos photos du jour J et le livre d’or.' ?>">
-<meta property="og:image" content="assets/img/share.jpg">
+<meta property="og:site_name" content="Baptême de Lou">
+<meta property="og:url" content="<?= $h($pageUrl) ?>">
+<meta property="og:title" content="<?= $after ? 'Merci ! · Le baptême de Lou' : 'Le baptême de Lou · 31 octobre 2026' ?>">
+<meta property="og:description" content="<?= $after ? 'Merci d’avoir partagé ce jour avec nous. Les photos du photographe et les vôtres.' : 'Les infos, vos photos du jour J et le livre d’or.' ?>">
+<meta property="og:image" content="<?= $h($shareUrl) ?>">
+<meta property="og:image:secure_url" content="<?= $h($shareUrl) ?>">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="<?= $after ? 'Merci — photo de groupe du baptême de Lou' : 'Le baptême de Lou' ?>">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="<?= $h($shareUrl) ?>">
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 <link rel="preload" href="assets/fonts/cormorant.woff2" as="font" type="font/woff2" crossorigin>
@@ -303,8 +318,8 @@ $letters = function (string $word) {
 <!-- Barre de navigation (mobile) -->
 <nav class="dock" id="dock" aria-label="Sections">
 <?php if ($after): ?>
-  <a href="#reportage" class="dock__main"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.3" r="3.4"/></svg>Reportage</a>
-  <a href="#galerie"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Photos des invités</a>
+  <a href="#reportage" class="dock__main"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.3" r="3.4"/></svg>Photos souvenir</a>
+  <a href="#galerie"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Invités</a>
 <?php else: ?>
   <a href="#infos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Infos</a>
   <a href="#photos" class="dock__main"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.3" r="3.4"/></svg>Photos<i class="dock__ring" id="dockRing" hidden></i></a>
