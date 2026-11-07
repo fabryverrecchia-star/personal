@@ -572,7 +572,7 @@
           });
         }
         var n = j.items.length, who = String(INFO.photographe || "").trim();
-        $("#proCount").textContent = n + (n > 1 ? " photos" : " photo") + (who ? " de " + who : "");
+        if ($("#proCount")) $("#proCount").textContent = n + (n > 1 ? " photos" : " photo") + (who ? " de " + who : "");
         if (j.download && $("#proDl")) {
           $("#proDl").hidden = false;
           $("#proZipSize").textContent = j.bytes ? "· " + fmtBytes(j.bytes) : "";

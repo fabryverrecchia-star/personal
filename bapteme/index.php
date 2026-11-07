@@ -126,20 +126,6 @@ $letters = function (string $word) {
 
   <!-- ───────────── Reportage du photographe ───────────── -->
   <section class="block block--wide" id="reportage" hidden>
-    <p class="eyebrow" data-reveal>Le reportage</p>
-    <h2 class="title" data-reveal>Les photos du <span class="i">photographe</span></h2>
-    <p class="sub" id="proCount"></p>
-    <div class="gallery__dl" id="proDl" hidden>
-      <a class="btn btn--ghost" id="proZip" href="api/album.php?set=pro" download>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 19.5h14"/></svg>
-        <span>Tout télécharger <small id="proZipSize"></small></span>
-      </a>
-      <a class="btn btn--ghost" id="proDrive" href="#" target="_blank" rel="noopener" hidden>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 4h7l5 8.5-3.5 6H6.5L3 12.5z"/><path d="M8.5 4 15 15.5M15.5 4 9 15.5M3 12.5h13"/></svg>
-        <span>Ouvrir sur Google Drive</span>
-      </a>
-      <p class="hint">Toutes les photos du photographe en pleine résolution, telles qu'il nous les a remises (fichier .zip, ou directement sur Google Drive).</p>
-    </div>
     <div class="show" id="proShow" hidden>
       <div class="show__stage" id="showStage" role="region" aria-roledescription="diaporama" aria-label="Diaporama du reportage">
         <img class="show__img" alt="">
@@ -157,6 +143,16 @@ $letters = function (string $word) {
         </div>
       </div>
       <div class="show__strip" id="showStrip"></div>
+    </div>
+    <div class="gallery__dl show__dl" id="proDl" hidden>
+      <a class="btn btn--ghost" id="proZip" href="api/album.php?set=pro" download>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 19.5h14"/></svg>
+        <span>Tout télécharger <small id="proZipSize"></small></span>
+      </a>
+      <a class="btn btn--ghost" id="proDrive" href="#" target="_blank" rel="noopener" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 4h7l5 8.5-3.5 6H6.5L3 12.5z"/><path d="M8.5 4 15 15.5M15.5 4 9 15.5M3 12.5h13"/></svg>
+        <span>Ouvrir sur Google Drive</span>
+      </a>
     </div>
     <p class="show__switch"><button class="link" type="button" id="proMosaic" hidden>Voir toutes les photos en mosaïque</button></p>
     <div class="gallery gallery--pro" id="proGallery" hidden></div>
