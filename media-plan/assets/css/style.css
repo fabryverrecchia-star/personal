@@ -2323,6 +2323,8 @@ body.has-dock .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); }
 .sview__edit { display: none; justify-self: center; align-items: center; gap: 6px; padding: 8px 14px 7px; border: 1px solid var(--ink-faint); border-radius: 99px; font-size: 8.5px; color: var(--ink-soft); }
 .sview__edit svg { width: 13px; height: 13px; }
 .is-admin .sview__edit { display: inline-flex; }
+.sview__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.sview__dl { text-decoration: none; }
 
 /* Fiche d'une story (espace équipe) */
 .sedit { z-index: 84; }

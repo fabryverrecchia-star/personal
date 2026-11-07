@@ -383,7 +383,7 @@
   function guideHtml() {
     if (!PLAN.feedback) return '';
     var steps = [
-      ['#feed', 'Le feed et les stories', 'Touchez une publication ou une story pour la voir en grand.'],
+      PLAN.stories === false ? ['#feed', 'Le feed', 'Touchez une publication pour la voir en grand.'] : ['#feed', 'Le feed et les stories', 'Touchez une publication ou une story pour la voir en grand.'],
       ['#s1', 'Vos avis', 'Sous chaque publication : « Validé » ou « À revoir », et un commentaire si besoin.'],
       ['#retours', 'L’envoi', 'En bas du planning, envoyez-nous le récapitulatif de vos retours.'],
     ];
@@ -396,7 +396,8 @@
   }
   // Stories : proposées et programmées par l'équipe, vues en plein écran par le client
   function storiesHtml() {
-    if (!PLAN.suivi) return '';
+    // PLAN.stories === false : pas de partie Stories (ni dans le sommaire ni dans l'espace équipe)
+    if (!PLAN.suivi || PLAN.stories === false) return '';
     return '<section class="stories" id="stories">' +
       '<header class="stories__head">' +
       '<p class="label stories__kicker" data-reveal>Stories · programmation</p>' +
@@ -532,7 +533,7 @@
       (PLAN.countdown ? '<a class="label" href="#opening">Opening</a>' : '') +
       '<a class="label" href="#feed">Feed</a>' +
       weeks.map(function (w, k) { return '<a class="label" href="#s' + (k + 1) + '">' + (monthly ? MOIS_LONGS[firstDate(w).getMonth()] : 'S' + pad(k + 1)) + '</a>'; }).join('') +
-      (PLAN.suivi ? '<a class="label" href="#stories">Stories</a>' : '') +
+      (PLAN.suivi && PLAN.stories !== false ? '<a class="label" href="#stories">Stories</a>' : '') +
       (PLAN.feedback ? '<a class="label" href="#retours">Retours</a>' : '') +
       (PLAN.ads ? '<a class="label" href="#ads">Sponsorisé</a>' : '') +
       (PLAN.suivi && PLAN.suivi.calendar !== false ? '<a class="label" href="#passages">' + (PLAN.suivi.passages === false ? 'Calendrier' : 'Passages') + '</a>' : '') +
@@ -1110,7 +1111,7 @@
       (pubs || noCal ? '' : '<button type="button" class="team-fab__item" role="menuitem" data-goto="passages">' + SICONS.planning + '<span><b>Rendez-vous</b><small class="label">Calendrier des passages</small></span></button>') +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="contenus">' + SICONS.image + '<span><b>Publications</b><small class="label">Date, visuel, texte · ajouter, supprimer</small></span></button>' +
       (PLAN.ads ? '<button type="button" class="team-fab__item" role="menuitem" data-goto="ads">' + SICONS.ads + '<span><b>Sponsorisé</b><small class="label">Dépensé, budget, campagnes</small></span></button>' : '') +
-      '<button type="button" class="team-fab__item" role="menuitem" data-goto="stories">' + SICONS.story + '<span><b>Stories</b><small class="label">Proposer, programmer, prévisualiser</small></span></button>' +
+      (PLAN.stories === false ? '' : '<button type="button" class="team-fab__item" role="menuitem" data-goto="stories">' + SICONS.story + '<span><b>Stories</b><small class="label">Proposer, programmer, prévisualiser</small></span></button>') +
       (noTasks ? '' : '<button type="button" class="team-fab__item" role="menuitem" data-goto="missions">' + SICONS.redaction + '<span><b>Tâches</b><small class="label">Missions en cours</small></span></button>') +
       (PLAN.teasing ? '<button type="button" class="team-fab__item" role="menuitem" data-goto="teasing">' + SICONS.spark + '<span><b>Idées teasing</b><small class="label">Modifier, argumenter</small></span></button>' : '') +
       '<button type="button" class="team-fab__item" role="menuitem" data-goto="inspi">' + SICONS.spark + '<span><b>Inspiration</b><small class="label">Reels et carrousels du mois</small></span></button>' +
@@ -1961,13 +1962,21 @@
       var E = state.edits || {};
       return Object.keys(E).filter(function (k) { return E[k] && E[k].added === 'story'; }).map(function (k) {
         var e = E[k], vid = e.format === 'reel' && e.video ? e.video : '';
-        var s = { id: k, date: e.date || '', time: e.time || '', caption: e.caption || '', video: vid, image: vid ? e.poster || '' : list(e.media)[0] || '' };
+        var s = { id: k, date: e.date || '', time: e.time || '', caption: e.caption || '', video: vid, image: vid ? e.poster || '' : list(e.media)[0] || '', orig: e.orig || '' };
         s.when = storyWhen(s, true);
         return s;
       }).sort(function (a, b) {
         if (a.date !== b.date) return !a.date ? 1 : !b.date ? -1 : a.date < b.date ? -1 : 1;
         return timeVal(a.time) - timeVal(b.time);
       });
+    }
+    // Téléchargement de la story en résolution originale (fichier envoyé par l'équipe), sinon la version du site
+    function storyDl(s) {
+      var f = s.orig || s.video || s.image;
+      if (!f || /^(blob|data):/.test(f)) return '';
+      var ext = (String(f).match(/\.([a-z0-9]{2,5})(?:$|[?#])/i) || [0, s.video ? 'mp4' : 'jpg'])[1].toLowerCase();
+      var name = ('story-' + (s.date || '') + '-' + String(s.time || '').replace(/[^0-9a-z]/gi, '')).replace(/-+$/, '');
+      return '<a class="label sview__edit sview__dl" href="' + esc(src(f)) + '" download="' + esc(name + '.' + ext) + '">' + DL_ICON + 'Télécharger' + (s.orig ? ' (original)' : '') + '</a>';
     }
     function storyGet(id) { return storyList().filter(function (s) { return s.id === id; })[0] || null; }
     function storyMedia(s, cls) {
@@ -2282,7 +2291,8 @@
       t.hidden = !s.caption;
       var foot = sv.querySelector('[data-sview-foot]');
       foot.innerHTML = feedbackHtml({ _id: 'story-' + s.id }).replace(' data-reveal', '') +
-        '<button type="button" class="label sview__edit" data-sview-edit>' + SICONS.edit + 'Modifier cette story</button>';
+        '<div class="sview__actions"><button type="button" class="label sview__edit" data-sview-edit>' + SICONS.edit + 'Modifier cette story</button>' +
+        storyDl(s) + '</div>';
       fbRefresh(foot);
       svVid = m.querySelector('video');
       svDone = 0; svStart = performance.now(); svFoot = false;
@@ -2459,10 +2469,18 @@
             seBusy = (isVideo ? 'Envoi de la vidéo… ' : 'Envoi de la photo… ') + Math.round(r * 100) + ' %';
             var b = se.querySelector('[data-sedit-busy]');
             if (b) b.textContent = seBusy;
-          });
-      }).then(function (d) {
-        state = d;
+          }).then(function (d) { return { d: d, same: blob === file }; });
+      }).then(function (r) {
+        state = r.d;
         paint();
+        // Story réduite ou convertie pour le site : le fichier d'origine est aussi gardé, pour le télécharger en résolution originale
+        if (r.same) return;
+        return sendFile({ action: 'upload', kind: 'edits', id: id, slot: 'orig' }, file, file.name || (isVideo ? 'video.mov' : 'photo.jpg'), function (x) {
+          seBusy = 'Envoi de l’original… ' + Math.round(x * 100) + ' %';
+          var b = se.querySelector('[data-sedit-busy]');
+          if (b) b.textContent = seBusy;
+        }).then(function (d) { state = d; }, function () { toast('L’original n’a pas pu être gardé : la version du site reste téléchargeable.'); });
+      }).then(function () {
         return send({ action: 'edit', kind: 'edits', id: id, item: after });
       }).then(function () {
         done();
