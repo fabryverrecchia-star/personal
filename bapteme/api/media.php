@@ -16,9 +16,10 @@ if (($_GET['set'] ?? '') === 'pro') {
         http_response_code(404);
         exit('Not found');
     }
+    $orig = $v === 'orig' && (pro_download_allowed() || is_admin());   // pleine résolution, pour le zoom
     $rel = ($v === 'thumb' && !empty($m['thumb'])) ? $m['thumb'] : (($v === 'web' && !empty($m['web'])) ? $m['web'] : $m['file']);
-    if ($rel === $m['file'] && !$dl && !empty($m['web'])) {
-        $rel = $m['web'];                                     // l'original ne part qu'en téléchargement
+    if ($rel === $m['file'] && !$dl && !$orig && !empty($m['web'])) {
+        $rel = $m['web'];                                     // sans demande explicite, la version écran
     }
     $path = storage_dir() . '/' . $rel;
     if (str_contains($rel, '..') || !is_file($path)) {

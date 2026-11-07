@@ -260,7 +260,8 @@ html.intro .scrollhint { animation: up 1.2s var(--ease) 4.8s both; }
 .tile__play { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
 .tile__play::before { content: ""; width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, .85) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 7v10l8-5z' fill='%232f4a3c'/%3E%3C/svg%3E") center/22px no-repeat; }
 .tile__who { position: absolute; left: 0; right: 0; bottom: 0; padding: 22px 10px 7px; font-size: 14px; font-style: italic; color: #fff; background: linear-gradient(transparent, rgba(40, 36, 35, .55)); text-align: left; }
-.gallery__dl { margin: -8px 0 26px; }
+.gallery__dl { margin: -8px 0 26px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.gallery__dl .hint { flex-basis: 100%; }
 .gallery__dl .btn { white-space: nowrap; letter-spacing: .14em; padding: 0 20px; }
 .gallery__dl .btn small { font-size: .92em; letter-spacing: .06em; text-transform: none; opacity: .75; margin-left: 4px; }
 .gallery__dl .hint { margin-top: 8px; }

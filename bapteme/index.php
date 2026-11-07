@@ -129,7 +129,11 @@ $letters = function (string $word) {
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 19.5h14"/></svg>
         <span>Tout télécharger <small id="proZipSize"></small></span>
       </a>
-      <p class="hint">Toutes les photos du photographe en qualité d'origine (fichier .zip).</p>
+      <a class="btn btn--ghost" id="proDrive" href="#" target="_blank" rel="noopener" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 4h7l5 8.5-3.5 6H6.5L3 12.5z"/><path d="M8.5 4 15 15.5M15.5 4 9 15.5M3 12.5h13"/></svg>
+        <span>Ouvrir sur Google Drive</span>
+      </a>
+      <p class="hint">Toutes les photos du photographe en pleine résolution, telles qu'il nous les a remises (fichier .zip, ou directement sur Google Drive).</p>
     </div>
     <div class="gallery gallery--pro" id="proGallery"></div>
   </section>

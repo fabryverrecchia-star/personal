@@ -12,7 +12,9 @@
   "use strict";
 
   var MAX_ZOOM = 5;
-  var root, frame, img, video, cap, count, btnZoom, btnDl, msg;
+  // jusqu'au vrai pixel de la photo (pleine résolution), au moins ×5
+  function maxZoom() { return natW && fitW ? Math.max(MAX_ZOOM, natW / fitW) : MAX_ZOOM; }
+  var root, frame, img, video, cap, count, btnZoom, btnDl, msg, hd;
   var items = [], index = 0;
   var fitW = 0, fitH = 0, natW = 0, natH = 0;
   var s = 1, x = 0, y = 0;                       // zoom & position (px, depuis le centre)
@@ -49,6 +51,7 @@
       '<button type="button" class="lv__nav lv__prev" aria-label="Photo précédente"><svg viewBox="0 0 24 24"><path d="m14.5 5-7 7 7 7"/></svg></button>' +
       '<button type="button" class="lv__nav lv__next" aria-label="Photo suivante"><svg viewBox="0 0 24 24"><path d="m9.5 5 7 7-7 7"/></svg></button>' +
       '<p class="lv__cap"></p>' +
+      '<p class="lv__hd" hidden></p>' +
       '<p class="lv__hint">Cliquez pour zoomer · molette · glissez pour vous déplacer</p>';
     document.body.appendChild(root);
 
@@ -58,6 +61,7 @@
     btnZoom = root.querySelector(".lv__zoom");
     btnDl = root.querySelector(".lv__dl");
     msg = root.querySelector(".lv__msg");
+    hd = root.querySelector(".lv__hd");
 
     root.querySelector(".lv__close").addEventListener("click", close);
     root.querySelector(".lv__prev").addEventListener("click", function () { go(-1); });
@@ -112,6 +116,7 @@
     root.classList.toggle("is-single", items.length < 2);
     root.classList.remove("is-zoomed");
     count.textContent = items.length > 1 ? (index + 1) + " / " + items.length : "";
+    hd.hidden = true;
     cap.textContent = it.guest ? "par " + it.guest : "";
     btnDl.hidden = !it.dl;
     if (it.dl) btnDl.href = it.dl;
@@ -189,13 +194,15 @@
     img.style.height = fitH + "px";
     img.style.marginLeft = -fitW / 2 + "px";
     img.style.marginTop = -fitH / 2 + "px";
-    btnZoom.hidden = zoomTarget() <= 1.05;
+    btnZoom.hidden = zoomTarget() <= 1.05 && !(items[index] && items[index].full);
   }
 
   // zoom au clic : jusqu'à la taille réelle de la photo (au moins ×2,5, au plus ×5)
   function zoomTarget() {
     if (!natW || !fitW) return 2.5;
-    return Math.min(MAX_ZOOM, Math.max(2.5, natW / fitW));
+    // avec l'original disponible, on peut zoomer jusqu'à sa taille réelle
+    var real = items[index] && items[index].full ? 0 : natW / fitW;
+    return Math.min(maxZoom(), Math.max(2.5, real));
   }
 
   function clamp() {
@@ -207,8 +214,29 @@
     y = Math.max(-my, Math.min(my, y));
   }
 
+  // Zoom : on charge l'original (pleine résolution) à la place de la version écran.
+  function loadFull() {
+    var it = items[index];
+    if (!img || !it || !it.full || img.dataset.full) return;
+    img.dataset.full = "1";
+    var shown = img, big = new Image();
+    hd.hidden = false;
+    hd.textContent = "Chargement en pleine résolution…";
+    big.onload = function () {
+      if (img !== shown) return;
+      img.src = it.full;
+      natW = big.naturalWidth; natH = big.naturalHeight;     // le zoom peut aller jusqu'au vrai pixel
+      btnZoom.hidden = false;
+      hd.textContent = "Pleine résolution · " + natW + " × " + natH;
+      setTimeout(function () { if (img === shown) hd.hidden = true; }, 2600);
+    };
+    big.onerror = function () { if (img === shown) hd.hidden = true; };
+    big.src = it.full;
+  }
+
   function apply(animate) {
     if (!img) return;
+    if (s > 1.01) loadFull();
     img.style.transition = animate ? "transform .38s cubic-bezier(.22,.8,.2,1)" : "none";
     img.style.transform = "translate3d(" + x + "px," + y + "px,0) scale(" + s + ")";
     root.classList.toggle("is-zoomed", s > 1.01);
@@ -219,7 +247,7 @@
 
   // zoome en gardant le point (cx, cy) de l'écran sous le curseur / les doigts
   function zoomAt(ns, cx, cy, animate) {
-    ns = Math.max(1, Math.min(MAX_ZOOM, ns));
+    ns = Math.max(1, Math.min(maxZoom(), ns));
     var ox = cx - window.innerWidth / 2, oy = cy - window.innerHeight / 2;
     x = ox - (ox - x) * ns / s;
     y = oy - (oy - y) * ns / s;
@@ -259,7 +287,7 @@
     var ids = Object.keys(pointers);
     if (gesture.type === "pinch" && ids.length >= 2) {
       var a = pointers[ids[0]], b = pointers[ids[1]];
-      var ns = Math.max(1, Math.min(MAX_ZOOM, gesture.s0 * dist(a, b) / gesture.d0));
+      var ns = Math.max(1, Math.min(maxZoom(), gesture.s0 * dist(a, b) / gesture.d0));
       var mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
       var ox = gesture.cx - window.innerWidth / 2, oy = gesture.cy - window.innerHeight / 2;
       s = ns;

@@ -36,5 +36,8 @@ window.LOU = {
   },
 
   // Le nom du photographe, affiché avec ses photos (laisser "" pour ne rien afficher)
-  photographe: ""
+  photographe: "",
+
+  // Le dossier Google Drive du reportage (bouton « Ouvrir sur Google Drive » à côté du ZIP ; "" pour le cacher)
+  driveReportage: "https://drive.google.com/drive/folders/1DpooIZ6oDE1fM5e6g4fzLTgNybnITZSp?usp=sharing"
 };

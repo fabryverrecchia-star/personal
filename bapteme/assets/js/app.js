@@ -574,6 +574,11 @@
         if (j.download && $("#proDl")) {
           $("#proDl").hidden = false;
           $("#proZipSize").textContent = j.bytes ? "· " + fmtBytes(j.bytes) : "";
+          var drive = String(INFO.driveReportage || "").trim();
+          if (/^https:\/\/drive\.google\.com\//.test(drive) && $("#proDrive")) {
+            $("#proDrive").href = drive;
+            $("#proDrive").hidden = false;
+          }
         }
         proSec.hidden = false;
         // la section était cachée pendant l'apparition des autres : on l'affiche directement
@@ -585,7 +590,7 @@
   function openPro(i) {
     if (!window.LouViewer) { window.open(pro.items[i].src, "_blank"); return; }
     window.LouViewer.open(pro.items.map(function (it) {
-      return { kind: it.kind, src: it.src, thumb: it.thumb, guest: "", dl: it.dl };
+      return { kind: it.kind, src: it.src, thumb: it.thumb, full: it.full, guest: "", dl: it.dl };
     }), i);
   }
 
