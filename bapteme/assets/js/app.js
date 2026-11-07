@@ -655,7 +655,8 @@
     Promise.all(ready).then(function () {
       // la première photo n'a pas pu se charger : on garde la couronne, et on réessaie un peu plus tard
       if (!imgs[0].naturalWidth) {
-        if (attempt < 3) setTimeout(function () { heroLoop(items, attempt + 1); }, 3000 * (attempt + 1));
+        // les grandes photos peuvent demander une à deux minutes la toute première fois
+        if (attempt < 12) setTimeout(function () { heroLoop(items, attempt + 1); }, Math.min(15000, 4000 + 2000 * attempt));
         return;
       }
       imgs.forEach(function (im) { box.appendChild(im); });

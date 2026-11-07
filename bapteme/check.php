@@ -59,6 +59,52 @@ row($rows, $hasPwd, 'Mot de passe de l’espace privé (admin.php)', $hasPwd ? '
     'Ouvrez api/config.php et écrivez votre mot de passe entre les guillemets de « admin_password ».');
 row($rows, true, 'Galerie publique', !empty($cfg['public_gallery']) ? 'activée : les invités voient les photos partagées' : 'désactivée : visible seulement dans admin.php');
 
+/* ── Reportage : photos importées, ou plan B depuis Google Drive ── */
+$proCount = count(pro_all());
+row($rows, true, 'Photos du photographe importées', $proCount . ' photo(s)' . ($proCount ? '' : ' — le site les lit pour l’instant sur Google Drive'));
+row($rows, function_exists('curl_init') || filter_var(ini_get('allow_url_fopen'), FILTER_VALIDATE_BOOLEAN), 'Accès internet de PHP (curl)',
+    function_exists('curl_init') ? 'curl disponible' : (ini_get('allow_url_fopen') ? 'allow_url_fopen' : 'aucun'),
+    'Demandez à l’hébergeur d’activer l’extension PHP « curl ».');
+$memBefore = (string) ini_get('memory_limit');
+$memOk = memory_for_image(7104, 4738);           // une photo du reportage (33 Mpx)
+row($rows, $memOk, 'Mémoire pour réduire une grande photo', 'memory_limit ' . $memBefore . ' → ' . ini_get('memory_limit') . ' (besoin ≈ 200 Mo)',
+    'L’hébergeur limite la mémoire : faites l’import dans admin.php › Photographe, les aperçus seront préparés par votre navigateur.');
+
+$diag = isset($_GET['drive']);
+if ($diag) {
+    time_limit(300);
+    $items = drive_fallback_items();
+    row($rows, (bool) $items, 'Lecture du dossier Google Drive', count($items) . ' photo(s) trouvée(s)',
+        'Vérifiez que le dossier est partagé « Tous les utilisateurs disposant du lien » et le lien driveReportage dans assets/js/infos.js.');
+    if ($items) {
+        $t0 = microtime(true);
+        $tmp = storage_dir('tmp') . '/diag-thumb.jpg';
+        [$ok, $bytes, $type, $err] = http_download('https://drive.google.com/thumbnail?id=' . rawurlencode($items[1]['drive'] ?? $items[0]['drive']) . '&sz=w600', $tmp, 20 * 1048576);
+        $img = $ok ? @getimagesize($tmp) : false;
+        row($rows, (bool) $img, 'Aperçu Google d’une photo', $img ? $img[0] . '×' . $img[1] . ' en ' . round(microtime(true) - $t0, 1) . ' s' : ('échec : ' . ($err ?: $type ?: 'pas une image') . ' (' . $bytes . ' octets)'),
+            'Google ne répond pas à ce serveur : faites l’import dans admin.php › Photographe.');
+        @unlink($tmp);
+        $t0 = microtime(true);
+        $tmp = storage_dir('tmp') . '/diag-orig.jpg';
+        [$ok, $bytes, $type, $err] = http_download('https://drive.usercontent.google.com/download?id=' . rawurlencode($items[0]['drive']) . '&export=download&confirm=t', $tmp, 200 * 1048576);
+        $img = $ok ? @getimagesize($tmp) : false;
+        $dt = microtime(true) - $t0;
+        row($rows, (bool) $img, 'Téléchargement d’un original depuis Drive', $img ? round($bytes / 1048576, 1) . ' Mo en ' . round($dt, 1) . ' s' : ('échec : ' . ($err ?: $type) . ' (' . $bytes . ' octets)'),
+            'Le serveur ne peut pas télécharger depuis Drive.');
+        if ($img) {
+            $t0 = microtime(true);
+            $out = storage_dir('tmp') . '/diag-small.jpg';
+            $done = make_thumb($tmp, $out, 2400, 85);
+            row($rows, (bool) $done, 'Réduction de cette photo par le serveur', $done ? 'réussie en ' . round(microtime(true) - $t0, 1) . ' s' : 'impossible (mémoire insuffisante)',
+                'Faites l’import dans admin.php › Photographe : les aperçus seront préparés par votre navigateur.');
+            @unlink($out);
+        }
+        @unlink($tmp);
+        $cached = count(glob(storage_dir('drivecache') . '/*_2400.jpg') ?: []);
+        row($rows, true, 'Photos déjà prêtes en cache', $cached . ' / ' . count($items));
+    }
+}
+
 $allOk = true;
 foreach ($rows as $r) {
     $allOk = $allOk && $r[0];
@@ -104,6 +150,7 @@ $base = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), '/') . '/';
     <?php endforeach; ?>
   </ul>
 
+  <p><a href="check.php?drive=1" style="color:inherit">→ Tester l’affichage du reportage depuis Google Drive</a> (prend jusqu’à une minute)</p>
   <div id="live">
     <p>Test réel depuis ce navigateur (envoie une petite image de test, puis la supprime) :</p>
     <button type="button" id="run">Lancer le test</button>
