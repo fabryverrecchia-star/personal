@@ -386,3 +386,8 @@ html.js-failed .crest__vines, html.js-failed .crest__church, html.js-failed .her
   [data-reveal] { transition-duration: .01s; transform: none; }
   .float, .scrollhint span { animation: none; }
 }
+
+/* photo en cours de préparation par le serveur : pas d'icône d'image cassée */
+img.is-waiting, img.is-broken { visibility: hidden; }
+.show__strip button:has(img.is-waiting), .tile:has(img.is-waiting) { background: linear-gradient(110deg, #ece7e2 30%, #f6f2ee 50%, #ece7e2 70%) 0 0 / 300% 100%; animation: shimmer 1.6s linear infinite; }
+@keyframes shimmer { to { background-position: -300% 0; } }

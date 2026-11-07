@@ -610,12 +610,17 @@
   // Une image qui échoue (serveur occupé à la récupérer) est redemandée jusqu'à 4 fois.
   document.addEventListener("error", function (e) {
     var im = e.target;
-    if (!im || im.tagName !== "IMG" || !/drive_img\.php|api\/media\.php/.test(im.src)) return;
+    if (!im || im.tagName !== "IMG" || !/drive_img\.php|api\/media\.php/.test(im.src) || im.closest(".lv")) return;
     var n = Number(im.dataset.retry || 0);
-    if (n >= 4) return;
+    // une grande photo peut demander une vingtaine de secondes au serveur la première fois
+    if (n >= 8) { im.classList.add("is-broken"); return; }
     im.dataset.retry = n + 1;
+    im.classList.add("is-waiting");
     var base = im.src.replace(/&r=\d+/, "");
-    setTimeout(function () { im.src = base + "&r=" + (n + 1); }, 1500 * (n + 1));
+    setTimeout(function () { im.src = base + "&r=" + (n + 1); }, Math.min(8000, 2000 + 1500 * n));
+  }, true);
+  document.addEventListener("load", function (e) {
+    if (e.target && e.target.classList) e.target.classList.remove("is-waiting", "is-broken");
   }, true);
 
   /* ── Accueil « GIF » : les photos de groupe en boucle rapide derrière « Merci » ── */

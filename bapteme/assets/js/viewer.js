@@ -152,10 +152,10 @@
     img.onerror = function () {
       if (img !== shown) return;
       // image momentanément indisponible (serveur occupé) : on réessaie avant d'abandonner
-      if (tries < 4) {
+      if (tries < 8) {
         tries++;
         var again = img.src.replace(/([?&])r=\d+/, "").replace(/[?&]$/, "");
-        setTimeout(function () { if (img === shown) img.src = again + (again.indexOf("?") < 0 ? "?" : "&") + "r=" + tries; }, 1200 * tries);
+        setTimeout(function () { if (img === shown) img.src = again + (again.indexOf("?") < 0 ? "?" : "&") + "r=" + tries; }, Math.min(8000, 2000 + 1500 * tries));
         return;
       }
       img.remove();
