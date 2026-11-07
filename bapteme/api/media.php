@@ -6,6 +6,28 @@
 require __DIR__ . '/lib.php';
 
 $id = (string) ($_GET['id'] ?? '');
+
+// Reportage du photographe : version écran, miniature, ou original à télécharger
+if (($_GET['set'] ?? '') === 'pro') {
+    $m = preg_match('/^[a-f0-9]{16}$/', $id) ? pro_find($id) : null;
+    $v = (string) ($_GET['v'] ?? '');
+    $dl = isset($_GET['dl']);
+    if (!$m || ($dl && !pro_download_allowed() && !is_admin())) {
+        http_response_code(404);
+        exit('Not found');
+    }
+    $rel = ($v === 'thumb' && !empty($m['thumb'])) ? $m['thumb'] : (($v === 'web' && !empty($m['web'])) ? $m['web'] : $m['file']);
+    if ($rel === $m['file'] && !$dl && !empty($m['web'])) {
+        $rel = $m['web'];                                     // l'original ne part qu'en téléchargement
+    }
+    $path = storage_dir() . '/' . $rel;
+    if (str_contains($rel, '..') || !is_file($path)) {
+        http_response_code(404);
+        exit('Not found');
+    }
+    stream_file($path, $rel === $m['file'] ? (string) $m['mime'] : 'image/jpeg', (string) ($m['original'] ?: basename($path)), $dl, 'public, max-age=604800');
+}
+
 $m = preg_match('/^[a-f0-9]{16}$/', $id) ? media_find($id) : null;
 
 if (!$m || empty(config()['public_gallery']) || in_array($id, hidden_ids(), true)) {

@@ -14,9 +14,30 @@ function v(string $f): string
     $t = @filemtime(__DIR__ . '/' . $f);
     return $t ? (string) $t : '1';
 }
+
+// Avant le baptême : programme et compte à rebours. Après : remerciements et photos.
+// Réglage dans assets/js/infos.js (mode: "auto" | "avant" | "apres") ; ?mode=avant / ?mode=apres pour prévisualiser.
+date_default_timezone_set('Europe/Paris');
+$infos = (string) @file_get_contents(__DIR__ . '/assets/js/infos.js');
+$eventDate = preg_match('/\bdate:\s*"(\d{4}-\d{2}-\d{2})"/', $infos, $mm) ? $mm[1] : '2026-10-31';
+$mode = preg_match('/\bmode:\s*"(auto|avant|apres)"/', $infos, $mm) ? $mm[1] : 'auto';
+if (in_array($_GET['mode'] ?? '', ['avant', 'apres'], true)) {
+    $mode = $_GET['mode'];
+}
+$after = $mode === 'apres' || ($mode === 'auto' && date('Y-m-d') > $eventDate);
+$h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); };
+// lettres de l'ouverture, une à une
+$letters = function (string $word) {
+    $out = '';
+    foreach (preg_split('//u', $word, -1, PREG_SPLIT_NO_EMPTY) as $i => $c) {
+        $d = 1.25 + $i * 0.17;
+        $out .= '<span style="animation-delay:' . $d . 's,' . (2.8 + $i * 0.05) . 's">' . htmlspecialchars($c, ENT_QUOTES, 'UTF-8') . '</span>';
+    }
+    return $out;
+};
 ?>
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-mode="<?= $after ? 'apres' : 'avant' ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -25,7 +46,7 @@ function v(string $f): string
 <meta name="theme-color" content="#fcfaf8">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Le baptême de Lou · 31 octobre 2026">
-<meta property="og:description" content="Les infos, vos photos du jour J et le livre d'or.">
+<meta property="og:description" content="<?= $after ? 'Merci ! Les photos du photographe, vos photos et le livre d’or.' : 'Les infos, vos photos du jour J et le livre d’or.' ?>">
 <meta property="og:image" content="assets/img/share.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
@@ -49,10 +70,17 @@ function v(string $f): string
 <!-- Ouverture : la colombe arrive en battant des ailes, le prénom s'écrit -->
 <div class="loader" id="loader" aria-hidden="true">
   <span class="loader__fly"><img class="loader__dove" src="assets/img/dove.webp" alt="" width="436" height="361"></span>
+<?php if ($after): ?>
+  <p class="loader__pre i">pour le baptême de Lou</p>
+  <p class="loader__name loader__name--merci"><?= $letters('Merci') ?></p>
+  <span class="loader__line"><i></i></span>
+  <p class="loader__date loader__date--merci i">d'avoir partagé ce jour avec nous</p>
+<?php else: ?>
   <p class="loader__pre i">le baptême de</p>
   <p class="loader__name"><span>L</span><span>o</span><span>u</span></p>
   <span class="loader__line"><i></i></span>
   <p class="loader__date">31 · 10 · 2026</p>
+<?php endif; ?>
 </div>
 
 <main>
@@ -66,6 +94,13 @@ function v(string $f): string
     <h1 class="hero__name">Lou</h1>
     <p class="hero__date i" data-fill="dateLongue">le 31 octobre 2026</p>
 
+<?php if ($after): ?>
+    <div class="merci">
+      <p class="merci__big i" data-fill="merci.titre">Merci</p>
+      <p class="merci__sub i" data-fill="merci.sousTitre">d'avoir partagé ce jour avec nous</p>
+    </div>
+    <a class="scrollhint" href="#reportage" aria-label="Voir les photos"><span></span></a>
+<?php else: ?>
     <div class="count" id="count" aria-live="polite">
       <div><b data-c="j">–</b><span>jours</span></div>
       <div><b data-c="h">–</b><span>heures</span></div>
@@ -74,8 +109,73 @@ function v(string $f): string
     <p class="count__today i" id="today" hidden>C'est aujourd'hui !</p>
 
     <a class="scrollhint" href="#infos" aria-label="Voir les infos"><span></span></a>
+<?php endif; ?>
   </header>
 
+<?php if ($after): ?>
+  <!-- ───────────── Merci ───────────── -->
+  <section class="intro" data-reveal>
+    <img class="intro__dove float" src="assets/img/dove.webp" alt="" width="436" height="361">
+    <p class="lead" data-fill="merci.texte">Merci à chacun d'entre vous d'avoir été là pour le baptême de Lou.</p>
+  </section>
+
+  <!-- ───────────── Reportage du photographe ───────────── -->
+  <section class="block block--wide" id="reportage" hidden>
+    <p class="eyebrow" data-reveal>Le reportage</p>
+    <h2 class="title" data-reveal>Les photos du <span class="i">photographe</span></h2>
+    <p class="sub" id="proCount"></p>
+    <div class="gallery__dl" id="proDl" hidden>
+      <a class="btn btn--ghost" id="proZip" href="api/album.php?set=pro" download>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 19.5h14"/></svg>
+        <span>Tout télécharger <small id="proZipSize"></small></span>
+      </a>
+      <p class="hint">Toutes les photos du photographe en qualité d'origine (fichier .zip).</p>
+    </div>
+    <div class="gallery gallery--pro" id="proGallery"></div>
+  </section>
+
+  <!-- ───────────── Galerie ───────────── -->
+  <section class="block" id="galerie" hidden>
+    <p class="eyebrow" data-reveal>L'album des invités</p>
+    <h2 class="title" data-reveal>Vos <span class="i">photos</span></h2>
+    <p class="sub gallery__count" id="galCount"></p>
+    <div class="gallery__dl" id="galDl" hidden>
+      <a class="btn btn--ghost" id="galZip" href="api/album.php" download>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 19.5h14"/></svg>
+        <span>Tout télécharger <small id="galZipSize"></small></span>
+      </a>
+      <p class="hint">Toutes les photos et vidéos en qualité d'origine, rangées par prénom (fichier .zip).</p>
+    </div>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <!-- ───────────── Photos du jour J ───────────── -->
+  <section class="block block--tint" id="photos">
+    <p class="eyebrow" data-reveal>Encore des souvenirs&nbsp;?</p>
+    <h2 class="title" data-reveal>Ajoutez vos <span class="i">photos</span></h2>
+    <p class="sub" data-reveal>Il vous reste des photos ou des vidéos de la journée&nbsp;? Ajoutez-les, en qualité d'origine&nbsp;: elles rejoindront l'album de Lou.</p>
+
+    <div class="drop" data-reveal>
+      <label class="field">
+        <span>Votre prénom</span>
+        <input type="text" id="upName" class="js-name" maxlength="80" autocomplete="given-name" placeholder="Ex. Tata Claire">
+      </label>
+      <label class="btn btn--big" id="pickLabel">
+        <input type="file" id="pick" accept="image/*,video/*" multiple>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.3" r="3.4"/></svg>
+        Choisir des photos
+      </label>
+      <p class="hint">Photos et vidéos · plusieurs à la fois · vous pouvez continuer à naviguer pendant l'envoi.</p>
+
+      <div class="total" id="total" hidden>
+        <div class="total__bar"><i id="totalBar"></i></div>
+        <p id="totalText"></p>
+      </div>
+      <ul class="queue" id="queue"></ul>
+    </div>
+  </section>
+
+<?php else: ?>
   <!-- ───────────── Mot d'accueil ───────────── -->
   <section class="intro" data-reveal>
     <img class="intro__dove float" src="assets/img/dove.webp" alt="" width="436" height="361">
@@ -159,6 +259,7 @@ function v(string $f): string
     <div class="gallery" id="gallery"></div>
   </section>
 
+<?php endif; ?>
   <!-- ───────────── Livre d'or ───────────── -->
   <section class="block" id="livre">
     <p class="eyebrow" data-reveal>Pour Lou</p>
@@ -201,9 +302,15 @@ function v(string $f): string
 
 <!-- Barre de navigation (mobile) -->
 <nav class="dock" id="dock" aria-label="Sections">
+<?php if ($after): ?>
+  <a href="#reportage" class="dock__main"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.3" r="3.4"/></svg>Reportage</a>
+  <a href="#galerie"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Invités<i class="dock__ring" id="dockRing" hidden></i></a>
+  <a href="#livre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h9.5A3.5 3.5 0 0 1 18 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3.5 3.5 0 0 1 3.5-3.5H18"/></svg>Livre d'or</a>
+<?php else: ?>
   <a href="#infos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Infos</a>
   <a href="#photos" class="dock__main"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.3" r="3.4"/></svg>Photos<i class="dock__ring" id="dockRing" hidden></i></a>
   <a href="#livre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h9.5A3.5 3.5 0 0 1 18 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3.5 3.5 0 0 1 3.5-3.5H18"/></svg>Livre d'or</a>
+<?php endif; ?>
 </nav>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>

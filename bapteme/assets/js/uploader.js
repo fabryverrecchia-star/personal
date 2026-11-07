@@ -73,6 +73,7 @@
       name: encodeURIComponent(item.file.name || "file"), size: String(item.file.size),
       type: item.file.type || "", guest: encodeURIComponent(item.guest || "")
     };
+    if (item.fields) Object.keys(item.fields).forEach(function (k) { p[k] = String(item.fields[k]); });
     if (meta.w && meta.h) { p.w = String(meta.w); p.h = String(meta.h); }
     if (meta.duration) p.duration = String(meta.duration);
     return p;
@@ -137,6 +138,7 @@
     Array.prototype.forEach.call(files, function (file) {
       var item = {
         meta: meta || file._meta || null,
+        fields: self.opts.fields || null,
         id: rememberedId(file) || uid(),
         file: file,
         guest: guest,

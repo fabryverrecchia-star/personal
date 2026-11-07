@@ -46,6 +46,11 @@ $size = filter_var(field('size', 'X_FILE_SIZE'), FILTER_VALIDATE_INT);
 $name = clean_text(rawurldecode(field('name', 'X_FILE_NAME') ?: 'file'), 180);
 $guest = clean_text(rawurldecode(field('guest', 'X_GUEST_NAME')), 80);
 $maxBytes = (int) config()['max_file_mb'] * 1024 * 1024;
+// Photos du photographe : envoyées depuis admin.php uniquement.
+$pro = field('pro', 'X_PRO') === '1';
+if ($pro && !is_admin()) {
+    fail('admin_only', 403, 'admin_only');
+}
 
 if (!preg_match('/^[a-f0-9]{16,64}$/i', $id)) {
     fail('bad_upload_id');
@@ -60,7 +65,7 @@ $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
 if (!in_array($ext, MEDIA_EXT, true)) {
     fail('file_type_not_allowed', 415, 'bad_type');
 }
-if (!rate_limit('chunk', (int) config()['max_chunks_per_hour'])) {
+if (!$pro && !rate_limit('chunk', (int) config()['max_chunks_per_hour'])) {
     fail('rate_limited', 429);
 }
 
@@ -131,7 +136,7 @@ if (!is_file($metaFile)) {            // another request already finished it
 }
 
 $day = date('Y-m-d');
-$destDir = storage_dir('uploads/' . $day);
+$destDir = $pro ? storage_dir('pro/originals') : storage_dir('uploads/' . $day);
 $safeBase = preg_replace('/[^A-Za-z0-9._-]+/', '-', pathinfo($name, PATHINFO_FILENAME)) ?: 'file';
 $safeBase = substr(trim($safeBase, '-.'), 0, 60) ?: 'file';
 $stored = date('His') . '_' . substr(strtolower($id), 0, 8) . '_' . $safeBase . '.' . $ext;
@@ -211,6 +216,49 @@ $w = $dim('w', 'X_WIDTH');
 $h = $dim('h', 'X_HEIGHT');
 $duration = filter_var(field('duration', 'X_DURATION'), FILTER_VALIDATE_FLOAT);
 $duration = $duration !== false && $duration > 0 && $duration < 36000 ? round($duration, 1) : null;
+
+if ($pro) {
+    // Le reportage : l'original est gardé tel quel, plus une version « écran » (2400 px)
+    // pour l'afficher vite, et une miniature pour la grille.
+    @ini_set('memory_limit', '768M');
+    @set_time_limit(300);
+    $short = substr(strtolower($id), 0, 16);
+    $web = $thumb = null;
+    if ($kind === 'photo') {
+        storage_dir('pro/web');
+        storage_dir('pro/thumbs');
+        try {
+            $sz = make_thumb($dest, storage_dir() . '/pro/web/' . $short . '.jpg', 2400, 86);
+            if ($sz) {
+                [$w, $h] = $sz;
+                $web = 'pro/web/' . $short . '.jpg';
+            }
+            if (make_thumb($dest, storage_dir() . '/pro/thumbs/' . $short . '.jpg', 800, 80)) {
+                $thumb = 'pro/thumbs/' . $short . '.jpg';
+            }
+        } catch (\Throwable $e) {
+            // pas de version allégée : l'original sera affiché
+        }
+    }
+    $record = [
+        'id' => $short,
+        'time' => date('c'),
+        'original' => $name,
+        'file' => 'pro/originals/' . $stored,
+        'web' => $web,
+        'thumb' => $thumb,
+        'size' => $finalSize,
+        'mime' => $mime,
+        'kind' => $kind,
+        'w' => $w,
+        'h' => $h,
+    ];
+    append_jsonl(storage_file('pro.jsonl'), $record);
+    flock($lock, LOCK_UN);
+    fclose($lock);
+    rrmdir($tmpDir);
+    json_out(['ok' => true, 'done' => true, 'item' => pro_public($record)]);
+}
 
 $thumb = null;
 if ($kind === 'photo') {

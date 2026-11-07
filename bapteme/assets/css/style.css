@@ -89,6 +89,9 @@ html.intro .loader {
 @keyframes draw { from { transform: scaleX(0); } }
 .loader__date { margin: 10px 0 0; font-size: 13px; letter-spacing: .34em; padding-left: .34em; color: var(--soft); animation: up 1s var(--ease) 1.9s both, fadeAway .6s ease 2.85s forwards; }
 @keyframes up { from { opacity: 0; transform: translateY(12px); } }
+/* ouverture « Merci » (après le baptême) */
+.loader__name--merci { text-transform: none; font-style: italic; font-size: 68px; letter-spacing: .02em; padding-left: 0; }
+.loader__date--merci { letter-spacing: .02em; padding-left: 0; font-size: 20px; }
 @keyframes fadeAway { to { opacity: 0; transform: translateY(-12px); } }
 
 /* L'accueil se dévoile sous l'ouverture */
@@ -103,7 +106,7 @@ html.intro .hero__pre { animation: up 1.2s var(--ease) 3.9s both; }
 html.intro .hero__name { animation: name 1.6s var(--ease) 4.0s both; }
 @keyframes name { from { opacity: 0; letter-spacing: .5em; filter: blur(5px); } }
 html.intro .hero__date { animation: up 1.2s var(--ease) 4.25s both; }
-html.intro .count, html.intro .count__today { animation: up 1.2s var(--ease) 4.45s both; }
+html.intro .count, html.intro .count__today, html.intro .merci { animation: up 1.2s var(--ease) 4.45s both; }
 html.intro .scrollhint { animation: up 1.2s var(--ease) 4.8s both; }
 
 /* ───────────── Accueil ───────────── */
@@ -134,6 +137,11 @@ html.intro .scrollhint { animation: up 1.2s var(--ease) 4.8s both; }
 .count b { font-weight: 400; font-size: 34px; line-height: 1; color: var(--ink-strong); font-variant-numeric: lining-nums tabular-nums; }
 .count span { font-size: 11px; letter-spacing: .26em; text-transform: uppercase; color: var(--soft); margin-top: 6px; }
 .count__today { font-size: 26px; color: var(--sage); margin: 22px 0 0; }
+
+/* Remerciements (après le baptême) */
+.merci { margin-top: 22px; }
+.merci__big { margin: 0; font-size: clamp(54px, 15vw, 84px); line-height: 1; color: var(--ink-strong); }
+.merci__sub { margin: 6px 0 0; font-size: 21px; color: var(--soft); }
 
 .scrollhint { position: absolute; bottom: calc(var(--dock-h) + 22px + env(safe-area-inset-bottom)); left: 50%; width: 22px; height: 36px; margin-left: -11px; border: 1px solid var(--line); border-radius: 20px; }
 .scrollhint span { position: absolute; left: 50%; top: 8px; width: 3px; height: 7px; margin-left: -1.5px; border-radius: 3px; background: var(--sage); animation: hint 2.2s var(--ease) infinite; }
@@ -241,6 +249,12 @@ html.intro .scrollhint { animation: up 1.2s var(--ease) 4.8s both; }
 /* Galerie */
 .gallery { columns: 2; column-gap: 8px; text-align: left; }
 @media (min-width: 700px) { .gallery { columns: 3; } }
+/* le reportage prend plus de place sur grand écran */
+.block--wide { max-width: 1180px; }
+.block--wide > .eyebrow, .block--wide > .title, .block--wide > .sub, .block--wide > .gallery__dl { max-width: 640px; margin-left: auto; margin-right: auto; }
+@media (min-width: 1000px) { .gallery--pro { columns: 4; column-gap: 10px; } .gallery--pro .tile { margin-bottom: 10px; } }
+.tile__name { position: absolute; left: 8px; bottom: 6px; font-size: 12px; letter-spacing: .08em; color: #fff; opacity: 0; transition: opacity .3s; text-shadow: 0 1px 3px rgba(0, 0, 0, .5); }
+@media (hover: hover) { .gallery--pro .tile:hover .tile__name { opacity: .85; } }
 .tile { break-inside: avoid; margin: 0 0 8px; border-radius: 14px; overflow: hidden; position: relative; background: #efeae6; cursor: zoom-in; display: block; width: 100%; padding: 0; border: 0; animation: qin .6s var(--ease) both; }
 .tile img, .tile video { width: 100%; height: auto; display: block; }
 .tile__play { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }

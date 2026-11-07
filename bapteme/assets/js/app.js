@@ -63,8 +63,9 @@
   // cérémonie sans lieu ni horaire : une phrase plutôt qu'un vide
   ["ceremonie", "repas"].forEach(function (key) {
     var d = INFO[key] || {};
-    if (!d.lieu && !d.adresse && !d.heure) {
-      var step = $('[data-maps="' + key + '"]').closest(".step");
+    var mapsEl = $('[data-maps="' + key + '"]');
+    if (mapsEl && !d.lieu && !d.adresse && !d.heure) {
+      var step = mapsEl.closest(".step");
       var p = document.createElement("p");
       p.className = "step__todo";
       p.textContent = "Le lieu et l'horaire vous seront communiqués très bientôt.";
@@ -118,7 +119,8 @@
     lines.push("DESCRIPTION:" + icsText("Le site : " + location.href.split("#")[0]), "END:VEVENT");
     return lines;
   }
-  $("#addCal").addEventListener("click", function () {
+  var addCal = $("#addCal");
+  if (addCal) addCal.addEventListener("click", function () {
     var name = INFO.prenom || "Lou";
     var ev = vevent("ceremonie", "Baptême de " + name, "ceremonie", 1.5);
     if ((INFO.repas || {}).heure) ev = ev.concat(vevent("repas", "Repas · baptême de " + name + " · " + (INFO.repas.lieu || ""), "repas", 3));
@@ -137,6 +139,7 @@
   var countEl = $("#count"), todayEl = $("#today");
   var target = eventAt("ceremonie") || eventDay;
   function renderCount() {
+    if (!countEl) return;                         // après le baptême : pas de compte à rebours
     var now = new Date();
     var sameDay = now.getFullYear() === eventDay.getFullYear() && now.getMonth() === eventDay.getMonth() && now.getDate() === eventDay.getDate();
     var diff = target - now;
@@ -229,10 +232,12 @@
         var p = document.createElement("p");
         p.className = "demo-note";
         p.textContent = "Aperçu : ici rien n'est envoyé. Une fois le site en ligne, tout arrive dans l'espace privé.";
-        $(s).appendChild(p);
+        var el = $(s);
+        if (el) el.appendChild(p);
       });
     }
     initGallery(info);
+    initPro(info);
   });
 
   /* ───────────── Prénom partagé entre les formulaires ───────────── */
@@ -537,6 +542,51 @@
       var r = galSec.getBoundingClientRect();
       if (r.top < window.innerHeight * 2 && r.bottom > -window.innerHeight) loadAll();
     }, 45000);
+  }
+
+  /* ───────────── Reportage du photographe (après le baptême) ───────────── */
+
+  var proSec = $("#reportage"), proEl = $("#proGallery");
+  var pro = { items: [] };
+
+  function initPro(info) {
+    if (demo || !info || !proSec || !proEl) return;
+    fetch("api/pro.php", { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j || !j.ok || !j.items.length) return;
+        pro.items = j.items;
+        var frag = document.createDocumentFragment();
+        j.items.forEach(function (it, i) {
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "tile";
+          var ratio = it.w && it.h ? ' style="aspect-ratio:' + it.w + "/" + it.h + '"' : "";
+          b.innerHTML = it.kind === "video"
+            ? '<video src="' + esc(it.src) + '#t=0.1" preload="metadata" muted playsinline' + ratio + '></video><span class="tile__play"></span>'
+            : '<img src="' + esc(it.thumb || it.src) + '" alt="Photo ' + (i + 1) + ' du reportage" loading="lazy" decoding="async"' + ratio + ">";
+          b.addEventListener("click", function () { openPro(i); });
+          frag.appendChild(b);
+        });
+        proEl.appendChild(frag);
+        var n = j.items.length, who = String(INFO.photographe || "").trim();
+        $("#proCount").textContent = n + (n > 1 ? " photos" : " photo") + (who ? " de " + who : "");
+        if (j.download && $("#proDl")) {
+          $("#proDl").hidden = false;
+          $("#proZipSize").textContent = j.bytes ? "· " + fmtBytes(j.bytes) : "";
+        }
+        proSec.hidden = false;
+        // la section était cachée pendant l'apparition des autres : on l'affiche directement
+        $$("[data-reveal]", proSec).forEach(function (el) { el.classList.add("in"); });
+      })
+      .catch(function () {});
+  }
+
+  function openPro(i) {
+    if (!window.LouViewer) { window.open(pro.items[i].src, "_blank"); return; }
+    window.LouViewer.open(pro.items.map(function (it) {
+      return { kind: it.kind, src: it.src, thumb: it.thumb, guest: "", dl: it.dl };
+    }), i);
   }
 
   /* ───────────── Visionneuse (assets/js/viewer.js) ───────────── */

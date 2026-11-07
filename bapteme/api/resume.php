@@ -15,7 +15,7 @@ $wantId = strtolower((string) ($_GET['id'] ?? ''));
 if ($name === '' || $size === false || $size < 1) {
     fail('bad_request');
 }
-if (!rate_limit('resume', 600)) {
+if (!is_admin() && !rate_limit('resume', 600)) {
     fail('rate_limited', 429);
 }
 

@@ -265,7 +265,14 @@ function set_hidden(string $id, bool $hidden): void
 /** Remove one upload for good: file, thumbnail and its line in media.jsonl. */
 function media_delete(string $id): void
 {
-    $file = storage_file('media.jsonl');
+    jsonl_delete('media.jsonl', $id);
+    set_hidden($id, false);
+}
+
+/** Remove one line of an index (and the files it points to). */
+function jsonl_delete(string $index, string $id): void
+{
+    $file = storage_file($index);
     $fp = fopen($file, 'c+');
     if (!$fp) {
         return;
@@ -275,7 +282,7 @@ function media_delete(string $id): void
     while (($line = fgets($fp)) !== false) {
         $row = json_decode($line, true);
         if (is_array($row) && hash_equals((string) $row['id'], $id)) {
-            foreach (['file', 'thumb'] as $k) {
+            foreach (['file', 'thumb', 'web'] as $k) {
                 if (!empty($row[$k]) && !str_contains($row[$k], '..')) {
                     @unlink(storage_dir() . '/' . $row[$k]);
                 }
@@ -289,7 +296,6 @@ function media_delete(string $id): void
     fwrite($fp, $keep);
     flock($fp, LOCK_UN);
     fclose($fp);
-    set_hidden($id, false);
 }
 
 /** Send a stored file, with HTTP Range support (iPhone Safari needs it to play video/audio). */
@@ -343,7 +349,7 @@ function stream_file(string $path, string $mime, string $name, bool $download, s
  * rotation. Returns [width, height] of the upright photo, or null when the
  * format isn't supported by GD (e.g. HEIC) — the grid then uses the original.
  */
-function make_thumb(string $src, string $dest, int $max = 720): ?array
+function make_thumb(string $src, string $dest, int $max = 720, int $quality = 78): ?array
 {
     if (!function_exists('imagecreatetruecolor')) {
         return null;
@@ -388,7 +394,7 @@ function make_thumb(string $src, string $dest, int $max = 720): ?array
     imagefill($thumb, 0, 0, imagecolorallocate($thumb, 247, 243, 236));
     imagecopyresampled($thumb, $img, 0, 0, 0, 0, $tw, $th, $w, $h);
     imageinterlace($thumb, 1);
-    $ok = imagejpeg($thumb, $dest, 78);
+    $ok = imagejpeg($thumb, $dest, $quality);
     return $ok ? [$w, $h] : null;
 }
 
@@ -551,4 +557,68 @@ function zip_entries(array $media): array
         $out[] = ['path' => storage_dir() . '/' . $m['file'], 'name' => $name];
     }
     return $out;
+}
+
+
+/* ───────────── Espace privé & reportage du photographe ───────────── */
+
+/** True when the visitor is logged in to admin.php (same session). */
+function is_admin(): bool
+{
+    static $ok = null;
+    if ($ok === null) {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_name('lou_admin');
+            if (!isset($_COOKIE['lou_admin'])) {
+                return $ok = false;
+            }
+            @session_start(['read_and_close' => true]);
+        }
+        $ok = !empty($_SESSION['ok']);
+    }
+    return $ok;
+}
+
+/** Guests may download the photographer's originals (config 'pro_download', on by default). */
+function pro_download_allowed(): bool
+{
+    return (bool) (config()['pro_download'] ?? true);
+}
+
+/** The photographer's photos, in the order of their file names (IMG_0001, IMG_0002…). */
+function pro_all(): array
+{
+    $all = read_jsonl(storage_file('pro.jsonl'));
+    usort($all, function ($a, $b) {
+        return strnatcasecmp((string) $a['original'], (string) $b['original']) ?: strcmp((string) $a['time'], (string) $b['time']);
+    });
+    return $all;
+}
+
+function pro_find(string $id): ?array
+{
+    foreach (read_jsonl(storage_file('pro.jsonl')) as $m) {
+        if (hash_equals((string) $m['id'], $id)) {
+            return $m;
+        }
+    }
+    return null;
+}
+
+function pro_public(array $m): array
+{
+    $id = rawurlencode((string) $m['id']);
+    $base = 'api/media.php?set=pro&id=' . $id;
+    return [
+        'id' => $m['id'],
+        'kind' => $m['kind'],
+        'name' => $m['original'],
+        'w' => $m['w'] ?? null,
+        'h' => $m['h'] ?? null,
+        'size' => (int) ($m['size'] ?? 0),
+        'mime' => $m['mime'],
+        'src' => $base . (!empty($m['web']) ? '&v=web' : ''),
+        'thumb' => !empty($m['thumb']) ? $base . '&v=thumb' : null,
+        'dl' => pro_download_allowed() ? $base . '&dl=1' : null,
+    ];
 }

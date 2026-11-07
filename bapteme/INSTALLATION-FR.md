@@ -53,3 +53,14 @@ sinon la correction est écrite sous la ligne rouge.
 | `admin.php` | espace privé |
 | `check.php` | vérification de l'installation |
 | `storage/` | messages, photos et vidéos (protégé, jamais servi directement) |
+
+## Après le baptême : remerciements et reportage du photographe
+- Le lendemain de la date (`assets/js/infos.js`), la page devient une page de **remerciements** :
+  ouverture « Merci », puis les photos du photographe, puis celles des invités, puis l'envoi de photos
+  et le livre d'or. Textes modifiables dans `infos.js` (`merci`, `photographe`).
+  `mode: "avant"` ou `mode: "apres"` force l'une ou l'autre ; `ton-site/bapteme/?mode=avant` pour revoir l'ancienne page.
+- **Reportage** : espace privé › onglet **Photographe** › glisser les photos (ou « Choisir les photos »).
+  L'original est gardé ; une version allégée est préparée pour l'affichage. Seul l'espace privé peut en ajouter.
+- Pour que les invités puissent **voir sans télécharger** les photos du photographe, ajoutez dans
+  `api/config.php` la ligne `'pro_download' => false,` (par défaut, ils peuvent télécharger).
+- Rangement : `storage/pro/originals/` (originaux), `storage/pro/web/` et `storage/pro/thumbs/` (versions allégées), `storage/pro.jsonl` (liste).

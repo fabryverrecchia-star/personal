@@ -67,6 +67,10 @@ if ($authed && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['ac
             set_hidden($id, false);
         } elseif ($action === 'delete') {
             media_delete($id);
+        } elseif ($action === 'pro_delete') {
+            jsonl_delete('pro.jsonl', $id);
+            header('Location: admin.php?tab=pro');
+            exit;
         }
     }
     header('Location: admin.php?tab=media#m-' . rawurlencode($id));
@@ -86,6 +90,22 @@ if ($authed && isset($_GET['f'])) {
 }
 
 /* ───────────── Tout télécharger (ZIP envoyé à la volée, rien n'est copié sur le serveur) ───────────── */
+
+if ($authed && ($_GET['zip'] ?? '') === 'pro') {
+    $entries = [];
+    $used = [];
+    foreach (pro_all() as $m) {
+        $n = (string) $m['original'];
+        if (isset($used[strtolower($n)])) {
+            $n = pathinfo($n, PATHINFO_FILENAME) . '-' . substr((string) $m['id'], 0, 6) . '.' . pathinfo($n, PATHINFO_EXTENSION);
+        }
+        $used[strtolower($n)] = true;
+        if (!str_contains((string) $m['file'], '..')) {
+            $entries[] = ['path' => storage_dir() . '/' . $m['file'], 'name' => 'Photographe/' . $n];
+        }
+    }
+    zip_stream($entries, 'Bapteme de Lou - photographe.zip');
+}
 
 if ($authed && isset($_GET['zip'])) {
     $msgs = read_jsonl(storage_file('messages.jsonl'));
@@ -187,7 +207,9 @@ if ($authed && isset($_GET['export'])) {
 $messages = $authed ? array_reverse(read_jsonl(storage_file('messages.jsonl'))) : [];
 $media = $authed ? array_reverse(media_all()) : [];
 $hidden = $authed ? array_flip(hidden_ids()) : [];
-$tab = ($_GET['tab'] ?? 'messages') === 'media' ? 'media' : 'messages';
+$tab = in_array($_GET['tab'] ?? '', ['media', 'pro'], true) ? $_GET['tab'] : 'messages';
+$pro = $authed ? pro_all() : [];
+$proBytes = array_sum(array_map(function ($m) { return (int) $m['size']; }, $pro));
 $totalBytes = array_sum(array_map(function ($m) { return (int) $m['size']; }, $media));
 $photos = count(array_filter($media, function ($m) { return $m['kind'] === 'photo'; }));
 $videos = count(array_filter($media, function ($m) { return $m['kind'] === 'video'; }));
@@ -268,6 +290,21 @@ function plural(int $n, string $one, string $many): string
   input[type=password]:focus { border-color:var(--sage); }
   button { font:inherit; font-size:13px; letter-spacing:.22em; text-transform:uppercase; min-height:52px; border-radius:999px; border:0; background:var(--forest); color:var(--paper); cursor:pointer; }
   .err { color:var(--terra); font-style:italic; }
+  .pro .drop { background:var(--card); border:1.5px dashed rgba(47,74,60,.35); border-radius:18px; padding:26px 18px; text-align:center; margin:0 0 22px; transition:background .2s, border-color .2s; }
+  .pro .drop.is-over { background:#eef2ec; border-color:var(--sage); }
+  .drop__title { margin:0; font-size:26px; color:var(--strong); }
+  .drop__sub { margin:6px 0 14px; }
+  .drop__hint { margin:14px auto 0; max-width:34em; font-size:16px; font-style:italic; color:var(--soft); }
+  .pill--dark { background:var(--forest); color:var(--paper); border-color:var(--forest); cursor:pointer; }
+  .ptotal { height:3px; background:var(--line); border-radius:3px; overflow:hidden; margin:18px auto 6px; max-width:520px; }
+  .ptotal i { display:block; height:100%; width:100%; background:linear-gradient(90deg, var(--sage), #d6ac67); transform:scaleX(0); transform-origin:left; transition:transform .4s; }
+  .pqueue { list-style:none; margin:10px auto 0; padding:0; max-width:520px; max-height:220px; overflow:auto; text-align:left; font-size:15px; }
+  .pqueue li { display:flex; justify-content:space-between; gap:10px; padding:4px 2px; border-bottom:1px solid var(--line); }
+  .pqueue li span:first-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pqueue li.ok span:last-child { color:var(--sage); }
+  .pqueue li.ko span:last-child { color:var(--terra); cursor:pointer; }
+  .pro__note { text-align:center; margin:-14px 0 20px; }
+  .ptile img { cursor:zoom-in; }
 </style>
 </head>
 <body>
@@ -297,10 +334,12 @@ function plural(int $n, string $one, string $many): string
     <span><?= plural($videos, 'vidéo', 'vidéos') ?></span>
     <span><?= human_size($totalBytes) ?></span>
     <?php if ($hidden): ?><span><?= plural(count($hidden), 'masquée', 'masquées') ?></span><?php endif; ?>
+    <span><?= plural(count($pro), 'photo', 'photos') ?> du photographe</span>
   </p>
   <nav class="tabs">
     <a href="?tab=messages" class="<?= $tab === 'messages' ? 'on' : '' ?>">Livre d’or</a>
-    <a href="?tab=media" class="<?= $tab === 'media' ? 'on' : '' ?>">Photos &amp; vidéos</a>
+    <a href="?tab=media" class="<?= $tab === 'media' ? 'on' : '' ?>">Invités</a>
+    <a href="?tab=pro" class="<?= $tab === 'pro' ? 'on' : '' ?>">Photographe</a>
   </nav>
 
   <?php if ($tab === 'messages'): ?>
@@ -314,6 +353,50 @@ function plural(int $n, string $one, string $many): string
         </article>
       <?php endforeach; ?>
     </div>
+  <?php elseif ($tab === 'pro'): ?>
+    <section class="pro">
+      <div class="drop" id="proDrop">
+        <p class="drop__title">Le reportage du photographe</p>
+        <p class="small drop__sub">Glissez les photos ici, ou</p>
+        <label class="pill pill--dark">
+          <input type="file" id="proPick" accept="image/*,video/*" multiple hidden>
+          Choisir les photos
+        </label>
+        <p class="drop__hint">Qualité d’origine conservée · une version allégée est préparée pour l’affichage sur le site · vous pouvez en envoyer des centaines d’un coup, l’envoi reprend s’il est coupé.</p>
+        <div class="ptotal" id="proTotal" hidden><i id="proBar"></i></div>
+        <p class="small" id="proText"></p>
+        <ul class="pqueue" id="proQueue"></ul>
+      </div>
+      <?php if ($pro): ?>
+        <p class="tools">
+          <a class="pill" href="admin.php?zip=pro">Télécharger le reportage (ZIP · <?= human_size($proBytes) ?>)</a>
+          <a class="pill" href="./#reportage" target="_blank" rel="noopener">Voir sur le site</a>
+        </p>
+        <p class="small pro__note"><?= pro_download_allowed() ? 'Les invités peuvent voir et télécharger ces photos.' : 'Les invités peuvent voir ces photos, sans les télécharger.' ?></p>
+      <?php else: ?>
+        <p class="empty">Pas encore de photo du photographe.</p>
+      <?php endif; ?>
+      <div class="grid" id="proGrid">
+        <?php foreach ($pro as $m): $b = 'api/media.php?set=pro&id=' . rawurlencode($m['id']); ?>
+          <div class="tile ptile" data-kind="<?= h($m['kind']) ?>" data-src="<?= h($b . (!empty($m['web']) ? '&v=web' : '')) ?>" data-thumb="<?= h(!empty($m['thumb']) ? $b . '&v=thumb' : '') ?>" data-name="<?= h($m['original']) ?>">
+            <?php if ($m['kind'] === 'video'): ?>
+              <video src="<?= h($b) ?>#t=0.1" preload="metadata" muted playsinline></video><span class="badge">Vidéo</span>
+            <?php else: ?>
+              <img src="<?= h(!empty($m['thumb']) ? $b . '&v=thumb' : $b) ?>" loading="lazy" alt="">
+            <?php endif; ?>
+            <div class="cap">
+              <span><?= h($m['original']) ?> · <?= human_size((int) $m['size']) ?></span>
+              <a href="<?= h($b) ?>&amp;dl=1" aria-label="Télécharger l’original">⤓</a>
+            </div>
+            <form method="post" class="mod">
+              <input type="hidden" name="csrf" value="<?= h($_SESSION['csrf']) ?>">
+              <input type="hidden" name="id" value="<?= h($m['id']) ?>">
+              <button name="action" value="pro_delete" class="del" data-confirm>Supprimer</button>
+            </form>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </section>
   <?php else: ?>
     <?php if ($media): ?><p class="tools"><a class="pill" href="admin.php?zip=1">Tout télécharger (ZIP · <?= human_size($totalBytes) ?>)</a></p><?php endif; ?>
     <?php if (!$media): ?><p class="empty">Pas encore de photo ni de vidéo.</p><?php endif; ?>
@@ -352,6 +435,65 @@ function plural(int $n, string $one, string $many): string
 <?php endif; ?>
 </div>
 <script src="assets/js/viewer.js?v=<?= (int) @filemtime(__DIR__ . '/assets/js/viewer.js') ?>"></script>
+<?php if ($authed && $tab === 'pro'): ?>
+<script src="assets/js/uploader.js?v=<?= (int) @filemtime(__DIR__ . '/assets/js/uploader.js') ?>"></script>
+<script>
+  // Reportage du photographe : envoi (glisser-déposer ou sélection) et visionneuse.
+  (function () {
+    var tiles = Array.prototype.slice.call(document.querySelectorAll('.ptile'));
+    var list = tiles.map(function (t) {
+      return { kind: t.dataset.kind, src: t.dataset.src, thumb: t.dataset.thumb || null, guest: t.dataset.name, dl: t.dataset.src.replace(/&v=web$/, '') + '&dl=1' };
+    });
+    tiles.forEach(function (t, i) {
+      var media = t.querySelector('img, video');
+      if (media) media.addEventListener('click', function (e) { e.preventDefault(); if (window.LouViewer) window.LouViewer.open(list, i); });
+    });
+
+    var drop = document.getElementById('proDrop'), pick = document.getElementById('proPick');
+    var queue = document.getElementById('proQueue'), bar = document.getElementById('proBar');
+    var totalBox = document.getElementById('proTotal'), text = document.getElementById('proText');
+    var rows = {}, seq = 0, sent = 0;
+    function row(item) {
+      if (!item.key) item.key = 'p' + (++seq);
+      var li = rows[item.key];
+      if (!li) {
+        li = document.createElement('li');
+        li.innerHTML = '<span></span><span></span>';
+        li.firstChild.textContent = item.file.name;
+        li.lastChild.addEventListener('click', function () { if (item.status === 'error') up.retry(item); });
+        queue.appendChild(li);
+        rows[item.key] = li;
+      }
+      var pct = item.file.size ? Math.round(Math.min(1, item.sent / item.file.size) * 100) : 0;
+      li.className = item.status === 'done' ? 'ok' : (item.status === 'error' ? 'ko' : '');
+      li.lastChild.textContent = item.status === 'done' ? '✓' : item.status === 'error' ? 'échec · réessayer ↻'
+        : item.status === 'queued' ? 'en attente' : pct + ' %' + (item.note ? ' · ' + item.note : '');
+    }
+    var up = new window.LouUploader({
+      fields: { pro: '1' },
+      onAdd: row, onUpdate: row,
+      onProgress: function () {
+        var st = up.stats();
+        totalBox.hidden = !st.count;
+        bar.style.transform = 'scaleX(' + st.pct + ')';
+        text.textContent = st.done === st.count ? st.count + ' photo(s) envoyée(s) — rechargez la page pour les voir'
+          : 'Envoi ' + st.done + ' / ' + st.count + ' · ' + Math.round(st.pct * 100) + ' %';
+      },
+      onDone: function () { sent++; },
+      onIdle: function () { if (sent) setTimeout(function () { location.href = 'admin.php?tab=pro'; }, 1500); }
+    });
+    function add(files) {
+      files = Array.prototype.filter.call(files || [], function (f) { return /^(image|video)\//.test(f.type) || /\.(jpe?g|png|heic|heif|tiff?|dng|webp|mp4|mov)$/i.test(f.name); });
+      if (files.length) up.add(files, '');
+    }
+    pick.addEventListener('change', function () { add(pick.files); pick.value = ''; });
+    ['dragenter', 'dragover'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('is-over'); }); });
+    ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('is-over'); }); });
+    drop.addEventListener('drop', function (e) { add(e.dataTransfer.files); });
+    window.addEventListener('beforeunload', function (e) { if (up.busy()) { e.preventDefault(); e.returnValue = ''; } });
+  })();
+</script>
+<?php endif; ?>
 <script>
   // Photos et vidéos en grand : ajustées à l'écran, zoom au clic, molette, glisser.
   (function () {
