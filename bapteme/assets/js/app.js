@@ -256,60 +256,63 @@
   /* ───────────── Livre d'or ───────────── */
 
   var form = $("#book"), statusEl = $("#bookStatus"), sendBtn = $("#bookSend");
-  var textarea = form.elements.message;
-  textarea.addEventListener("input", function () { $("#msgCount").textContent = textarea.value.length; });
+  // (absent après le baptême)
+  if (form) {
+    var textarea = form.elements.message;
+    textarea.addEventListener("input", function () { $("#msgCount").textContent = textarea.value.length; });
 
-  function setStatus(msg, isError) {
-    statusEl.textContent = msg || "";
-    statusEl.classList.toggle("is-error", !!isError);
-  }
-  function thanks() {
-    form.hidden = true;
-    $("#thanks").hidden = false;
-    scene.burst();
-    var g = window.gsap;
-    if (g && !reduceMotion) {
-      g.fromTo(".thanks__dove", { x: -80, y: 30, opacity: 0, rotation: -10 }, { x: 0, y: 0, opacity: 1, rotation: 0, duration: 1.2, ease: "power3.out" });
-      g.fromTo(".thanks__big, #thanks p, #bookAgain", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .9, stagger: .1, delay: .3, ease: "power3.out" });
+    function setStatus(msg, isError) {
+      statusEl.textContent = msg || "";
+      statusEl.classList.toggle("is-error", !!isError);
     }
+    function thanks() {
+      form.hidden = true;
+      $("#thanks").hidden = false;
+      scene.burst();
+      var g = window.gsap;
+      if (g && !reduceMotion) {
+        g.fromTo(".thanks__dove", { x: -80, y: 30, opacity: 0, rotation: -10 }, { x: 0, y: 0, opacity: 1, rotation: 0, duration: 1.2, ease: "power3.out" });
+        g.fromTo(".thanks__big, #thanks p, #bookAgain", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .9, stagger: .1, delay: .3, ease: "power3.out" });
+      }
+    }
+    $("#bookAgain").addEventListener("click", function () {
+      textarea.value = "";
+      $("#msgCount").textContent = "0";
+      $("#thanks").hidden = true;
+      form.hidden = false;
+      setStatus("");
+      textarea.focus();
+    });
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = form.elements.name.value.trim();
+      var message = textarea.value.trim();
+      $$(".field", form).forEach(function (f) { f.classList.remove("is-invalid"); });
+      if (!name) form.elements.name.closest(".field").classList.add("is-invalid");
+      if (!message) textarea.closest(".field").classList.add("is-invalid");
+      if (!name || !message) { setStatus("Votre prénom et un petit mot, s'il vous plaît.", true); return; }
+
+      sendBtn.disabled = true;
+      setStatus("Envoi…");
+      if (demo) { setTimeout(function () { sendBtn.disabled = false; setStatus(""); thanks(); }, 700); return; }
+
+      fetch("api/message.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name, message: message, lang: "fr", website: form.elements.website.value })
+      }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, body: j }; });
+      }).then(function (res) {
+        if (res.body && res.body.ok) { setStatus(""); thanks(); return; }
+        var code = res.body && res.body.code;
+        setStatus(code === "rate_limited" ? "Beaucoup de messages d'un coup ! Réessayez dans un moment."
+          : "Le message n'est pas parti. Réessayez dans un instant." + (code ? " (" + code + ")" : ""), true);
+      }).catch(function () {
+        setStatus("Pas de connexion. Votre message est toujours là : réessayez dans un instant.", true);
+      }).then(function () { sendBtn.disabled = false; });
+    });
   }
-  $("#bookAgain").addEventListener("click", function () {
-    textarea.value = "";
-    $("#msgCount").textContent = "0";
-    $("#thanks").hidden = true;
-    form.hidden = false;
-    setStatus("");
-    textarea.focus();
-  });
-
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var name = form.elements.name.value.trim();
-    var message = textarea.value.trim();
-    $$(".field", form).forEach(function (f) { f.classList.remove("is-invalid"); });
-    if (!name) form.elements.name.closest(".field").classList.add("is-invalid");
-    if (!message) textarea.closest(".field").classList.add("is-invalid");
-    if (!name || !message) { setStatus("Votre prénom et un petit mot, s'il vous plaît.", true); return; }
-
-    sendBtn.disabled = true;
-    setStatus("Envoi…");
-    if (demo) { setTimeout(function () { sendBtn.disabled = false; setStatus(""); thanks(); }, 700); return; }
-
-    fetch("api/message.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name, message: message, lang: "fr", website: form.elements.website.value })
-    }).then(function (r) {
-      return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, body: j }; });
-    }).then(function (res) {
-      if (res.body && res.body.ok) { setStatus(""); thanks(); return; }
-      var code = res.body && res.body.code;
-      setStatus(code === "rate_limited" ? "Beaucoup de messages d'un coup ! Réessayez dans un moment."
-        : "Le message n'est pas parti. Réessayez dans un instant." + (code ? " (" + code + ")" : ""), true);
-    }).catch(function () {
-      setStatus("Pas de connexion. Votre message est toujours là : réessayez dans un instant.", true);
-    }).then(function () { sendBtn.disabled = false; });
-  });
 
   /* ───────────── Photos & vidéos ───────────── */
 
@@ -439,7 +442,7 @@
   }
 
   var pick = $("#pick");
-  pick.addEventListener("change", function () {
+  if (pick) pick.addEventListener("change", function () {
     var files = Array.prototype.filter.call(pick.files || [], isMedia);
     var tooBig = files.filter(function (f) { return f.size > MAX_BYTES; });
     files = files.filter(function (f) { return f.size <= MAX_BYTES; });
@@ -607,18 +610,23 @@
     var box = $("#heroLoop"), hero = $(".hero");
     if (!box || !hero) return;
     var photos = items.filter(function (it) { return it.kind === "photo"; });
-    var frames = photos.filter(function (it) { return it.hero; });
+    // 1) les photos nommées dans infos.js, dans leur ordre ; 2) celles étoilées dans l'espace privé ; 3) une dizaine au hasard
+    var wanted = (INFO.accueilPhotos || []).map(function (n) { return String(n).toLowerCase().replace(/\.[a-z0-9]+$/, ""); });
+    var byName = {};
+    photos.forEach(function (it) { byName[String(it.name || "").toLowerCase().replace(/\.[a-z0-9]+$/, "")] = it; });
+    var frames = wanted.map(function (n) { return byName[n]; }).filter(Boolean);
+    if (!frames.length) frames = photos.filter(function (it) { return it.hero; });
     if (!frames.length) {                       // rien de choisi dans l'espace privé : une dizaine, réparties
       var n = Math.min(10, photos.length), step = photos.length / Math.max(1, n);
       for (var k = 0; k < n; k++) frames.push(photos[Math.floor(k * step)]);
     }
     if (!frames.length) return;
-    var big = window.innerWidth * (window.devicePixelRatio || 1) > 1100;
+    // version « écran » (2400 px) : une photo de groupe en largeur, recadrée en plein écran vertical, doit rester nette
     var imgs = frames.map(function (it) {
       var im = new Image();
       im.alt = "";
       im.decoding = "async";
-      im.src = big ? it.src : (it.thumb || it.src);
+      im.src = it.src;
       return im;
     });
     // on démarre quand les premières images sont prêtes (les autres arrivent pendant la boucle)

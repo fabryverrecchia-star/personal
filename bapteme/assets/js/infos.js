@@ -39,5 +39,10 @@ window.LOU = {
   photographe: "",
 
   // Le dossier Google Drive du reportage (bouton « Ouvrir sur Google Drive » à côté du ZIP ; "" pour le cacher)
-  driveReportage: "https://drive.google.com/drive/folders/1DpooIZ6oDE1fM5e6g4fzLTgNybnITZSp?usp=sharing"
+  driveReportage: "https://drive.google.com/drive/folders/1DpooIZ6oDE1fM5e6g4fzLTgNybnITZSp?usp=sharing",
+
+  // Les photos qui défilent en boucle sur l'accueil, derrière « Merci », dans cet ordre
+  // (noms des fichiers du photographe, sans « .jpg »). Vide [] → les photos étoilées dans
+  // l'espace privé, sinon une dizaine choisies automatiquement.
+  accueilPhotos: ["878A7189", "878A7185", "878A7179", "878A7176", "878A7172", "878A7169"]
 };

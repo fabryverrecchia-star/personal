@@ -177,32 +177,6 @@ $letters = function (string $word) {
     <div class="gallery" id="gallery"></div>
   </section>
 
-  <!-- ───────────── Photos du jour J ───────────── -->
-  <section class="block block--tint" id="photos">
-    <p class="eyebrow" data-reveal>Encore des souvenirs&nbsp;?</p>
-    <h2 class="title" data-reveal>Ajoutez vos <span class="i">photos</span></h2>
-    <p class="sub" data-reveal>Il vous reste des photos ou des vidéos de la journée&nbsp;? Ajoutez-les, en qualité d'origine&nbsp;: elles rejoindront l'album de Lou.</p>
-
-    <div class="drop" data-reveal>
-      <label class="field">
-        <span>Votre prénom</span>
-        <input type="text" id="upName" class="js-name" maxlength="80" autocomplete="given-name" placeholder="Ex. Tata Claire">
-      </label>
-      <label class="btn btn--big" id="pickLabel">
-        <input type="file" id="pick" accept="image/*,video/*" multiple>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.3" r="3.4"/></svg>
-        Choisir des photos
-      </label>
-      <p class="hint">Photos et vidéos · plusieurs à la fois · vous pouvez continuer à naviguer pendant l'envoi.</p>
-
-      <div class="total" id="total" hidden>
-        <div class="total__bar"><i id="totalBar"></i></div>
-        <p id="totalText"></p>
-      </div>
-      <ul class="queue" id="queue"></ul>
-    </div>
-  </section>
-
 <?php else: ?>
   <!-- ───────────── Mot d'accueil ───────────── -->
   <section class="intro" data-reveal>
@@ -288,6 +262,7 @@ $letters = function (string $word) {
   </section>
 
 <?php endif; ?>
+<?php if (!$after): ?>
   <!-- ───────────── Livre d'or ───────────── -->
   <section class="block" id="livre">
     <p class="eyebrow" data-reveal>Pour Lou</p>
@@ -320,6 +295,7 @@ $letters = function (string $word) {
     </div>
   </section>
 
+<?php endif; ?>
   <footer class="foot">
     <img src="assets/img/dove.webp" alt="" width="436" height="361" class="foot__dove">
     <p class="foot__sign i" data-fill="signature">Avec tout notre amour</p>
@@ -332,8 +308,7 @@ $letters = function (string $word) {
 <nav class="dock" id="dock" aria-label="Sections">
 <?php if ($after): ?>
   <a href="#reportage" class="dock__main"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.3" r="3.4"/></svg>Reportage</a>
-  <a href="#galerie"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Invités<i class="dock__ring" id="dockRing" hidden></i></a>
-  <a href="#livre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h9.5A3.5 3.5 0 0 1 18 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3.5 3.5 0 0 1 3.5-3.5H18"/></svg>Livre d'or</a>
+  <a href="#galerie"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Photos des invités</a>
 <?php else: ?>
   <a href="#infos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Infos</a>
   <a href="#photos" class="dock__main"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.3" r="3.4"/></svg>Photos<i class="dock__ring" id="dockRing" hidden></i></a>
