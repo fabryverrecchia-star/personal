@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Panneau commerce 80 × 75 cm — Benjamin Landry</title>
+<style>
+  /* Panneau horizontal 800 × 750 mm + 5 mm de fond perdu (fichier 810 × 760 mm), échelle 1:1.
+     Même DA que le recto de la carte : badigeon basalte, monogramme lin, nom, métiers en ocre,
+     téléphone et site en Bodoni, nuancier en éventail qui déborde du coin bas droit.
+     Coordonnées en mm depuis le coin haut gauche du fichier (fond perdu compris). */
+  @font-face { font-family: 'Bodoni'; src: url('../fonts/bodoni-moda-latin-opsz-normal.woff2') format('woff2'); font-weight: 400 900; }
+  @font-face { font-family: 'Hanken'; src: url('../fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+  :root { --lin: #f3efe8; --ocre: #cf9c58; --serif: 'Bodoni', Didot, Georgia, serif; --sans: 'Hanken', Arial, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  @page { margin: 0; size: 810mm 760mm; }
+  html, body { background: #777; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: var(--sans); }
+  .pan { position: relative; width: 810mm; height: 760mm; overflow: hidden; color: var(--lin); background: #24211e url('../livrables/print/panneau/badigeon-basalte-panneau.png') center / 100% 100% no-repeat; }
+  .pan > * { position: absolute; }
+  .mono { display: block; aspect-ratio: 659 / 806; background: url('../photos/logo-bl-lin.png') center / contain no-repeat; }
+  .tx { left: 75mm; top: 72mm; }
+  .tx .mono { height: 132mm; margin-bottom: 40mm; }
+  .tx .nom { font-size: 33mm; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; line-height: 1; margin-bottom: 26mm; }
+  .tx .met { font-size: 41mm; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; line-height: 1.38; color: var(--ocre); }
+  .contact { left: 75mm; bottom: 62mm; }
+  .contact .tel { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 62mm; line-height: 1; }
+  .contact .web { font-family: var(--serif); font-variation-settings: 'opsz' 11; font-size: 40mm; line-height: 1.15; margin-top: 6mm; }
+  .contact .ig { display: flex; align-items: center; gap: 9mm; font-size: 24mm; font-weight: 700; letter-spacing: .02em; margin-top: 16mm; }
+  .contact .ig svg { width: 26mm; height: 26mm; }
+  svg.fan { left: 0; top: 0; width: 810mm; height: 760mm; }
+</style>
+</head>
+<body>
+<section class="pan" data-doc="panneau-commerce-80x75cm">
+  <svg class="fan" viewBox="0 0 810 760"></svg>
+  <div class="tx">
+    <span class="mono"></span>
+    <p class="nom">Benjamin Landry</p>
+    <p class="met">Plâtrerie<br>Peinture<br>Carrelage</p>
+  </div>
+  <div class="contact">
+    <p class="tel">06 58 38 78 37</p>
+    <p class="web">benjaminlandry.fr</p>
+    <p class="ig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.3"/><circle cx="17.6" cy="6.4" r="1.2" fill="currentColor" stroke="none"/></svg>@benjamin_landry_finitions</p>
+  </div>
+</section>
+<script>
+  // Nuancier en éventail (même dessin que la carte), pied caché dans le coin bas droit
+  const TEINTES = ['#E2DACB', '#C08A3E', '#9B4B34', '#3F5A45', '#8DA3B3', '#56595C'];
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, a) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const mix = (hex, t) => { const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255], w = [251, 249, 245]; return `rgb(${c.map((v, i) => Math.round(v * t + w[i] * (1 - t))).join(' ')})`; };
+  const s = document.querySelector('svg.fan');
+  const px = 815, py = 800, L = 440, W = 104, step = 7, b = 8.6;
+  TEINTES.slice().reverse().forEach((c, k) => {
+    const i = TEINTES.length - 1 - k, a = -(5 + i * step);
+    const g = el('g', { transform: `rotate(${a} ${px} ${py})` });
+    const x = px - W / 2, y = py - L;
+    g.append(el('rect', { x: x - b * .32, y: y - b * .32, width: W + b * .64, height: L + b * .64, rx: b, fill: '#1a1917' }));
+    g.append(el('rect', { x, y, width: W, height: L, rx: b * .75, fill: '#fbf9f5' }));
+    g.append(el('rect', { x: x + b, y: y + b, width: W - 2 * b, height: L * .44, fill: c }));
+    g.append(el('rect', { x: x + b, y: y + b + L * .44 + b * .6, width: W - 2 * b, height: L * .13, fill: mix(c, .68) }));
+    g.append(el('rect', { x: x + b, y: y + b + L * .57 + b * 1.2, width: W - 2 * b, height: L * .13, fill: mix(c, .42) }));
+    s.append(g);
+  });
+</script>
+</body>
+</html>

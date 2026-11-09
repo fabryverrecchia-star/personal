@@ -1,0 +1,20 @@
+// Panneau commerce 80 × 75 cm : PDF imprimeur 1:1 (810 × 760 mm avec 5 mm de fond perdu) et aperçu
+import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { existsSync, createReadStream } from 'node:fs';
+import http from 'node:http';
+import { resolve } from 'node:path';
+const root = resolve(new URL('..', import.meta.url).pathname);
+const out = (p) => resolve(root, 'livrables/print/panneau', p);
+const types = { '.html': 'text/html', '.png': 'image/png', '.jpg': 'image/jpeg', '.woff2': 'font/woff2' };
+const srv = http.createServer((q, r) => { const f = resolve(root, '.' + decodeURIComponent(q.url.split('?')[0])); if (!f.startsWith(root) || !existsSync(f)) return r.writeHead(404).end(); r.setHeader('content-type', types[f.slice(f.lastIndexOf('.'))] ?? 'application/octet-stream'); createReadStream(f).pipe(r); }).listen(4574);
+const b = await chromium.launch();
+const p = await b.newPage({ viewport: { width: 3200, height: 3000 } });
+p.on('pageerror', (e) => console.log('ERREUR', e.message));
+await p.goto('http://localhost:4574/templates/panneau.html');
+await p.evaluate(() => document.fonts.ready);
+await p.waitForLoadState('networkidle');
+await p.waitForTimeout(800);
+await p.pdf({ path: out('panneau-commerce-80x75cm-fond-perdu-5mm.pdf'), width: '810mm', height: '760mm', printBackground: true, pageRanges: '1' });
+await (await p.$('.pan')).screenshot({ path: out('panneau-apercu.png') });
+await b.close(); srv.close();
+console.log('ok');
