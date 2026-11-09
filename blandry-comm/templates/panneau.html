@@ -18,8 +18,9 @@
   .pan > * { position: absolute; }
   .mono { display: block; aspect-ratio: 659 / 806; background: url('../photos/logo-bl-lin.png') center / contain no-repeat; }
   .tx { left: 75mm; top: 72mm; }
-  .tx .mono { height: 132mm; margin-bottom: 40mm; }
-  .tx .nom { font-size: 33mm; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; line-height: 1; margin-bottom: 26mm; }
+  .tx .tete { display: flex; align-items: center; gap: 40mm; margin-bottom: 56mm; }
+  .tx .mono { height: 132mm; flex: none; }
+  .tx .nom { font-size: 39mm; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; line-height: 1; white-space: nowrap; }
   .tx .met { font-size: 41mm; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; line-height: 1.38; color: var(--ocre); }
   .tx .met .fort { font-size: 54mm; letter-spacing: .16em; line-height: 1.2; }
   .contact { left: 75mm; bottom: 62mm; }
@@ -34,8 +35,7 @@
 <section class="pan" data-doc="panneau-commerce-80x75cm">
   <svg class="fan" viewBox="0 0 810 760"></svg>
   <div class="tx">
-    <span class="mono"></span>
-    <p class="nom">Benjamin Landry</p>
+    <div class="tete"><span class="mono"></span><p class="nom">Benjamin Landry</p></div>
     <p class="met"><span class="fort">Peinture</span><br>Plâtrerie<br>Carrelage</p>
   </div>
   <div class="contact">
