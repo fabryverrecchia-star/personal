@@ -71,6 +71,7 @@ uniform vec2 uResolution;
 uniform float uReveal;
 uniform float uScroll;
 uniform float uLoaded;
+uniform vec4 uRadius;
 varying vec2 vUv;
 ${common}
 void main() {
@@ -84,7 +85,10 @@ void main() {
 
   vec3 col = texture2D(uTex, cover(c, uPlane, uImg)).rgb;
   col *= 1.0 - uScroll * 0.4; // le hero s'assombrit en sortant de l'écran
-  gl_FragColor = vec4(col, oval(vUv, uPlane, uReveal) * uLoaded);
+  // Coins arrondis du conteneur (grande feuille arrondie)
+  vec2 p = (vUv - 0.5) * uPlane;
+  float a = 1.0 - smoothstep(-1.0, 0.5, sdRound(p, uPlane * 0.5, uRadius));
+  gl_FragColor = vec4(col, a * oval(vUv, uPlane, uReveal) * uLoaded);
 }
 `;
 

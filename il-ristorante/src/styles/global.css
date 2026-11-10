@@ -621,3 +621,140 @@ html:not(.js) .step { opacity: 1; }
 .skip { position: fixed; left: 16px; top: 16px; z-index: 1000; padding: .8em 1.2em; background: var(--giardino, #11573B); color: var(--dolce, #FFF5E1); border-radius: 999px; transform: translateY(-200%); transition: transform .2s; }
 .skip:focus-visible { transform: none; outline: 2px solid currentColor; outline-offset: 3px; }
 main:focus { outline: none; }
+
+/* ==========================================================================
+   Material 3 Expressive, dans la DA Il Ristorante
+   Mêmes couleurs, mêmes polices, mêmes stickers. Ce qui change : des formes
+   expressives (grands conteneurs arrondis, boutons qui changent de forme),
+   des surfaces tonales tirées de la palette, et un mouvement à ressort.
+   ========================================================================== */
+:root {
+  --shape-s: 12px;
+  --shape-m: 16px;
+  --shape-l: 24px;
+  --shape-xl: 28px;
+  --shape-xxl: 40px;
+  --inset: clamp(6px, 0.7vw, 10px);
+  /* Ressort amorti (léger dépassement), façon « expressive spatial » */
+  --spring: linear(0, 0.05 2.6%, 0.21 6%, 0.66 14.5%, 0.88 20.4%, 1.01 27%, 1.05 32.5%, 1.055 36%, 1.04 42%, 1.01 54%, 0.997 66%, 1);
+  --spring-fast: linear(0, 0.12 4%, 0.5 12%, 0.9 22%, 1.04 32%, 1.02 46%, 1);
+}
+
+/* Conteneurs : les sections de couleur, le hero et le pied de page deviennent
+   de grandes feuilles arrondies posées sur le fond Dolce. */
+main > :is(section, div, .map):is(.t-giardino, .t-chianti, .t-cielo, .t-pomodoro),
+main > .cta-band,
+.footer {
+  margin-inline: var(--inset);
+  border-radius: var(--shape-xxl);
+}
+main > :is(section, div, .map):is(.t-giardino, .t-chianti, .t-cielo, .t-pomodoro) + :is(section, div, .map):is(.t-giardino, .t-chianti, .t-cielo, .t-pomodoro) { margin-top: var(--inset); }
+.footer { margin-block: var(--inset); }
+.hero { margin: var(--inset); min-height: calc(100svh - 2 * var(--inset)); border-radius: var(--shape-xxl); }
+.hero-media { border-radius: inherit; overflow: hidden; }
+
+/* Médias : coins extra-larges (l'arche de la marque est conservée) */
+.media { border-radius: var(--shape-xl); }
+.card .media { border-radius: var(--shape-xl); }
+.media.media--r { border-radius: 999px 999px var(--shape-xl) var(--shape-xl); }
+
+/* Boutons : couche d'état au survol, changement de forme à l'appui */
+.btn {
+  min-height: 52px;
+  padding: 0 1.75em;
+  transition: border-radius 0.5s var(--spring), transform 0.5s var(--spring), color 0.3s, background-color 0.3s;
+}
+.btn::before { inset: 0; background: currentColor; opacity: 0; transform: none; transition: opacity 0.25s; }
+.btn:hover::before { opacity: 0.1; transform: none; }
+.btn:hover { color: var(--b-fg); }
+.btn:active { border-radius: var(--shape-m); transform: scale(0.97); }
+.btn:active::before { opacity: 0.16; }
+.btn--ghost { background: color-mix(in srgb, var(--fg) 8%, transparent); box-shadow: none; }
+.btn--ghost:hover { background: color-mix(in srgb, var(--fg) 12%, transparent); }
+
+/* En-tête : transparent sur le hero, puis barre d'outils flottante */
+.header { transition: color 0.4s, background-color 0.4s, transform 0.7s var(--spring), height 0.5s var(--spring), inset 0.5s var(--spring), border-radius 0.5s var(--spring), box-shadow 0.4s; }
+.header.is-solid {
+  inset: var(--inset) var(--inset) auto;
+  border-radius: var(--shape-xl);
+  background: var(--dolce);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 1px 2px rgb(35 20 15 / 0.06), 0 12px 32px -14px rgb(35 20 15 / 0.22);
+}
+.header.is-hidden { transform: translateY(calc(-100% - 2 * var(--inset))); }
+.nav { gap: 2px; }
+.nav > li > a:not(.is-cta) { padding: 0.7em 1em; border-radius: 999px; background-image: none; transition: background-color 0.25s, border-radius 0.45s var(--spring); }
+.nav > li > a:not(.is-cta):hover, .nav > li:focus-within > a:not(.is-cta) { background-color: color-mix(in srgb, currentColor 11%, transparent); }
+.nav > li > a[aria-current='page']:not(.is-cta) { background-color: color-mix(in srgb, currentColor 16%, transparent); }
+.nav .is-cta { min-height: 46px; display: inline-flex; align-items: center; padding: 0 1.3em; transition: background-color 0.3s, border-radius 0.45s var(--spring); }
+.nav .is-cta:active { border-radius: var(--shape-s); }
+.burger { transition: border-radius 0.45s var(--spring), background-color 0.3s; }
+.burger:active, .menu-open .burger { border-radius: var(--shape-m); }
+.menu-open .burger { background: color-mix(in srgb, var(--dolce) 14%, transparent); }
+
+/* Menus déroulants : surfaces arrondies, éléments avec couche d'état */
+.dropdown { top: calc(100% - 0.2rem); padding: 0.5rem; border-radius: var(--shape-l); box-shadow: 0 2px 6px rgb(35 20 15 / 0.08), 0 24px 48px -20px rgb(35 20 15 / 0.35); transform-origin: top center; transform: translate(-50%, 6px) scale(0.96); transition: opacity 0.25s, transform 0.45s var(--spring), visibility 0.25s; }
+.nav li:hover .dropdown, .nav li:focus-within .dropdown { transform: translate(-50%, 0) scale(1); }
+.dropdown a { border-radius: var(--shape-s); padding: 0.8rem 1rem; }
+.dropdown a:hover { background: color-mix(in srgb, var(--giardino) 10%, transparent); }
+.mega { border-radius: var(--shape-xxl); padding: 1.8rem 2rem 1.4rem; box-shadow: 0 2px 6px rgb(35 20 15 / 0.08), 0 30px 60px -24px rgb(35 20 15 / 0.38); transform-origin: top center; transform: translateY(6px) scale(0.98); transition: opacity 0.25s, transform 0.5s var(--spring), visibility 0.25s; }
+.mega li a { padding: 0.35rem 0.6rem; margin-inline: -0.6rem; border-radius: var(--shape-s); }
+.mega li a:hover { background: color-mix(in srgb, var(--pomodoro) 9%, transparent); transform: none; }
+.mega-all { padding: 0.8rem 1.2rem; border-radius: 999px; background: color-mix(in srgb, var(--giardino) 10%, transparent); }
+
+/* Menu mobile : éléments en surfaces arrondies */
+.menu-plus { transition: border-radius 0.45s var(--spring), background-color 0.3s, transform 0.5s var(--spring); }
+details[open] .menu-plus { border-radius: var(--shape-s); }
+.menu-actions .btn { min-height: 56px; }
+
+/* Bouton flottant étendu (Réserver) et bouton flottant (Click & Collect) :
+   formes « squircle », le libellé se replie quand on descend la page */
+.fab { gap: 10px; }
+.fab a { height: 60px; border-radius: 20px; box-shadow: 0 2px 4px rgb(11 59 40 / 0.18), 0 14px 32px -12px rgb(11 59 40 / 0.55); transition: background-color 0.3s, border-radius 0.5s var(--spring), transform 0.5s var(--spring), padding 0.5s var(--spring), gap 0.5s var(--spring); }
+.fab a:hover { transform: none; border-radius: 26px; }
+.fab a:active { border-radius: var(--shape-s); transform: scale(0.96); }
+.fab .bag { width: 60px; }
+.fab .book span { display: inline-block; max-width: 14em; overflow: hidden; white-space: nowrap; transition: max-width 0.5s var(--spring), opacity 0.3s; }
+.fab.is-compact .book { gap: 0; padding: 0 20px; }
+.fab.is-compact .book span { max-width: 0; opacity: 0; }
+
+/* Liste des piliers : le bouton rond devient un carré arrondi plein au survol */
+.row .go { transition: background-color 0.3s, color 0.3s, border-radius 0.5s var(--spring), transform 0.5s var(--spring); }
+.row:hover .go { border-radius: var(--shape-m); transform: rotate(-8deg) scale(1.05); }
+
+/* Chiffres clés : tuiles tonales */
+.stats { gap: var(--inset); border-top: 0; }
+.stat { padding: clamp(20px, 2.4vw, 32px) !important; border: 0; border-radius: var(--shape-xl); background: color-mix(in srgb, var(--fg) 7%, transparent); }
+.stat--note { border-radius: var(--shape-xl); }
+
+/* Têtes de section : l'étiquette devient une pastille tonale */
+.sec-head .eyebrow { display: inline-flex; align-items: center; min-height: 32px; padding: 0 0.95em; border-radius: 999px; background: color-mix(in srgb, currentColor 9%, transparent); }
+
+/* Chargement : indicateur de progression ondulé */
+.loader-bar { height: 12px; background: none; overflow: visible; }
+.loader-bar::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 3px; margin-top: -1.5px; border-radius: 3px; background: color-mix(in srgb, var(--giardino) 16%, transparent); }
+.loader-bar i {
+  transform: none;
+  clip-path: inset(0 100% 0 0 round 6px);
+  background: var(--pomodoro);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='12'%3E%3Cpath d='M0 6 Q7 0.5 14 6 T28 6' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E") 0 50% / 28px 12px repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='12'%3E%3Cpath d='M0 6 Q7 0.5 14 6 T28 6' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E") 0 50% / 28px 12px repeat-x;
+  animation: wave 0.9s linear infinite;
+}
+@keyframes wave { to { -webkit-mask-position: 28px 50%; mask-position: 28px 50%; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .loader-bar i { animation: none; }
+  .btn, .fab a, .header, .dropdown, .mega, .row .go { transition-duration: 0.01s; }
+}
+@media (max-width: 760px) {
+  :root { --shape-xxl: 28px; }
+  .stats { grid-template-columns: 1fr 1fr; }
+}
+.stats .stat { border: 0; }
+.stats .stat.stat--note { background: var(--pomodoro); color: var(--dolce); }
+@media (max-width: 640px) {
+  .fab .book span { display: none; }
+  .fab .book, .fab.is-compact .book { width: 60px; padding: 0; justify-content: center; gap: 0; }
+}

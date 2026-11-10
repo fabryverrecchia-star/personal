@@ -91,6 +91,7 @@ document.addEventListener('click', (e) => {
 
 /* ---------- En-tête & menu (persistants) ---------- */
 const header = $('[data-header]')!;
+const fab = document.querySelector<HTMLElement>('.fab');
 const burger = $('[data-burger]')!;
 const setMenu = (open: boolean) => {
   root.classList.toggle('menu-open', open);
@@ -114,6 +115,7 @@ lenis.on('scroll', ({ scroll }: { scroll: number }) => {
   const hasHero = !!$('[data-hero]');
   header.classList.toggle('is-solid', !hasHero || scroll > window.innerHeight * 0.85);
   header.classList.toggle('is-hidden', scroll > 300 && scroll > lastY && !root.classList.contains('menu-open'));
+  fab?.classList.toggle('is-compact', scroll > 300 && scroll > lastY);
   lastY = scroll;
 });
 
@@ -230,7 +232,7 @@ function loaderOut() {
   const tl = gsap.timeline({ paused: true, onComplete: () => { loader.remove(); lenis.start(); } });
   tl.fromTo('.loader-medal', { scale: 0.6, rotate: -12, autoAlpha: 0 }, { scale: 1, rotate: 0, autoAlpha: 1, duration: 1, ease: 'expo.out' })
     .to(year, { v: target, duration: 1.6, ease: 'power2.inOut', onUpdate: () => { count.textContent = String(Math.round(year.v)); } }, 0.2)
-    .to(bar, { scaleX: 1, duration: 1.8, ease: 'power2.inOut' }, 0)
+    .to(bar, { clipPath: 'inset(0 0% 0 0 round 6px)', duration: 1.8, ease: 'power2.inOut' }, 0)
     .to('.loader-inner', { y: -40, autoAlpha: 0, duration: 0.6, ease: 'power3.in' }, '+=0.15')
     .to(loader, { clipPath: 'inset(0% 0% 100% 0%)', duration: 1.1, ease: 'expo.inOut' }, '-=0.25');
   fonts.then(() => tl.play());
