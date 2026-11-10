@@ -28,32 +28,6 @@
   // Progression, compteur, recul de la slide recouverte
   var bar = $('.chrome-bar'), cur = $('[data-cur]'), tot = $('[data-tot]');
   if (tot) tot.textContent = String(slides.length).padStart(2, '0');
-  var watchT = $('[data-time]'), watchH = $('.clock .hh'), watchM = $('.clock .mm');
-  // Vague entre le jour et la nuit
-  slides.forEach(function (sl, i) {
-    if (!i) return;
-    var night = function (x) { return x.classList.contains('s-navy'); };
-    if (night(sl) !== night(slides[i - 1])) sl.classList.add('wave');
-  });
-  // Curseur : un point qui grossit sur ce qui se clique
-  var dot = $('.dot');
-  if (dot && matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    addEventListener('pointermove', function (e) {
-      dot.classList.add('on');
-      dot.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px)';
-      dot.classList.toggle('big', !!(e.target.closest && e.target.closest('a, button, select, input, textarea, label, .loc-item, circle.r')));
-    }, { passive: true });
-    document.addEventListener('pointerleave', function () { dot.classList.remove('on'); });
-  }
-  // Adresse copiable
-  $$('[data-copy]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var t = b.getAttribute('data-copy'), old = b.textContent;
-      var done = function () { b.textContent = 'Adresse copiée'; setTimeout(function () { b.textContent = old; }, 1600); };
-      if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, function () { getSelection().selectAllChildren(b); });
-      else getSelection().selectAllChildren(b);
-    });
-  });
   var ticking = false;
   // Position d'une slide dans le flux (une slide collante renvoie sa position collée, pas celle du flux)
   function pos(i) {
@@ -78,19 +52,6 @@
       s.style.visibility = after && pos(i + 2) - scrollY <= 0 ? 'hidden' : '';
     }
     if (cur) cur.textContent = String(Math.min(idx, slides.length - 1) + 1).padStart(2, '0');
-    // Montre : 9h00 en haut de page, 18h22 tout en bas
-    var pr = h > 0 ? Math.min(1, Math.max(0, scrollY / h)) : 0;
-    var mins = 540 + Math.round(pr * 562);
-    var hh = Math.floor(mins / 60), mm = mins % 60;
-    if (watchT) watchT.textContent = hh + 'h' + String(mm).padStart(2, '0');
-    if (watchH) watchH.style.transform = 'rotate(' + ((hh % 12) * 30 + mm * 0.5) + 'deg)';
-    if (watchM) watchM.style.transform = 'rotate(' + (mm * 6) + 'deg)';
-    // Couleur du chrome selon le thème de la slide visible
-    // Le lien en haut prend la couleur de la slide du haut, la montre celle du bas
-    var at = function (y) { var k = 0; for (var q = 0; q < slides.length; q++) { if (pos(q) - scrollY <= y) k = q; } return slides[k]; };
-    var ink = function (sl) { return sl && sl.classList.contains('s-navy') ? '#dfe7ea' : '#1e2042'; };
-    root.style.setProperty('--chrome-top', ink(at(30)));
-    root.style.setProperty('--chrome', ink(at(innerHeight - 30)));
   }
   addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }, { passive: true });
   addEventListener('resize', frame);

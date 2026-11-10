@@ -10,6 +10,7 @@ await p.goto('file://' + dist + 'index.html', { waitUntil: 'networkidle' });
 await p.evaluate(() => document.fonts.ready);
 await p.emulateMedia({ media: 'print', reducedMotion: 'reduce' });
 await p.evaluate(() => window.__print());
+await p.evaluate(() => window.__mapsFinal && window.__mapsFinal());
 await p.waitForTimeout(800);
 await p.pdf({ path: dist + 'Dossier-Il-Ristorante-18h22.pdf', width: '1440px', height: '810px', printBackground: true, preferCSSPageSize: true });
 await b.close();
