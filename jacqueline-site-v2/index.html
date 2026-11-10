@@ -1,6 +1,34 @@
 <!DOCTYPE html>
 <html lang="fr" class="is-loading">
 <head>
+<!-- Google tag (Consent Mode v2): everything denied by default; gtm.js itself is only
+     loaded by the cookie banner below, once the visitor has accepted -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage': 'denied', 'ad_user_data': 'denied', 'ad_personalization': 'denied', 'analytics_storage': 'denied'
+  });
+  gtag('js', new Date());
+</script>
+<!-- Event snippet for Réservation - clic sur Réserver (Zenchef) conversion page
+In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
+<script>
+function gtag_report_conversion(url) {
+  var callback = function () {
+    if (typeof(url) != 'undefined') {
+      window.location = url;
+    }
+  };
+  gtag('event', 'conversion', {
+      'send_to': 'AW-18565438155/0lDzCOD847UdEMu12JRF',
+      'value': 1.0,
+      'currency': 'EUR',
+      'event_callback': callback
+  });
+  return false;
+}
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Jacqueline · Restaurant du chef Gustave Migdal · Paris 9e</title>
@@ -791,7 +819,7 @@
   <a href="#top" class="logo" aria-label="Jacqueline, retour en haut"><svg class="wm" viewBox="0 0 2182.14 347.73"><use href="#wordmark"/></svg></a>
   <div class="header-right">
     <a class="label hide-m" href="https://www.google.com/maps/search/?api=1&query=23+rue+de+la+Victoire+75009+Paris" target="_blank" rel="noopener">23 rue de la Victoire</a>
-    <a class="pill pill--light label" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener">Réserver</a>
+    <a class="pill pill--light label" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener" onclick="gtag_report_conversion();">Réserver</a>
   </div>
 </header>
 
@@ -827,7 +855,7 @@
       <p>par Gustave Migdal<br>23 rue de la Victoire</p>
     </div>
     <nav class="hero-bar label" aria-label="Accès rapide">
-      <a class="is-main" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener">Réserver</a>
+      <a class="is-main" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener" onclick="gtag_report_conversion();">Réserver</a>
       <a href="#carte" data-open-carte="menu">La carte</a>
       <a href="#vins" data-open-carte="vins">Les vins</a>
       <a href="#infos">Accès</a>
@@ -871,7 +899,7 @@
       </figure>
       <figure class="seq-card">
         <div class="illu" data-ink="illu" data-char="fruite" data-src="assets/img/illu-fruite.webp"><picture><source srcset="assets/img/illu-fruite.webp" type="image/webp"><img src="assets/img/illu-fruite.jpg" alt="Illustration de la séquence fruitée" loading="lazy" draggable="false" width="472" height="1456"></picture></div>
-        <figcaption><span class="num label">04</span><p class="name">Séquence fruitée</p><p class="dish">La prune</p></figcaption>
+        <figcaption><span class="num label">04</span><p class="name">Séquence fruitée</p><p class="dish">Sudachi, crème aigrelette</p></figcaption>
       </figure>
       <figure class="seq-card">
         <div class="illu" data-ink="illu" data-char="gourmand" data-src="assets/img/illu-gourmand.webp"><picture><source srcset="assets/img/illu-gourmand.webp" type="image/webp"><img src="assets/img/illu-gourmand.jpg" alt="Illustration de la séquence gourmande" loading="lazy" draggable="false" width="472" height="1456"></picture></div>
@@ -961,7 +989,7 @@
       <h2 class="h2" data-reveal>Une table chez Jacqueline</h2>
       <p class="lead" data-reveal style="margin-top:1.6rem">23 rue de la Victoire, 75009 Paris<br>Déjeuner &amp; dîner, sur réservation</p>
       <div class="reserve-actions" data-reveal>
-        <a class="pill pill--light label" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener">Réserver en ligne</a>
+        <a class="pill pill--light label" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener" onclick="gtag_report_conversion();">Réserver en ligne</a>
         <a class="pill pill--ghost label" href="https://www.google.com/maps/search/?api=1&query=23+rue+de+la+Victoire+75009+Paris" target="_blank" rel="noopener">Itinéraire</a>
       </div>
     </div>
@@ -978,12 +1006,12 @@
   <svg class="foot-mark" viewBox="0 0 2182.14 347.73" aria-hidden="true"><use href="#wordmark" fill="currentColor"/></svg>
   <p class="foot-evin">L’abus d’alcool est dangereux pour la santé, à consommer avec modération.</p>
   <div class="foot-legal label">
-    <span>© 2026 Jacqueline · <a href="mentions-legales.html">Mentions légales</a> · <a href="confidentialite.html">Confidentialité</a></span>
+    <span>© 2026 Jacqueline · <a href="mentions-legales.html">Mentions légales</a> · <a href="confidentialite.html">Confidentialité</a> · <a href="#" data-cookies>Gestion des cookies</a></span>
     <span>Design, illustrations &amp; photographies : Fabrizio Verrecchia — Studio_18h22</span>
   </div>
 </footer>
 
-<div class="book-bar" id="book-bar"><a class="pill pill--wine label" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener">Réserver une table</a></div>
+<div class="book-bar" id="book-bar"><a class="pill pill--wine label" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener" onclick="gtag_report_conversion();">Réserver une table</a></div>
 
 <div class="carte" id="carte" aria-hidden="true">
   <div class="carte-backdrop" data-carte-close></div>
@@ -1052,9 +1080,9 @@
             <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Sulfites · Crustacés · Œufs · Soja</p>
           </div>
           <div class="mn-dish">
-            <p class="mn-name">Boeuf</p>
-            <p class="mn-desc">Coulis de Shiso, Jus Corsé et Haricots Brûlés</p>
-            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose · Soja</p>
+            <p class="mn-name">Le Boeuf de Romain Leboeuf</p>
+            <p class="mn-desc">Jus aux 3 Poivres, Cresson et ‘Kosho’ de Clémentine</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose · Sulfites · Soja</p>
           </div>
           <div class="mn-dish">
             <p class="mn-name">“Grattons” de Boeuf</p>
@@ -1065,14 +1093,14 @@
         <section class="mn-sec">
           <h3 class="mn-title">Séquence fruitée</h3>
           <div class="mn-dish">
-            <p class="mn-name">Prune cuite en Croûte de Sucre</p>
-            <p class="mn-desc">Condiment ‘Umebushi’, Jus de Prune et Rose Grillée</p>
-            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Sulfites</p>
+            <p class="mn-name">Sudachi</p>
+            <p class="mn-desc">Pomme Verte, Laitue de Mer et Voile de Lait</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose</p>
           </div>
           <div class="mn-dish">
-            <p class="mn-name">Sorbet Prune</p>
-            <p class="mn-desc">Crème Aigrelette, et Confit de Prune</p>
-            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose</p>
+            <p class="mn-name">Crème Aigrelette</p>
+            <p class="mn-desc">Crémeux Sudachi et Mélisse</p>
+            <p class="mn-allergens"><span class="sr-only">Allergènes : </span>Lactose · Œufs</p>
           </div>
         </section>
         <section class="mn-sec">
@@ -1100,7 +1128,7 @@
             <p class="mn-line"><span>5 séquences</span><span>55&nbsp;€</span></p>
           </div>
         </section>
-        <p class="mn-note">Allergènes indiqués sous chaque plat. N’hésitez pas à nous signaler toute allergie ou intolérance.<br>Prix nets en euros, toutes taxes comprises, service compris. La maison n’accepte pas les chèques.</p>
+        <p class="mn-note">Allergènes indiqués sous chaque plat. N’hésitez pas à nous signaler toute allergie ou intolérance.<br>Vins à partir de 32&nbsp;€ la bouteille · Eau minérale Abatilles 75&nbsp;cl 5,5&nbsp;€ · Jus Alain Milliat 20&nbsp;cl à partir de 6,5&nbsp;€<br>Viande bovine d’origine France · Tous nos plats sont faits maison · Prix nets TTC, service compris · La maison n’accepte pas les chèques<br>L’abus d’alcool est dangereux pour la santé, à consommer avec modération.</p>
         <p class="mn-actions"><button type="button" class="carte-link" data-tab="vins">Voir la carte des vins</button><a class="carte-link" href="assets/menu-jacqueline.pdf" target="_blank" rel="noopener">Menu en PDF</a></p>
       </div>
       <div class="carte-panel" role="tabpanel" id="panel-vins" aria-labelledby="tab-vins" hidden>
@@ -2089,6 +2117,59 @@
   const h = location.hash.replace("#", "");
   if(h === "carte" || h === "menu") open("menu");
   else if(h === "vins") open("vins");
+})();
+</script>
+
+<!-- cookie consent (CNIL: accept and refuse equally easy, nothing set before a choice, choice kept 6 months) -->
+<div class="ckb" id="ckb" role="dialog" aria-live="polite" aria-labelledby="ckb-t" hidden>
+  <p class="ckb-t" id="ckb-t">Cookies</p>
+  <p class="ckb-x">Avec votre accord, nous utilisons des cookies Google Ads pour mesurer les réservations issues de nos publicités. Rien n’est déposé sans votre accord. <a href="confidentialite.html#cookies">En savoir plus</a></p>
+  <div class="ckb-b"><button type="button" data-ck="denied">Refuser</button><button type="button" data-ck="granted">Accepter</button></div>
+</div>
+<style>
+  .ckb{position:fixed;z-index:280;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));max-width:430px;margin-left:auto;background:#efe9df;color:#2b211e;padding:22px 24px 20px;box-shadow:0 18px 50px -18px rgba(36,26,23,.45);font-family:'Newsreader', Georgia, serif;font-weight:300;}
+  .ckb[hidden]{display:none;}
+  .ckb-t{font-family:'Belleza', sans-serif;text-transform:uppercase;letter-spacing:.28em;font-size:.72rem;color:#6a1f1b;margin-bottom:.7rem;}
+  .ckb-x{font-size:.95rem;line-height:1.5;}
+  .ckb-x a{color:inherit;}
+  .ckb-b{display:flex;gap:.7rem;margin-top:1.1rem;}
+  .ckb-b button{flex:1;font-family:'Belleza', sans-serif;text-transform:uppercase;letter-spacing:.22em;font-size:.72rem;padding:.85rem 1rem;border-radius:999px;border:1px solid #6a1f1b;background:#6a1f1b;color:#f1ece1;cursor:pointer;}
+  .ckb-b button:hover{background:#4a1613;}
+</style>
+<script>
+(function(){
+  "use strict";
+  var KEY = "jacqueline-consent", KEEP = 182 * 864e5, loaded = false;
+  var box = document.getElementById("ckb");
+  function read(){ try{ var v = JSON.parse(localStorage.getItem(KEY)); if(v && Date.now() - v.t < KEEP) return v.c; }catch(e){} return null; }
+  function save(c){ try{ localStorage.setItem(KEY, JSON.stringify({ c:c, t:Date.now() })); }catch(e){} }
+  function apply(c){
+    var g = c === "granted" ? "granted" : "denied";
+    gtag("consent", "update", { ad_storage:g, ad_user_data:g, ad_personalization:g, analytics_storage:g });
+    if(g === "granted" && !loaded){
+      loaded = true;
+      var s = document.createElement("script");
+      s.async = true; s.src = "https://www.googletagmanager.com/gtm.js?id=GTM-K45G4QHL";
+      document.head.appendChild(s);
+    }
+    if(g === "denied"){
+      // a change of mind: remove the Google cookies already set on this site
+      document.cookie.split(";").forEach(function(k){
+        var n = k.split("=")[0].trim();
+        if(/^(_gcl|_ga|_gid|_gat)/.test(n)) document.cookie = n + "=; Max-Age=0; path=/; domain=" + location.hostname.replace(/^www\./, ".");
+      });
+    }
+  }
+  function open(){ box.hidden = false; }
+  box.addEventListener("click", function(e){
+    var b = e.target.closest("[data-ck]"); if(!b) return;
+    save(b.dataset.ck); apply(b.dataset.ck); box.hidden = true;
+  });
+  document.addEventListener("click", function(e){
+    var l = e.target.closest("[data-cookies]"); if(l){ e.preventDefault(); open(); }
+  });
+  var c = read();
+  if(c) apply(c); else open();
 })();
 </script>
 </body>

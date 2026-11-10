@@ -1,6 +1,34 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<!-- Google tag (Consent Mode v2): everything denied by default; gtm.js itself is only
+     loaded by the cookie banner below, once the visitor has accepted -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage': 'denied', 'ad_user_data': 'denied', 'ad_personalization': 'denied', 'analytics_storage': 'denied'
+  });
+  gtag('js', new Date());
+</script>
+<!-- Event snippet for Réservation - clic sur Réserver (Zenchef) conversion page
+In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
+<script>
+function gtag_report_conversion(url) {
+  var callback = function () {
+    if (typeof(url) != 'undefined') {
+      window.location = url;
+    }
+  };
+  gtag('event', 'conversion', {
+      'send_to': 'AW-18565438155/0lDzCOD847UdEMu12JRF',
+      'value': 1.0,
+      'currency': 'EUR',
+      'event_callback': callback
+  });
+  return false;
+}
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Mentions légales · Jacqueline</title>
@@ -61,12 +89,12 @@
 <path d="M1608.4,207.26l8.52-1.56-10.93,49.77c-.57,2.59-4.43,6.58-7.37,8.18l-179.83-.39c7.18-10.31,14.98-9.46,25.88-13.97l.15-229.18-20.98-8.65c-1.4-.58-2.48-4.73-2.53-6.33l69.92.25c1.29,10.65-23.85,8.47-23.85,17.53l-.16,212.17c0,9.86,8.57,18.3,18.02,18.24l59.47-.42c29.09-.2,53.82-17.21,63.7-45.66Z"/>
 <path d="M1.84,189.07c4.18-16.46,19.28-26.14,34.81-27.47,11.41-.98,21.75,4.81,26.84,14.02-15.47,1.9-25.91,7.94-31.83,18.18-6.61,11.43-6.72,24.66-.55,36.82,11.09,21.85,34.95,29.51,59.24,23.95,20.54-4.7,37.88-26.27,38-51.58l.8-175.35c.09-18.66-20.33-10.98-24.83-23.15l71.32-.28c1.56,9.66-25.04,7.88-25.07,18.77l-.48,178.95c-.07,24.89-15.67,45.11-37.86,54.94-24.81,10.99-53.69,10.63-78.09-1.13C8.96,243.59-5.31,217.26,1.84,189.07Z"/>
 <path d="M1704.36,263.54l-68.67-.17c.3-13.88,23.55-2.77,23.54-25.5l-.12-217.65-22.18-9.51-.31-5.48,67.34-.08c.3.31,1.72,5.08.75,5.45l-6.52,2.5-16.39,8,.15,223.93c0,4.53,11.54,9.29,15.78,10.23l5.67,1.26c1.53.34,1.3,4.79.97,6.99Z"/></svg></a>
-  <a class="book label" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener">Réserver</a>
+  <a class="book label" href="https://bookings.zenchef.com/results?rid=388647&amp;pid=1001" target="_blank" rel="noopener" onclick="gtag_report_conversion();">Réserver</a>
 </header>
 <main>
   <span class="eyebrow label">Informations</span>
   <h1>Mentions légales</h1>
-  <p class="maj">Dernière mise à jour : 16 octobre 2026</p>
+  <p class="maj">Dernière mise à jour : 10 novembre 2026</p>
 
   <h2 class="label">Éditeur du site</h2>
   <p>Jacqueline, restaurant, est exploité par la SARL Jacqueline, société à responsabilité limitée au capital de 5 000 €, immatriculée au registre du commerce et des sociétés de Paris sous le numéro 106 419 005 (SIRET du siège : 106 419 005 00017). Gérant : Gustave Migdal.</p>
@@ -109,7 +137,7 @@
   <p>Jacqueline s’efforce de fournir des informations exactes et à jour, mais ne peut garantir l’absence d’erreur ou d’omission. Les horaires, les jours de fermeture et les disponibilités sont confirmés lors de la réservation.</p>
 
   <h2 class="label">Données personnelles et cookies</h2>
-  <p>Ce site ne dépose aucun cookie et n’utilise aucun outil de mesure d’audience. Pour tout savoir sur vos données, consultez notre <a href="confidentialite.html">politique de confidentialité</a>.</p>
+  <p>Ce site ne dépose aucun cookie sans votre accord. Avec votre accord, il utilise Google Ads pour mesurer les réservations issues de nos publicités ; vous pouvez modifier ce choix à tout moment grâce au lien « Gestion des cookies ». Pour tout savoir sur vos données, consultez notre <a href="confidentialite.html">politique de confidentialité</a>.</p>
 
   <h2 class="label">Réclamations</h2>
   <p>Pour toute réclamation, écrivez-nous à <a href="mailto:contact@jacqueline-restaurant.com">contact@jacqueline-restaurant.com</a> ou appelez le <a href="tel:+33188611425">01 88 61 14 25</a> : nous vous répondons dans les meilleurs délais et cherchons avec vous une solution amiable. Si le différend persiste, vous pouvez recourir gratuitement à un médiateur de la consommation (articles L.611-1 et suivants du Code de la consommation), dont nous vous communiquons les coordonnées sur simple demande.</p>
@@ -119,8 +147,61 @@
   <svg class="pic" viewBox="0 0 307.11 470.75" aria-hidden="true"><path fill="currentColor" d="M306.78,0H49.14s-3.69,19.76-3.69,19.76c-1.92,10.28-1.84,20.36-.34,30.69,2.33,14.84,8.47,28.32,18.17,39.68,5.78,6.77,11.95,12.73,19.3,17.65l18.17,12.16,32.18,19.41c23.49,14.17,46.92,29.12,67.37,47.86-10.42-4.2-20.19-7.7-31.06-9.91-28.95-5.89-58.74-4.85-87.1,3.58-34.14,10.15-62.61,32.44-75.09,66.6-12.96,35.47-7.79,76.02,13.5,107,5.25,7.64,11.41,14.53,18.24,20.65-9.41-3.28-17.5-1.88-17.5-1.88-13.97,2.8-21.76,13.13-20.43,25.87,1.3,12.38,14.33,21.47,26.19,18.12-3.3-4.97-6.11-11.33-6.36-15.6-.23-3.92,4.77-11.44,9.34-12.21,11.83-2,24.57,2.49,33.58,10.09l47.56,40.12c13.29,11.22,27.52,20.18,42.63,27.06,8.02,3.65,16.96,4.98,25.63,3.39,8.26-1.52,17.08-5.75,20.66-16.36,2.01-5.95,1.03-14.96-2.22-19.66-26.28,28.26-84.17-.91-109.13-30.64l-.34-.2c6.14,2,12.39,3.6,18.69,4.79,19.98,3.79,40.24,4.19,60.36,1.26,56.74-8.29,106.06-48.38,113.17-107.61l1.53-26.1.05-237.67c0-10.32,1.63-22.47,9.02-29.11,4.47-4.02,9.99-5.35,15.89-5.78l-.33-3.01ZM188.92,147.37c-10.25-7.24-19.97-13.81-30.76-19.68l-32.47-17.68c-26.92-14.66-59.91-29.43-70.94-60.24-5.78-16.15-4.55-36.62,12.76-41.98,3.73-1.15,7.3-1.76,11.47-1.76h152.67c10.25,0,19.06,2.96,22.73,12.79,1.88,5.05,2.97,10.43,2.97,16.24l.04,192.33c-15.62-32.87-39.08-58.91-68.45-80.03ZM224.06,378.34c-11.94,9.49-25.27,16.3-40.21,20.55-30.01,8.53-64.75,7.69-93.17-4.75-19.16-8.39-35.26-21.97-46.38-39.79-15.53-24.9-20.61-54.83-16.85-83.87,4.64-35.88,24.25-66.47,57.71-80.74,28.54-12.18,62.38-11.89,91.99-3.68,8.68,2.4,16.48,5.59,24.46,9.62,30.03,15.19,52.31,41.42,58.54,75.13,7.35,39.79-3.96,82-36.08,107.54Z"/></svg>
 </main>
 <footer class="foot label">
-  <span>© 2026 Jacqueline · <a href="mentions-legales.html">Mentions légales</a> · <a href="confidentialite.html">Confidentialité</a></span>
+  <span>© 2026 Jacqueline · <a href="mentions-legales.html">Mentions légales</a> · <a href="confidentialite.html">Confidentialité</a> · <a href="#" data-cookies>Gestion des cookies</a></span>
   <span>Design, illustrations &amp; photographies : Fabrizio Verrecchia — Studio_18h22</span>
 </footer>
+
+<!-- cookie consent (CNIL: accept and refuse equally easy, nothing set before a choice, choice kept 6 months) -->
+<div class="ckb" id="ckb" role="dialog" aria-live="polite" aria-labelledby="ckb-t" hidden>
+  <p class="ckb-t" id="ckb-t">Cookies</p>
+  <p class="ckb-x">Avec votre accord, nous utilisons des cookies Google Ads pour mesurer les réservations issues de nos publicités. Rien n’est déposé sans votre accord. <a href="confidentialite.html#cookies">En savoir plus</a></p>
+  <div class="ckb-b"><button type="button" data-ck="denied">Refuser</button><button type="button" data-ck="granted">Accepter</button></div>
+</div>
+<style>
+  .ckb{position:fixed;z-index:280;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));max-width:430px;margin-left:auto;background:#efe9df;color:#2b211e;padding:22px 24px 20px;box-shadow:0 18px 50px -18px rgba(36,26,23,.45);font-family:'Newsreader', Georgia, serif;font-weight:300;}
+  .ckb[hidden]{display:none;}
+  .ckb-t{font-family:'Belleza', sans-serif;text-transform:uppercase;letter-spacing:.28em;font-size:.72rem;color:#6a1f1b;margin-bottom:.7rem;}
+  .ckb-x{font-size:.95rem;line-height:1.5;}
+  .ckb-x a{color:inherit;}
+  .ckb-b{display:flex;gap:.7rem;margin-top:1.1rem;}
+  .ckb-b button{flex:1;font-family:'Belleza', sans-serif;text-transform:uppercase;letter-spacing:.22em;font-size:.72rem;padding:.85rem 1rem;border-radius:999px;border:1px solid #6a1f1b;background:#6a1f1b;color:#f1ece1;cursor:pointer;}
+  .ckb-b button:hover{background:#4a1613;}
+</style>
+<script>
+(function(){
+  "use strict";
+  var KEY = "jacqueline-consent", KEEP = 182 * 864e5, loaded = false;
+  var box = document.getElementById("ckb");
+  function read(){ try{ var v = JSON.parse(localStorage.getItem(KEY)); if(v && Date.now() - v.t < KEEP) return v.c; }catch(e){} return null; }
+  function save(c){ try{ localStorage.setItem(KEY, JSON.stringify({ c:c, t:Date.now() })); }catch(e){} }
+  function apply(c){
+    var g = c === "granted" ? "granted" : "denied";
+    gtag("consent", "update", { ad_storage:g, ad_user_data:g, ad_personalization:g, analytics_storage:g });
+    if(g === "granted" && !loaded){
+      loaded = true;
+      var s = document.createElement("script");
+      s.async = true; s.src = "https://www.googletagmanager.com/gtm.js?id=GTM-K45G4QHL";
+      document.head.appendChild(s);
+    }
+    if(g === "denied"){
+      // a change of mind: remove the Google cookies already set on this site
+      document.cookie.split(";").forEach(function(k){
+        var n = k.split("=")[0].trim();
+        if(/^(_gcl|_ga|_gid|_gat)/.test(n)) document.cookie = n + "=; Max-Age=0; path=/; domain=" + location.hostname.replace(/^www\./, ".");
+      });
+    }
+  }
+  function open(){ box.hidden = false; }
+  box.addEventListener("click", function(e){
+    var b = e.target.closest("[data-ck]"); if(!b) return;
+    save(b.dataset.ck); apply(b.dataset.ck); box.hidden = true;
+  });
+  document.addEventListener("click", function(e){
+    var l = e.target.closest("[data-cookies]"); if(l){ e.preventDefault(); open(); }
+  });
+  var c = read();
+  if(c) apply(c); else open();
+})();
+</script>
 </body>
 </html>

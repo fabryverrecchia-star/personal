@@ -24,8 +24,9 @@ Le nom de domaine retenu est `jacqueline-restaurant.com` (celui de l'adresse e-m
 
 ## Ce qui est déjà en règle
 
-- Aucun cookie, aucune mesure d'audience, aucun appel à un service tiers au chargement (les polices sont hébergées sur le site) : pas de bandeau cookies à prévoir.
-- Mention loi Évin dans le pied de page et sous la carte des vins.
+- Google Ads (Google Tag Manager GTM-K45G4QHL, conversion « clic sur Réserver » AW-18565438155) : Consent Mode v2 refusé par défaut, `gtm.js` chargé seulement après « Accepter » dans le bandeau cookies. Choix gardé 6 mois, modifiable via « Gestion des cookies » en pied de page. Chaque lien Zenchef appelle `gtag_report_conversion()`.
+- Polices, images et vidéo hébergées sur le site.
+- Mention loi Évin dans le pied de page, sous la carte des vins et sur le menu.
 - Allergènes et prix nets (TTC, service compris) indiqués sur la carte et dans les mentions légales.
 - Crédits : design, illustrations et photographies, Fabrizio Verrecchia — Studio_18h22.
 
