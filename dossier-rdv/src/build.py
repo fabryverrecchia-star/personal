@@ -51,6 +51,7 @@ P = {
 images = {k: (caps / f'{v}.png', D) for k, v in C.items()}
 images.update({k: (caps / f'{v}.png', M) for k, v in Mo.items()})
 images.update({k: (photo / f'{n}.webp', w) for k, (n, w) in P.items()})
+images.update({'k_lumiere': (root / 'brand/lumiere-portrait.webp', 1600), 'k_strategie': (root / 'brand/service-strategie.webp', 900), 'k_branding': (root / 'brand/service-branding.webp', 900), 'k_social': (root / 'brand/service-social.webp', 900), 'k_paris': (root / 'brand/showreel-paris.jpg', 1100)})
 images.update({'x_about': (ref / 'p2-000.jpg', 900), 'x_presto': (ref / 'p18-000.jpg', 1300), 'x_merci': (ref / 'p19-000.jpg', 900)})
 cache = {}
 
@@ -90,9 +91,8 @@ js = (here / 'deck.js').read_text()
 
 data = json.loads((here / 'data.json').read_text())
 fonts = {
-    'sans': ('/usr/share/fonts/opentype/urw-base35/NimbusSans-Regular.otf', 'font/otf'),
-    'sans-bold': ('/usr/share/fonts/opentype/urw-base35/NimbusSans-Bold.otf', 'font/otf'),
-    'sans-italic': ('/usr/share/fonts/opentype/urw-base35/NimbusSans-Italic.otf', 'font/otf'),
+    'hk400': (root / 'brand/HankenGrotesk-400.woff2', 'font/woff2'),
+    'hk500': (root / 'brand/HankenGrotesk-500.woff2', 'font/woff2'),
     'salo': (site / 'public/fonts/SaloPaolo-Regular.woff2', 'font/woff2'),
     'inter300': (site / 'public/fonts/Inter-Light.woff2', 'font/woff2'),
     'inter400': (site / 'public/fonts/Inter-Regular.woff2', 'font/woff2'),
@@ -103,6 +103,7 @@ css = re.sub(r'\{\{font:([\w-]+)\}\}', lambda m: b64(*fonts[m.group(1)]), css)
 
 logo = (site / 'src/components/logo-signature.svg').read_text().replace('<svg ', '<svg role="img" aria-label="Il Ristorante, la cucina italiana" ', 1)
 html = html.replace('{{logo}}', logo)
+html = re.sub(r'\{\{asset18:([\w.-]+)\}\}', lambda m: b64(root / 'brand' / m.group(1), 'image/svg+xml'), html)
 html = html.replace('{{ar-flow}}', '<svg class="arr" viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16h24M20 8l8 8-8 8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>')
 html = re.sub(r'\{\{asset:([\w/.-]+)\}\}', lambda m: b64(site / 'public' / m.group(1), 'image/svg+xml'), html)
 html = html.replace('{{ar}}', ARROW.format(c='')).replace('{{ar-up}}', ARROW.format(c=' up')).replace('{{ar-s}}', ARROW.format(c=''))
@@ -120,7 +121,7 @@ count = 0
 out = [parts[0]]
 for part in parts[1:]:
     count += 1
-    out.append(part.replace('{{foot}}', f'<p class="foot" aria-hidden="true"><span>18H22 × Il Ristorante · Document de travail</span><span>{count:02d} / {total:02d}</span></p>'))
+    out.append(part.replace('{{foot}}', f'<p class="foot" aria-hidden="true"><span>18H22 × Il Ristorante · document de travail</span><span>{count:02d} / {total:02d}</span></p>'))
 html = 'class="slide '.join(out)
 assert '{{' not in html, re.findall(r'\{\{[^}]*\}\}', html)[:5]
 
