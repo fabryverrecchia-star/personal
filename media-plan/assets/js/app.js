@@ -586,7 +586,7 @@
         return '<a class="is-live" data-grid><img src="' + esc(src(img)) + '" alt="" loading="lazy" decoding="async"><span class="label grid__live">En ligne</span></a>';
       }).join('') +
       '</div>' +
-      (live.length ? '<p class="label" style="margin-top:14px;opacity:.7">Voilés : publications déjà en ligne</p>' : '') +
+      
       (PLAN.pubsInFeed && PLAN.suivi ? restoreHtml('post') : '') +
       '</section>' +
       // PLAN.pubsInFeed : plus de rubrique Publications, chaque post ne s'ouvre qu'en fenêtre depuis le feed

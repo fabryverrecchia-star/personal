@@ -114,6 +114,7 @@ a { color: inherit; }
   inset: -50%;
   z-index: 60;
   pointer-events: none;
+  display: none; /* Jamais de grain ni de filtre par-dessus les photos et vidéos */
   opacity: 0.06;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
@@ -732,13 +733,7 @@ a { color: inherit; }
   color: #fff;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
 }
-.grid a.is-live::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--bg);
-  opacity: 0.28;
-}
+/* Publications déjà en ligne : seulement l'étiquette « En ligne », jamais de voile ni de filtre sur les contenus */
 .grid__live {
   position: absolute;
   left: 6px; top: 6px;
