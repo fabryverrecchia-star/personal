@@ -28,25 +28,30 @@ def webp(im, w, q=72, crop=None):
 
 
 D, M = 1280, 400  # largeur des captures bureau et mobile
-images = {
-    'c_hero': (caps / 'desktop-01-accueil-hero.png', D), 'c_video': (caps / 'desktop-02-accueil-produits-video.png', D),
-    'c_piliers': (caps / 'desktop-03-accueil-piliers.png', D), 'c_carte': (caps / 'desktop-04-accueil-carte.png', D),
-    'c_franchise_hero': (caps / 'desktop-05-franchise-hero.png', D), 'c_franchise_chiffres': (caps / 'desktop-06-franchise-chiffres.png', D),
-    'c_etapes': (caps / 'desktop-08-franchise-etapes.png', D), 'c_restos': (caps / 'desktop-09-restaurants-carte.png', D),
-    'c_lille': (caps / 'desktop-10-restaurant-lille.png', D), 'c_lille_infos': (caps / 'desktop-11-restaurant-infos.png', D),
-    'c_carte_menu': (caps / 'desktop-12-notre-carte.png', D), 'c_produits': (caps / 'desktop-13-produits.png', D),
-    'c_pied': (caps / 'desktop-15-pied-de-page.png', D),
-    'm_accueil': (caps / 'mobile-01-accueil.png', M), 'm_franchise': (caps / 'mobile-02-franchise.png', M),
-    'm_resto': (caps / 'mobile-03-restaurant.png', M), 'm_video': (caps / 'mobile-04-produits-video.png', M),
-    'm_menu': (caps / 'mobile-05-menu.png', M),
-    'p_plats': (photo / 'plats-partage.webp', 900), 'p_homehero': (photo / 'home-hero.webp', 760),
-    'p_showcook': (photo / 'show-cooking.webp', 760), 'p_cuisine': (photo / 'cuisine.webp', 460),
-    'p_pizza': (photo / 'pizza.webp', 460), 'p_terrasse': (photo / 'terrasse.webp', 760),
-    'p_rlille': (photo / 'r-lille.webp', 760), 'p_team': (photo / 'team-lille.webp', 760),
-    'p_serveur': (photo / 'serveur.webp', 760), 'p_chefbar': (photo / 'chef-bar.webp', 760),
-    'p_board': (photo / 'board.webp', 760), 'p_resto_photo': (photo / 'r-lille.webp', 900),
-    'x_about': (ref / 'p2-000.jpg', 900), 'x_presto': (ref / 'p18-000.jpg', 1300), 'x_merci': (ref / 'p19-000.jpg', 900),
+C = {
+    'c_hero': 'desktop-01-accueil-hero', 'c_video': 'desktop-02-accueil-produits-video', 'c_piliers': 'desktop-03-accueil-piliers',
+    'c_carte': 'desktop-04-accueil-carte', 'c_franchise_hero': 'desktop-05-franchise-hero', 'c_franchise_chiffres': 'desktop-06-franchise-chiffres',
+    'c_conditions': 'desktop-07-franchise-conditions', 'c_etapes': 'desktop-08-franchise-etapes', 'c_restos': 'desktop-09-restaurants-carte',
+    'c_lille': 'desktop-10-restaurant-lille', 'c_lille_infos': 'desktop-11-restaurant-infos', 'c_carte_menu': 'desktop-12-notre-carte',
+    'c_produits': 'desktop-13-produits', 'c_recrute': 'desktop-14-recrute', 'c_pied': 'desktop-15-pied-de-page',
+    'c_intro': 'desktop-16-accueil-intro', 'c_actu': 'desktop-18-actualite', 'c_signature': 'desktop-19-signature', 'c_unica': 'desktop-20-unica',
 }
+Mo = {
+    'm_accueil': 'mobile-01-accueil', 'm_franchise': 'mobile-02-franchise', 'm_resto': 'mobile-03-restaurant', 'm_video': 'mobile-04-produits-video',
+    'm_menu': 'mobile-05-menu', 'm_resto_infos': 'mobile-06-restaurant-infos', 'm_restaurants': 'mobile-07-restaurants', 'm_piliers': 'mobile-08-piliers',
+}
+P = {
+    'p_plats': ('plats-partage', 900), 'p_homehero': ('home-hero', 760), 'p_showcook': ('show-cooking', 760), 'p_cuisine': ('cuisine', 520),
+    'p_pizza': ('pizza', 520), 'p_terrasse': ('terrasse', 760), 'p_rlille': ('r-lille', 760), 'p_team': ('team-lille', 760),
+    'p_serveur': ('serveur', 760), 'p_chefbar': ('chef-bar', 760), 'p_board': ('board', 760), 'p_resto_photo': ('r-lille', 900),
+    'p_plats2': ('plats-selection', 760), 'p_cave': ('cave', 520), 'p_salle': ('franchise-salle', 760), 'p_spritz': ('franchise-spritz', 520),
+    'p_gelato': ('gelato', 760), 'p_homebar': ('home-bar', 760), 'p_facade': ('franchise-facade', 760), 'p_fcuisine': ('franchise-cuisine', 760),
+    'p_desserts': ('desserts', 520), 'p_teamfun': ('team-fun', 520), 'p_vins': ('vins-roses', 520),
+}
+images = {k: (caps / f'{v}.png', D) for k, v in C.items()}
+images.update({k: (caps / f'{v}.png', M) for k, v in Mo.items()})
+images.update({k: (photo / f'{n}.webp', w) for k, (n, w) in P.items()})
+images.update({'x_about': (ref / 'p2-000.jpg', 900), 'x_presto': (ref / 'p18-000.jpg', 1300), 'x_merci': (ref / 'p19-000.jpg', 900)})
 cache = {}
 
 
@@ -96,6 +101,10 @@ fonts = {
 }
 css = re.sub(r'\{\{font:([\w-]+)\}\}', lambda m: b64(*fonts[m.group(1)]), css)
 
+logo = (site / 'src/components/logo-signature.svg').read_text().replace('<svg ', '<svg role="img" aria-label="Il Ristorante, la cucina italiana" ', 1)
+html = html.replace('{{logo}}', logo)
+html = html.replace('{{ar-flow}}', '<svg class="arr" viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16h24M20 8l8 8-8 8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>')
+html = re.sub(r'\{\{asset:([\w/.-]+)\}\}', lambda m: b64(site / 'public' / m.group(1), 'image/svg+xml'), html)
 html = html.replace('{{ar}}', ARROW.format(c='')).replace('{{ar-up}}', ARROW.format(c=' up')).replace('{{ar-s}}', ARROW.format(c=''))
 html = re.sub(r'\{\{mbp\|([\w -]*)\|([\w,]+)\}\}', lambda m: mbp(m.group(1), m.group(2).split(',')), html)
 html = re.sub(r'\{\{iph\|([\w -]*)\|([\w,]+)\}\}', lambda m: iph(m.group(1), m.group(2).split(',')), html)
@@ -111,7 +120,7 @@ count = 0
 out = [parts[0]]
 for part in parts[1:]:
     count += 1
-    out.append(part.replace('{{foot}}', f'<p class="foot" aria-hidden="true"><span>18H22 × Il Ristorante</span><span>{count:02d} / {total:02d}</span></p>'))
+    out.append(part.replace('{{foot}}', f'<p class="foot" aria-hidden="true"><span>18H22 × Il Ristorante · Document de travail</span><span>{count:02d} / {total:02d}</span></p>'))
 html = 'class="slide '.join(out)
 assert '{{' not in html, re.findall(r'\{\{[^}]*\}\}', html)[:5]
 
