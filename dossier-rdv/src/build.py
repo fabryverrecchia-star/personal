@@ -58,7 +58,7 @@ cache = {}
 def image(key):
     if key not in cache:
         if key == 'head_strip':  # bandeau d'en-tête du site, découpé dans une capture
-            cache[key] = webp(Image.open(caps / 'desktop-09-restaurants-carte.png'), 1100, 80, crop=(0, 0, 1440, 68))
+            cache[key] = webp(Image.open(caps / 'desktop-09-restaurants-carte.png'), 1100, 80, crop=(0, 0, 1440, 86))
         elif key == 'logo_med':
             cache[key] = b64(site / 'public/brand/monogramme/medaillon-chianti-on-dolce.svg', 'image/svg+xml')
         else:
