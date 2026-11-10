@@ -657,6 +657,42 @@
   {{foot}}</div></div>
 </section>
 
+<section class="slide s-grey" aria-label="Carte d’Italie dans votre site : aperçu interactif">
+  <div class="frame"><div class="in demo-s wide">
+    <div class="demo-main">
+      <div class="demo-head">
+        <div class="lead" style="gap:calc(10 * var(--u))"><p class="k rv">04 · Carte d’Italie</p><h2 class="h2 rv" style="--dl:.05s">Carte d’Italie dans votre site : aperçu interactif</h2></div>
+        <p class="try rv" style="--dl:.1s">Aperçu réel : cliquez sur une région</p>
+      </div>
+      <div class="rv" style="--dl:.15s">
+        {{mbp-open|}}<div class="vp" data-fit><img class="vp-head" src="{{img:head_strip}}" alt=""><div class="vp-body">
+          <div class="irmap" data-ui-italy>
+            <div class="irm-l">
+              <p class="ir-k">Nos produits italiens</p>
+              <h3 class="irm-t">Des produits <span class="ir-s">à la source</span></h3>
+              <p class="irm-p">Parme, Reggio Emilia, les Langhe, les Pouilles : nous allons chercher chaque produit là où il est né.</p>
+              <div class="irm-tabs"><button type="button" data-go-region="" class="is-on">Toute l’Italie</button><button type="button" data-go-region="Émilie-Romagne">Émilie-Romagne</button><button type="button" data-go-region="Piémont">Piémont</button><button type="button" data-go-region="Pouilles">Pouilles</button></div>
+              <div class="irm-card" data-card="all"><p class="irm-big">3 régions, 6 produits</p><p>AOP et IGP, choisis chez des producteurs que nous connaissons. Choisissez une région sur la carte.</p></div>
+              <div class="irm-card" data-card="Émilie-Romagne" hidden><span class="irm-badge t">Tourné · 7 vidéos</span><h4>Émilie-Romagne</h4><p>Parmigiano Reggiano DOP à Reggio Emilia, Prosciutto di Parma DOP à Langhirano.</p><div class="irm-reels"><span><img src="{{img:v_teasing}}" alt=""><i></i></span><span><img src="{{img:v_parm}}" alt=""><i></i></span><span><img src="{{img:v_jambon}}" alt=""><i></i></span><span><img src="{{img:v_romeo}}" alt=""><i></i></span></div><span class="ir-btn">Voir les vidéos</span></div>
+              <div class="irm-card" data-card="Piémont" hidden><span class="irm-badge">Exemple · à tourner</span><h4>Piémont</h4><p>Gorgonzola DOP à Novare, Nocciola Piemonte IGP dans les Langhe.</p><span class="ir-btn">Découvrir les plats</span></div>
+              <div class="irm-card" data-card="Pouilles" hidden><span class="irm-badge">Exemple · à tourner</span><h4>Pouilles</h4><p>Burrata di Andria IGP, huile d’olive extra vierge de la Terra di Bari.</p><span class="ir-btn">Découvrir les plats</span></div>
+            </div>
+            <div class="irm-map"><div class="amap" data-map="italy" data-ui></div></div>
+          </div>
+        </div></div>{{mbp-close}}
+      </div>
+    </div>
+    <div class="vr"></div>
+    <ol class="notes rv" style="--dl:.25s">
+      <li><span class="n-num">01</span><span class="n-t">Dans la page des produits</span>La carte ouvre la page « Nos produits italiens », dans les couleurs du site.</li>
+      <li><span class="n-num">02</span><span class="n-t">Une région au clic</span>La caméra se pose sur la région, sa fiche s’ouvre avec ses produits.</li>
+      <li><span class="n-num">03</span><span class="n-t">Les vidéos de la région</span>Les vidéos tournées sur place, en format stories.</li>
+      <li><span class="n-num">04</span><span class="n-t">Les contrôles</span>Rejouer, pause, région précédente ou suivante, en haut à droite de la carte.</li>
+    </ol>
+  {{foot}}</div></div>
+</section>
+
+
 <section class="slide s-navy" aria-label="De l’Italie à vos tables">
   <div class="frame"><div class="in duo-map">
     <div class="lead">
@@ -856,6 +892,45 @@
   {{foot}}</div></div>
 </section>
 
+<section class="slide s-grey" aria-label="Carte du réseau dans votre site : aperçu interactif">
+  <div class="frame"><div class="in demo-s wide">
+    <div class="demo-main">
+      <div class="demo-head">
+        <div class="lead" style="gap:calc(10 * var(--u))"><p class="k rv">06 · Carte de France</p><h2 class="h2 rv" style="--dl:.05s">Carte du réseau dans votre site : aperçu interactif</h2></div>
+        <p class="try rv" style="--dl:.1s">Aperçu réel : cliquez sur un restaurant</p>
+      </div>
+      <div class="rv" style="--dl:.15s">
+        {{mbp-open|}}<div class="vp" data-fit><img class="vp-head" src="{{img:head_strip}}" alt=""><div class="vp-body">
+          <div class="irmap" data-ui-network>
+            <div class="irm-l">
+              <p class="ir-k">Nos restaurants en France</p>
+              <p class="irm-count"><b id="ui-count">0</b><span>restaurants, de Lille à Toulon.</span></p>
+              <p class="irm-p">Choisissez un restaurant sur la carte.</p>
+              <div class="irm-card irm-resto" data-resto-card hidden>
+                <h4 data-r-name></h4>
+                <p data-r-addr></p>
+                <p class="irm-muted" data-r-hours></p>
+                <p class="irm-muted" data-r-phone></p>
+                <div class="irm-btns"><span class="ir-btn ir-red">Réserver</span><span class="ir-btn ir-ghost">Itinéraire</span><span class="ir-btn ir-ghost">Click &amp; Collect</span></div>
+                <p class="irm-url" data-r-url></p>
+              </div>
+            </div>
+            <div class="irm-map"><div class="amap" data-map="network" data-ui data-counter="#ui-count"></div></div>
+          </div>
+        </div></div>{{mbp-close}}
+      </div>
+    </div>
+    <div class="vr"></div>
+    <ol class="notes rv" style="--dl:.25s">
+      <li><span class="n-num">01</span><span class="n-t">Sur l’accueil et la page Restaurants</span>La carte du réseau, dans les couleurs du site.</li>
+      <li><span class="n-num">02</span><span class="n-t">Un restaurant au clic</span>Sa fiche s’ouvre : adresse, horaires, téléphone.</li>
+      <li><span class="n-num">03</span><span class="n-t">Les bonnes actions</span>Réserver, itinéraire et Click &amp; Collect, sans quitter la carte.</li>
+      <li><span class="n-num">04</span><span class="n-t">Les contrôles</span>Rejouer l’animation ou la mettre en pause, en haut à droite de la carte.</li>
+    </ol>
+  {{foot}}</div></div>
+</section>
+
+
 <section class="slide s-navy" aria-label="Carte franchise : où ouvrir demain">
   <div class="frame"><div class="in mapslide">
     <div class="lead">
@@ -877,6 +952,44 @@
     </ol>
   {{foot}}</div></div>
 </section>
+
+<section class="slide s-grey" aria-label="Carte franchise dans votre site : aperçu interactif">
+  <div class="frame"><div class="in demo-s wide">
+    <div class="demo-main">
+      <div class="demo-head">
+        <div class="lead" style="gap:calc(10 * var(--u))"><p class="k rv">06 · Carte franchise</p><h2 class="h2 rv" style="--dl:.05s">Carte franchise dans votre site : aperçu interactif</h2></div>
+        <p class="try rv" style="--dl:.1s">Aperçu réel : cliquez sur une ville</p>
+      </div>
+      <div class="rv" style="--dl:.15s">
+        {{mbp-open|}}<div class="vp" data-fit><img class="vp-head" src="{{img:head_strip}}" alt=""><div class="vp-body">
+          <div class="irmap irm-chianti" data-ui-franchise>
+            <div class="irm-l">
+              <p class="ir-k">Devenir franchisé</p>
+              <h3 class="irm-t">Où ouvrir votre <span class="ir-s">Ristorante ?</span></h3>
+              <p class="irm-p">Agglomérations de plus de 70 000 habitants sans restaurant à proximité. Cliquez sur une ville.</p>
+              <div class="irm-card" data-city-card hidden>
+                <h4 data-city></h4>
+                <p>Agglomération de plus de 70 000 habitants.</p>
+                <p>Restaurant le plus proche : <b data-near></b>, à <b data-km></b>.</p>
+                <form><button class="ir-btn ir-red" type="submit">Candidater pour <span data-city></span></button></form>
+                <p class="irm-muted" data-cand-status></p>
+              </div>
+            </div>
+            <div class="irm-map"><div class="amap" data-map="radar" data-ui></div></div>
+          </div>
+        </div></div>{{mbp-close}}
+      </div>
+    </div>
+    <div class="vr"></div>
+    <ol class="notes rv" style="--dl:.25s">
+      <li><span class="n-num">01</span><span class="n-t">Sur la page Devenir franchisé</span>Après les chiffres et les conditions, dans le thème Chianti.</li>
+      <li><span class="n-num">02</span><span class="n-t">Une ville au clic</span>Le restaurant le plus proche et la distance s’affichent.</li>
+      <li><span class="n-num">03</span><span class="n-t">Candidater</span>Le bouton reprend la ville choisie dans le formulaire.</li>
+      <li><span class="n-num">04</span><span class="n-t">Les contrôles</span>Rejouer le balayage ou le mettre en pause.</li>
+    </ol>
+  {{foot}}</div></div>
+</section>
+
 
 <section class="slide s-white" aria-label="Carte de France : les étapes de l’animation">
   <div class="frame"><div class="in std" style="grid-template-columns: calc(320 * var(--u)) 1px minmax(0, 1fr)">

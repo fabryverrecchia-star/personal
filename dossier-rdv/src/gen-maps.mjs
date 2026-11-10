@@ -34,7 +34,7 @@ const fp = geoConicConformal().parallels([44, 49]).rotate([-3, 0]).fitExtent([[1
 const frPath = geoPath(fp).digits(1)(fr10);
 const r = restos.map((x) => ({ name: x.name, region: x.region, lat: x.lat, lng: x.lng, xy: round(fp([x.lng, x.lat])) }));
 // Opportunités : agglomérations de la liste indicative sans restaurant à moins de 35 km
-const opps = cities.filter((c) => c.lng > -5 && c.lat > 42.3 && restos.every((x) => km(c, x) > 35)).map((c) => ({ name: c.name, xy: round(fp([c.lng, c.lat])) }));
+const opps = cities.filter((c) => c.lng > -5 && c.lat > 42.3 && restos.every((x) => km(c, x) > 35)).map((c) => { const near = restos.map((x) => ({ n: x.name, d: km(c, x) })).sort((a, b) => a.d - b.d)[0]; return { name: c.name, xy: round(fp([c.lng, c.lat])), near: near.n, km: Math.round(near.d) }; });
 const regions = [...new Set(r.map((x) => x.region))].map((name) => {
   const l = r.filter((x) => x.region === name);
   return { name, n: l.length, xy: [Math.round(l.reduce((s, x) => s + x.xy[0], 0) / l.length), Math.round(l.reduce((s, x) => s + x.xy[1], 0) / l.length)] };
@@ -63,7 +63,7 @@ const parma = { lat: 44.801, lng: 10.328 };
 const dist = r.map((x) => km(parma, x));
 
 const out = {
-  fr: { W: FW, H: FH, path: frPath, restos: r.map(({ name, region, xy }) => ({ name, region, xy })), opps, regions },
+  fr: { W: FW, H: FH, path: frPath, restos: restos.map((x, i) => ({ name: x.name, region: x.region, xy: r[i].xy, street: x.street, cp: x.postalCode, city: x.city, phone: x.phone, hours: (x.hours || []).slice(0, 2), slug: x.slug })), opps, regions },
   it: { W: IW, H: IH, path: itPath, origins: io, zoom: zoomBox },
   duo,
   stats: { minKm: Math.round(Math.min(...dist) / 10) * 10, maxKm: Math.round(Math.max(...dist) / 10) * 10, opps: opps.length },
