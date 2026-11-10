@@ -3,7 +3,7 @@
  * 3 novembre 2026 : refait sur le modèle La Petite Maison (le feed ouvert à l'arrivée, puis les stories, puis les idées).
  * Plus de rubrique Publications : chaque post s'ouvre en fenêtre depuis le feed, « + » en tête du feed pour en ajouter.
  * Octobre (lancement) : les six posts du lancement, passés en « En ligne ». Novembre : plan complet proposé
- * (13 posts, 14 stories, 3 idées vidéo). Visuels de novembre : cartes « Visuel à venir » (media/nov-*.jpg),
+ * Novembre : posts et stories proposés retirés le 10 novembre, l'équipe les ajoute depuis la page.
  * l'équipe les remplace depuis l'espace équipe. Plats et produits cités : à valider avec la cuisine.
  * Modifications de l'équipe (photos, légendes, dates, ajouts, stories, idées) : data/suivi.json, via suivi.php.
  */
@@ -63,98 +63,8 @@ window.PLAN = {
       title: 'Novembre, la <em>saison</em>',
       theme: 'Trois rendez-vous par semaine : le produit, le geste, la salle. Une vidéo chaque semaine.',
       month: '2026-11',
+      // 10 novembre : posts proposés retirés, l'équipe ajoute ses posts depuis le feed (« + »)
       posts: [
-        {
-          id: 'nov-01', date: '2026-11-04', time: '12h00', type: 'carousel',
-          media: ['media/nov-01-1.jpg', 'media/nov-01-2.jpg', 'media/nov-01-3.jpg', 'media/nov-01-4.jpg'],
-          title: 'Novembre arrive en cuisine',
-          caption: ['Novembre arrive en cuisine.', 'Cèpes, Saint-Jacques, courges, coings : le menu suit la saison.', 'Réservations en bio.'],
-          note: 'À shooter : quatre produits bruts, plan serré, sur le marbre de la salle. Produits à valider avec la cuisine.',
-        },
-        {
-          id: 'nov-02', date: '2026-11-06', time: '18h30', type: 'post',
-          media: 'media/nov-02.jpg',
-          title: 'La salle',
-          caption: ['Une salle dessinée par Pierre Gonalons.', 'Des teintes, des matières, une lumière pensée pour le soir.'],
-          note: 'À shooter : la salle vide juste avant le service, lumière du soir. Identifier @pierregonalons.',
-        },
-        {
-          id: 'nov-03', date: '2026-11-08', time: '19h00', type: 'reel',
-          poster: 'media/nov-03.jpg',
-          title: 'Le geste',
-          caption: ['Précision.', 'Une assiette, quelques gestes, rien de plus.'],
-          note: 'Vidéo : voir l’idée 01 « Le geste ». Dressage en plans très serrés, 15 secondes, le son de la cuisine.',
-        },
-        {
-          id: 'nov-04', date: '2026-11-10', time: '12h00', type: 'post',
-          media: 'media/nov-04.jpg',
-          title: 'La Saint-Jacques',
-          caption: ['La Saint-Jacques est de retour.', 'Servie juste nacrée, au menu de novembre.'],
-          note: 'À shooter : l’assiette Saint-Jacques en plongée, sur nappe. Plat à valider avec la cuisine.',
-        },
-        {
-          id: 'nov-05', date: '2026-11-12', time: '18h30', type: 'carousel',
-          media: ['media/nov-05-1.jpg', 'media/nov-05-2.jpg', 'media/nov-05-3.jpg'],
-          title: 'Les accords de novembre',
-          caption: ['Chaque séquence a son verre.', 'Les accords de novembre, choisis au fil du menu.'],
-          note: 'À shooter : trois verres servis, chacun avec son assiette, mains du sommelier dans le cadre.',
-        },
-        {
-          id: 'nov-06', date: '2026-11-14', time: '11h00', type: 'post',
-          media: 'media/nov-06.jpg',
-          title: 'Samedi soir',
-          caption: ['Samedi soir chez Jacqueline.', 'Quelques tables restent pour ce soir. Réservation en bio.'],
-          note: 'À shooter : une table pour deux dressée, bougie allumée. Ne publier que s’il reste des tables.',
-        },
-        {
-          id: 'nov-07', date: '2026-11-17', time: '17h30', type: 'reel',
-          poster: 'media/nov-07.jpg',
-          title: 'Avant le service',
-          caption: ['17h. La mise en place.', 'Ce que l’on ne voit pas, et qui fait tout.'],
-          note: 'Vidéo : voir l’idée 02 « Avant le service ». Coulisses de la mise en place, cuisine et salle.',
-        },
-        {
-          id: 'nov-08', date: '2026-11-19', time: '12h00', type: 'post',
-          media: 'media/nov-08.jpg',
-          title: 'Les sous-bois',
-          caption: ['Les champignons des sous-bois.', 'Une assiette d’automne, généreuse et simple.'],
-          note: 'À shooter : l’assiette champignons, lumière naturelle. Plat à valider avec la cuisine.',
-        },
-        {
-          id: 'nov-09', date: '2026-11-21', time: '18h30', type: 'carousel',
-          media: ['media/nov-09-1.jpg', 'media/nov-09-2.jpg', 'media/nov-09-3.jpg', 'media/nov-09-4.jpg'],
-          title: 'Les détails',
-          caption: ['Le lin, le verre, le métal, le marbre.', 'Une table se lit aussi dans ses détails.'],
-          note: 'Suite des « textures » du lancement : quatre détails de la table en gros plan.',
-        },
-        {
-          id: 'nov-10', date: '2026-11-24', time: '12h00', type: 'post',
-          media: 'media/nov-10.jpg',
-          title: 'Le dessert',
-          caption: ['Le coing, la châtaigne.', 'Le dessert de novembre.'],
-          note: 'À shooter : le dessert du menu, en plan serré. Plat à valider avec la cuisine.',
-        },
-        {
-          id: 'nov-11', date: '2026-11-26', time: '19h00', type: 'reel',
-          poster: 'media/nov-11.jpg',
-          title: 'Une soirée chez Jacqueline',
-          caption: ['De la première coupe au dernier café.', 'Une soirée chez Jacqueline.'],
-          note: 'Vidéo : voir l’idée 03 « Une soirée ». 20 à 25 secondes, de l’arrivée au dessert.',
-        },
-        {
-          id: 'nov-12', date: '2026-11-28', time: '11h00', type: 'post',
-          media: 'media/nov-12.jpg',
-          title: 'Décembre se réserve',
-          caption: ['Décembre se réserve dès maintenant.', 'Dîners entre proches, tables de fin d’année : réservation en bio.'],
-          note: 'À shooter : une grande table dressée. Ajouter les groupes ou la privatisation seulement si c’est proposé.',
-        },
-        {
-          id: 'nov-13', date: '2026-11-30', time: '18h30', type: 'carousel',
-          media: ['media/nov-13-1.jpg', 'media/nov-13-2.jpg', 'media/nov-13-3.jpg', 'media/nov-13-4.jpg', 'media/nov-13-5.jpg'],
-          title: 'Novembre chez Jacqueline',
-          caption: ['Novembre chez Jacqueline.', 'Merci d’avoir été à table avec nous ce mois-ci.'],
-          note: 'Les meilleures images du mois, prises pendant les tournages.',
-        },
       ],
     },
   ],
