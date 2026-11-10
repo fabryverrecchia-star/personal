@@ -1,0 +1,12 @@
+# Le planning est relu à chaque visite : pas de cache pour la page, le planning et les données
+<IfModule LiteSpeed>
+  CacheLookup off
+</IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|php|js|json)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+</IfModule>
+DirectoryIndex index.html index.php

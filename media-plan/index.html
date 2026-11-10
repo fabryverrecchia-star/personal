@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f1eee6">
   <meta name="robots" content="noindex">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
   <title>18H22 · Media planning</title>
   <link rel="icon" href="assets/brand/18h22-mark.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,7 +23,7 @@
       window.CLIENT_BASE = 'clients/' + slug + '/';
       // &p=<nom> charge un planning archivé : clients/<slug>/plan-<nom>.js
       var plan = (new URLSearchParams(location.search).get('p') || '').replace(/[^a-z0-9-]/gi, '');
-      document.write('<script src="' + window.CLIENT_BASE + (plan ? 'plan-' + plan : 'plan') + '.js?v=202611101500"><\/script>');
+      document.write('<script src="' + window.CLIENT_BASE + (plan ? 'plan-' + plan : 'plan') + '.js?v=' + Date.now() + '"><\/script>');
     })();
   </script>
   <script>
