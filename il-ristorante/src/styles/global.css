@@ -617,3 +617,7 @@ html:not(.js) .step { opacity: 1; }
 .header:not(.is-solid) { text-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 14px rgb(0 0 0 / 0.3); }
 .header:not(.is-solid) .logo svg { filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.3)) drop-shadow(0 2px 12px rgb(0 0 0 / 0.3)); }
 .header :is(.is-cta, .dropdown, .mega) { text-shadow: none; }
+
+.skip { position: fixed; left: 16px; top: 16px; z-index: 1000; padding: .8em 1.2em; background: var(--giardino, #11573B); color: var(--dolce, #FFF5E1); border-radius: 999px; transform: translateY(-200%); transition: transform .2s; }
+.skip:focus-visible { transform: none; outline: 2px solid currentColor; outline-offset: 3px; }
+main:focus { outline: none; }

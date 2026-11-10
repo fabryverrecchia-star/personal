@@ -32,6 +32,7 @@ const fullTitle = title === 'Accueil' ? 'Il Ristorante — La Cucina Italiana' :
     <ClientRouter fallback="swap" />
   </head>
   <body data-label={label}>
+    <a class="skip" href="#contenu">Aller au contenu</a>
     <div class="loader" transition:persist="loader" data-loader>
       <div class="loader-inner">
         <img class="loader-medal" src="/brand/monogramme/medaillon-dolce-on-giardino.svg" alt="" />
@@ -72,7 +73,7 @@ const fullTitle = title === 'Accueil' ? 'Il Ristorante — La Cucina Italiana' :
       </div>
     </div>
 
-    <main data-page>
+    <main id="contenu" tabindex="-1" data-page>
       <slot />
     </main>
     <Footer />
