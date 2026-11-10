@@ -582,7 +582,7 @@
         return '<a href="#' + p._id + '"' + (on ? ' class="is-live"' : '') + ' data-grid' + (n > 1 ? ' data-grid-options="' + p._id + '"' : '') + '>' + gridInner(p) + '</a>';
       }).join('') +
       live.map(function (img) {
-        return '<a class="is-live" data-grid><img src="' + esc(src(img)) + '" alt="" loading="lazy" decoding="async"><span class="label grid__live">En ligne</span></a>';
+        return '<a class="is-live" data-grid>' + thumbImg(img) + '<span class="label grid__live">En ligne</span></a>';
       }).join('') +
       '</div>' +
       (live.length ? '<p class="label" style="margin-top:14px;opacity:.7">Voilés : publications déjà en ligne</p>' : '') +
@@ -607,6 +607,14 @@
     app.innerHTML = html;
   }
 
+  // PLAN.thumbs : la grille du feed charge une vignette réduite (thumb.php), la fenêtre du post garde l'original
+  function thumbImg(path) {
+    var o = src(path);
+    if (!PLAN.thumbs || location.protocol === 'file:' || !/^(uploads|media)\/[A-Za-z0-9._-]+\.(jpe?g|png|webp)$/i.test(String(path || ''))) {
+      return '<img src="' + esc(o) + '" alt="" loading="lazy" decoding="async">';
+    }
+    return '<img src="' + esc(src('thumb.php?f=' + path)) + '" data-orig="' + esc(o) + '" onerror="this.onerror=null;this.src=this.getAttribute(\'data-orig\')" alt="" loading="lazy" decoding="async">';
+  }
   function gridInner(p) {
     var img = p.type === 'reel' ? p.poster : list(p.options)[0] || list(p.media)[0];
     if (img && typeof img === 'object') img = img.poster;
@@ -615,7 +623,7 @@
       : (p.type || 'post') === 'post' ? '' : '<span class="grid__icon">' + ICONS[p.type] + '</span>';
     return (isVidPath(img)
       ? '<video src="' + esc(vidSrc(img)) + '#t=0.1" muted playsinline preload="metadata"></video>'
-      : '<img src="' + esc(src(img)) + '" alt="" loading="lazy" decoding="async">') + icon +
+      : thumbImg(img)) + icon +
       (p._date < today() ? '<span class="label grid__live">En ligne</span>' : '<span class="label grid__day">' + JOURS[p._date.getDay()] + ' ' + pad(p._date.getDate()) + '</span>');
   }
 

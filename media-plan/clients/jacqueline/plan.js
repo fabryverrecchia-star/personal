@@ -19,6 +19,8 @@ window.PLAN = {
 
   title: 'Media planning',
   period: 'Novembre 2026',
+  // Grille du feed : vignettes réduites (thumb.php), originaux dans la fenêtre du post
+  thumbs: true,
   // Comme La Petite Maison : la page s'ouvre directement sur les logos, sans animation d'ouverture ni au défilement
   introDaily: true,
   intro: false,
