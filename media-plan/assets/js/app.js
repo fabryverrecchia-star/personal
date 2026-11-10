@@ -643,6 +643,9 @@
       title: e.title != null ? e.title : c.title,
       caption: e.caption != null ? String(e.caption).split(/\n+/).filter(Boolean) : list(c.caption),
       media: (e.media && e.media[0]) || c.media,
+      // Campagne vidéo (9:16) : vidéo et couverture, de plan.js ou envoyées par l'équipe
+      video: e.media && e.media[0] && !e.video ? '' : e.video || c.video || '',
+      poster: e.poster || c.poster || '',
       start: e.start || c.start,
       end: e.end || c.end,
       budget: e.budget != null ? +e.budget : c.budget != null ? +c.budget : (PLAN.ads.budget || 0) / same,
@@ -673,7 +676,10 @@
       '<div class="ad__phone">' +
       '<div class="ad__head"><span class="ad__avatar">' + initial + '</span>' +
       '<span class="ad__who"><b>' + esc(ig) + '</b><small>Sponsorisé</small></span><span class="ad__more" aria-hidden="true">···</span></div>' +
-      '<div class="media ad__media"><div class="media__inner"><img src="' + esc(src(v.media)) + '" alt="" loading="lazy" decoding="async"></div></div>' +
+      (v.video
+        ? '<div class="media media--reel ad__media ad__media--video"><div class="media__inner"><video src="' + esc(src(v.video)) + '"' + (v.poster || v.media ? ' poster="' + esc(src(v.poster || v.media)) + '"' : '') + ' muted loop playsinline autoplay preload="metadata"></video>' +
+          '<button type="button" class="ad__sound" data-ad-sound aria-label="Activer le son">' + AD_SOUND_OFF + '</button></div></div>'
+        : '<div class="media ad__media"><div class="media__inner"><img src="' + esc(src(v.media)) + '" alt="" loading="lazy" decoding="async"></div></div>') +
       '<div class="ad__cta"><span>' + esc(v.cta) + '</span>' + SICONS_NEXT + '</div>' +
       '<div class="ad__caption">' + v.caption.map(function (p, k) { return '<p>' + (k ? '' : '<b>' + esc(ig) + '</b> ') + esc(p) + '</p>'; }).join('') + '</div>' +
       '</div>' +
@@ -696,6 +702,22 @@
       '</div>'
     );
   }
+  var AD_SOUND_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>';
+  var AD_SOUND_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M16 10l5 5M21 10l-5 5"/></svg>';
+  // Campagne vidéo : toucher la vidéo active ou coupe le son (une seule vidéo sonore à la fois)
+  document.addEventListener('click', function (e) {
+    var box = e.target.closest('.ad__media--video');
+    if (!box) return;
+    var v = box.querySelector('video'), b = box.querySelector('[data-ad-sound]');
+    if (!v) return;
+    var on = v.muted;
+    document.querySelectorAll('.ad__media--video video').forEach(function (o) {
+      if (o !== v && !o.muted) { o.muted = true; var ob = o.parentNode.querySelector('[data-ad-sound]'); if (ob) ob.innerHTML = AD_SOUND_OFF; }
+    });
+    v.muted = !on;
+    if (on) v.play().catch(function () {});
+    if (b) { b.innerHTML = on ? AD_SOUND_ON : AD_SOUND_OFF; b.setAttribute('aria-label', on ? 'Couper le son' : 'Activer le son'); }
+  });
   var SICONS_NEXT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg>';
   function adsHtml() {
     var all = adCampaigns();

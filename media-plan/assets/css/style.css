@@ -2701,3 +2701,9 @@ body.has-sum .countdown { padding-top: 36px; padding-bottom: 24px; }
 
 /* Avis « À revoir » levé par une nouvelle version de l'équipe */
 .fb__redo { margin: 0 0 10px; font-size: 9px; color: var(--ink); opacity: 0.75; }
+
+/* Campagne sponsorisée en vidéo (9:16) : lecture muette en boucle, toucher pour le son */
+.ad__media--video { position: relative; cursor: pointer; }
+.ad__media--video video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ad__sound { position: absolute; right: 10px; bottom: 10px; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: rgba(0, 0, 0, 0.45); color: #f1eee6; pointer-events: none; }
+.ad__sound svg { width: 18px; height: 18px; }
