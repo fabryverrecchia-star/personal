@@ -176,7 +176,7 @@ window.PLAN = {
     budget: 380,
     platform: 'Meta · Instagram & Facebook',
     campaigns: [
-      // 10 novembre : trois films Madrid (soirée privée), lancés du 11 au 15 novembre, jusqu'au 10 décembre
+      // 10 novembre : trois films « Votre événement privé avec Sounds Like », lancés du 11 au 15 novembre, jusqu'au 10 décembre
       {
         id: 'ad-madrid-1',
         start: '2026-11-11',
@@ -184,12 +184,12 @@ window.PLAN = {
         video: 'media/ad-madrid-24s.mp4',
         poster: 'media/ad-madrid-24s.jpg',
         media: 'media/ad-madrid-24s.jpg',
-        title: 'Madrid · le film 24 s',
+        title: 'Votre événement privé avec Sounds Like',
         objective: 'Messages',
         audience: 'Paris + 30 km · 28-55 ans · mariage, événementiel, hôtellerie de luxe',
         cta: 'Envoyer un message',
         budget: 127,
-        caption: ['Une soirée privée à Madrid, de la première note à la dernière danse.', 'Votre événement, avec Soundslike. Écrivez-nous.'],
+        caption: ['Votre événement privé avec Sounds Like.', 'De la première note à la dernière danse : nos artistes jouent pour vous. Écrivez-nous.'],
       },
       {
         id: 'ad-madrid-2',
@@ -198,12 +198,12 @@ window.PLAN = {
         video: 'media/ad-madrid-pivot.mp4',
         poster: 'media/ad-madrid-pivot.jpg',
         media: 'media/ad-madrid-pivot.jpg',
-        title: 'Madrid · Your private event',
+        title: 'Votre événement privé avec Sounds Like',
         objective: 'Messages',
         audience: 'Paris + 30 km · 28-55 ans · mariage, événementiel, hôtellerie de luxe',
         cta: 'Envoyer un message',
         budget: 127,
-        caption: ['Your private event with Soundslike.', 'Mariages, anniversaires, soirées privées : nos artistes jouent pour vous.'],
+        caption: ['Votre événement privé avec Sounds Like.', 'Mariages, anniversaires, soirées privées : la musique live sur mesure. Écrivez-nous.'],
       },
       {
         id: 'ad-madrid-3',
@@ -212,12 +212,12 @@ window.PLAN = {
         video: 'media/ad-madrid-editorial.mp4',
         poster: 'media/ad-madrid-editorial.jpg',
         media: 'media/ad-madrid-editorial.jpg',
-        title: 'Madrid · Host your private event',
+        title: 'Votre événement privé avec Sounds Like',
         objective: 'Messages',
         audience: 'Paris + 30 km · 28-55 ans · mariage, événementiel, hôtellerie de luxe',
         cta: 'Envoyer un message',
         budget: 126,
-        caption: ['Host your private event with us.', 'Live bands, voix, DJ : la soirée sur mesure. Écrivez-nous.'],
+        caption: ['Votre événement privé avec Sounds Like.', 'Live bands, voix, DJ : une soirée qui vous ressemble. Écrivez-nous.'],
       },
     ],
   },
