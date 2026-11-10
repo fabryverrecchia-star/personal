@@ -160,22 +160,8 @@ window.PLAN = {
   ],
 
   // Stories de novembre, rangées jour par jour. Visuel, jour, heure et texte se modifient depuis l'espace équipe.
-  stories: [
-    { id: 'sn-01', date: '2026-11-04', time: '12h15', caption: ['Partage du post « Novembre arrive en cuisine ».', 'Sondage : cèpes ou Saint-Jacques ?'] },
-    { id: 'sn-02', date: '2026-11-04', time: '18h30', caption: ['Ce soir, quelques tables.', 'Sticker lien : réserver.'] },
-    { id: 'sn-03', date: '2026-11-06', time: '11h00', caption: ['Coulisses : l’arrivée des produits du matin.', 'Vidéo courte, sans texte.'] },
-    { id: 'sn-04', date: '2026-11-07', time: '19h30', caption: ['Le service commence.', 'La salle, première table servie.'] },
-    { id: 'sn-05', date: '2026-11-10', time: '12h15', caption: ['Partage du post « La Saint-Jacques ».', 'Sticker lien : réserver.'] },
-    { id: 'sn-06', date: '2026-11-12', time: '18h00', caption: ['Le verre du soir.', 'Le sommelier présente un accord en une phrase.'] },
-    { id: 'sn-07', date: '2026-11-14', time: '20h00', caption: ['En salle, samedi soir.', 'Ambiance, sans visage de client.'] },
-    { id: 'sn-08', date: '2026-11-17', time: '17h00', caption: ['17h, mise en place.', 'Annonce de la vidéo de ce soir.'] },
-    { id: 'sn-09', date: '2026-11-19', time: '12h15', caption: ['Quiz : quel accord avec les champignons ?', 'Réponse en story le soir.'] },
-    { id: 'sn-10', date: '2026-11-21', time: '19h00', caption: ['Les détails de la table.', 'Gros plan, un détail par story.'] },
-    { id: 'sn-11', date: '2026-11-24', time: '12h15', caption: ['Partage du post « Le dessert ».', 'Sondage : coing ou châtaigne ?'] },
-    { id: 'sn-12', date: '2026-11-26', time: '18h00', caption: ['Avant-première de la vidéo « Une soirée chez Jacqueline ».'] },
-    { id: 'sn-13', date: '2026-11-28', time: '12h00', caption: ['Décembre : les réservations sont ouvertes.', 'Sticker lien : réserver.'] },
-    { id: 'sn-14', date: '2026-11-30', time: '18h45', caption: ['Merci pour novembre.', 'Les moments du mois, en quelques images.'] },
-  ],
+  // Stories : l'équipe les ajoute elle-même depuis la page (10 novembre : stories proposées retirées)
+  stories: [],
 
   // Idées vidéo du mois : l'équipe peut réécrire chaque idée ou l'argumenter depuis l'espace équipe
   teasing: {
