@@ -3289,12 +3289,12 @@
     })();
   }
 
-  // Safari iOS refuse une vidéo si le serveur ne gère pas les requêtes partielles (Range),
-  // ce qui est le cas de certains hébergeurs. On télécharge donc la vidéo entière puis on la
-  // lit depuis la mémoire (blob:), ce qui marche partout. Repli sur l'URL directe si besoin.
+  // Les vidéos se lisent en continu depuis le serveur (lecture immédiate, sans attendre le fichier entier).
+  // Repli seulement si le navigateur n'arrive pas à lire l'adresse directe (hébergeur sans requêtes partielles) :
+  // la vidéo est alors téléchargée en entier puis lue depuis la mémoire (blob:).
   var blobs = {};
   var ready = {};
-  function videoUrl(url) {
+  function blobUrl(url) {
     if (!blobs[url]) {
       blobs[url] = !window.fetch ? Promise.resolve(url) : fetch(url)
         .then(function (r) { return r.ok ? r.blob() : Promise.reject(r.status); })
@@ -3302,6 +3302,21 @@
         .catch(function () { return url; });
     }
     return blobs[url];
+  }
+  function videoUrl(url) { return Promise.resolve(ready[url] || url); }
+  function fallbackOnError(v, url) {
+    if (v.getAttribute('data-fallback')) return;
+    v.setAttribute('data-fallback', '1');
+    v.addEventListener('error', function () {
+      if (ready[url] || /^blob:/.test(v.src)) return;
+      blobUrl(url).then(function (u) {
+        if (u === url) return;
+        var play = !v.paused || v.hasAttribute('data-want-play');
+        v.src = u;
+        v.setAttribute('data-loaded', u);
+        if (play) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+      });
+    });
   }
   // Lecture avec le son ; si le navigateur refuse, on repasse en muet (bouton pour réactiver)
   function playWithSound(v) {
@@ -3318,6 +3333,7 @@
   }
 
   function attachVideo(v, url) {
+    fallbackOnError(v, url);
     return videoUrl(url).then(function (u) {
       if (v.getAttribute('data-loaded') !== u) {
         v.src = u;
@@ -3362,7 +3378,8 @@
         if (!e.isIntersecting) return;
         var id = e.target.getAttribute('data-reel');
         var post = allPosts.filter(function (p) { return p._id === id; })[0];
-        if (post && post.video) videoUrl(src(post.video));
+        // Plus de téléchargement complet en arrière-plan (il ralentissait le serveur) : la vidéo se lit en continu à l'ouverture
+        if (post && post.video) post._near = true;
         reels.unobserve(e.target);
       });
     }, { rootMargin: '800px 0px' });
@@ -3433,10 +3450,11 @@
       // à condition de lancer play() tout de suite, pendant ce même toucher.
       var url = src(post.video);
       video.muted = false;
-      if (ready[url]) {
-        video.src = ready[url];
-        video.setAttribute('data-loaded', ready[url]);
-      }
+      // Adresse directe tout de suite : la lecture démarre dès les premières secondes reçues
+      fallbackOnError(video, url);
+      video.setAttribute('data-want-play', '');
+      video.src = ready[url] || url;
+      video.setAttribute('data-loaded', ready[url] || url);
       playWithSound(video);
       attachVideo(video, url).then(function (v) {
         if (current && current.video === v && !current.closing && v.paused) playWithSound(v);
