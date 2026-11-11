@@ -891,3 +891,15 @@ button, input, select, textarea { font: inherit; }
   .amap .pt, .amap .ring, .amap .opp { transition: none !important; }
   .vp-body { overflow: hidden !important; }
 }
+
+/* Estimation budgétaire */
+.budget { width: 100%; border-collapse: collapse; font-size: calc(13.5 * var(--u)); }
+.budget th { text-align: left; font-weight: 400; font-size: calc(11 * var(--u)); letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); padding: 0 calc(12 * var(--u)) calc(10 * var(--u)) 0; border-bottom: 1px solid var(--fg); }
+.budget td { padding: calc(11 * var(--u)) calc(12 * var(--u)) calc(11 * var(--u)) 0; border-bottom: 1px solid var(--line); vertical-align: baseline; }
+.budget td:first-child { width: calc(40 * var(--u)); color: var(--soft); }
+.budget td b { display: block; font-weight: 500; }
+.budget td span { display: block; font-size: calc(12 * var(--u)); color: var(--soft); margin-top: calc(2 * var(--u)); }
+.budget th:last-child, .budget td:last-child { text-align: right; white-space: nowrap; padding-right: 0; font-variant-numeric: tabular-nums; }
+.budget tfoot td { border-bottom: 0; border-top: 2px solid var(--fg); font-size: calc(20 * var(--u)); padding-top: calc(14 * var(--u)); }
+.budget tfoot td b { font-weight: 400; }
+@media (max-width: 899px), (max-aspect-ratio: 1/1) { .budget { font-size: 14px; } .budget td span { font-size: 13px; } .budget th { font-size: 11px; } .budget tfoot td { font-size: 18px; } }
