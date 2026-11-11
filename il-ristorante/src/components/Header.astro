@@ -11,11 +11,13 @@ const franchise = nav.find((i) => i.highlight)!;
 <header class="header" data-header>
   <Logo />
   <div class="h-actions">
-    <a class="h-link link-u" href={franchise.href} data-nav-link>{franchise.label}</a>
-    <a class="btn h-book" href={ext.reserver} data-nav-link>Réserver</a>
-    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu" data-burger>
-      <span class="burger-l" aria-hidden="true">Menu</span>
-      <span class="burger-i" aria-hidden="true"><i></i><i></i></span>
+    <a class="h-fr" href={franchise.href} data-nav-link>
+      <img src="/brand/monogramme/medaillon-lisere-dolce.svg" alt="" aria-hidden="true" />
+      <span>{franchise.label}</span>
+    </a>
+    <button class="mbtn" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu" data-burger>
+      <span class="mbtn-t" aria-hidden="true"><span>Menu</span><span>Fermer</span></span>
+      <span class="mbtn-i" aria-hidden="true"><i></i><i></i><i></i></span>
     </button>
   </div>
 </header>
@@ -163,7 +165,7 @@ const franchise = nav.find((i) => i.highlight)!;
         panels.forEach((p) => p.classList.toggle('is-on', p.dataset.fmPanel === id));
         fm.classList.replace(theme, t.dataset.theme!);
         theme = t.dataset.theme!;
-        document.documentElement.style.setProperty('--menu-fg', getComputedStyle(fm).getPropertyValue('--fg').trim());
+        document.documentElement.style.setProperty('--menu-fg', getComputedStyle(fm).getPropertyValue('--fg').trim()); document.documentElement.style.setProperty('--menu-bg', getComputedStyle(fm).getPropertyValue('--bg').trim());
       }
       show(t.dataset.fmImg);
     };
@@ -172,7 +174,7 @@ const franchise = nav.find((i) => i.highlight)!;
       t.addEventListener('focus', () => setTab(t));
     });
     tabs[0]?.classList.add('is-on');
-    document.documentElement.style.setProperty('--menu-fg', getComputedStyle(fm).getPropertyValue('--fg').trim());
+    document.documentElement.style.setProperty('--menu-fg', getComputedStyle(fm).getPropertyValue('--fg').trim()); document.documentElement.style.setProperty('--menu-bg', getComputedStyle(fm).getPropertyValue('--bg').trim());
     fm.querySelectorAll<HTMLElement>('.fm-panels [data-fm-img]').forEach((a) => {
       a.addEventListener('pointerenter', () => show(a.dataset.fmImg));
       a.addEventListener('focus', () => show(a.dataset.fmImg));

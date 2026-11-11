@@ -15,10 +15,12 @@ const others = near.length ? near : restaurants.filter((x) => x.slug !== r.slug)
 const tel = r.phone ? 'tel:+33' + r.phone.replace(/\D/g, '').slice(1) : undefined;
 const maps = `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
 const points = restaurants.map((x) => ({ name: x.name, lat: x.lat, lng: x.lng }));
+// Hero : une photo de la nouvelle banque d'images (la photo du lieu reste plus bas sur la page)
+const hero = `/img/site/rh-${(restaurants.indexOf(r) % 12) + 1}.webp`;
 ---
 <Base title={`Restaurant italien ${r.name}`} label={r.name} description={`Il Ristorante ${r.name} : ${r.street}, ${r.postalCode} ${r.city}. ${r.hours[0] ?? ''} Réservez votre table.`} image={r.img}>
   <section class="hero hero--short" data-hero>
-    <div class="hero-media"><img src={r.img} alt={`La salle d’Il Ristorante ${r.name}`} data-gl="hero" loading="eager" /></div>
+    <div class="hero-media"><img src={hero} alt="Un plat de la carte Il Ristorante" data-gl="hero" loading="eager" /></div>
     <nav class="crumbs" aria-label="Fil d’Ariane" data-reveal><a href="/">Accueil</a><span aria-hidden="true">/</span><a href="/restaurants">Restaurants</a><span aria-hidden="true">/</span><span>{r.region}</span></nav>
     <h1 class="hero-title display h-xxl" data-split data-hero-title>Le restaurant italien <span class="script">de</span> {r.name}</h1>
     <div class="hero-foot">
@@ -65,6 +67,7 @@ const points = restaurants.map((x) => ({ name: x.name, lat: x.lat, lng: x.lng })
   {r.sections.length > 0 && (
     <section class="section wrap t-dolce">
       <div class="sec-head"><span class="eyebrow">Votre Il Ristorante {r.name}</span><span class="idx">{r.region}</span></div>
+      <Media src={r.img} alt={`La salle d’Il Ristorante ${r.name}`} class="r-place" />
       {r.intro && <p class="manifesto" style="font-size:clamp(1.8rem,1rem + 2.6vw,3.6rem);margin-bottom:clamp(40px,6vw,80px)" data-split>{r.intro}</p>}
       <div class="cols">
         {r.sections.map((s) => (

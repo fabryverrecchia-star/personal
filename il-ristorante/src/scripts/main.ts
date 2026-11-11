@@ -6,6 +6,8 @@ import { GL } from './gl';
 import { contact } from '../data/site';
 
 gsap.registerPlugin(ScrollTrigger);
+// Mobile : la barre d'adresse qui apparaît ou disparaît ne doit pas tout recalculer (sauts au défilement)
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const root = document.documentElement;
@@ -65,16 +67,28 @@ function split(el: HTMLElement) {
 /* ---------- Curseur ---------- */
 const cursor = $('[data-cursor]');
 const cursorLabel = $('[data-cursor-label]');
-if (cursor && matchMedia('(hover: hover)').matches) {
-  const xTo = gsap.quickTo(cursor, 'x', { duration: 0.35, ease: 'power3' });
-  const yTo = gsap.quickTo(cursor, 'y', { duration: 0.35, ease: 'power3' });
-  window.addEventListener('pointermove', (e) => { xTo(e.clientX); yTo(e.clientY); }, { passive: true });
+if (cursor && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  root.classList.add('has-cursor');
+  const ring = $('.cursor-ring', cursor)!;
+  const dot = $('.cursor-dot', cursor)!;
+  const dx = gsap.quickTo(dot, 'x', { duration: 0.12, ease: 'power3' });
+  const dy = gsap.quickTo(dot, 'y', { duration: 0.12, ease: 'power3' });
+  const rx = gsap.quickTo([ring, cursorLabel], 'x', { duration: 0.55, ease: 'power3' });
+  const ry = gsap.quickTo([ring, cursorLabel], 'y', { duration: 0.55, ease: 'power3' });
+  window.addEventListener('pointermove', (e) => { dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY); cursor.classList.add('is-on'); }, { passive: true });
+  document.addEventListener('pointerleave', () => cursor.classList.remove('is-on'));
+  window.addEventListener('pointerdown', () => cursor.classList.add('is-down'));
+  window.addEventListener('pointerup', () => cursor.classList.remove('is-down'));
   document.addEventListener('pointerover', (e) => {
     const t = e.target as HTMLElement;
     const labelled = t.closest<HTMLElement>('[data-cursor]:not(.cursor)');
     cursor.classList.toggle('has-label', !!labelled);
     if (labelled && cursorLabel) cursorLabel.textContent = labelled.dataset.cursor ?? '';
-    cursor.classList.toggle('is-link', !labelled && !!t.closest('a, button, input, select, textarea, label'));
+    cursor.classList.toggle('is-link', !labelled && !!t.closest('a, button, select, label, summary, [role="tab"]'));
+    cursor.classList.toggle('is-text', !!t.closest('input, textarea'));
+    // Sur un fond sombre ou coloré, le curseur passe en Dolce
+    const theme = t.closest('.t-giardino, .t-chianti, .t-pomodoro, .hero, .fm:not(.t-dolce):not(.t-cielo), .menu');
+    cursor.classList.toggle('on-dark', !!theme);
   });
 }
 
@@ -215,6 +229,11 @@ document.addEventListener('astro:page-load', async () => {
   stepsLine(main);
 
   requestAnimationFrame(() => ScrollTrigger.refresh());
+  // Les images chargées plus tard changent la hauteur de la page : on recalcule une fois, regroupé
+  let imgRefresh = 0;
+  const later = () => { clearTimeout(imgRefresh); imgRefresh = window.setTimeout(() => ScrollTrigger.refresh(), 250); };
+  $$('img', main).forEach((im) => { if (!(im as HTMLImageElement).complete) im.addEventListener('load', later, { once: true, signal: page.signal }); });
+  document.fonts?.ready.then(later);
 });
 
 /* ---------- Loader (première visite) ---------- */
