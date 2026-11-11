@@ -19,6 +19,10 @@
       var w = vp.parentElement.clientWidth;
       if (w) vp.style.setProperty('--fit', (w / 1100).toFixed(4));
     });
+    $$('[data-live-w]').forEach(function (vp) {
+      var w = vp.parentElement.clientWidth;
+      if (w) vp.style.setProperty('--fit', (w / +vp.dataset.liveW).toFixed(4));
+    });
   }
   window.__fit = fit;
   fit();
@@ -101,6 +105,16 @@
     if (reduced) return;
     setInterval(function () { if (printing || !slide.dataset.vis || document.hidden) return; i = (i + 1) % imgs.length; imgs.forEach(function (im, j) { im.classList.toggle('is-on', j === i); }); }, 3000);
   });
+
+  // Site en direct : les deux écrans se chargent quand la diapositive approche
+  var liveIO = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      $$('iframe[data-src]', e.target).forEach(function (f) { f.src = f.getAttribute('data-src'); f.removeAttribute('data-src'); f.addEventListener('load', function () { f.parentElement.classList.add('is-live'); }); });
+      liveIO.unobserve(e.target);
+    });
+  }, { rootMargin: '100% 0px' });
+  $$('#live').forEach(function (s) { liveIO.observe(s); });
 
   // Pour l'impression : premier visuel de chaque écran
   window.__print = function () {

@@ -34,7 +34,8 @@ C = {
     'c_conditions': 'desktop-07-franchise-conditions', 'c_etapes': 'desktop-08-franchise-etapes', 'c_restos': 'desktop-09-restaurants-carte',
     'c_lille': 'desktop-10-restaurant-lille', 'c_lille_infos': 'desktop-11-restaurant-infos', 'c_carte_menu': 'desktop-12-notre-carte',
     'c_produits': 'desktop-13-produits', 'c_recrute': 'desktop-14-recrute', 'c_pied': 'desktop-15-pied-de-page',
-    'c_intro': 'desktop-16-accueil-intro', 'c_actu': 'desktop-18-actualite', 'c_signature': 'desktop-19-signature', 'c_unica': 'desktop-20-unica',
+    'c_intro': 'desktop-16-accueil-intro', 'c_slide2': 'desktop-25-slide-2', 'c_slide3': 'desktop-26-slide-3',
+    'c_menu1': 'desktop-22-menu-decouvrir', 'c_menu2': 'desktop-23-menu-chez-vous', 'c_menu3': 'desktop-24-menu-restaurants', 'c_actu': 'desktop-18-actualite', 'c_signature': 'desktop-19-signature', 'c_unica': 'desktop-20-unica',
 }
 Mo = {
     'm_accueil': 'mobile-01-accueil', 'm_franchise': 'mobile-02-franchise', 'm_resto': 'mobile-03-restaurant', 'm_video': 'mobile-04-produits-video',
@@ -62,6 +63,13 @@ def image(key):
     if key not in cache:
         if key == 'head_strip':  # bandeau d'en-tête du site, découpé dans une capture
             cache[key] = webp(Image.open(caps / 'desktop-09-restaurants-carte.png'), 1100, 80, crop=(0, 0, 1440, 86))
+        elif key == 'z_bar':  # zoom sur la barre du slider
+            cache[key] = webp(Image.open(caps / 'desktop-01-accueil-hero.png'), 1400, 82, crop=(0, 760, 1440, 900))
+        elif key == 'z_header':  # zoom sur l'en-tête et les boutons flottants
+            im = Image.open(caps / 'desktop-01-accueil-hero.png').convert('RGB')
+            a, z = im.crop((760, 0, 1440, 90)), im.crop((1100, 800, 1440, 900))
+            out = Image.new('RGB', (680, 200), (17, 87, 59)); out.paste(a, (0, 0)); out.paste(z, (340, 100))
+            cache[key] = webp(out, 1360, 82)
         elif key == 'logo_med':
             cache[key] = b64(site / 'public/brand/monogramme/medaillon-chianti-on-dolce.svg', 'image/svg+xml')
         else:
