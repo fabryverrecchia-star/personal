@@ -121,3 +121,55 @@ export const pillars = [
   { n: '03', title: 'Nos collaborateurs', text: 'Des chefs et des brigades formés chez nous. En cuisine, on transmet les bons gestes depuis 2006.', img: '/img/site/team.webp' },
   { n: '04', title: 'L’art de vivre à l’italienne', text: 'Des plats pensés pour être partagés, un service attentif, et le plaisir simple de passer à table ensemble.', img: '/img/site/aperitivo.webp' },
 ];
+
+// Méga-menu desktop : un thème de la charte par rubrique, une image par lien (survol).
+export const menuPanels: Record<string, { theme: string; kicker: string; title: string; text: string; img: string; imgs: Record<string, string> }> = {
+  'Découvrir': {
+    theme: 't-giardino', kicker: 'Notre cuisine italienne', title: 'Le vrai dans l’assiette',
+    text: 'Des produits sourcés en Italie, une cuisine faite maison par nos brigades, une cave du Piémont à la Sicile.',
+    img: '/img/site/cuisine.webp',
+    imgs: {
+      '/idees-cadeaux': '/img/site/unica.webp',
+      '/notre-cuisine-italienne/notre-signature': '/img/site/plats-selection.webp',
+      '/notre-cuisine-italienne/notre-carte': '/img/site/pizza.webp',
+      '/notre-cuisine-italienne/notre-cave': '/img/site/cave.webp',
+      '/notre-cuisine-italienne/nos-produits-italiens': '/img/parmesan.webp',
+    },
+  },
+  'Il Ristorante chez vous': {
+    theme: 't-chianti', kicker: 'À emporter, à offrir', title: 'L’Italie à la maison',
+    text: 'Click & Collect, vins italiens, épicerie fine et traiteur : Il Ristorante s’invite chez vous.',
+    img: '/img/site/plats-partage.webp',
+    imgs: {
+      '/notre-cuisine-italienne/vente-a-emporter': '/img/site/plats-partage.webp',
+      '/oenoteca': '/img/site/vins-roses.webp',
+      '/notre-cuisine-italienne/notre-boutique': '/img/site/board.webp',
+      '/notre-cuisine-italienne/notre-offre-traiteur-italien': '/img/site/seminaire.webp',
+    },
+  },
+  'Restaurants': {
+    theme: 't-dolce', kicker: 'Nos restaurants', title: 'Trouvez votre table',
+    text: 'Des restaurants partout en France, de Lille à Toulon.',
+    img: '/img/site/r-lille.webp', imgs: {},
+  },
+  'News & Fidélité': {
+    theme: 't-cielo', kicker: 'La vie d’Il Ristorante', title: 'Nouvelles et fidélité',
+    text: 'Nos engagements, nos actualités, et la carte UNICA qui récompense chaque visite.',
+    img: '/img/site/terrasse.webp',
+    imgs: {
+      '/nos-engagements': '/img/site/team.webp',
+      '/actualite': '/img/site/blog-citrons.webp',
+      '/la-carte-de-fidelite-unica': '/img/site/unica.webp',
+    },
+  },
+  'Il Ristorante recrute': {
+    theme: 't-pomodoro', kicker: 'Rejoignez-nous', title: 'Il Ristorante recrute',
+    text: 'En salle, en cuisine, au siège : des métiers, une équipe, des perspectives.',
+    img: '/img/site/emploi.webp',
+    imgs: {
+      '/il-ristorante-recrute/nos-metiers': '/img/site/serveur.webp',
+      '/il-ristorante-recrute/grandir-ensemble': '/img/site/team-lille.webp',
+      '/il-ristorante-recrute/sepanouir': '/img/site/team-fun.webp',
+    },
+  },
+};

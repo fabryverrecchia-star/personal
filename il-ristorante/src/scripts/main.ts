@@ -200,6 +200,7 @@ document.addEventListener('astro:page-load', async () => {
   navigating = false;
 
   heroIntro(main, intro);
+  heroSlider(main, intro, page.signal);
   reveals(main);
   counters(main);
   horizontal(main);
@@ -517,4 +518,96 @@ function reels(main: HTMLElement) {
     playerVideo.currentTime = 0;
     playerVideo.play().catch(() => {});
   }, { signal: page!.signal }));
+}
+
+/* ---------- Slider du hero (accueil) ---------- */
+function heroSlider(main: HTMLElement, intro: gsap.core.Timeline, signal: AbortSignal) {
+  const root = $('[data-slider]', main);
+  if (!root) return;
+  const slides = $$('[data-slide]', root);
+  const tabs = $$('[data-go]', root);
+  const count = $('[data-count]', root)!;
+  const img = $('img[data-gl]', root) as HTMLImageElement;
+  const srcs = (img.dataset.slides || '').split('|');
+  const alts = $$('.hs-alt', root) as HTMLImageElement[];
+  const DUR = 7;
+  let cur = 0, busy = false, timer = 0, paused = false, visible = true;
+  const media = () => gl?.heroes()[0];
+  media()?.preload(srcs);
+
+  const lines = (s: HTMLElement) => $$('.hs-line > span', s);
+  const extras = (s: HTMLElement) => [$('.hs-eyebrow', s)!, $('.hs-foot', s)!];
+  // État initial : seule la première slide est visible, ses lignes entrent avec l'intro de page
+  slides.forEach((s, i) => {
+    gsap.set(lines(s), { yPercent: 110 });
+    gsap.set(extras(s), { autoAlpha: 0, y: 24 });
+    if (i) s.style.visibility = 'hidden';
+  });
+  const start = Math.max(0, intro.duration() - 0.6);
+  gsap.to(lines(slides[0]), { yPercent: 0, duration: 1.4, ease: 'expo.out', stagger: 0.09, delay: start + 0.1 });
+  gsap.to(extras(slides[0]), { autoAlpha: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.12, delay: start + 0.45 });
+
+  function arm() {
+    clearTimeout(timer);
+    tabs.forEach((t, i) => {
+      t.classList.toggle('is-on', i === cur);
+      t.setAttribute('aria-selected', i === cur ? 'true' : 'false');
+      const bar = $('.hs-tab-p > i', t) as HTMLElement;
+      bar.style.animation = 'none';
+      void bar.offsetWidth;
+      bar.style.animation = i === cur && !reduced ? `hs-progress ${DUR}s linear forwards` : '';
+      bar.style.animationPlayState = paused || !visible ? 'paused' : 'running';
+      bar.style.transform = i === cur && reduced ? 'scaleX(1)' : '';
+    });
+    if (!reduced && !paused && visible) timer = window.setTimeout(() => go(cur + 1), DUR * 1000);
+  }
+  function go(n: number) {
+    n = (n + slides.length) % slides.length;
+    if (n === cur || busy) return;
+    busy = true;
+    const from = slides[cur], to = slides[n];
+    const dir = n > cur || (cur === slides.length - 1 && n === 0) ? 1 : -1;
+    cur = n;
+    count.textContent = String(n + 1).padStart(2, '0');
+    // Image : médaillon WebGL, ou fondu sans WebGL
+    const m = media();
+    if (m && srcs[n]) m.slideTo(srcs[n], reduced ? 0.01 : 1.7);
+    else [img, ...alts].forEach((el, i) => gsap.to(el, { autoAlpha: i === n ? 1 : 0, duration: 1.2, ease: 'power2.inOut' }));
+    const d = reduced ? 0.01 : 1;
+    const tl = gsap.timeline({ onComplete: () => { busy = false; } });
+    tl.to(lines(from), { yPercent: -110 * dir, duration: 0.7 * d, ease: 'power3.in', stagger: 0.05 }, 0)
+      .to(extras(from), { autoAlpha: 0, y: -16 * dir, duration: 0.5 * d, ease: 'power2.in' }, 0)
+      .add(() => {
+        from.style.visibility = 'hidden'; from.classList.remove('is-on'); from.setAttribute('aria-hidden', 'true');
+        $$('a', from).forEach((a) => a.setAttribute('tabindex', '-1'));
+        to.style.visibility = ''; to.classList.add('is-on'); to.setAttribute('aria-hidden', 'false');
+        $$('a', to).forEach((a) => a.removeAttribute('tabindex'));
+      }, 0.72 * d)
+      .fromTo(lines(to), { yPercent: 110 * dir }, { yPercent: 0, duration: 1.3 * d, ease: 'expo.out', stagger: 0.08 }, 0.75 * d)
+      .fromTo(extras(to), { autoAlpha: 0, y: 24 * dir }, { autoAlpha: 1, y: 0, duration: 1 * d, ease: 'expo.out', stagger: 0.1 }, 1 * d);
+    arm();
+  }
+  tabs.forEach((t) => t.addEventListener('click', () => go(Number(t.dataset.go)), { signal }));
+  $('[data-prev]', root)!.addEventListener('click', () => go(cur - 1), { signal });
+  $('[data-next]', root)!.addEventListener('click', () => go(cur + 1), { signal });
+  root.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') go(cur + 1);
+    if (e.key === 'ArrowLeft') go(cur - 1);
+  }, { signal });
+  // Glisser au doigt
+  let x0 = 0, y0 = 0;
+  root.addEventListener('pointerdown', (e) => { x0 = e.clientX; y0 = e.clientY; }, { signal, passive: true });
+  root.addEventListener('pointerup', (e) => {
+    const dx = e.clientX - x0, dy = e.clientY - y0;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(cur + (dx < 0 ? 1 : -1));
+  }, { signal, passive: true });
+  // Pause au survol des commandes, hors écran, ou onglet caché
+  const bar = $('.hs-bar', root)!;
+  bar.addEventListener('pointerenter', () => { paused = true; arm(); }, { signal });
+  bar.addEventListener('pointerleave', () => { paused = false; arm(); }, { signal });
+  const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; arm(); }, { threshold: 0.25 });
+  io.observe(root);
+  signal.addEventListener('abort', () => { io.disconnect(); clearTimeout(timer); });
+  document.addEventListener('visibilitychange', () => { visible = !document.hidden; arm(); }, { signal });
+  window.setTimeout(arm, (start + 1.2) * 1000);
 }

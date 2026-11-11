@@ -1,0 +1,78 @@
+---
+// Hero de l'accueil : trois slides. Transition WebGL en médaillon, titres qui montent ligne par ligne,
+// onglets avec barre de progression, glisser au doigt, flèches du clavier, pause hors écran.
+import Sticker from './Sticker.astro';
+import Arrow from './Arrow.astro';
+import { ext } from '../data/site';
+
+const slides = [
+  {
+    img: '/img/site/slide-1.webp', alt: 'Deux amies partagent un repas à table chez Il Ristorante',
+    tab: 'Notre promesse', eyebrow: 'Depuis 2006',
+    lines: ['Le vrai dans', 'l’assiette,'], accent: 'l’Italie dans le cœur',
+    lead: 'Offrir, le temps d’un repas à table, l’expérience premium et authentique de l’art de vivre à l’italienne.',
+    cta: { label: 'Réserver votre table', href: ext.reserver }, cta2: { label: 'Découvrir la carte', href: '/notre-cuisine-italienne/notre-carte' },
+  },
+  {
+    img: '/img/site/slide-2.webp', alt: 'Un risotto mantecato dans une meule de Parmigiano Reggiano',
+    tab: 'À la source', eyebrow: 'Nos produits italiens',
+    lines: ['Des produits'], accent: 'nés en Italie',
+    lead: 'Parmigiano Reggiano, jambon de Parme, mozzarella di bufala : nous allons chercher chaque produit chez ceux qui le font.',
+    cta: { label: 'Nos produits italiens', href: '/notre-cuisine-italienne/nos-produits-italiens' }, cta2: { label: 'Notre signature', href: '/notre-cuisine-italienne/notre-signature' },
+  },
+  {
+    img: '/img/site/slide-3.webp', alt: 'La carte Il Ristorante posée sur une table dressée',
+    tab: 'Votre table', eyebrow: 'De Lille à Toulon',
+    lines: ['Votre table'], accent: 'vous attend',
+    lead: 'Trouvez le restaurant le plus proche, réservez en deux gestes ou commandez en Click & Collect.',
+    cta: { label: 'Trouver un restaurant', href: '/restaurants' }, cta2: { label: 'Click & Collect', href: ext.commander },
+  },
+];
+---
+<section class="hero hero--slider" data-hero data-slider aria-roledescription="carrousel" aria-label="À la une">
+  <div class="hero-media">
+    <img src={slides[0].img} alt={slides[0].alt} data-gl="hero" data-slides={slides.map((s) => s.img).join('|')} loading="eager" fetchpriority="high" />
+    {slides.slice(1).map((s) => <img class="hs-alt" src={s.img} alt="" loading="lazy" />)}
+  </div>
+
+  <div class="hs-stage">
+    {slides.map((s, i) => {
+      const Tag = i === 0 ? 'h1' : 'h2';
+      return (
+        <article class:list={['hs-slide', { 'is-on': i === 0 }]} data-slide={i} aria-roledescription="diapositive" aria-label={`${i + 1} sur ${slides.length} : ${s.tab}`} aria-hidden={i === 0 ? 'false' : 'true'}>
+          <p class="hs-eyebrow eyebrow"><span>{String(i + 1).padStart(2, '0')}</span>{s.eyebrow}</p>
+          <Tag class="hs-title display h-xxl">
+            {s.lines.map((l) => <span class="hs-line"><span>{l}</span></span>)}
+            <span class="hs-line"><span class="script">{s.accent}</span></span>
+          </Tag>
+          <div class="hs-foot">
+            <p class="lead">{s.lead}</p>
+            <div class="hs-ctas">
+              <a class="btn hs-cta" href={s.cta.href} data-magnetic tabindex={i === 0 ? 0 : -1}>{s.cta.label} <Arrow /></a>
+              <a class="btn btn--ghost hs-cta2" href={s.cta2.href} tabindex={i === 0 ? 0 : -1} {...(s.cta2.href.startsWith('http') ? { target: '_blank', rel: 'noopener' } : {})}>{s.cta2.label}</a>
+            </div>
+          </div>
+        </article>
+      );
+    })}
+  </div>
+
+  <div class="hs-bar" data-reveal>
+    <div class="hs-tabs" role="tablist" aria-label="Choisir une diapositive">
+      {slides.map((s, i) => (
+        <button type="button" role="tab" class:list={['hs-tab', { 'is-on': i === 0 }]} aria-selected={i === 0 ? 'true' : 'false'} data-go={i}>
+          <span class="hs-tab-n">{String(i + 1).padStart(2, '0')}</span>
+          <span class="hs-tab-l">{s.tab}</span>
+          <i class="hs-tab-p"><i></i></i>
+        </button>
+      ))}
+    </div>
+    <div class="hs-nav">
+      <button type="button" class="hs-arrow" data-prev aria-label="Diapositive précédente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M15 5 8 12l7 7" /></svg></button>
+      <p class="hs-count" aria-live="polite"><b data-count>01</b> / {String(slides.length).padStart(2, '0')}</p>
+      <button type="button" class="hs-arrow" data-next aria-label="Diapositive suivante"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg></button>
+    </div>
+  </div>
+
+  <Sticker shape="stickers-08" style="right:calc(var(--gutter) + 4vw);top:22vh" spin>Depuis<br />2006</Sticker>
+</section>

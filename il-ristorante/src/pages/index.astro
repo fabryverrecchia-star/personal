@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import PageHero from '../components/PageHero.astro';
+import HeroSlider from '../components/HeroSlider.astro';
 import Media from '../components/Media.astro';
 import Sticker from '../components/Sticker.astro';
 import Stats from '../components/Stats.astro';
@@ -24,11 +25,7 @@ const gallery = [
 ];
 ---
 <Base title="Accueil" label="Il Ristorante">
-  <PageHero image="/img/site/home-hero.webp" alt="La salle d’un restaurant Il Ristorante, banquettes bleues et étagères garnies de produits italiens">
-    <Fragment slot="title">Le vrai dans<br />l’assiette, <span class="script">l’Italie dans le cœur</span></Fragment>
-    <Fragment slot="lead">Depuis 2006, on partage l’Italie telle qu’on l’aime : vraie, généreuse, gourmande. Des producteurs que l’on connaît, des produits que l’on respecte.</Fragment>
-    <Sticker shape="stickers-08" style="right:calc(var(--gutter) + 4vw);top:22vh" spin>Depuis<br />2006</Sticker>
-  </PageHero>
+  <HeroSlider />
 
   <section class="section wrap t-dolce">
     <div class="sec-head"><span class="eyebrow">Notre recette secrète</span><span class="idx">I.</span></div>

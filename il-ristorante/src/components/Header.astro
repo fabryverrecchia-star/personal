@@ -1,6 +1,6 @@
 ---
 import Logo from './Logo.astro';
-import { nav, socials, restaurants, regions, restaurantHref } from '../data/site';
+import { nav, socials, restaurants, regions, restaurantHref, menuPanels } from '../data/site';
 const byRegion = regions.map((r) => ({ region: r, list: restaurants.filter((x) => x.region === r) }));
 const caret = '<svg class="caret" viewBox="0 0 8 5" fill="none" stroke="currentColor" aria-hidden="true"><path d="M.5.5 4 4 7.5.5" /></svg>';
 ---
@@ -8,32 +8,48 @@ const caret = '<svg class="caret" viewBox="0 0 8 5" fill="none" stroke="currentC
   <Logo />
   <nav aria-label="Navigation principale">
     <ul class="nav">
-      {nav.map((item) => (
-        <li class:list={{ 'has-mega': item.mega }}>
-          <a href={item.href} class:list={[item.highlight ? 'is-cta' : 'link-u']} data-nav-link>
-            {item.label}
-            {(item.children || item.mega) && <Fragment set:html={caret} />}
-          </a>
-          {item.children && (
-            <ul class="dropdown">
-              {item.children.map((c) => <li><a href={c.href} data-nav-link>{c.label}</a></li>)}
-            </ul>
-          )}
-          {item.mega && (
-            <div class="mega">
-              <div class="mega-cols">
-                {byRegion.map((g) => (
-                  <div>
-                    <p class="mega-region">{g.region}</p>
-                    <ul>{g.list.map((r) => <li><a href={restaurantHref(r)} data-nav-link data-label={r.name}>{r.name}</a></li>)}</ul>
+      {nav.map((item) => {
+        const P = menuPanels[item.label];
+        const links = item.children ?? [];
+        return (
+          <li class:list={{ 'has-mm': !!P }}>
+            <a href={item.href} class:list={[item.highlight ? 'is-cta' : 'link-u']} data-nav-link>
+              {item.label}
+              {P && <Fragment set:html={caret} />}
+            </a>
+            {P && (
+              <div class:list={['mm', P.theme, { 'mm--restos': item.mega }]} data-mm>
+                <div class="mm-intro">
+                  <p class="mm-kicker">{P.kicker}</p>
+                  <p class="mm-title">{P.title}</p>
+                  <p class="mm-text">{P.text}</p>
+                  <a class="mm-all" href={item.href} data-nav-link>{item.mega ? `Voir la carte des ${restaurants.length} restaurants` : `Tout ${item.label}`}<span aria-hidden="true">→</span></a>
+                </div>
+                {item.mega ? (
+                  <div class="mm-regions">
+                    {byRegion.map((g) => (
+                      <div>
+                        <p class="mm-region">{g.region}<span>{g.list.length}</span></p>
+                        <ul>{g.list.map((r) => <li><a href={restaurantHref(r)} data-nav-link data-mm-img={r.img} data-label={r.name}>{r.name}</a></li>)}</ul>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <ol class="mm-links">
+                    {links.map((c, n) => (
+                      <li style={`--n:${n}`}><a href={c.href} data-nav-link data-mm-img={P.imgs[c.href] ?? P.img}><span class="mm-n">{String(n + 1).padStart(2, '0')}</span><span class="mm-l">{c.label}</span><span class="mm-go" aria-hidden="true">→</span></a></li>
+                    ))}
+                  </ol>
+                )}
+                <figure class="mm-media" aria-hidden="true">
+                  <img src={P.img} alt="" loading="lazy" class="is-on" />
+                  <img src={P.img} alt="" loading="lazy" />
+                </figure>
               </div>
-              <a class="mega-all" href="/restaurants" data-nav-link>Voir la carte des {restaurants.length} restaurants →</a>
-            </div>
-          )}
-        </li>
-      ))}
+            )}
+          </li>
+        );
+      })}
     </ul>
   </nav>
   <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" data-burger><span></span><span></span></button>
@@ -80,3 +96,28 @@ const caret = '<svg class="caret" viewBox="0 0 8 5" fill="none" stroke="currentC
     </div>
   </nav>
 </div>
+
+<script>
+  // Méga-menu : l'image suit le lien survolé (fondu croisé entre deux calques)
+  document.querySelectorAll<HTMLElement>('[data-mm]').forEach((mm) => {
+    const imgs = mm.querySelectorAll<HTMLImageElement>('.mm-media img');
+    const base = imgs[0].getAttribute('src')!;
+    let cur = 0;
+    const show = (src: string) => {
+      if (imgs[cur].getAttribute('src') === src) return;
+      const next = 1 - cur;
+      imgs[next].src = src;
+      const go = () => { imgs[next].classList.add('is-on'); imgs[cur].classList.remove('is-on'); cur = next; };
+      if (imgs[next].complete) go(); else imgs[next].onload = go;
+    };
+    mm.querySelectorAll<HTMLElement>('[data-mm-img]').forEach((a) => {
+      a.addEventListener('pointerenter', () => show(a.dataset.mmImg!));
+      a.addEventListener('focus', () => show(a.dataset.mmImg!));
+    });
+    mm.addEventListener('pointerleave', () => show(base));
+    // Préchargement au premier survol de la rubrique
+    mm.parentElement!.addEventListener('pointerenter', () => {
+      mm.querySelectorAll<HTMLElement>('[data-mm-img]').forEach((a) => { const i = new Image(); i.src = a.dataset.mmImg!; });
+    }, { once: true });
+  });
+</script>

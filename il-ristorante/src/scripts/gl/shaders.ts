@@ -64,30 +64,52 @@ void main() {
 export const heroFragment = /* glsl */ `
 precision highp float;
 uniform sampler2D uTex;
+uniform sampler2D uTex2;
 uniform sampler2D uFlow;
 uniform vec2 uImg;
+uniform vec2 uImg2;
 uniform vec2 uPlane;
 uniform vec2 uResolution;
+uniform vec4 uRadius;
 uniform float uReveal;
 uniform float uScroll;
 uniform float uLoaded;
-uniform vec4 uRadius;
+uniform float uMix;   // 0 : image courante, 1 : image suivante (slider)
 varying vec2 vUv;
 ${common}
 void main() {
   // Le pointeur laisse un léger sillage, comme un doigt sur une nappe
   vec2 flow = texture2D(uFlow, gl_FragCoord.xy / uResolution).rg;
-
   float zoom = 1.0 - 0.18 * (1.0 - uReveal) - 0.08 * uScroll;
   vec2 c = (vUv - 0.5) * zoom + 0.5;
   c.y += uScroll * 0.1;
   c -= flow * 0.025;
 
-  vec3 col = texture2D(uTex, cover(c, uPlane, uImg)).rgb;
+  // Transition de slide : l'image suivante s'ouvre dans un médaillon qui s'agrandit,
+  // son bord ondule légèrement et pousse l'image courante vers l'extérieur.
+  vec2 p = (vUv - 0.5) * 2.0;
+  p.x *= mix(1.0, uPlane.x / uPlane.y, 0.35);
+  float e = length(p);
+  float ang = atan(p.y, p.x);
+  float m = uMix;
+  float rad = m * 1.95 + sin(ang * 5.0 + m * 7.0) * 0.035 * sin(m * 3.14159);
+  float soft = 0.06;
+  float k = 1.0 - smoothstep(rad - soft, rad, e);           // 1 dans le médaillon
+  float edge = smoothstep(rad - 0.35, rad, e) * (1.0 - smoothstep(rad, rad + 0.25, e));
+  vec2 dir = normalize(p + 1e-5);
+
+  vec2 ca = c + dir * edge * 0.035 * sin(m * 3.14159);
+  ca = (ca - 0.5) * (1.0 - 0.06 * m) + 0.5;                  // l'image courante recule
+  vec3 colA = texture2D(uTex, cover(ca, uPlane, uImg)).rgb;
+  vec2 cb = (c - 0.5) * (1.0 + 0.14 * (1.0 - m)) + 0.5;      // la suivante arrive légèrement zoomée
+  cb -= dir * edge * 0.02;
+  vec3 colB = texture2D(uTex2, cover(cb, uPlane, uImg2)).rgb;
+  vec3 col = mix(colA, colB, k * step(0.0001, m));
+  col += vec3(1.0, 0.96, 0.88) * edge * 0.12 * sin(m * 3.14159); // liseré lumineux, couleur Dolce
+
   col *= 1.0 - uScroll * 0.4; // le hero s'assombrit en sortant de l'écran
-  // Coins arrondis du conteneur (grande feuille arrondie)
-  vec2 p = (vUv - 0.5) * uPlane;
-  float a = 1.0 - smoothstep(-1.0, 0.5, sdRound(p, uPlane * 0.5, uRadius));
+  vec2 q = (vUv - 0.5) * uPlane;
+  float a = 1.0 - smoothstep(-1.0, 0.5, sdRound(q, uPlane * 0.5, uRadius));
   gl_FragColor = vec4(col, a * oval(vUv, uPlane, uReveal) * uLoaded);
 }
 `;

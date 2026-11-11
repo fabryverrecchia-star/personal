@@ -140,6 +140,9 @@ class Media {
       uScroll: { value: 0 },
       uParallax: { value: 0 },
       uLoaded: { value: 0 },
+      uTex2: { value: null },
+      uImg2: { value: new THREE.Vector2(1, 1) },
+      uMix: { value: 0 },
     };
     const material = new THREE.ShaderMaterial({
       vertexShader: mediaVertex,
@@ -199,6 +202,26 @@ class Media {
     const dpr = this.gl.renderer.getPixelRatio();
     this.uniforms.uResolution.value.set(this.gl.w * dpr, this.gl.h * dpr);
   }
+
+  /** Slider du hero : passe à l'image src par une ouverture en médaillon. */
+  slideTo(src: string, duration = 1.7) {
+    const u = this.uniforms;
+    return this.gl.texture(src).then((tex) => {
+      if (this.ac.signal.aborted) return;
+      const image = tex.image as HTMLImageElement;
+      gsap.killTweensOf(u.uMix);
+      if (u.uMix.value > 0 && u.uTex2.value) { u.uTex.value = u.uTex2.value; u.uImg.value.copy(u.uImg2.value); }
+      u.uTex2.value = tex;
+      u.uImg2.value.set(image.naturalWidth || image.width, image.naturalHeight || image.height);
+      u.uMix.value = 0;
+      gsap.to(u.uMix, { value: 1, duration, ease: 'expo.inOut', onComplete: () => {
+        u.uTex.value = tex; u.uImg.value.copy(u.uImg2.value); u.uMix.value = 0;
+      } });
+    });
+  }
+
+  /** Précharge des textures (images suivantes du slider). */
+  preload(srcs: string[]) { srcs.forEach((s) => this.gl.texture(s)); }
 
   /** Révélation pilotée de l'extérieur (hero). */
   reveal(delay = 0) {
