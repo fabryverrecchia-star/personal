@@ -24,7 +24,7 @@ for (const file of walk(dist)) {
   if (/^\/(img|brand|fonts)\//.test(rel) || rel === '/favicon.svg') {
     // Images allégées pour l'aperçu (le site réel garde les originaux)
     const data = extname(file) === '.webp'
-      ? await sharp(file).resize({ width: 760, withoutEnlargement: true }).webp({ quality: 55 }).toBuffer()
+      ? await sharp(file).resize({ width: 1800, withoutEnlargement: true }).webp({ quality: 78 }).toBuffer()
       : readFileSync(file);
     assets[rel] = `data:${mime[extname(file)]};base64,${data.toString('base64')}`;
   }

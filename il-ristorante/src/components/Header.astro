@@ -1,60 +1,103 @@
 ---
+// En-tête et menu plein écran (ordinateur, tablette et mobile).
+// Ordinateur et tablette paysage : rubriques à gauche, liens de la rubrique au centre, image en arche à droite ;
+// le fond prend la couleur de la rubrique survolée. Mobile et tablette portrait : accordéon.
 import Logo from './Logo.astro';
-import { nav, socials, restaurants, regions, restaurantHref, menuPanels } from '../data/site';
+import { nav, socials, restaurants, regions, restaurantHref, menuPanels, ext } from '../data/site';
 const byRegion = regions.map((r) => ({ region: r, list: restaurants.filter((x) => x.region === r) }));
-const caret = '<svg class="caret" viewBox="0 0 8 5" fill="none" stroke="currentColor" aria-hidden="true"><path d="M.5.5 4 4 7.5.5" /></svg>';
+const items = nav.filter((i) => !i.highlight);
+const franchise = nav.find((i) => i.highlight)!;
 ---
 <header class="header" data-header>
   <Logo />
-  <nav aria-label="Navigation principale">
-    <ul class="nav">
-      {nav.map((item) => {
+  <div class="h-actions">
+    <a class="h-link link-u" href={franchise.href} data-nav-link>{franchise.label}</a>
+    <a class="btn h-book" href={ext.reserver} data-nav-link>Réserver</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu" data-burger>
+      <span class="burger-l" aria-hidden="true">Menu</span>
+      <span class="burger-i" aria-hidden="true"><i></i><i></i></span>
+    </button>
+  </div>
+</header>
+
+<div class="menu" id="menu" data-menu data-lenis-prevent role="dialog" aria-modal="true" aria-label="Menu">
+  <!-- Ordinateur et tablette paysage -->
+  <div class="fm t-giardino" data-fm>
+    <div class="fm-bg" aria-hidden="true"></div>
+    <nav class="fm-rubrics" aria-label="Rubriques">
+      <ol>
+        {items.map((item, i) => {
+          const P = menuPanels[item.label];
+          return (
+            <li style={`--i:${i}`}>
+              <a href={item.href} data-nav-link data-fm-tab={String(i)} data-theme={P?.theme ?? 't-giardino'} data-fm-img={P?.img}>
+                <span class="fm-n">{String(i + 1).padStart(2, '0')}</span>
+                <span class="fm-r">{item.label}</span>
+              </a>
+            </li>
+          );
+        })}
+        <li style={`--i:${items.length}`} class="fm-franchise">
+          <a href={franchise.href} data-nav-link data-fm-tab="f" data-theme="t-chianti" data-fm-img="/img/site/franchise-facade.webp">
+            <span class="fm-n">{String(items.length + 1).padStart(2, '0')}</span>
+            <span class="fm-r">{franchise.label}</span>
+          </a>
+        </li>
+      </ol>
+    </nav>
+
+    <div class="fm-panels">
+      {items.map((item, i) => {
         const P = menuPanels[item.label];
-        const links = item.children ?? [];
         return (
-          <li class:list={{ 'has-mm': !!P }}>
-            <a href={item.href} class:list={[item.highlight ? 'is-cta' : 'link-u']} data-nav-link>
-              {item.label}
-              {P && <Fragment set:html={caret} />}
-            </a>
-            {P && (
-              <div class:list={['mm', P.theme, { 'mm--restos': item.mega }]} data-mm>
-                <div class="mm-intro">
-                  <p class="mm-kicker">{P.kicker}</p>
-                  <p class="mm-title">{P.title}</p>
-                  <p class="mm-text">{P.text}</p>
-                  <a class="mm-all" href={item.href} data-nav-link>{item.mega ? `Voir la carte des ${restaurants.length} restaurants` : `Tout ${item.label}`}<span aria-hidden="true">→</span></a>
-                </div>
-                {item.mega ? (
-                  <div class="mm-regions">
-                    {byRegion.map((g) => (
-                      <div>
-                        <p class="mm-region">{g.region}<span>{g.list.length}</span></p>
-                        <ul>{g.list.map((r) => <li><a href={restaurantHref(r)} data-nav-link data-mm-img={r.img} data-label={r.name}>{r.name}</a></li>)}</ul>
-                      </div>
-                    ))}
+          <div class:list={['fm-panel', { 'is-on': i === 0 }]} data-fm-panel={String(i)}>
+            <p class="fm-kicker">{P?.kicker}</p>
+            <p class="fm-text">{P?.text}</p>
+            {item.mega ? (
+              <div class="fm-regions">
+                {byRegion.map((g) => (
+                  <div>
+                    <p class="fm-region">{g.region}<span>{g.list.length}</span></p>
+                    <ul>{g.list.map((r) => <li><a href={restaurantHref(r)} data-nav-link data-fm-img={r.img} data-label={r.name}>{r.name}</a></li>)}</ul>
                   </div>
-                ) : (
-                  <ol class="mm-links">
-                    {links.map((c, n) => (
-                      <li style={`--n:${n}`}><a href={c.href} data-nav-link data-mm-img={P.imgs[c.href] ?? P.img}><span class="mm-n">{String(n + 1).padStart(2, '0')}</span><span class="mm-l">{c.label}</span><span class="mm-go" aria-hidden="true">→</span></a></li>
-                    ))}
-                  </ol>
-                )}
-                <figure class="mm-media" aria-hidden="true">
-                  <img src={P.img} alt="" loading="lazy" class="is-on" />
-                  <img src={P.img} alt="" loading="lazy" />
-                </figure>
+                ))}
               </div>
+            ) : (
+              <ul class="fm-links">
+                {(item.children ?? []).map((c, n) => (
+                  <li style={`--n:${n}`}><a href={c.href} data-nav-link data-fm-img={P?.imgs[c.href] ?? P?.img}><span>{c.label}</span><i aria-hidden="true">→</i></a></li>
+                ))}
+              </ul>
             )}
-          </li>
+            <a class="fm-all" href={item.href} data-nav-link>{item.mega ? `La carte des ${restaurants.length} restaurants` : `Tout ${item.label}`}<span aria-hidden="true">→</span></a>
+          </div>
         );
       })}
-    </ul>
-  </nav>
-  <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" data-burger><span></span><span></span></button>
-</header>
-<div class="menu" id="menu" data-menu data-lenis-prevent role="dialog" aria-modal="true" aria-label="Menu">
+      <div class="fm-panel" data-fm-panel="f">
+        <p class="fm-kicker">Franchise</p>
+        <p class="fm-text">Ouvrez votre Ristorante avec nous : chiffres du réseau, conditions d’implantation, étapes et candidature.</p>
+        <a class="fm-all" href={franchise.href} data-nav-link>Devenir franchisé<span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+
+    <figure class="fm-media" aria-hidden="true">
+      <img src={menuPanels[items[0].label]?.img} alt="" loading="lazy" class="is-on" />
+      <img src={menuPanels[items[0].label]?.img} alt="" loading="lazy" />
+    </figure>
+
+    <div class="fm-foot">
+      <div class="fm-acts">
+        <a class="btn fm-book" href={ext.reserver} data-nav-link>Réserver une table <span aria-hidden="true">→</span></a>
+        <a class="btn btn--ghost fm-cc" href={ext.commander} target="_blank" rel="noopener">Click &amp; Collect</a>
+      </div>
+      <p class="fm-meta">
+        <a href="/contact" data-nav-link>Contact</a>
+        {socials.map((s) => <a href={s.href} target="_blank" rel="noopener">{s.label}</a>)}
+      </p>
+    </div>
+  </div>
+
+  <!-- Mobile et tablette portrait : accordéon -->
   <nav class="menu-inner" aria-label="Navigation mobile">
     <ul class="menu-list">
       {nav.map((item, i) => (
@@ -98,26 +141,45 @@ const caret = '<svg class="caret" viewBox="0 0 8 5" fill="none" stroke="currentC
 </div>
 
 <script>
-  // Méga-menu : l'image suit le lien survolé (fondu croisé entre deux calques)
-  document.querySelectorAll<HTMLElement>('[data-mm]').forEach((mm) => {
-    const imgs = mm.querySelectorAll<HTMLImageElement>('.mm-media img');
-    const base = imgs[0].getAttribute('src')!;
-    let cur = 0;
-    const show = (src: string) => {
-      if (imgs[cur].getAttribute('src') === src) return;
+  // Menu plein écran : la rubrique survolée change la couleur du fond, le panneau et l'image
+  const fm = document.querySelector<HTMLElement>('[data-fm]');
+  if (fm) {
+    const imgs = fm.querySelectorAll<HTMLImageElement>('.fm-media img');
+    const panels = fm.querySelectorAll<HTMLElement>('[data-fm-panel]');
+    const tabs = fm.querySelectorAll<HTMLElement>('[data-fm-tab]');
+    let cur = 0, theme = 't-giardino', active = '0';
+    const show = (src?: string) => {
+      if (!src || imgs[cur].getAttribute('src') === src) return;
       const next = 1 - cur;
       imgs[next].src = src;
       const go = () => { imgs[next].classList.add('is-on'); imgs[cur].classList.remove('is-on'); cur = next; };
       if (imgs[next].complete) go(); else imgs[next].onload = go;
     };
-    mm.querySelectorAll<HTMLElement>('[data-mm-img]').forEach((a) => {
-      a.addEventListener('pointerenter', () => show(a.dataset.mmImg!));
-      a.addEventListener('focus', () => show(a.dataset.mmImg!));
+    const setTab = (t: HTMLElement) => {
+      const id = t.dataset.fmTab!;
+      if (id !== active) {
+        active = id;
+        tabs.forEach((x) => x.classList.toggle('is-on', x === t));
+        panels.forEach((p) => p.classList.toggle('is-on', p.dataset.fmPanel === id));
+        fm.classList.replace(theme, t.dataset.theme!);
+        theme = t.dataset.theme!;
+        document.documentElement.style.setProperty('--menu-fg', getComputedStyle(fm).getPropertyValue('--fg').trim());
+      }
+      show(t.dataset.fmImg);
+    };
+    tabs.forEach((t) => {
+      t.addEventListener('pointerenter', () => setTab(t));
+      t.addEventListener('focus', () => setTab(t));
     });
-    mm.addEventListener('pointerleave', () => show(base));
-    // Préchargement au premier survol de la rubrique
-    mm.parentElement!.addEventListener('pointerenter', () => {
-      mm.querySelectorAll<HTMLElement>('[data-mm-img]').forEach((a) => { const i = new Image(); i.src = a.dataset.mmImg!; });
+    tabs[0]?.classList.add('is-on');
+    document.documentElement.style.setProperty('--menu-fg', getComputedStyle(fm).getPropertyValue('--fg').trim());
+    fm.querySelectorAll<HTMLElement>('.fm-panels [data-fm-img]').forEach((a) => {
+      a.addEventListener('pointerenter', () => show(a.dataset.fmImg));
+      a.addEventListener('focus', () => show(a.dataset.fmImg));
+    });
+    // Préchargement des images à la première ouverture
+    document.querySelector('[data-burger]')?.addEventListener('click', () => {
+      fm.querySelectorAll<HTMLElement>('[data-fm-img]').forEach((a) => { const i = new Image(); i.src = a.dataset.fmImg!; });
     }, { once: true });
-  });
+  }
 </script>
