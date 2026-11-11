@@ -46,7 +46,7 @@ P = {
     'p_serveur': ('serveur', 760), 'p_chefbar': ('chef-bar', 760), 'p_board': ('board', 760), 'p_resto_photo': ('r-lille', 900),
     'p_plats2': ('plats-selection', 760), 'p_cave': ('cave', 520), 'p_salle': ('franchise-salle', 760), 'p_spritz': ('franchise-spritz', 520),
     'p_gelato': ('gelato', 760), 'p_homebar': ('home-bar', 760), 'p_facade': ('franchise-facade', 760), 'p_fcuisine': ('franchise-cuisine', 760),
-    'p_desserts': ('desserts', 520), 'p_teamfun': ('team-fun', 520), 'p_vins': ('vins-roses', 520),
+    'p_desserts': ('desserts', 520), 'p_interieur': ('interieur-plan-de-campagne', 760), 'p_teamrouen': ('team-rouen', 760), 'p_seminaire': ('seminaire', 760), 'p_salle2': ('franchise-salle-2', 760), 'p_teamfun': ('team-fun', 520), 'p_vins': ('vins-roses', 520),
 }
 images = {k: (caps / f'{v}.png', D) for k, v in C.items()}
 images.update({k: (caps / f'{v}.png', M) for k, v in Mo.items()})

@@ -881,3 +881,13 @@ button, input, select, textarea { font: inherit; }
 .vp .mapctl { left: auto; right: 22px; top: 18px; bottom: auto; }
 .vp .mapctl .mc { background: var(--ir-dolce); color: var(--ir-giardino); box-shadow: 0 6px 16px -6px rgb(0 0 0 / 0.4); }
 .irm-chianti .mapctl .mc { color: var(--ir-chianti); }
+
+/* Pages de chapitre */
+.div-r { display: flex; flex-direction: column; justify-content: center; gap: calc(22 * var(--u)); min-width: 0; }
+.div-r .k { color: var(--soft); }
+@media print {
+  .amap { perspective: none !important; }
+  .amap .plane { transform: none !important; opacity: 1 !important; }
+  .amap .pt, .amap .ring, .amap .opp { transition: none !important; }
+  .vp-body { overflow: hidden !important; }
+}

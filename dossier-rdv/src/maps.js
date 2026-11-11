@@ -312,6 +312,8 @@
   window.__mapsFinal = function () {
     maps.forEach(function (m) {
       if (m.api.stop) m.api.stop();
+      (m.timers || []).forEach(clearTimeout);
+      m.played = true; m.still = true;
       m.box.classList.add('go', 'instant', 'live');
       if (m.counter && m.api.count) m.counter.textContent = m.api.count;
     });
