@@ -1127,3 +1127,14 @@ html.menu-open .header .mbtn { --mb-bg: var(--dolce); --mb-fg: var(--giardino); 
 .mbtn .mbtn-i { transition: transform 0.45s var(--spring, var(--ease-out)); }
 .mbtn:hover .mbtn-i { transform: scale(1.08) rotate(-8deg); }
 html.menu-open .mbtn:hover .mbtn-i { transform: rotate(90deg); }
+@media (min-width: 1024px) and (min-aspect-ratio: 1/1) {
+  .fm-panels { align-self: stretch; min-height: 0; }
+  .fm-panel { justify-content: safe center; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+  .fm-panel::-webkit-scrollbar { display: none; }
+  .fm-panel:has(.fm-regions) { gap: 0.8rem; }
+  .fm-panel:has(.fm-regions) .fm-text { display: none; }
+  .fm-regions { gap: 0.7rem 1.2rem; }
+  .fm-regions a { padding: 0.08rem 0; font-size: 0.82rem; }
+  .fm-region { font-size: 0.95rem; padding-bottom: 0.3rem; margin-bottom: 0.2rem; }
+}
+@media (min-width: 1024px) and (min-aspect-ratio: 1/1) { .menu { overflow: clip; } }

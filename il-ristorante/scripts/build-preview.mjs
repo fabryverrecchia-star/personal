@@ -9,7 +9,9 @@ import { join, relative, extname } from 'node:path';
 
 const root = new URL('..', import.meta.url).pathname;
 const dist = join(root, 'dist');
-const out = join(root, 'preview', 'il-ristorante-apercu.html');
+const out = process.env.PREVIEW_OUT || join(root, 'preview', 'il-ristorante-apercu.html');
+// Version légère (présentation) : PREVIEW_W=900 PREVIEW_Q=62 PREVIEW_NOVIDEO=1
+const W = Number(process.env.PREVIEW_W || 1800), Q = Number(process.env.PREVIEW_Q || 78);
 
 const walk = (dir) => readdirSync(dir).flatMap((f) => {
   const p = join(dir, f);
@@ -24,7 +26,7 @@ for (const file of walk(dist)) {
   if (/^\/(img|brand|fonts)\//.test(rel) || rel === '/favicon.svg') {
     // Images allégées pour l'aperçu (le site réel garde les originaux)
     const data = extname(file) === '.webp'
-      ? await sharp(file).resize({ width: 1800, withoutEnlargement: true }).webp({ quality: 78 }).toBuffer()
+      ? await sharp(file).resize({ width: W, withoutEnlargement: true }).webp({ quality: Q }).toBuffer()
       : readFileSync(file);
     assets[rel] = `data:${mime[extname(file)]};base64,${data.toString('base64')}`;
   }
@@ -34,7 +36,7 @@ for (const file of walk(dist)) {
 const videoDir = join(dist, 'videos');
 const cache = join(tmpdir(), 'ilr-preview-videos');
 mkdirSync(cache, { recursive: true });
-for (const f of readdirSync(videoDir).filter((f) => f.endsWith('-720.mp4'))) {
+for (const f of process.env.PREVIEW_NOVIDEO ? [] : readdirSync(videoDir).filter((f) => f.endsWith('-720.mp4'))) {
   const slug = f.replace('-720.mp4', '');
   const out = join(cache, slug + '.mp4');
   try { statSync(out); } catch {
