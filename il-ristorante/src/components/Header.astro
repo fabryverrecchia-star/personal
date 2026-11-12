@@ -32,7 +32,7 @@ const franchise = nav.find((i) => i.highlight)!;
           const P = menuPanels[item.label];
           return (
             <li style={`--i:${i}`}>
-              <a href={item.href} data-nav-link data-fm-tab={String(i)} data-theme={P?.theme ?? 't-giardino'} data-fm-img={P?.img}>
+              <a href={item.href} data-nav-link data-label={item.label} data-fm-tab={String(i)} data-theme={P?.theme ?? 't-giardino'} data-fm-img={P?.img}>
                 <span class="fm-n">{String(i + 1).padStart(2, '0')}</span>
                 <span class="fm-r">{item.label}</span>
               </a>
@@ -40,7 +40,7 @@ const franchise = nav.find((i) => i.highlight)!;
           );
         })}
         <li style={`--i:${items.length}`} class="fm-franchise">
-          <a href={franchise.href} data-nav-link data-fm-tab="f" data-theme="t-chianti" data-fm-img="/img/site/franchise-facade.webp">
+          <a href={franchise.href} data-nav-link data-label={franchise.label} data-fm-tab="f" data-theme="t-chianti" data-fm-img="/img/site/franchise-facade.webp">
             <span class="fm-n">{String(items.length + 1).padStart(2, '0')}</span>
             <span class="fm-r">{franchise.label}</span>
           </a>
@@ -67,7 +67,7 @@ const franchise = nav.find((i) => i.highlight)!;
             ) : (
               <ul class="fm-links">
                 {(item.children ?? []).map((c, n) => (
-                  <li style={`--n:${n}`}><a href={c.href} data-nav-link data-fm-img={P?.imgs[c.href] ?? P?.img}><span>{c.label}</span><i aria-hidden="true">→</i></a></li>
+                  <li style={`--n:${n}`}><a href={c.href} data-nav-link data-label={c.label} data-fm-img={P?.imgs[c.href] ?? P?.img}><span>{c.label}</span><i aria-hidden="true">→</i></a></li>
                 ))}
               </ul>
             )}

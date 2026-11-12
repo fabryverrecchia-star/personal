@@ -154,18 +154,37 @@ const curtainText = $('[data-curtain-text]')!;
 
 function curtainIn(label: string) {
   curtainText.textContent = label;
+  root.classList.remove('via-fade');
   return gsap.timeline()
     .set(curtain, { visibility: 'visible' })
-    .fromTo(panels, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.85, ease: 'expo.inOut', stagger: 0.1 })
-    .fromTo(curtainLabel, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.35');
+    .fromTo(curtain, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.55, ease: 'power2.inOut' })
+    .fromTo('.curtain-label img', { scale: 0.7, rotate: -20, autoAlpha: 0 }, { scale: 1, rotate: 0, autoAlpha: 1, duration: 0.7, ease: 'expo.out' }, 0.15)
+    .fromTo(curtainText, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 0.3);
 }
 
 function curtainOut() {
-  return gsap.timeline()
-    .to(curtainLabel, { autoAlpha: 0, y: -30, duration: 0.45, ease: 'power2.in' })
-    .to([...panels].reverse(), { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.95, ease: 'expo.inOut', stagger: 0.1 }, '-=0.15')
-    .set(curtain, { visibility: 'hidden' });
+  const fromFade = root.classList.contains('via-fade');
+  if (fromFade) gsap.set(curtain, { visibility: 'visible', autoAlpha: 1 });
+  return gsap.timeline({ onComplete: () => root.classList.remove('via-fade') })
+    .to(curtainLabel, { autoAlpha: 0, scale: 1.08, duration: 0.45, ease: 'power2.in' }, fromFade ? 0.25 : 0)
+    .to(curtain, { autoAlpha: 0, duration: 0.7, ease: 'power2.inOut' }, '-=0.15')
+    .set(curtain, { visibility: 'hidden' })
+    .set(curtainLabel, { clearProps: 'all' });
 }
+
+// Navigation par rechargement complet (version FTP) : le même fondu, puis la page suivante
+document.addEventListener('click', (e) => {
+  const a = (e.target as Element | null)?.closest?.('a[data-astro-reload]') as HTMLAnchorElement | null;
+  if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  if (a.target && a.target !== '_self') return;
+  const url = new URL(a.href, location.href);
+  if (url.origin !== location.origin || (url.pathname === location.pathname && url.hash)) return;
+  e.preventDefault();
+  setMenu(false);
+  try { sessionStorage.setItem('ilr-fade', '1'); } catch {}
+  const label = (a.dataset.label || a.querySelector('h2, h3')?.textContent || a.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 42);
+  (reduced ? Promise.resolve() : curtainIn(label).then()).then(() => { location.href = url.href; });
+}, true);
 
 let navigating = false;
 document.addEventListener('astro:before-preparation', (e) => {
@@ -240,20 +259,30 @@ document.addEventListener('astro:page-load', async () => {
 function loaderOut() {
   const loader = $('[data-loader]')!;
   const count = $('[data-loader-count]')!;
+  const depuis = $('[data-loader-depuis]')!;
   const bar = $('[data-loader-bar]')!;
+  // Navigation par rechargement (version FTP) : pas de preloader, simple fondu de marque
+  if (root.classList.contains('via-fade')) {
+    loader.remove();
+    return curtainOut();
+  }
   if (reduced) {
     loader.remove();
     return gsap.timeline();
   }
   lenis.stop();
-  const year = { v: 2006 };
-  const target = new Date().getFullYear();
+  const from = new Date().getFullYear();
+  const year = { v: from };
   const fonts = document.fonts?.ready ?? Promise.resolve();
   const tl = gsap.timeline({ paused: true, onComplete: () => { loader.remove(); lenis.start(); } });
+  // L'année décompte jusqu'à la fondation, puis glisse à droite pendant que « Depuis, » apparaît à sa gauche
   tl.fromTo('.loader-medal', { scale: 0.6, rotate: -12, autoAlpha: 0 }, { scale: 1, rotate: 0, autoAlpha: 1, duration: 1, ease: 'expo.out' })
-    .to(year, { v: target, duration: 1.6, ease: 'power2.inOut', onUpdate: () => { count.textContent = String(Math.round(year.v)); } }, 0.2)
-    .to(bar, { clipPath: 'inset(0 0% 0 0 round 6px)', duration: 1.8, ease: 'power2.inOut' }, 0)
-    .to('.loader-inner', { y: -40, autoAlpha: 0, duration: 0.6, ease: 'power3.in' }, '+=0.15')
+    .fromTo(count, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.15)
+    .to(year, { v: 2006, duration: 1.7, ease: 'power2.inOut', onUpdate: () => { count.textContent = String(Math.round(year.v)); } }, 0.35)
+    .to(depuis, { width: () => (depuis.firstElementChild as HTMLElement).offsetWidth, duration: 0.9, ease: 'power3.inOut' }, '+=0.05')
+    .fromTo(depuis.firstElementChild, { autoAlpha: 0, x: -18 }, { autoAlpha: 1, x: 0, duration: 0.7, ease: 'power2.out' }, '-=0.5')
+    .to(bar, { clipPath: 'inset(0 0% 0 0 round 6px)', duration: tl.duration(), ease: 'power2.inOut' }, 0)
+    .to('.loader-inner', { y: -40, autoAlpha: 0, duration: 0.6, ease: 'power3.in' }, '+=0.35')
     .to(loader, { clipPath: 'inset(0% 0% 100% 0%)', duration: 1.1, ease: 'expo.inOut' }, '-=0.25');
   fonts.then(() => tl.play());
   return tl;
