@@ -1153,6 +1153,38 @@ button, input, select, textarea { font: inherit; }
 @media (prefers-reduced-motion: reduce) { .det *, .det { animation: none !important; } .dl-dep { max-width: 6em; } .dl-year { --yr: 2006; } }
 @media (max-width: 899px), (max-aspect-ratio: 1/1) { .dets { grid-template-columns: 1fr; } .dets figcaption { font-size: 14px; } }
 
+/* ===== Repère flottant ===== */
+.pnav { position: fixed; z-index: 60; left: max(18px, env(safe-area-inset-left, 0px)); bottom: max(18px, env(safe-area-inset-bottom, 0px)); font-family: var(--f); }
+.pnav-btn { position: relative; display: flex; align-items: center; gap: 12px; padding: 8px 10px 8px 8px; border: 0; border-radius: 999px; background: #fff; color: var(--navy); cursor: pointer; box-shadow: 0 12px 30px -12px rgb(0 0 0 / .35), 0 0 0 1px rgb(0 48 66 / .08); text-align: left; transition: background-color .3s, color .3s; }
+.pnav-n { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-size: 13px; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.pnav-t { display: grid; gap: 1px; min-width: 150px; max-width: 260px; }
+.pnav-t b { font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pnav-t small { font-size: 11.5px; opacity: .6; font-variant-numeric: tabular-nums; }
+.pnav-i { display: grid; gap: 3px; width: 34px; height: 34px; place-content: center; border-radius: 50%; box-shadow: inset 0 0 0 1px currentColor; }
+.pnav-i i { width: 13px; height: 1.5px; background: currentColor; transition: transform .35s, opacity .3s; }
+.pnav.is-open .pnav-i i:nth-child(1) { transform: translateY(4.5px) rotate(45deg); }
+.pnav.is-open .pnav-i i:nth-child(2) { opacity: 0; }
+.pnav.is-open .pnav-i i:nth-child(3) { transform: translateY(-4.5px) rotate(-45deg); }
+.pnav-bar { position: absolute; left: 58px; right: 56px; bottom: 6px; height: 2px; border-radius: 2px; background: rgb(0 48 66 / .1); overflow: hidden; pointer-events: none; }
+.pnav-bar i { position: absolute; inset: 0; background: #ff3636; transform-origin: left; transform: scaleX(0); transition: transform .4s; }
+.pnav.on-dark .pnav-btn { background: rgb(255 255 255 / .12); color: #fff; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 0 0 1px rgb(255 255 255 / .22); }
+.pnav.on-dark .pnav-n { background: #fff; color: var(--navy); }
+.pnav.on-dark .pnav-bar { background: rgb(255 255 255 / .2); }
+.pnav-panel { position: absolute; left: 0; bottom: calc(100% + 10px); width: min(380px, calc(100vw - 36px)); max-height: calc(100vh - 120px); overflow: auto; padding: 18px; border-radius: 18px; background: #fff; color: var(--navy); box-shadow: 0 30px 60px -20px rgb(0 0 0 / .4), 0 0 0 1px rgb(0 48 66 / .08); }
+.pnav-h { font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; opacity: .6; margin-bottom: 8px; }
+.pnav-panel ol { display: grid; }
+.pnav-panel button { width: 100%; display: grid; grid-template-columns: 34px 1fr auto; align-items: baseline; gap: 8px; padding: 10px 6px; border: 0; border-bottom: 1px solid rgb(0 48 66 / .1); background: none; color: inherit; font: 400 15px/1.25 var(--f); text-align: left; cursor: pointer; border-radius: 6px; }
+.pnav-panel button span { font-size: 12px; opacity: .55; }
+.pnav-panel button em { font-style: normal; font-size: 11.5px; opacity: .5; }
+.pnav-panel button:hover { background: rgb(0 48 66 / .05); }
+.pnav-panel button.is-on { color: #ff3636; }
+.pnav-panel button.is-on span { opacity: 1; }
+.pnav-keys { margin-top: 10px; font-size: 11.5px; opacity: .55; }
+@media (max-width: 560px) { .pnav-t { min-width: 0; max-width: 46vw; } .pnav-bar { right: 52px; } }
+@media print { .pnav { display: none !important; } }
+
+@media screen and (min-width: 900px) and (min-aspect-ratio: 1/1) { .foot span:first-child { margin-left: 270px; } }
+
 </style>
 </head>
 <body>
@@ -3369,6 +3401,69 @@ button, input, select, textarea { font: inherit; }
     var f = $('form', ui);
     if (f) f.addEventListener('submit', function (e) { e.preventDefault(); $('[data-cand-status]', ui).textContent = 'Candidature préparée pour ' + $('[data-city]', ui).textContent + ' (démonstration).'; });
   });
+})();
+
+// Repère flottant : chapitre en cours, page en cours, sommaire en panneau.
+(function () {
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  if (!slides.length) return;
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var chapters = [];
+  slides.forEach(function (s, i) {
+    var m = (s.getAttribute('aria-label') || '').match(/^Chapitre (\d+)\s*:\s*(.+)$/);
+    if (m) chapters.push({ n: m[1], name: m[2].replace(/\s+/g, ' ').trim(), i: i });
+  });
+  var root = document.documentElement;
+  function stacked() { return root.classList.contains('stack'); }
+  function top(i) { return stacked() ? slides[0].parentElement.offsetTop + i * slides[0].offsetHeight : slides[i].offsetTop; }
+  function go(i) { scrollTo({ top: top(i), behavior: reduced ? 'auto' : 'smooth' }); }
+
+  var nav = document.createElement('nav');
+  nav.className = 'pnav';
+  nav.setAttribute('aria-label', 'Repère dans la présentation');
+  nav.innerHTML =
+    '<button type="button" class="pnav-btn" aria-expanded="false" aria-controls="pnav-panel">' +
+      '<span class="pnav-n" data-pn>00</span><span class="pnav-t"><b data-pt>Introduction</b><small data-pp>Page 1 / ' + slides.length + '</small></span>' +
+      '<span class="pnav-i" aria-hidden="true"><i></i><i></i><i></i></span>' +
+    '</button>' +
+    '<i class="pnav-bar" aria-hidden="true"><i data-pb></i></i>' +
+    '<div class="pnav-panel" id="pnav-panel" hidden><p class="pnav-h">Sommaire</p><ol>' +
+      chapters.map(function (c) { return '<li><button type="button" data-go="' + c.i + '"><span>' + c.n + '</span>' + c.name + '<em>p. ' + (c.i + 1) + '</em></button></li>'; }).join('') +
+    '</ol><p class="pnav-keys">Flèches ← → du clavier : page précédente ou suivante</p></div>';
+  document.body.appendChild(nav);
+  var btn = nav.querySelector('.pnav-btn'), panel = nav.querySelector('.pnav-panel');
+  var pn = nav.querySelector('[data-pn]'), pt = nav.querySelector('[data-pt]'), pp = nav.querySelector('[data-pp]'), pb = nav.querySelector('[data-pb]');
+  var items = Array.prototype.slice.call(nav.querySelectorAll('[data-go]'));
+  function open(v) { panel.hidden = !v; btn.setAttribute('aria-expanded', String(v)); nav.classList.toggle('is-open', v); }
+  btn.addEventListener('click', function () { open(panel.hidden); });
+  items.forEach(function (b) { b.addEventListener('click', function () { open(false); go(+b.getAttribute('data-go')); }); });
+  document.addEventListener('click', function (e) { if (!nav.contains(e.target)) open(false); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') open(false);
+    if (/input|select|textarea/i.test((e.target.tagName || ''))) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); go(Math.min(slides.length - 1, cur + 1)); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(Math.max(0, cur - 1)); }
+  });
+
+  var cur = 0;
+  function update() {
+    var y = scrollY + innerHeight * 0.45, k = 0;
+    for (var i = 0; i < slides.length; i++) if (top(i) <= y) k = i;
+    cur = k;
+    var c = null;
+    chapters.forEach(function (ch) { if (ch.i <= k) c = ch; });
+    pn.textContent = c ? c.n : '00';
+    pt.textContent = c ? c.name : 'Introduction';
+    pp.textContent = 'Page ' + (k + 1) + ' / ' + slides.length;
+    pb.style.transform = 'scaleX(' + ((k + 1) / slides.length).toFixed(3) + ')';
+    items.forEach(function (b) { b.classList.toggle('is-on', c && +b.getAttribute('data-go') === c.i); });
+    var dark = slides[k].classList.contains('s-navy');
+    nav.classList.toggle('on-dark', dark);
+  }
+  var tick = false;
+  addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(function () { tick = false; update(); }); } }, { passive: true });
+  addEventListener('resize', update);
+  update();
 })();
 
 </script>

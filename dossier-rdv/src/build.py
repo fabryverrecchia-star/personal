@@ -101,7 +101,7 @@ def iph(cls, keys):
 html = (here / 'deck.html').read_text()
 css = (here / 'deck.css').read_text()
 js = (here / 'deck.js').read_text()
-js += '\n' + (here / 'maps.js').read_text()
+js += '\n' + (here / 'maps.js').read_text() + '\n' + (here / 'nav.js').read_text()
 maps = json.loads((here / 'maps.json').read_text())
 
 data = json.loads((here / 'data.json').read_text())
