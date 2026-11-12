@@ -116,6 +116,13 @@
   }, { rootMargin: '100% 0px' });
   $$('#live').forEach(function (s) { liveIO.observe(s); });
 
+  // Rafales d'images en boucle (rush photo)
+  $$('[data-flip]').forEach(function (el) {
+    var imgs = $$('img', el), i = 0, ms = +el.getAttribute('data-flip') || 150;
+    if (reduced || imgs.length < 2) return;
+    setInterval(function () { if (printing || document.hidden) return; imgs[i].classList.remove('is-on'); i = (i + 1) % imgs.length; imgs[i].classList.add('is-on'); }, ms);
+  });
+
   // Pour l'impression : premier visuel de chaque écran
   window.__print = function () {
     printing = true;
