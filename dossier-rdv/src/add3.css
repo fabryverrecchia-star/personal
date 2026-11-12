@@ -1,0 +1,67 @@
+
+/* ===== Logo : seulement le changement de couleur ===== */
+.logo-anim svg { animation: none !important; }
+
+/* ===== Les détails : quatre animations en boucle ===== */
+.dets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(22 * var(--u)) calc(26 * var(--u)); }
+.dets figcaption { margin-top: calc(10 * var(--u)); font-size: calc(12.5 * var(--u)); color: var(--soft); }
+.dets figcaption b { display: block; color: var(--fg); font-size: calc(15 * var(--u)); font-weight: 500; }
+.det { position: relative; aspect-ratio: 16 / 8.2; overflow: hidden; border-radius: calc(12 * var(--u)); box-shadow: 0 0 0 1px var(--line), 0 20px 40px -26px rgb(0 48 66 / .4); font-family: var(--ir-sans); }
+
+/* Chargement : 2026 → 2006, puis « Depuis, » glisse à gauche */
+@property --yr { syntax: '<integer>'; initial-value: 2026; inherits: false; }
+.det-load { background: var(--ir-dolce); color: var(--ir-giardino); display: grid; place-content: center; justify-items: center; gap: calc(10 * var(--u)); }
+.dl-med { width: calc(54 * var(--u)); }
+.dl-txt { display: flex; align-items: baseline; font: 400 calc(46 * var(--u)) / .9 var(--ir-display); text-transform: uppercase; }
+.dl-dep { display: inline-block; overflow: hidden; white-space: nowrap; color: var(--ir-chianti); max-width: 0; animation: dl-dep 4.2s cubic-bezier(.65,0,.35,1) infinite; }
+.dl-year { --yr: 2026; counter-reset: yr var(--yr); animation: dl-yr 4.2s cubic-bezier(.65,0,.35,1) infinite; }
+.dl-year::after { content: counter(yr); font-variant-numeric: tabular-nums; }
+.dl-bar { position: absolute; left: 8%; right: 8%; bottom: 12%; height: 2px; background: var(--ir-pomodoro); transform-origin: left; animation: dl-bar 4.2s linear infinite; }
+@keyframes dl-yr { 0%, 8% { --yr: 2026; } 52%, 100% { --yr: 2006; } }
+@keyframes dl-dep { 0%, 55% { max-width: 0; padding-right: 0; } 75%, 100% { max-width: 6em; padding-right: .25em; } }
+@keyframes dl-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Entre deux pages : fondu Giardino */
+.det-tr img.dt-a, .det-tr img.dt-b { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.dt-b { animation: dt-b 4s infinite; }
+.dt-veil { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: calc(8 * var(--u)); background: var(--ir-giardino); color: var(--ir-dolce); opacity: 0; animation: dt-veil 4s cubic-bezier(.65,0,.35,1) infinite; }
+.dt-veil img { width: calc(40 * var(--u)); animation: dt-med 4s cubic-bezier(.16,1,.3,1) infinite; }
+.dt-veil span { font: 400 calc(22 * var(--u)) / 1 var(--ir-display); text-transform: uppercase; }
+@keyframes dt-veil { 0%, 18% { opacity: 0; } 32%, 56% { opacity: 1; } 72%, 100% { opacity: 0; } }
+@keyframes dt-b { 0%, 44% { opacity: 0; } 45%, 100% { opacity: 1; } }
+@keyframes dt-med { 0%, 22% { transform: scale(.7) rotate(-20deg); } 40%, 100% { transform: none; } }
+
+/* Le menu : la rubrique survolée change couleur et image */
+.det-menu { display: grid; grid-template-columns: 1.3fr 1fr; align-items: center; gap: 6%; padding: 0 7%; animation: dm-bg 6s steps(1) infinite; color: var(--ir-dolce); }
+.det-menu ol { display: grid; gap: calc(3 * var(--u)); font: 400 calc(19 * var(--u)) / 1 var(--ir-display); text-transform: uppercase; }
+.det-menu li { opacity: .4; transition: none; }
+.det-menu li:nth-child(1) { animation: dm-on1 6s steps(1) infinite; }
+.det-menu li:nth-child(2) { animation: dm-on2 6s steps(1) infinite; }
+.det-menu li:nth-child(3) { animation: dm-on3 6s steps(1) infinite; }
+.det-menu li:nth-child(4) { animation: dm-on4 6s steps(1) infinite; }
+.dm-arch { position: relative; aspect-ratio: 4 / 5; height: 78%; justify-self: end; border-radius: 999px 999px 10px 10px; overflow: hidden; }
+.dm-arch img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+.dm-arch img:nth-child(1) { animation: dm-on1 6s steps(1) infinite; }
+.dm-arch img:nth-child(2) { animation: dm-on2 6s steps(1) infinite; }
+.dm-arch img:nth-child(3) { animation: dm-on3 6s steps(1) infinite; }
+.dm-arch img:nth-child(4) { animation: dm-on4 6s steps(1) infinite; }
+@keyframes dm-bg { 0% { background: var(--ir-giardino); color: var(--ir-dolce); } 25% { background: var(--ir-chianti); color: var(--ir-dolce); } 50% { background: var(--ir-dolce); color: var(--ir-chianti); } 75% { background: var(--ir-cielo); color: var(--ir-giardino); } }
+@keyframes dm-on1 { 0% { opacity: 1; } 25% { opacity: .4; } }
+@keyframes dm-on2 { 0% { opacity: .4; } 25% { opacity: 1; } 50% { opacity: .4; } }
+@keyframes dm-on3 { 0% { opacity: .4; } 50% { opacity: 1; } 75% { opacity: .4; } }
+@keyframes dm-on4 { 0% { opacity: .4; } 75% { opacity: 1; } }
+.dm-arch img { --o0: 0; }
+.dm-arch img:nth-child(1) { animation-name: dm-i1; } .dm-arch img:nth-child(2) { animation-name: dm-i2; } .dm-arch img:nth-child(3) { animation-name: dm-i3; } .dm-arch img:nth-child(4) { animation-name: dm-i4; }
+@keyframes dm-i1 { 0% { opacity: 1; } 25% { opacity: 0; } }
+@keyframes dm-i2 { 0% { opacity: 0; } 25% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes dm-i3 { 0% { opacity: 0; } 50% { opacity: 1; } 75% { opacity: 0; } }
+@keyframes dm-i4 { 0% { opacity: 0; } 75% { opacity: 1; } }
+
+/* La page introuvable : l'assiette tourne au milieu du 404 */
+.det-404 { background: var(--ir-dolce); display: grid; place-content: center; justify-items: center; gap: calc(6 * var(--u)); }
+.d4-num { display: flex; align-items: center; gap: calc(6 * var(--u)); font: 400 calc(84 * var(--u)) / .8 var(--ir-display); color: var(--ir-chianti); }
+.d4-num img { width: calc(78 * var(--u)); height: calc(78 * var(--u)); animation: e404-spin 6s linear infinite; }
+.d4-t { font: 400 calc(22 * var(--u)) / 1 var(--ir-display); text-transform: uppercase; color: var(--ir-giardino); }
+@media print { .det *, .det { animation: none !important; } .dl-dep { max-width: 6em; padding-right: .25em; } .dl-year { --yr: 2006; } .dt-veil { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .det *, .det { animation: none !important; } .dl-dep { max-width: 6em; } .dl-year { --yr: 2006; } }
+@media (max-width: 899px), (max-aspect-ratio: 1/1) { .dets { grid-template-columns: 1fr; } .dets figcaption { font-size: 14px; } }

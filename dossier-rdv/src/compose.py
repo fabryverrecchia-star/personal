@@ -44,7 +44,7 @@ order = [
     take('Direction artistique : notre lecture de la charte 2026'), take('Logo signature 2026'), take('Palette de couleurs'), take('Palette : thèmes de section'), take('Typographies'),
     take('Médaillon et monogrammes'), take('Direction photo'), take('Composants d’interface'), take('De la charte au site : ce qui évolue'),
     divider('visiteur', 'Parcours visiteur', '04', [('Le parcours', 'De la recherche à la table.'), ('L’interface', 'Accueil, menu, store locator, pages restaurant.'), ('L’origine des produits', 'Des producteurs aux restaurants.')]),
-    N['parcours-visiteur'], N['ui-slider'], N['ui-slider-detail'], N['ui-menu'], N['ui-header'], N['page-404'],
+    N['parcours-visiteur'], N['ui-slider'], N['ui-slider-detail'], N['ui-menu'], N['ui-header'], N['details'],
     take('Landing page : vidéos producteurs'), take('Landing page : version mobile'),
     take('Store locator : démo'), take('Page restaurant : haut de page'), take('Page restaurant : infos pratiques'), take('Page restaurant : structure'),
     take('Carte d’Italie dans votre site : aperçu interactif'), take('De l’Italie à vos tables'),

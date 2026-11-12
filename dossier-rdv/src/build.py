@@ -52,7 +52,7 @@ P = {
 images = {k: (caps / f'{v}.png', D) for k, v in C.items()}
 images.update({k: (caps / f'{v}.png', M) for k, v in Mo.items()})
 images.update({k: (photo / f'{n}.webp', w) for k, (n, w) in P.items()})
-images.update({'k_lumiere': (root / 'brand/lumiere-portrait.webp', 1100), 'k_strategie': (root / 'brand/service-strategie.webp', 900), 'k_branding': (root / 'brand/service-branding.webp', 900), 'k_social': (root / 'brand/service-social.webp', 900), 'k_paris': (root / 'brand/showreel-paris.jpg', 1300), 'k_espresso': (root / 'brand/espresso.jpg', 1300), 'x_404': (root / 'brand/404-actuelle.jpg', 1400)})
+images.update({'k_lumiere': (root / 'brand/lumiere-portrait.webp', 1100), 'k_strategie': (root / 'brand/service-strategie.webp', 900), 'k_branding': (root / 'brand/service-branding.webp', 900), 'k_social': (root / 'brand/service-social.webp', 900), 'k_paris': (root / 'brand/showreel-paris.jpg', 1300), 'k_espresso': (root / 'brand/espresso.jpg', 1300), 'x_404': (root / 'brand/404-actuelle.jpg', 1400), 'x_plate': (root / 'brand/plate.webp', 600)})
 images.update({f'r_{k:02d}': (root / f'brand/rush/{k:02d}.jpg', 520) for k in range(12)})
 V = site / 'public/videos'
 images.update({'v_teasing': (V / '01-ambiance-teasing-poster.webp', 420), 'v_parm': (V / '05b-parmesan-fabrication-edit-poster.webp', 760), 'v_jambon': (V / '03-jambon-de-parme-fabrication-poster.webp', 760), 'v_romeo': (V / '07-producteur-jambon-question-1-poster.webp', 420)})
@@ -71,6 +71,8 @@ def image(key):
             a, z = im.crop((760, 0, 1440, 90)), im.crop((1100, 800, 1440, 900))
             out = Image.new('RGB', (680, 200), (17, 87, 59)); out.paste(a, (0, 0)); out.paste(z, (340, 100))
             cache[key] = webp(out, 1360, 82)
+        elif key == 'x_plate':  # assiette détourée : transparence conservée
+            cache[key] = b64(root / 'brand/plate.webp', 'image/webp')
         elif key == 'logo_med':
             cache[key] = b64(site / 'public/brand/monogramme/medaillon-chianti-on-dolce.svg', 'image/svg+xml')
         else:
