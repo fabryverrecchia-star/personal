@@ -51,7 +51,7 @@ order = [
     divider('franchise', 'Parcours franchisé', '05', [('Le parcours', 'De la curiosité à l’ouverture.'), ('L’interface', 'Page franchise et carte des opportunités.'), ('L’ouverture', 'Un restaurant en ligne dès la signature.')]),
     N['parcours-franchise'], take('Page Devenir franchisé'), N['franchise-ui'], take('Carte franchise dans votre site : aperçu interactif'),
     take('Nouveau restaurant en un clic : démo'), take('Nouveau restaurant : calendrier d’ouverture'),
-    divider('fonctions', 'Fonctionnalités', '06', [('Le back-office', 'L’outil, les rôles, votre indépendance.'), ('Les intégrations', 'Vos outils actuels, reliés.'), ('Visibilité et socle', 'SEO, GEO, accessibilité, performance.')]),
+    divider('fonctions', 'Fonctionnalités', '06', [('Le back-office', 'L’outil, les rôles, votre indépendance.'), ('Les intégrations', 'Vos outils actuels, reliés.'), ('Visibilité et socle', 'SEO naturel, GEO, accessibilité, performance.')]),
     N['backoffice'], take('Pages restaurant gérables : démo'), take('Back-office : rôles et validation'), N['integrations'],
     take('Carte du réseau dans votre site : aperçu interactif'), take('Store locator : fonctionnalités'),
     take('SEO : migration sans perte'), take('SEO local'), take('GEO'), take('Accessibilité RGAA'), take('RGPD et mesure d’audience'), take('Performance et robustesse'),

@@ -1001,3 +1001,25 @@ button, input, select, textarea { font: inherit; }
   .live-stage { padding-right: 18%; } .live-mbp { width: 100% !important; } .live-iph { width: 26% !important; right: 0; }
   .live-head { flex-direction: column; align-items: flex-start; }
 }
+
+/* Rassurer sans « Notre réponse » */
+.reassure { color: var(--fg) !important; padding-left: calc(14 * var(--u)); border-left: 2px solid #ff3636; }
+/* Rôles du back-office */
+.roles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: calc(18 * var(--u)); }
+.roles > div { display: grid; gap: calc(8 * var(--u)); align-content: start; padding: calc(20 * var(--u)); background: #fff; box-shadow: 0 0 0 1px var(--line); min-height: calc(230 * var(--u)); }
+.roles h3 { font-size: calc(22 * var(--u)); font-weight: 400; }
+.roles p:last-child { font-size: calc(13.5 * var(--u)); color: var(--soft); }
+.roles .role-r { background: var(--navy); color: #fff; box-shadow: none; }
+.roles .role-r .k, .roles .role-r p:last-child { color: rgb(255 255 255 / .75); }
+/* Abonnement mis en avant */
+.sub-box { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: calc(40 * var(--u)); padding: calc(26 * var(--u)) calc(30 * var(--u)); background: var(--navy); color: #fff; }
+.sub-box .k { color: rgb(255 255 255 / .7); }
+.sub-price { font-size: calc(48 * var(--u)); font-weight: 300; letter-spacing: -0.03em; line-height: 1.05; white-space: nowrap; }
+.sub-price small { font-size: 0.4em; opacity: .75; letter-spacing: 0; }
+.sub-box ul { display: grid; gap: calc(6 * var(--u)); font-size: calc(14 * var(--u)); justify-self: end; }
+.sub-box li::before { content: '— '; color: #ff3636; }
+@media (max-width: 899px), (max-aspect-ratio: 1/1) {
+  .roles { grid-template-columns: 1fr; } .roles > div { min-height: 0; }
+  .sub-box { grid-template-columns: 1fr; gap: 16px; } .sub-box ul { justify-self: start; font-size: 15px; } .sub-price { font-size: 34px; white-space: normal; }
+  .roles p:last-child { font-size: 15px; }
+}
