@@ -52,7 +52,7 @@ P = {
 images = {k: (caps / f'{v}.png', D) for k, v in C.items()}
 images.update({k: (caps / f'{v}.png', M) for k, v in Mo.items()})
 images.update({k: (photo / f'{n}.webp', w) for k, (n, w) in P.items()})
-images.update({'k_lumiere': (root / 'brand/lumiere-portrait.webp', 1100), 'k_strategie': (root / 'brand/service-strategie.webp', 900), 'k_branding': (root / 'brand/service-branding.webp', 900), 'k_social': (root / 'brand/service-social.webp', 900), 'k_paris': (root / 'brand/showreel-paris.jpg', 1300)})
+images.update({'k_lumiere': (root / 'brand/lumiere-portrait.webp', 1100), 'k_strategie': (root / 'brand/service-strategie.webp', 900), 'k_branding': (root / 'brand/service-branding.webp', 900), 'k_social': (root / 'brand/service-social.webp', 900), 'k_paris': (root / 'brand/showreel-paris.jpg', 1300), 'k_espresso': (root / 'brand/espresso.jpg', 1300)})
 V = site / 'public/videos'
 images.update({'v_teasing': (V / '01-ambiance-teasing-poster.webp', 420), 'v_parm': (V / '05b-parmesan-fabrication-edit-poster.webp', 760), 'v_jambon': (V / '03-jambon-de-parme-fabrication-poster.webp', 760), 'v_romeo': (V / '07-producteur-jambon-question-1-poster.webp', 420)})
 images.update({'x_about': (ref / 'p2-000.jpg', 900), 'x_presto': (ref / 'p18-000.jpg', 1300), 'x_merci': (ref / 'p19-000.jpg', 900)})

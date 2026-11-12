@@ -80,5 +80,5 @@ n = re.sub(r'<ul class="excl[^"]*"[^>]*>[\s\S]*?</ul>', '''<ul class="excl rv" s
       </ul>''', n, count=1)
 n = n.replace('Boutique actuelle conservée et reliée. Sa refonte est hors périmètre.', 'Boutique actuelle conservée et reliée depuis le site.')
 
-base.write_text(b); new.write_text(n)
+base.write_text(b); new.write_text(n)  # (retours suivants appliqués directement aux sources)
 print('Notre réponse restants :', b.count('Notre réponse'), '| SEO naturel :', b.count('SEO naturel'), '| sub-box :', 'sub-box' in b, '| rôles :', 'role-r' in b)

@@ -38,8 +38,8 @@ order = [
     take('Couverture'), take('Avertissement'), '{{TOC}}',
     divider('projet', 'Votre projet', '01', [('Votre brief', 'Enjeux, objectifs, besoins.'), ('L’audit SEO', 'Ce que disent les chiffres.'), ('Nos objectifs', 'Des cibles mesurées après la refonte.')]),
     take('Votre brief'), take('Vos deux priorités'), take('Vos demandes complémentaires'), take('Audit SEO : chiffres clés'), N['objectifs'], take('Site actuel : relevés techniques'),
-    divider('studio', 'Le studio', '02', [('Qui nous sommes', 'Un studio de création parisien.'), ('Votre équipe', 'Les personnes qui feront le site.'), ('Références', 'Des projets comparables.')]),
-    take('À propos'), N['equipe'], take('Nos services'), N['references'],
+    divider('studio', 'Le studio', '02', [('Qui nous sommes', 'Un studio de création parisien.'), ('Nos services', 'Ce que nous faisons sur ce projet.')]),
+    take('À propos'), take('Nos services'),
     divider('da', 'Direction artistique', '03', [('Notre lecture', 'Votre identité 2026, comprise et testée.'), ('Les éléments', 'Logo, couleurs, typographies, photo.'), ('L’évolution', 'Ce que nous gardons, adaptons, ajoutons.')]),
     take('Direction artistique : notre lecture de la charte 2026'), take('Logo signature 2026'), take('Palette de couleurs'), take('Palette : thèmes de section'), take('Typographies'),
     take('Médaillon et monogrammes'), take('Direction photo'), take('Composants d’interface'), take('De la charte au site : ce qui évolue'),
@@ -57,7 +57,7 @@ order = [
     take('SEO : migration sans perte'), take('SEO local'), take('GEO'), take('Accessibilité RGAA'), take('RGPD et mesure d’audience'), take('Performance et robustesse'),
     divider('projet-oeuvre', 'Mise en œuvre', '07', [('Reprise et exploitation', 'Le contrat actuel, l’hébergement, la maintenance.'), ('Le calendrier', 'Des dates, calées sur votre préavis.'), ('Le cadre', 'Ce que nous attendons, ce qui est exclu.')]),
     take('Reprise technique : points de vigilance'), take('Hébergement et maintenance'), take('Méthode et planning'), N['calendrier'], N['attentes'], N['exclusions'],
-    divider('demo', 'Le site en main', '08', [('La maquette', 'Ce qui existe déjà.'), ('Naviguez', 'Le site complet, dans un ordinateur et un téléphone.')]),
+    divider('demo', 'Démo : refonte globale<br>et interface', '08', [('La maquette', 'Ce qui existe déjà.'), ('La démo', 'Le site complet, sur ordinateur et sur téléphone.')]),
     take('Maquette réalisée'), N['live'],
     divider('budget', 'Estimation budgétaire', '09', [('Création du site', 'Le détail par lot.'), ('Échéancier et suivi', 'Paiement, hébergement, options.'), ('Prochaines étapes', 'Pour démarrer en janvier.')]),
     take('Estimation budgétaire : création du site'), take('Estimation budgétaire : échéancier et suivi'), take('Prochaines étapes'),
@@ -73,7 +73,7 @@ toc_nav = '''<nav class="toc-list rv" style="--dl:.2s; gap:calc(14 * var(--u))" 
       <a href="#franchise"><span>05</span><span>Parcours franchisé</span></a>
       <a href="#fonctions"><span>06</span><span>Fonctionnalités</span></a>
       <a href="#projet-oeuvre"><span>07</span><span>Mise en œuvre</span></a>
-      <a href="#demo"><span>08</span><span>Le site en main</span></a>
+      <a href="#demo"><span>08</span><span>Démo : refonte globale et interface</span></a>
       <a href="#budget"><span>09</span><span>Estimation budgétaire</span></a>
     </nav>'''
 toc = re.sub(r'<nav class="toc-list[\s\S]*?</nav>', toc_nav, toc)

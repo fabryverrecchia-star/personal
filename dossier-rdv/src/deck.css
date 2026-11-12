@@ -1023,3 +1023,10 @@ button, input, select, textarea { font: inherit; }
   .sub-box { grid-template-columns: 1fr; gap: 16px; } .sub-box ul { justify-self: start; font-size: 15px; } .sub-price { font-size: 34px; white-space: normal; }
   .roles p:last-child { font-size: 15px; }
 }
+.espresso-t { font-size: calc(64 * var(--u)) !important; line-height: 1 !important; max-width: 9em; }
+.contact-r figure { position: relative; }
+.badge-ir { position: absolute !important; inset: auto auto calc(30 * var(--u)) calc(30 * var(--u)) !important; width: calc(150 * var(--u)) !important; height: auto !important; object-fit: contain !important; transform: rotate(-10deg); filter: drop-shadow(0 10px 20px rgb(0 0 0 / .35)); z-index: 2; }
+@media (max-width: 899px), (max-aspect-ratio: 1/1) { .espresso-t { font-size: 40px !important; } .badge-ir { width: 110px !important; } }
+.badge-ir { position: absolute !important; left: auto !important; right: calc(26 * var(--u)) !important; top: calc(26 * var(--u)) !important; bottom: auto !important; width: calc(150 * var(--u)) !important; height: calc(150 * var(--u)) !important; display: grid; place-content: center; text-align: center; background: center / contain no-repeat; color: #fff5e1; font: 400 calc(26 * var(--u)) / .9 'Salo Paolo', sans-serif; text-transform: uppercase; transform: rotate(10deg); filter: drop-shadow(0 10px 22px rgb(0 0 0 / .35)); }
+.badge-ir span { font-size: .7em; text-transform: none; letter-spacing: .02em; }
+.espresso-t { font-style: normal !important; font-weight: 300 !important; }
