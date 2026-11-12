@@ -38,7 +38,7 @@ order = [
     take('Couverture'), take('Avertissement'), '{{TOC}}',
     divider('projet', 'Votre projet', '01', [('Votre brief', 'Enjeux, objectifs, besoins.'), ('L’audit SEO', 'Ce que disent les chiffres.'), ('Nos objectifs', 'Des cibles mesurées après la refonte.')]),
     take('Votre brief'), take('Vos deux priorités'), take('Vos demandes complémentaires'), take('Audit SEO : chiffres clés'), N['objectifs'], take('Site actuel : relevés techniques'),
-    divider('studio', 'Le studio', '02', [('Qui nous sommes', 'Un studio de création parisien.'), ('Nos services', 'Ce que nous faisons sur ce projet.')]),
+    divider('studio', 'Le studio', '02', [('Qui nous sommes', 'Un studio digital créatif.'), ('Nos services', 'Ce que nous faisons sur ce projet.')]),
     take('À propos'), take('Nos services'),
     divider('da', 'Direction artistique', '03', [('Notre lecture', 'Votre identité 2026, comprise et testée.'), ('Les éléments', 'Logo, couleurs, typographies, photo.'), ('L’évolution', 'Ce que nous gardons, adaptons, ajoutons.')]),
     take('Direction artistique : notre lecture de la charte 2026'), take('Logo signature 2026'), take('Palette de couleurs'), take('Palette : thèmes de section'), take('Typographies'),
