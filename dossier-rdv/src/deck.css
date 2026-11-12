@@ -1178,3 +1178,4 @@ button, input, select, textarea { font: inherit; }
 @media print { .pnav { display: none !important; } }
 
 @media screen and (min-width: 900px) and (min-aspect-ratio: 1/1) { .foot span:first-child { margin-left: 270px; } }
+
