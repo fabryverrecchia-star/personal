@@ -1186,7 +1186,19 @@ button, input, select, textarea { font: inherit; }
 @media screen and (min-width: 900px) and (min-aspect-ratio: 1/1) { .foot span:first-child { margin-left: 270px; } }
 
 
+/* Couverture : la photo va jusqu'au bord de l'écran, même hors 16:9 */
+@media screen and (min-width: 900px) and (min-aspect-ratio: 1/1) {
+  .cover > .cover-img { overflow: visible; }
+  .cover > .cover-img img { inset: auto; right: 0; width: auto; height: auto;
+    left: calc((min(100vw, 177.78svh) - 100vw) / 2);
+    top: calc((min(100vw, 177.78svh) * 0.5625 - 100svh) / 2);
+    bottom: calc((min(100vw, 177.78svh) * 0.5625 - 100svh) / 2); }
+  .js .cover > .cover-img.rv-i { clip-path: inset(-60vh 0 100% -60vw); }
+  .js .slide.seen .cover > .cover-img.rv-i { clip-path: inset(-60vh 0 -60vh -60vw); }
+}
+
 </style>
+<script>document.documentElement.classList.add("js")</script>
 </head>
 <body>
 <a class="skip" href="#couverture">Aller au contenu</a>

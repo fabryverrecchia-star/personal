@@ -146,7 +146,7 @@ page = ('<!doctype html>\n<html lang="fr"><head><meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         '<title>Proposition Il Ristorante</title>\n'
         '<meta name="description" content="Proposition de refonte du site Il Ristorante par le Studio 18h22.">\n'
-        f'<style>\n{css}\n</style>\n</head>\n<body>\n{html}\n'
+        f'<style>\n{css}\n</style>\n<script>document.documentElement.classList.add("js")</script>\n</head>\n<body>\n{html}\n'
         f'<script type="application/json" id="maps-data">{json.dumps(maps, ensure_ascii=False)}</script>\n'
         f'<script type="application/json" id="loc-data">{payload}</script>\n<script>\n{js}\n</script>\n</body>\n</html>\n')
 out_dir = root / 'dist'
