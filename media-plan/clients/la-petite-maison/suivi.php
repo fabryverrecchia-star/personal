@@ -160,6 +160,7 @@ function uploads_of($e) {
   $out = [];
   if (!is_array($e)) return $out;
   foreach (['poster', 'video', 'orig'] as $k) if (!empty($e[$k]) && strpos($e[$k], 'uploads/') === 0) $out[] = $e[$k];
+  if (!empty($e['origs']) && is_array($e['origs'])) foreach ($e['origs'] as $m) if (is_string($m) && strpos($m, 'uploads/') === 0) $out[] = $m;
   if (!empty($e['media']) && is_array($e['media'])) foreach ($e['media'] as $m) if (is_string($m) && strpos($m, 'uploads/') === 0) $out[] = $m;
   return $out;
 }
@@ -217,7 +218,7 @@ function with_fetched($x, $f) {
 $stored = '';
 if ($kind === 'edits' && $action === 'upload') {
   $slot = isset($in['slot']) ? $in['slot'] : '';
-  if (edit_key(isset($in['id']) ? $in['id'] : '') === '' || !in_array($slot, ['media', 'poster', 'video', 'orig'], true)) out(['error' => 'item'], 400);
+  if (edit_key(isset($in['id']) ? $in['id'] : '') === '' || !in_array($slot, ['media', 'poster', 'video', 'orig', 'origs'], true)) out(['error' => 'item'], 400);
   // Fichier reconstitué à partir de ses morceaux, ou envoyé en une fois
   $part = isset($in['part']) ? preg_replace('/[^a-z0-9]/', '', strtolower((string) $in['part'])) : '';
   if ($part !== '') {
@@ -236,10 +237,11 @@ if ($kind === 'edits' && $action === 'upload') {
   // Une vidéo peut aussi être glissée dans un carrousel (slot media)
   // Original d'une story (photo ou vidéo telle qu'envoyée, avant réduction ou conversion) : gardé pour le téléchargement
   $heif = substr($head, 4, 4) === 'ftyp' && in_array(substr($head, 8, 4), ['heic', 'heix', 'hevc', 'heim', 'heis', 'mif1', 'msf1'], true);
-  if ($slot === 'orig' && $heif) {
+  // origs : original d'un visuel de publication (photo, vidéo), rattaché au fichier du site qu'il remplace
+  if (($slot === 'orig' || $slot === 'origs') && $heif) {
     $ext = 'heic';
     if ($f['size'] > 40 * 1048576) { $drop(); out(['error' => 'too_big', 'max' => '40 Mo'], 413); }
-  } elseif ($slot === 'video' || (($slot === 'media' || $slot === 'orig') && substr($head, 4, 4) === 'ftyp')) {
+  } elseif ($slot === 'video' || (($slot === 'media' || $slot === 'orig' || $slot === 'origs') && substr($head, 4, 4) === 'ftyp')) {
     if (substr($head, 4, 4) === 'ftyp') $ext = substr($head, 8, 2) === 'qt' ? 'mov' : 'mp4';
     if ($f['size'] > $VIDEO_MAX * 1048576) { $drop(); out(['error' => 'too_big', 'max' => $VIDEO_MAX . ' Mo'], 413); }
   } else {
@@ -290,7 +292,13 @@ if ($kind === 'edits') {
     $e = [];
   } elseif ($action === 'upload') {
     $slot = $in['slot'];
-    if ($slot === 'media') {
+    if ($slot === 'origs') {
+      $for = isset($in['for']) ? (string) $in['for'] : '';
+      $used = array_merge(isset($e['media']) && is_array($e['media']) ? $e['media'] : [], [isset($e['video']) ? $e['video'] : '', isset($e['poster']) ? $e['poster'] : '']);
+      if ($for === '' || !in_array($for, $used, true)) { @unlink(__DIR__ . '/' . $stored); flock($fp, LOCK_UN); out(['error' => 'item'], 400); }
+      if (!isset($e['origs']) || !is_array($e['origs'])) $e['origs'] = [];
+      $e['origs'][$for] = $stored;
+    } elseif ($slot === 'media') {
       // Liste de départ : photos déjà modifiées, sinon celles du planning envoyées par la page
       $list = isset($e['media']) && is_array($e['media']) ? $e['media'] : array_values(array_filter(array_map('media_path', isset($in['base']) && is_array($in['base']) ? $in['base'] : [])));
       $k = isset($in['index']) ? (int) $in['index'] : -1;
@@ -358,6 +366,12 @@ if ($kind === 'edits') {
   // Heure de la dernière modification du contenu (pas des arguments) : les avis « À revoir » du client
   // donnés avant redeviennent « sans avis », la nouvelle version est à regarder
   if ($e && ($action === 'upload' || ($action === 'edit' && array_diff(array_keys($it), ['note', 'unnote'])))) $e['mod'] = time();
+  // Originaux dont le visuel du site n'existe plus : retirés (le fichier est supprimé avec les envois inutilisés)
+  if (isset($e['origs']) && is_array($e['origs'])) {
+    $live = array_merge(isset($e['media']) && is_array($e['media']) ? $e['media'] : [], [isset($e['video']) ? $e['video'] : '', isset($e['poster']) ? $e['poster'] : '']);
+    foreach (array_keys($e['origs']) as $m) if (!in_array($m, $live, true)) unset($e['origs'][$m]);
+    if (!$e['origs']) unset($e['origs']);
+  }
   if ($e) $data['edits'][$id] = $e; else unset($data['edits'][$id]);
   cleanup_uploads($before, $data);
   if (!$data['edits']) $data['edits'] = new stdClass();

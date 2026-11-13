@@ -269,11 +269,13 @@
       '<div class="post__meta" data-reveal><span class="slot" data-slot="tag">' + tagHtml(post) + '</span>' +
       // Date passée : la publication est en ligne
       (d < today() ? '<span class="label post__live">' + SICONS_CHECK + 'En ligne</span>' : '') +
+      // Publication validée par le client (plan.js : validated)
+      (post.validated ? '<span class="label post__live post__ok">' + SICONS_CHECK + 'Validé</span>' : '') +
       '<span class="label post__index">' + JOURS_LONGS[d.getDay()] + '</span></div>' +
       '<div class="slot" data-slot="media">' + mediaHtml(post) + '</div>' +
       '<div class="caption" data-reveal data-slot="caption">' + captionHtml(post) + '</div>' +
       '<div class="post__tools"><button type="button" class="label edit-btn" data-edit-post="' + esc(post._key) + '">' + EDIT_ICON + 'Modifier la publication</button>' +
-      '<button type="button" class="label edit-btn share-btn" data-share-post="' + esc(post._key) + '">' + SHARE_ICON + 'Partager le lien</button>' +
+      '<button type="button" class="label post-btn share-btn" data-share-post="' + esc(post._key) + '">' + SHARE_ICON + 'Partager le lien</button>' +
       '<span class="slot" data-slot="dl">' + dlHtml(post) + '</span></div>' +
       feedbackHtml(post) + '</div></article>'
     );
@@ -281,14 +283,25 @@
 
   var SICONS_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   var SHARE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M6 11H5v9h14v-9h-1"/></svg>';
-  // Équipe : la vidéo d'un reel se télécharge telle qu'elle a été envoyée
   var DL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19h14"/></svg>';
+  // Fichiers d'origine d'une publication : la vidéo du reel, chaque visuel du carrousel, la photo.
+  // Un visuel réduit pour le site garde son original (edits[clé].origs[chemin du site] = original envoyé).
+  function postFiles(post) {
+    var e = EDITS[post._key] || {}, o = e.origs || {};
+    var paths = post.type === 'reel' ? [post.video || post.poster]
+      : list(post.media).map(function (m) { return m && typeof m === 'object' ? m.video || m.poster : m; });
+    var base = String(post.title || post.type || 'publication').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 40) || 'publication';
+    paths = paths.filter(function (m) { return m && !/^(blob|data):/.test(m); });
+    return paths.map(function (m, k) {
+      var f = o[m] || m;
+      var ext = (String(f).match(/\.([a-z0-9]{2,5})(?:$|[?#])/i) || [0, 'jpg'])[1].toLowerCase();
+      return { url: src(f), name: [post.date, base, paths.length > 1 ? pad(k + 1) : ''].filter(Boolean).join('-') + '.' + ext };
+    });
+  }
   function dlHtml(post) {
-    var v = post.type === 'reel' && post.video;
-    if (!v || /^blob:/.test(v)) return '';
-    var ext = (String(v).match(/\.(mp4|mov|m4v)(?:$|[?#])/i) || [0, 'mp4'])[1].toLowerCase();
-    var name = String(post.title || 'reel').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'reel';
-    return '<a class="label edit-btn dl-btn" href="' + esc(src(v)) + '" download="' + esc(name + '.' + ext) + '">' + DL_ICON + 'Télécharger la vidéo</a>';
+    var n = postFiles(post).length;
+    if (!n) return '';
+    return '<button type="button" class="label post-btn dl-btn" data-post-dl="' + esc(post._key) + '">' + DL_ICON + 'Télécharger l’original' + (n > 1 ? ' (' + n + ')' : '') + '</button>';
   }
   var EDIT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 20l1-4.5L16 4.5l3.5 3.5-11 11z"/><path d="M13.5 7l3.5 3.5"/></svg>';
   function tagHtml(post) {
@@ -594,7 +607,6 @@
         return '<a class="is-live" data-grid><img src="' + esc(src(img)) + '" alt="" loading="lazy" decoding="async"><span class="label grid__live">En ligne</span></a>';
       }).join('') +
       '</div>' +
-      (live.length ? '<p class="label" style="margin-top:14px;opacity:.7">Voilés : publications déjà en ligne</p>' : '') +
       (PLAN.pubsInFeed && PLAN.suivi ? restoreHtml('post') : '') +
       (PLAN.pdf ? '<div class="pdf" data-pdf data-reveal><button type="button" class="pdf__make" data-pdf-make>' + DL_ICON + '<span>Exporter le feed en PDF</span></button>' +
         '<p class="pdf__hint">Page 1, le calendrier du mois avec les titres. Page 2, l’aperçu du feed.</p><p class="pdf__out" data-pdf-out hidden></p></div>' : '') +
@@ -881,13 +893,16 @@
       var hint = box.querySelector('.fb__redo');
       if (d.redo && !hint) box.insertAdjacentHTML('afterbegin', '<p class="label fb__redo">Nouvelle version depuis votre retour · à revoir</p>');
       else if (!d.redo && hint) hint.remove();
+      // Publication déjà validée (plan.js : validated) : « Validé » allumé tant que le client n'a rien changé
+      var pv = allPosts.filter(function (x) { return x._id === fid; })[0];
+      var st = d.status || (pv && pv.validated ? 'ok' : '');
       box.querySelectorAll('[data-fb-status]').forEach(function (b) {
-        var on = d.status === b.getAttribute('data-fb-status');
+        var on = st === b.getAttribute('data-fb-status');
         b.classList.toggle('is-on', on);
         b.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
-      box.classList.toggle('is-ok', d.status === 'ok');
-      box.classList.toggle('is-revoir', d.status === 'revoir');
+      box.classList.toggle('is-ok', st === 'ok');
+      box.classList.toggle('is-revoir', st === 'revoir');
       // Publication non validée : noir et blanc + croix, sur le post et sa vignette du feed
       var id = box.getAttribute('data-fb');
       var art = document.getElementById(id);
@@ -2055,7 +2070,7 @@
         });
       };
       if (btn._files) return share(btn._files);
-      var list = items.map(storyFile).filter(Boolean);
+      var list = items.length && items[0].url ? items : items.map(storyFile).filter(Boolean);
       if (!list.length) { toast('Aucun visuel à télécharger.'); return; }
       btn.disabled = true;
       btn.innerHTML = DL_ICON + '<span>Préparation… 0 / ' + list.length + '</span>';
@@ -2635,6 +2650,15 @@
       if (seBusy) { toast('Envoi en cours, patientez.'); return; }
       storySave().then(function (ok) { if (ok && seClose()) toast('Story programmée.'); });
     });
+    // Télécharger l'original d'une publication (pour tous) : feuille de partage sur téléphone, sinon fichier par fichier
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-post-dl]');
+      if (!b) return;
+      var p = allPosts.filter(function (x) { return String(x._key) === b.getAttribute('data-post-dl'); })[0];
+      var files = p ? postFiles(p) : [];
+      if (!files.length) { toast('Aucun fichier à télécharger.'); return; }
+      saveStories(files, b);
+    });
     if (storiesEl) storiesEl.addEventListener('click', function (e) {
       var dlb = e.target.closest('[data-story-dl]');
       if (dlb) {
@@ -2890,7 +2914,9 @@
         var bb = edBox.querySelector('[data-ed-busy]');
         if (bb) bb.textContent = m;
       }) : prepImage(file, 2048, 0.86);
+      var same = false;
       return ready.then(function (blob) {
+        same = blob === file;
         // Le visuel provisoire d'une nouvelle publication (image générée) n'est pas envoyé
         return sendFile({ action: 'upload', kind: 'edits', id: e.key, slot: slot, index: k, base: base.map(function (m) { return /^data:/.test(m) ? '' : m; }) },
           blob, isVideo ? (blob.name || file.name || 'video.mp4') : 'photo.jpg', function (r) {
@@ -2898,6 +2924,19 @@
             e.busy = (isVideo ? 'Envoi de la vidéo… ' : 'Envoi de la photo… ') + Math.round(r * 100) + ' %';
             if (b) b.textContent = e.busy;
           });
+      }).then(function (d) {
+        // Visuel réduit ou vidéo convertie pour le site : le fichier d'origine est aussi gardé, pour « Télécharger l'original »
+        var em = (d.edits || {})[e.key] || {};
+        var at = slot === 'media' ? list(em.media)[k >= 0 ? k : list(em.media).length - 1] : em[slot];
+        if (same || !at || slot === 'poster') return d;
+        e.busy = 'Envoi de l’original…';
+        var bb = edBox.querySelector('[data-ed-busy]');
+        if (bb) bb.textContent = e.busy;
+        return sendFile({ action: 'upload', kind: 'edits', id: e.key, slot: 'origs', for: at }, file, file.name || (isVideo ? 'video.mov' : 'photo.jpg'), function (r) {
+          var b2 = edBox.querySelector('[data-ed-busy]');
+          e.busy = 'Envoi de l’original… ' + Math.round(r * 100) + ' %';
+          if (b2) b2.textContent = e.busy;
+        }).catch(function () { toast('L’original n’a pas pu être gardé : la version du site reste téléchargeable.'); return d; });
       }).then(function (d) {
         state = d;
         paint();
@@ -3790,7 +3829,6 @@
           ctx.fillStyle = C.ink; spaced(ctx, txt, px + 12, by - 4, 2);
         }
         if (it.live) {
-          ctx.fillStyle = C.bg; ctx.globalAlpha = 0.45; ctx.fillRect(x, ty, tw, th); ctx.globalAlpha = 1;
           chip('EN LIGNE', x + 12, ty + th - 12);
         } else {
           var p = it.post;
@@ -3800,7 +3838,7 @@
       });
       var ly = y + Math.ceil(tiles.length / 3) * (th + gap) + 50;
       ctx.fillStyle = C.soft; ctx.font = 'italic 400 24px ' + F.text; ctx.textAlign = 'center';
-      ctx.fillText(more ? 'Suite du feed page suivante' : tiles.some(function (x) { return x.live; }) ? 'Voilées : publications déjà en ligne' : '', W / 2, ly);
+      ctx.fillText(more ? 'Suite du feed page suivante' : '', W / 2, ly);
       ctx.textAlign = 'left';
       return pg.cv;
     }
@@ -4373,6 +4411,7 @@
       { id: 'publications', sel: '.week', title: 'Publications', icon: SICONS.photo },
       { id: 'stories', sel: '#stories', title: 'Stories', icon: SICONS.story },
       { id: 'ads', sel: '#ads', title: 'Sponsorisé', icon: SICONS.ads },
+      { id: 'missions', sel: '#missions', title: 'Missions en cours', icon: SICONS.planning },
     ].filter(function (g) { return app.querySelector(g.sel) && !(g.id === 'publications' && PLAN.pubsInFeed); });
     // PLAN.menuOrder : ordre des entrées (ex. ['feed', 'stories', 'teasing']), les autres suivent
     var order = list(PLAN.menuOrder);
@@ -4419,6 +4458,9 @@
         } else if (g.id === 'stories') {
           var c = g.pane.querySelectorAll('.story-card:not(.story-card--add)').length;
           txt = c ? c + ' stor' + (c > 1 ? 'ies' : 'y') : 'À venir';
+        } else if (g.id === 'missions') {
+          var m = g.pane.querySelectorAll('.task:not(.task--done)').length;
+          txt = m ? m + ' en cours ou à venir' : 'À jour';
         } else txt = adCampaigns().length + ' campagnes';
         g.card.querySelector('[data-sum-meta]').textContent = txt;
       });

@@ -114,6 +114,7 @@ a { color: inherit; }
   inset: -50%;
   z-index: 60;
   pointer-events: none;
+  display: none; /* Jamais de grain ni de filtre par-dessus les photos et vidéos */
   opacity: 0.06;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
@@ -625,7 +626,7 @@ a { color: inherit; }
   display: grid;
   place-items: center;
   color: #fff;
-  background: linear-gradient(180deg, rgba(14, 20, 36, 0) 55%, rgba(14, 20, 36, 0.55));
+  background: none; /* jamais de dégradé sur la couverture */
   -webkit-tap-highlight-color: transparent;
 }
 .reel-open__play {
@@ -732,13 +733,7 @@ a { color: inherit; }
   color: #fff;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
 }
-.grid a.is-live::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--bg);
-  opacity: 0.28;
-}
+/* Publications déjà en ligne : seulement l'étiquette « En ligne », jamais de voile ni de filtre sur les contenus */
 .grid__live {
   position: absolute;
   left: 6px; top: 6px;
@@ -2037,20 +2032,19 @@ a { color: inherit; }
 }
 .postsheet__close svg { width: 16px; height: 16px; }
 
-/* Publication « À revoir » : noir et blanc en transparence, croix */
-.post.is-refused .media img, .post.is-refused .media video,
-.grid a.is-refused img, .grid a.is-refused video { filter: grayscale(1); opacity: 0.55; transition: filter 0.6s var(--ease), opacity 0.6s var(--ease); }
+/* Publication « À revoir » : une croix dans un coin, jamais de filtre ni de voile sur le visuel */
 .post.is-refused .media::after,
 .grid a.is-refused::after {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 8px; left: 8px;
+  width: 26px; height: 26px;
+  border-radius: 50%;
   z-index: 3;
   pointer-events: none;
-  background: rgba(20, 20, 20, 0.12) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E") center / 38% no-repeat;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.35));
+  background: var(--ink) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M7 7l10 10M17 7L7 17'/%3E%3C/svg%3E") center / 60% no-repeat;
 }
-.post.is-refused .media::after { background-size: 30%; }
+.post.is-refused .media::after { top: 12px; left: 12px; width: 32px; height: 32px; }
 .postsheet__body .post__meta { padding-right: 46px; }
 
 /* Inspirations : vidéo lue dans le panneau, retours du client */
@@ -2059,9 +2053,6 @@ a { color: inherit; }
 .inspi__card .fb { margin-top: 2px; }
 .inspi__send { display: grid; justify-items: start; gap: 12px; margin: 22px var(--gutter) 0; padding-top: 18px; border-top: 1px solid var(--ink-faint); }
 .inspi__send .inspi__help { margin: 0; }
-.inspi__card.is-refused .inspi__frame img, .inspi__card.is-refused .inspi__frame video, .inspi__card.is-refused .inspi__frame iframe {
-  filter: grayscale(1); opacity: 0.55; transition: filter 0.6s var(--ease), opacity 0.6s var(--ease);
-}
 .inspi__card.is-refused .inspi__frame::after {
   content: '';
   position: absolute;
@@ -2235,14 +2226,15 @@ body.has-dock .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); }
 .story-card--add .story-card__frame { box-shadow: none; border: 1px dashed var(--ink-soft); background: var(--tint); align-content: center; gap: 8px; }
 .story-card__plus { font-family: var(--display); font-size: 44px; line-height: 0.8; }
 .story-card--add .story-card__frame .label { font-size: 8px; padding: 0 8px; }
-.story-card.is-refused .story-card__media { filter: grayscale(1); opacity: 0.55; transition: filter 0.6s var(--ease), opacity 0.6s var(--ease); }
 .story-card.is-refused .story-card__frame::after {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 8px; left: 8px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
   z-index: 3;
   pointer-events: none;
-  background: rgba(20, 20, 20, 0.12) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E") center / 46% no-repeat;
+  background: var(--ink) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M7 7l10 10M17 7L7 17'/%3E%3C/svg%3E") center / 60% no-repeat;
 }
 
 /* Visionneuse plein écran */
@@ -2748,3 +2740,29 @@ body.has-sum .countdown { padding-top: 36px; padding-bottom: 24px; }
   vertical-align: middle;
   white-space: nowrap;
 }
+
+/* Publication validée, et boutons pour tous : partager le lien, télécharger l'original */
+.post__ok { background: none; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.post__meta .post__ok + .post__index { margin-left: auto; }
+.post-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 10px 16px 9px;
+  border: 1px solid var(--ink);
+  border-radius: 99px;
+  background: none;
+  font-size: 9px;
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+}
+.post-btn svg { width: 14px; height: 14px; flex: none; }
+.post-btn:active { background: var(--tint); }
+.post-btn:disabled { opacity: 0.6; }
+/* Format, thématique, En ligne, Validé : la ligne passe à la ligne plutôt que de déborder */
+.post__meta { flex-wrap: wrap; row-gap: 8px; justify-content: flex-start; }
+.post__meta .slot[data-slot="tag"] { display: inline-flex; flex-wrap: wrap; align-items: center; row-gap: 8px; }
+.post__meta .theme-tag { margin-left: 0; }
+.post__meta .post__index { margin-left: auto; }
+.postsheet__body .post__meta .post__index { display: none; }

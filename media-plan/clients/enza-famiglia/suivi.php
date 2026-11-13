@@ -12,7 +12,10 @@
  *        { action: "delete", kind: "missions"|"passages"|"inspirations", id }
  *        { action: "refresh", kind: "inspirations" }  → récupère le contenu Instagram manquant
  *        { action: "edit",   kind: "edits", id, item: { title, caption, media, poster, video, format, date, time, budget, spent, status, start, end,
- *                                                  objective, audience, cta, added: "post"|"ad"|"story", deleted: true } }
+ *                                                  objective, audience, cta, added: "post"|"ad"|"story"|"teasing", deleted: true,
+ *                                                  details, by, rhythm, note: { who, text }, unnote: id } }
+ *                            (idées teasing : id "teasing-<id de plan.js>", start = tournage, date = publication,
+ *                             note ajoute un argument, unnote le retire)
  *                            (format : "reel" pour passer un post photo en vidéo, "photo" pour l'inverse)
  *                            (une valeur null rétablit celle du planning)
  *        { action: "reset",  kind: "edits", id }      → revient au post ou à la campagne d'origine
@@ -78,6 +81,8 @@ if ($method === 'GET' && isset($_GET['diag'])) {
 if ($method === 'GET') {
   $raw = is_file($FILE) ? file_get_contents($FILE) : '';
   $data = $raw ? json_decode($raw, true) : null;
+  // Fichier illisible (écriture coupée) : dernière version saine
+  if (!is_array($data) && is_file($FILE . '.prev')) { $prev = json_decode((string) file_get_contents($FILE . '.prev'), true); if (is_array($prev)) $data = $prev; }
   if (is_array($data) && (!isset($data['edits']) || !$data['edits'])) $data['edits'] = new stdClass();
   out(is_array($data) ? $data : empty_data());
 }
@@ -101,7 +106,8 @@ if (!is_array($in)) out(['error' => 'json'], 400);
 $code = isset($_POST['code']) ? (string) $_POST['code'] : (isset($in['code']) ? (string) $in['code'] : '');
 if ($code === '' && isset($_SERVER['HTTP_X_ADMIN_CODE'])) $code = (string) $_SERVER['HTTP_X_ADMIN_CODE'];
 // Majuscules ou minuscules : indifférent (le code d'origine a été haché tel quel, en minuscules)
-if ($code === '' || !(password_verify(strtoupper(trim($code)), $config['admin_hash']) || password_verify(strtolower(trim($code)), $config['admin_hash']))) {
+// Le code tel qu'enregistré (minuscules) d'abord : une seule vérification dans le cas courant
+if ($code === '' || !(password_verify(strtolower(trim($code)), $config['admin_hash']) || password_verify(strtoupper(trim($code)), $config['admin_hash']))) {
   usleep(700000); // freine les essais au hasard
   out(['error' => 'code'], 403);
 }
@@ -153,7 +159,8 @@ function edit_key($id) { $id = (string) $id; return preg_match('/^[A-Za-z0-9-]{1
 function uploads_of($e) {
   $out = [];
   if (!is_array($e)) return $out;
-  foreach (['poster', 'video'] as $k) if (!empty($e[$k]) && strpos($e[$k], 'uploads/') === 0) $out[] = $e[$k];
+  foreach (['poster', 'video', 'orig'] as $k) if (!empty($e[$k]) && strpos($e[$k], 'uploads/') === 0) $out[] = $e[$k];
+  if (!empty($e['origs']) && is_array($e['origs'])) foreach ($e['origs'] as $m) if (is_string($m) && strpos($m, 'uploads/') === 0) $out[] = $m;
   if (!empty($e['media']) && is_array($e['media'])) foreach ($e['media'] as $m) if (is_string($m) && strpos($m, 'uploads/') === 0) $out[] = $m;
   return $out;
 }
@@ -161,7 +168,7 @@ function cleanup_uploads($before, $data) {
   $used = [];
   foreach ((array) $data['edits'] as $e) $used = array_merge($used, uploads_of($e));
   foreach (array_diff($before, $used) as $f) {
-    if (preg_match('~^uploads/[a-z0-9-]+\.(jpg|png|webp|mp4|mov)$~', $f)) @unlink(__DIR__ . '/' . $f);
+    if (preg_match('~^uploads/[a-z0-9-]+\.(jpg|png|webp|heic|mp4|mov)$~', $f)) @unlink(__DIR__ . '/' . $f);
   }
 }
 $STATUS = ['todo', 'doing', 'wait', 'done'];
@@ -211,7 +218,7 @@ function with_fetched($x, $f) {
 $stored = '';
 if ($kind === 'edits' && $action === 'upload') {
   $slot = isset($in['slot']) ? $in['slot'] : '';
-  if (edit_key(isset($in['id']) ? $in['id'] : '') === '' || !in_array($slot, ['media', 'poster', 'video'], true)) out(['error' => 'item'], 400);
+  if (edit_key(isset($in['id']) ? $in['id'] : '') === '' || !in_array($slot, ['media', 'poster', 'video', 'orig', 'origs'], true)) out(['error' => 'item'], 400);
   // Fichier reconstitué à partir de ses morceaux, ou envoyé en une fois
   $part = isset($in['part']) ? preg_replace('/[^a-z0-9]/', '', strtolower((string) $in['part'])) : '';
   if ($part !== '') {
@@ -228,7 +235,13 @@ if ($kind === 'edits' && $action === 'upload') {
   // MP4 / MOV : la boîte « ftyp » est au début du fichier
   $head = (string) @file_get_contents($f['tmp_name'], false, null, 0, 16);
   // Une vidéo peut aussi être glissée dans un carrousel (slot media)
-  if ($slot === 'video' || ($slot === 'media' && substr($head, 4, 4) === 'ftyp')) {
+  // Original d'une story (photo ou vidéo telle qu'envoyée, avant réduction ou conversion) : gardé pour le téléchargement
+  $heif = substr($head, 4, 4) === 'ftyp' && in_array(substr($head, 8, 4), ['heic', 'heix', 'hevc', 'heim', 'heis', 'mif1', 'msf1'], true);
+  // origs : original d'un visuel de publication (photo, vidéo), rattaché au fichier du site qu'il remplace
+  if (($slot === 'orig' || $slot === 'origs') && $heif) {
+    $ext = 'heic';
+    if ($f['size'] > 40 * 1048576) { $drop(); out(['error' => 'too_big', 'max' => '40 Mo'], 413); }
+  } elseif ($slot === 'video' || (($slot === 'media' || $slot === 'orig' || $slot === 'origs') && substr($head, 4, 4) === 'ftyp')) {
     if (substr($head, 4, 4) === 'ftyp') $ext = substr($head, 8, 2) === 'qt' ? 'mov' : 'mp4';
     if ($f['size'] > $VIDEO_MAX * 1048576) { $drop(); out(['error' => 'too_big', 'max' => $VIDEO_MAX . ' Mo'], 413); }
   } else {
@@ -248,11 +261,21 @@ if ($kind === 'edits' && $action === 'upload') {
 }
 
 // Lecture + écriture sous verrou : deux personnes qui modifient en même temps ne s'écrasent pas
-$fp = @fopen($FILE, 'c+');
+// Verrou sur un fichier à part : le fichier de données est remplacé d'un bloc (jamais lu à moitié écrit)
+$fp = @fopen($FILE . '.lock', 'c');
+if (!$fp) $fp = @fopen($FILE, 'c+');
 if (!$fp) out(['error' => 'storage'], 500);
-flock($fp, LOCK_EX);
-$raw = stream_get_contents($fp);
-$data = $raw ? json_decode($raw, true) : null;
+// Verrou bloqué (requête restée en route) : on n'attend pas indéfiniment
+$t0 = microtime(true);
+while (!flock($fp, LOCK_EX | LOCK_NB)) {
+  if (microtime(true) - $t0 > 15) out(['error' => 'busy'], 503);
+  usleep(150000);
+}
+$raw = is_file($FILE) ? (string) file_get_contents($FILE) : '';
+$data = $raw !== '' ? json_decode($raw, true) : null;
+// Fichier illisible : on repart de la dernière version saine plutôt que d'un planning vide
+if (!is_array($data) && is_file($FILE . '.prev')) $data = json_decode((string) file_get_contents($FILE . '.prev'), true);
+if (!is_array($data) && $raw !== '') { flock($fp, LOCK_UN); out(['error' => 'storage'], 500); }
 if (!is_array($data)) $data = empty_data();
 if (!isset($data[$kind]) || !is_array($data[$kind])) $data[$kind] = [];
 
@@ -269,7 +292,13 @@ if ($kind === 'edits') {
     $e = [];
   } elseif ($action === 'upload') {
     $slot = $in['slot'];
-    if ($slot === 'media') {
+    if ($slot === 'origs') {
+      $for = isset($in['for']) ? (string) $in['for'] : '';
+      $used = array_merge(isset($e['media']) && is_array($e['media']) ? $e['media'] : [], [isset($e['video']) ? $e['video'] : '', isset($e['poster']) ? $e['poster'] : '']);
+      if ($for === '' || !in_array($for, $used, true)) { @unlink(__DIR__ . '/' . $stored); flock($fp, LOCK_UN); out(['error' => 'item'], 400); }
+      if (!isset($e['origs']) || !is_array($e['origs'])) $e['origs'] = [];
+      $e['origs'][$for] = $stored;
+    } elseif ($slot === 'media') {
       // Liste de départ : photos déjà modifiées, sinon celles du planning envoyées par la page
       $list = isset($e['media']) && is_array($e['media']) ? $e['media'] : array_values(array_filter(array_map('media_path', isset($in['base']) && is_array($in['base']) ? $in['base'] : [])));
       $k = isset($in['index']) ? (int) $in['index'] : -1;
@@ -278,8 +307,14 @@ if ($kind === 'edits') {
     } else {
       $e[$slot] = $stored;
     }
+    // Nouveau visuel : l'ancien original ne correspond plus (la page renvoie le nouvel original juste après)
+    if ($slot === 'media' || $slot === 'video') unset($e['orig']);
   } elseif ($action === 'edit') {
     $it = isset($in['item']) && is_array($in['item']) ? $in['item'] : [];
+    // Idée teasing réécrite : date de la dernière version
+    if ((isset($e['added']) && $e['added'] === 'teasing') || (isset($it['added']) && $it['added'] === 'teasing')) {
+      if (isset($it['title']) || isset($it['caption']) || isset($it['details'])) $e['at'] = date('Y-m-d');
+    }
     foreach ($it as $k => $v) {
       if ($v === null) { unset($e[$k]); continue; }
       if ($k === 'title') $e[$k] = clean($v, 140);
@@ -296,7 +331,27 @@ if ($kind === 'edits') {
       elseif ($k === 'status' && in_array($v, $AD_STATUS, true)) $e[$k] = $v;
       elseif ($k === 'format' && in_array($v, ['reel', 'photo'], true)) $e[$k] = $v;
       // Publication ou campagne ajoutée depuis l'espace équipe, ou retirée du planning
-      elseif ($k === 'added' && in_array($v, ['post', 'ad', 'story'], true)) $e[$k] = $v;
+      elseif ($k === 'added' && in_array($v, ['post', 'ad', 'story', 'teasing'], true)) $e[$k] = $v;
+      // Idées teasing : détails à trancher (un par ligne), auteur de la dernière version, arguments de l'équipe
+      elseif ($k === 'details') {
+        $lines = array_slice(array_values(array_filter(array_map(function ($l) { return clean($l, 80); }, preg_split('/\r\n|\r|\n/', (string) $v)), 'strlen')), 0, 12);
+        if ($lines) $e[$k] = implode("\n", $lines); else unset($e[$k]);
+      }
+      elseif ($k === 'by') { $t = clean($v, 30); if ($t !== '') $e[$k] = $t; }
+      elseif ($k === 'rhythm') { $t = clean($v, 140); if ($t !== '') $e[$k] = $t; else unset($e[$k]); }
+      elseif ($k === 'note' && is_array($v)) {
+        $lines = array_filter(array_map(function ($l) { return clean($l, 1200); }, preg_split('/\r\n|\r|\n/', (string) (isset($v['text']) ? $v['text'] : ''))), 'strlen');
+        $t = implode("\n", $lines);
+        if ($t !== '') {
+          $notes = isset($e['notes']) && is_array($e['notes']) ? $e['notes'] : [];
+          $notes[] = ['id' => 'n' . bin2hex(random_bytes(4)), 'who' => clean(isset($v['who']) ? $v['who'] : '', 30), 'text' => function_exists('mb_substr') ? mb_substr($t, 0, 1200, 'UTF-8') : substr($t, 0, 2400), 'at' => date('Y-m-d')];
+          $e['notes'] = array_slice($notes, -60);
+        }
+      }
+      elseif ($k === 'unnote') {
+        if (isset($e['notes']) && is_array($e['notes'])) $e['notes'] = array_values(array_filter($e['notes'], function ($n) use ($v) { return !isset($n['id']) || $n['id'] !== (string) $v; }));
+        if (empty($e['notes'])) unset($e['notes']);
+      }
       elseif ($k === 'deleted' && $v === true) $e[$k] = true;
       elseif ($k === 'date' && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $v)) $e[$k] = $v;
       // Thématique d'un post (plan.themes) : vide = aucune
@@ -307,6 +362,15 @@ if ($kind === 'edits') {
     }
   } else {
     flock($fp, LOCK_UN); out(['error' => 'action'], 400);
+  }
+  // Heure de la dernière modification du contenu (pas des arguments) : les avis « À revoir » du client
+  // donnés avant redeviennent « sans avis », la nouvelle version est à regarder
+  if ($e && ($action === 'upload' || ($action === 'edit' && array_diff(array_keys($it), ['note', 'unnote'])))) $e['mod'] = time();
+  // Originaux dont le visuel du site n'existe plus : retirés (le fichier est supprimé avec les envois inutilisés)
+  if (isset($e['origs']) && is_array($e['origs'])) {
+    $live = array_merge(isset($e['media']) && is_array($e['media']) ? $e['media'] : [], [isset($e['video']) ? $e['video'] : '', isset($e['poster']) ? $e['poster'] : '']);
+    foreach (array_keys($e['origs']) as $m) if (!in_array($m, $live, true)) unset($e['origs'][$m]);
+    if (!$e['origs']) unset($e['origs']);
   }
   if ($e) $data['edits'][$id] = $e; else unset($data['edits'][$id]);
   cleanup_uploads($before, $data);
@@ -397,10 +461,19 @@ if ($kind === 'edits') {
   out(['error' => 'action'], 400);
 }
 
-ftruncate($fp, 0);
-rewind($fp);
-fwrite($fp, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-fflush($fp);
+$json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | (defined('JSON_INVALID_UTF8_SUBSTITUTE') ? JSON_INVALID_UTF8_SUBSTITUTE : 0));
+if (!is_string($json) || $json === '') { flock($fp, LOCK_UN); out(['error' => 'storage'], 500); }
+// Copie de la version précédente, puis écriture dans un fichier temporaire renommé d'un coup
+if ($raw !== '' && json_decode($raw, true) !== null) @file_put_contents($FILE . '.prev', $raw);
+$tmp = $FILE . '.tmp' . getmypid();
+$saved = @file_put_contents($tmp, $json) === strlen($json) && @rename($tmp, $FILE);
+if (!$saved) {
+  @unlink($tmp);
+  // Dossier sans droit de création : écriture directe dans le fichier
+  $saved = @file_put_contents($FILE, $json, LOCK_EX) === strlen($json);
+}
+@chmod($FILE, 0644);
 flock($fp, LOCK_UN);
+if (!$saved) { fclose($fp); out(['error' => 'storage'], 500); }
 fclose($fp);
 out($data);
