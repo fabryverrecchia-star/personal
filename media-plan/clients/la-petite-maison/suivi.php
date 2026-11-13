@@ -35,7 +35,8 @@ $UP_DIR = __DIR__ . '/uploads';
 // Morceaux d'un gros fichier en cours d'envoi (dossier data, protégé)
 $PART_DIR = __DIR__ . '/data/parts';
 $VIDEO_MAX = 1024; // Mo, vidéo reconstituée à partir de ses morceaux
-$config = require __DIR__ . '/config.php';
+// config.php (code équipe haché) : s'il manque, la lecture marche et les écritures répondent « config »
+$config = is_file(__DIR__ . '/config.php') ? require __DIR__ . '/config.php' : null;
 require __DIR__ . '/insta.php';
 
 function out($data, $code = 200) {
@@ -65,6 +66,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET' && isset($_GET['diag'])) {
   out([
     'php' => PHP_VERSION,
+    'config' => is_array($config) && !empty($config['admin_hash']),
     'data_exists' => is_file($FILE),
     'data_writable' => is_file($FILE) ? is_writable($FILE) : is_writable(dirname($FILE)),
     'dir_writable' => is_writable(dirname($FILE)),
@@ -107,6 +109,7 @@ $code = isset($_POST['code']) ? (string) $_POST['code'] : (isset($in['code']) ? 
 if ($code === '' && isset($_SERVER['HTTP_X_ADMIN_CODE'])) $code = (string) $_SERVER['HTTP_X_ADMIN_CODE'];
 // Majuscules ou minuscules : indifférent (le code d'origine a été haché tel quel, en minuscules)
 // Le code tel qu'enregistré (minuscules) d'abord : une seule vérification dans le cas courant
+if (!is_array($config) || empty($config['admin_hash'])) out(['error' => 'config'], 500);
 if ($code === '' || !(password_verify(strtolower(trim($code)), $config['admin_hash']) || password_verify(strtoupper(trim($code)), $config['admin_hash']))) {
   usleep(700000); // freine les essais au hasard
   out(['error' => 'code'], 403);

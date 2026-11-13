@@ -1497,6 +1497,7 @@
         var e = '';
         try { e = JSON.parse(t).error; } catch (x) {}
         if (e === 'code') return 'Code incorrect.';
+        if (e === 'config') return 'Fichier config.php absent sur l’hébergement : envoyez le zip complet (ou le correctif).';
         if (e === 'storage') return 'Le dossier data n’est pas accessible en écriture sur l’hébergement.';
         if (e === 'busy') return 'Une autre modification est en cours d’enregistrement. Réessayez dans quelques secondes.';
         if (e === 'too_big') return 'Fichier trop lourd pour l’hébergement' + (JSON.parse(t).max ? ' (maximum ' + JSON.parse(t).max + ')' : '') + '.';
