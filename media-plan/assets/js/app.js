@@ -273,7 +273,7 @@
       '<div class="slot" data-slot="media">' + mediaHtml(post) + '</div>' +
       '<div class="caption" data-reveal data-slot="caption">' + captionHtml(post) + '</div>' +
       '<div class="post__tools"><button type="button" class="label edit-btn" data-edit-post="' + esc(post._key) + '">' + EDIT_ICON + 'Modifier la publication</button>' +
-      '<button type="button" class="label edit-btn share-btn" data-share-post="' + esc(post._key) + '">' + SHARE_ICON + 'Partager le lien</button>' +
+      '<button type="button" class="label post-act share-btn" data-share-post="' + esc(post._key) + '">' + SHARE_ICON + '<span>Partager le post</span></button>' +
       '<span class="slot" data-slot="dl">' + dlHtml(post) + '</span></div>' +
       feedbackHtml(post) + '</div></article>'
     );
@@ -283,13 +283,100 @@
   var SHARE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M6 11H5v9h14v-9h-1"/></svg>';
   // Équipe : la vidéo d'un reel se télécharge telle qu'elle a été envoyée
   var DL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19h14"/></svg>';
-  function dlHtml(post) {
-    var v = post.type === 'reel' && post.video;
-    if (!v || /^blob:/.test(v)) return '';
-    var ext = (String(v).match(/\.(mp4|mov|m4v)(?:$|[?#])/i) || [0, 'mp4'])[1].toLowerCase();
-    var name = String(post.title || 'reel').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'reel';
-    return '<a class="label edit-btn dl-btn" href="' + esc(src(v)) + '" download="' + esc(name + '.' + ext) + '">' + DL_ICON + 'Télécharger la vidéo</a>';
+  // Fichiers d'une publication, tels qu'envoyés : la vidéo originale d'un reel, sinon chaque photo / vidéo du carrousel
+  function slugName(t, dflt) { return String(t || dflt).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 60) || dflt; }
+  function extOf(p, dflt) {
+    if (/^data:image\/png/.test(p)) return 'png';
+    if (/^data:/.test(p)) return 'jpg';
+    return (String(p).match(/\.([a-z0-9]{2,5})(?:$|[?#])/i) || [0, dflt])[1].toLowerCase();
   }
+  function postFiles(post) {
+    var base = slugName(post.title, post.type === 'reel' ? 'reel' : 'post');
+    if (post.type === 'reel') {
+      var v = post.orig || post.video;
+      return v && !/^blob:/.test(v) ? [{ url: src(v), name: base + '.' + extOf(v, 'mp4') }] : [];
+    }
+    var items = list(post.media).map(firstPath).filter(function (m) { return m && !/^blob:/.test(m); });
+    return items.map(function (m, k) {
+      var u = isVidPath(m) ? vidSrc(m) : src(m);
+      return { url: u, name: base + (items.length > 1 ? '-' + pad(k + 1) : '') + '.' + extOf(String(m).replace(/#v$/, ''), 'jpg') };
+    });
+  }
+  function dlHtml(post) {
+    var f = postFiles(post);
+    if (!f.length) return '';
+    var label = post.type === 'reel' ? 'Télécharger la vidéo originale' : f.length > 1 ? 'Télécharger les ' + f.length + ' fichiers' : 'Télécharger le visuel';
+    return '<button type="button" class="label post-act" data-dl-post="' + esc(post._key) + '">' + DL_ICON + '<span>' + label + '</span></button>';
+  }
+  // Enregistrer des fichiers sans zip : feuille de partage du téléphone (Photos, Fichiers…), sinon un téléchargement par fichier
+  function quickNote(msg) {
+    var t = document.querySelector('[data-toast]');
+    if (!t) return;
+    t.textContent = msg; t.classList.add('is-on');
+    clearTimeout(quickNote.t);
+    quickNote.t = setTimeout(function () { t.classList.remove('is-on'); }, 3600);
+  }
+  var FILE_MIME = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', heic: 'image/heic', mp4: 'video/mp4', mov: 'video/quicktime', m4v: 'video/mp4' };
+  function saveFiles(list0, btn) {
+    var label = btn.getAttribute('data-label') || btn.innerHTML;
+    btn.setAttribute('data-label', label);
+    var reset = function () { btn._files = null; btn.disabled = false; btn.classList.remove('is-ready'); btn.innerHTML = label; };
+    var anchors = function (files) {
+      files.reduce(function (p, f) {
+        return p.then(function () {
+          var u = URL.createObjectURL(f), a = document.createElement('a');
+          a.href = u; a.download = f.name; document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(u); }, 120000);
+          return new Promise(function (r) { setTimeout(r, 450); });
+        });
+      }, Promise.resolve());
+    };
+    var share = function (files) {
+      return navigator.share({ files: files }).then(reset, function (er) {
+        if (er && er.name === 'AbortError') return reset();
+        if (er && er.name === 'NotAllowedError' && !btn._files) {
+          btn._files = files; btn.disabled = false; btn.classList.add('is-ready');
+          btn.innerHTML = DL_ICON + '<span>Enregistrer ' + (files.length > 1 ? 'les ' + files.length + ' fichiers' : 'sur le téléphone') + '</span>';
+          quickNote('Prêt : touchez encore pour enregistrer.');
+          return;
+        }
+        anchors(files); reset();
+      });
+    };
+    if (btn._files) return share(btn._files);
+    if (!list0.length) return;
+    btn.disabled = true;
+    var n = 0;
+    btn.innerHTML = DL_ICON + '<span>Préparation… ' + (list0.length > 1 ? '0 / ' + list0.length : '') + '</span>';
+    Promise.all(list0.map(function (x) {
+      return fetch(x.url).then(function (r) { if (!r.ok) throw r.status; return r.blob(); }).then(function (b) {
+        n++;
+        if (list0.length > 1) btn.innerHTML = DL_ICON + '<span>Préparation… ' + n + ' / ' + list0.length + '</span>';
+        var ext = x.name.split('.').pop();
+        return new File([b], x.name, { type: b.type && b.type !== 'application/octet-stream' ? b.type : FILE_MIME[ext] || '' });
+      });
+    })).then(function (files) {
+      var mobile = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+      if (mobile && navigator.canShare && navigator.share && navigator.canShare({ files: files })) return share(files);
+      anchors(files); reset();
+    }).catch(function () { reset(); quickNote('Téléchargement impossible. Réessayez.'); });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-dl-post], [data-dl-ad]');
+    if (!b) return;
+    var files = [];
+    if (b.hasAttribute('data-dl-post')) {
+      var key = b.getAttribute('data-dl-post');
+      var p = allPosts.filter(function (x) { return String(x._key) === key; })[0];
+      if (p) files = postFiles(p);
+    } else {
+      var c = adCampaigns().filter(function (x) { return x.id === b.getAttribute('data-dl-ad'); })[0];
+      var v = c && adView(c);
+      var f = v && (v.video || v.media);
+      if (f) files = [{ url: src(f), name: slugName(v.title, 'campagne') + '-' + slugName(v.id, 'ad') + '.' + extOf(f, v.video ? 'mp4' : 'jpg') }];
+    }
+    saveFiles(files, b);
+  });
   var EDIT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 20l1-4.5L16 4.5l3.5 3.5-11 11z"/><path d="M13.5 7l3.5 3.5"/></svg>';
   function tagHtml(post) {
     var type = post.type || 'post';
@@ -698,6 +785,7 @@
       '<label class="label" for="qs-' + esc(v.id) + '">Dépensé à ce jour</label>' +
       '<div class="ad__quick-row"><input id="qs-' + esc(v.id) + '" type="text" name="spent" inputmode="decimal" autocomplete="off" value="' + (v.real ? v.spent : '') + '" placeholder="' + (v.real ? '' : 'estimé ' + v.spent) + '">' +
       '<span aria-hidden="true">€</span><button type="submit" class="label">OK</button></div></form>' +
+      ((v.video || v.media) ? '<button type="button" class="label post-act" data-dl-ad="' + esc(v.id) + '">' + DL_ICON + '<span>' + (v.video ? 'Télécharger la vidéo originale' : 'Télécharger le visuel') + '</span></button>' : '') +
       '<button type="button" class="label edit-btn" data-edit-ad="' + esc(v.id) + '">' + EDIT_ICON + 'Modifier la campagne</button>' +
       '</div>'
     );
@@ -814,7 +902,7 @@
   // d'un reel, le titre et la légende. Le post est redessiné sur place.
   function postView(p) {
     var o = p._orig, e = EDITS[p._key] || {};
-    var v = { type: o.type || 'post', media: o.media, options: o.options, poster: o.poster, video: o.video, title: o.title, caption: o.caption };
+    var v = { type: o.type || 'post', media: o.media, options: o.options, poster: o.poster, video: o.video, orig: o.orig || '', title: o.title, caption: o.caption };
     var orig = o.type || 'post';
     // e.format : l'équipe peut passer un post photo en reel (vidéo + couverture), ou un reel en photo
     var reel = e.format ? e.format === 'reel' : orig === 'reel';
@@ -824,6 +912,7 @@
       v.type = 'reel';
       v.poster = e.poster || o.poster || photos[0];
       v.video = e.video || o.video;
+      v.orig = e.video ? e.orig || '' : o.orig || '';
       v.media = undefined;
       v.options = undefined;
     } else if (orig === 'reel' || (e.media && e.media.length)) {
@@ -831,6 +920,7 @@
       v.media = multi ? photos : photos[0];
       v.options = undefined;
       v.poster = v.video = undefined;
+      v.orig = '';
       v.type = multi ? 'carousel' : 'post';
     }
     if (e.title != null) v.title = e.title;
@@ -2870,6 +2960,14 @@
             var b = edBox.querySelector('[data-ed-busy]');
             e.busy = (isVideo ? 'Envoi de la vidéo… ' : 'Envoi de la photo… ') + Math.round(r * 100) + ' %';
             if (b) b.textContent = e.busy;
+          }).then(function (d) {
+            // Vidéo du reel convertie pour le site : le fichier d'origine est gardé aussi, pour « Télécharger la vidéo originale »
+            if (slot !== 'video' || blob === file) return d;
+            return sendFile({ action: 'upload', kind: 'edits', id: e.key, slot: 'orig' }, file, file.name || 'video.mov', function (r) {
+              var b = edBox.querySelector('[data-ed-busy]');
+              e.busy = 'Envoi de l’original… ' + Math.round(r * 100) + ' %';
+              if (b) b.textContent = e.busy;
+            }).then(null, function () { toast('L’original n’a pas pu être gardé : la vidéo du site reste téléchargeable.'); return d; });
           });
       }).then(function (d) {
         state = d;

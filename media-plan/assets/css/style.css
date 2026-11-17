@@ -2700,3 +2700,17 @@ body.has-sum .countdown { padding-top: 36px; padding-bottom: 24px; }
 .ad__media--video video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .ad__sound { position: absolute; right: 10px; bottom: 10px; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: rgba(0, 0, 0, 0.45); color: #f1eee6; pointer-events: none; }
 .ad__sound svg { width: 18px; height: 18px; }
+
+/* Partager le post, télécharger les fichiers d'origine : visibles par tous, sous chaque publication et campagne */
+.post-act {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin: 14px 0 0; padding: 10px 16px 9px;
+  border: 1px solid var(--ink-faint); border-radius: 99px;
+  font-size: 9px; color: var(--ink);
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.post-act svg { width: 14px; height: 14px; flex: none; }
+.post-act:active { background: var(--tint); }
+.post-act:disabled { opacity: 0.6; }
+.post-act.is-ready { border-color: var(--ink); }
+.ad__info .post-act { justify-self: start; margin-top: 2px; }
