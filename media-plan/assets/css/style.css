@@ -2701,3 +2701,9 @@ body.has-sum .countdown { padding-top: 36px; padding-bottom: 24px; }
 
 /* Avis « À revoir » levé par une nouvelle version de l'équipe */
 .fb__redo { margin: 0 0 10px; font-size: 9px; color: var(--ink); opacity: 0.75; }
+
+/* Carrousel mixte (PLAN.carouselRatios) : visuels entiers, sans recadrage ; le cadre suit la slide affichée */
+.media--mixed { background: var(--bg); transition: height 0.12s linear; }
+.media--mixed .carousel { align-items: center; }
+.media--mixed .carousel > img, .media--mixed .slide video, .media--mixed .slide img { object-fit: contain; }
+html.has-ratios .ed-tile img, html.has-ratios .ed-tile video { object-fit: contain; }

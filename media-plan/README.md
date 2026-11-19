@@ -26,6 +26,8 @@ Aucune compilation : déposer le dossier tel quel chez l'hébergeur (en ligne : 
   légende, Validé / À revoir, commentaire, Modifier, Partager). Une vignette vide « + » en haut à gauche du
   feed ajoute une publication (visible par tous, le code équipe est demandé) ; après l'ajout la page s'ouvre sur sa fenêtre
   et son formulaire.
+- `carouselRatios: true` : carrousels mixtes comme sur Instagram. Chaque photo ou vidéo garde ses proportions (1:1, 4:5,
+  3:4, 5:4, paysage jusqu'à 1,91:1), sans recadrage ; le cadre prend la hauteur de la slide affichée. Même chose dans l'éditeur.
 - `menuOrder: ['feed', 'stories', 'teasing']` règle l'ordre du sommaire, `menuOpen: 'feed'` ouvre cette partie à l'arrivée.
 - En ligne automatiquement : une publication dont la date est passée porte « En ligne » sur sa fiche et sur sa vignette du feed (voilée).
 - Stories jour par jour (`storiesByDay: true`) : une rangée par jour sous sa date, l'heure sous chaque story.

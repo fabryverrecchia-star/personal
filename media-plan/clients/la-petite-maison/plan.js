@@ -29,6 +29,8 @@ window.PLAN = {
   menu: true,
   // Plus de rubrique Publications : chaque post s'ouvre en fenêtre depuis le feed, « + » en tête du feed pour en ajouter
   pubsInFeed: true,
+  // Carrousels mixtes : chaque photo ou vidéo garde ses proportions (1:1, 4:5, 3:4, paysage…), comme sur Instagram
+  carouselRatios: true,
   // Sommaire : le feed d'abord (ouvert à l'arrivée), puis les stories, puis les idées teasing
   menuOrder: ['feed', 'stories', 'teasing'],
   menuOpen: 'feed',

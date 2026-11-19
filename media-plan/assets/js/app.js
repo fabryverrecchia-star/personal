@@ -316,7 +316,7 @@
     } else if (type === 'carousel') {
       var imgs = list(post.media);
       media =
-        '<div class="media" data-reveal-media><div class="media__inner"><div class="carousel">' +
+        '<div class="media' + (PLAN.carouselRatios ? ' media--mixed' : '') + '" data-reveal-media><div class="media__inner"><div class="carousel">' +
         imgs.map(function (m, k) {
           // Une slide peut être une image ('x.jpg') ou une vidéo ({ video, poster })
           if (m && typeof m === 'object') {
@@ -1199,6 +1199,7 @@
   /* ------------------------------------------- vidéo convertie avant l'envoi */
   // ProRes, HEVC ou autre format que les navigateurs ne lisent pas partout : converti sur l'appareil
   // en MP4 H.264 (ffmpeg.wasm, chargé seulement à ce moment-là), puis envoyé.
+  if (PLAN.carouselRatios) document.documentElement.classList.add('has-ratios');
   var FF_BASE = 'assets/vendor/ffmpeg/';
   function loadScript(url) {
     return new Promise(function (res, rej) {
@@ -2684,7 +2685,9 @@
               '<button type="button" class="ed-add" data-ed-pick="media" data-k="-1" data-vid><span>+</span><small class="label">Ajouter une vidéo</small></button>' : '');
         hint.textContent = ed.kind === 'ad'
           ? 'Format conseillé 4:5 (1080 × 1350).'
-          : imgs.length > 1 ? 'Les flèches changent l’ordre. Remplacez ou retirez une photo ou une vidéo ; un ajout se place à la fin. Les vidéos sont recadrées au format des photos (4:5).' : 'Format conseillé 4:5 (1080 × 1350). Ajouter une photo ou une vidéo en fait un carrousel ; la vidéo est recadrée au format des photos.';
+          : PLAN.carouselRatios
+            ? (imgs.length > 1 ? 'Les flèches changent l’ordre. Remplacez ou retirez une photo ou une vidéo ; un ajout se place à la fin. Chaque visuel garde ses proportions (1:1, 4:5, 3:4, paysage…), comme dans un carrousel Instagram.' : 'Ajouter une photo ou une vidéo en fait un carrousel. Chaque visuel garde ses proportions (1:1, 4:5, 3:4, paysage…).')
+            : imgs.length > 1 ? 'Les flèches changent l’ordre. Remplacez ou retirez une photo ou une vidéo ; un ajout se place à la fin. Les vidéos sont recadrées au format des photos (4:5).' : 'Format conseillé 4:5 (1080 × 1350). Ajouter une photo ou une vidéo en fait un carrousel ; la vidéo est recadrée au format des photos.';
       }
       if (ed.busy) edBox.insertAdjacentHTML('afterbegin', '<div class="ed-busy label" data-ed-busy>' + ed.busy + '</div>');
       if (window.ScrollTrigger) window.ScrollTrigger.refresh();
@@ -3510,12 +3513,42 @@
       var count = media.querySelector('.carousel__count b');
       var dots = media.parentNode.querySelectorAll('.dots i');
       var raf;
+      // PLAN.carouselRatios : carrousel mixte comme sur Instagram, chaque visuel garde ses proportions
+      // (1:1, 4:5, 3:4, 5:4, paysage…) ; le cadre prend la hauteur de la slide affichée, en suivant le glissé
+      var mixed = media.classList.contains('media--mixed');
+      var ratios = [];
+      function sizeTo() {
+        if (!mixed || !car.clientWidth) return;
+        var x = car.scrollLeft / car.clientWidth, a = Math.floor(x), b = Math.min(a + 1, ratios.length - 1), f = x - a;
+        var ra = ratios[a] || ratios[0] || 1.25, rb = ratios[b] || ra;
+        media.style.aspectRatio = 'auto';
+        media.style.height = Math.round(car.clientWidth * (ra + (rb - ra) * f)) + 'px';
+      }
+      if (mixed) {
+        Array.prototype.forEach.call(car.children, function (sl, k) {
+          var m = sl.tagName === 'IMG' ? sl : sl.querySelector('video, img');
+          if (!m) return;
+          function measure() {
+            var w = m.naturalWidth || m.videoWidth, h = m.naturalHeight || m.videoHeight;
+            // Limites d'Instagram et de la page : de 1,91:1 (paysage) à 3:4 (portrait)
+            if (w && h) { ratios[k] = Math.max(0.52, Math.min(1.34, h / w)); sizeTo(); }
+          }
+          if (m.tagName === 'VIDEO') m.addEventListener('loadedmetadata', measure);
+          else if (m.complete) measure(); else m.addEventListener('load', measure);
+          // Les vignettes en différé (loading=lazy) ne se chargent pas hors écran : on les charge tout de suite
+          if (m.tagName === 'IMG') m.loading = 'eager';
+        });
+        // Post rangé caché puis ouvert en fenêtre : la taille est reprise dès qu'il devient visible
+        if (window.ResizeObserver) new ResizeObserver(function () { sizeTo(); }).observe(car);
+        else window.addEventListener('resize', sizeTo);
+      }
       car.addEventListener('scroll', function () {
         cancelAnimationFrame(raf);
         raf = requestAnimationFrame(function () {
           var k = Math.round(car.scrollLeft / car.clientWidth);
           count.textContent = k + 1;
           dots.forEach(function (d, j) { d.classList.toggle('is-on', j === k); });
+          sizeTo();
         });
       }, { passive: true });
     })();
