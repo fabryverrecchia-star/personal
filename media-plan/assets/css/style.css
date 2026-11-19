@@ -114,6 +114,7 @@ a { color: inherit; }
   inset: -50%;
   z-index: 60;
   pointer-events: none;
+  display: none; /* Jamais de grain ni de filtre par-dessus les photos et vidéos */
   opacity: 0.06;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
@@ -625,7 +626,8 @@ a { color: inherit; }
   display: grid;
   place-items: center;
   color: #fff;
-  background: linear-gradient(180deg, rgba(14, 20, 36, 0) 55%, rgba(14, 20, 36, 0.55));
+  /* Aucun dégradé sur la vidéo du client : le texte reste lisible par son ombre */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
   -webkit-tap-highlight-color: transparent;
 }
 .reel-open__play {
@@ -634,8 +636,6 @@ a { color: inherit; }
   width: 68px; height: 68px;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.7);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
   background: rgba(255, 255, 255, 0.08);
   transition: transform 0.6s var(--ease), background-color 0.6s var(--ease);
 }
@@ -732,13 +732,7 @@ a { color: inherit; }
   color: #fff;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
 }
-.grid a.is-live::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--bg);
-  opacity: 0.28;
-}
+/* Publications déjà en ligne : seulement l'étiquette « En ligne », jamais de voile ni de filtre sur les contenus */
 .grid__live {
   position: absolute;
   left: 6px; top: 6px;
@@ -886,7 +880,7 @@ a { color: inherit; }
   align-items: center;
   gap: 10px;
   padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px 30px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0));
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 .viewer__progress {
   position: absolute;
@@ -910,14 +904,12 @@ a { color: inherit; }
   width: 42px; height: 42px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
 }
 .viewer__btn svg { width: 18px; height: 18px; }
 .viewer__tap { pointer-events: auto; }
 .viewer__bottom {
   padding: 40px 18px calc(env(safe-area-inset-bottom, 0px) + 22px);
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
   max-height: 50vh;
   overflow-y: auto;
 }
@@ -2275,7 +2267,8 @@ body.has-dock .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); }
 .sview__media { position: absolute; inset: 0; display: grid; place-items: center; }
 .sview__media img, .sview__media video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 .sview__soon { font-size: 9px; opacity: 0.7; }
-.sview__shade { position: absolute; inset: 0 0 auto; height: 120px; background: linear-gradient(rgba(14, 20, 36, 0.55), transparent); pointer-events: none; }
+.sview__shade { display: none; }
+.sview__head { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
 .sview__bars { position: absolute; top: 10px; left: 8px; right: 8px; z-index: 2; display: flex; gap: 3px; }
 .sview__bars i { flex: 1; height: 2px; border-radius: 2px; background: rgba(241, 238, 230, 0.35); overflow: hidden; }
 .sview__bars b { display: block; height: 100%; background: #f1eee6; transform: scaleX(0); transform-origin: left; }
@@ -2707,3 +2700,9 @@ body.has-sum .countdown { padding-top: 36px; padding-bottom: 24px; }
 .media--mixed .carousel { align-items: center; }
 .media--mixed .carousel > img, .media--mixed .slide video, .media--mixed .slide img { object-fit: contain; }
 html.has-ratios .ed-tile img, html.has-ratios .ed-tile video { object-fit: contain; }
+
+/* Campagne sponsorisée en vidéo (9:16) : lecture muette en boucle, toucher pour le son */
+.ad__media--video { position: relative; cursor: pointer; }
+.ad__media--video video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ad__sound { position: absolute; right: 10px; bottom: 10px; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: rgba(0, 0, 0, 0.45); color: #f1eee6; pointer-events: none; }
+.ad__sound svg { width: 18px; height: 18px; }
