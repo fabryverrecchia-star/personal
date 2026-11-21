@@ -449,6 +449,16 @@ $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSO
 if (!is_string($json) || $json === '') { flock($fp, LOCK_UN); out(['error' => 'storage'], 500); }
 // Copie de la version précédente, puis écriture dans un fichier temporaire renommé d'un coup
 if ($raw !== '' && json_decode($raw, true) !== null) @file_put_contents($FILE . '.prev', $raw);
+// Une copie par jour, gardée 30 jours (data/backups/) : un contenu effacé par erreur peut être retrouvé
+if ($raw !== '' && json_decode($raw, true) !== null) {
+  $BK = dirname($FILE) . '/backups';
+  if (!is_dir($BK)) @mkdir($BK, 0755, true);
+  $today = $BK . '/suivi-' . date('Y-m-d') . '.json';
+  if (is_dir($BK) && !is_file($today)) {
+    @file_put_contents($today, $raw);
+    foreach (glob($BK . '/suivi-*.json') ?: [] as $old) if (@filemtime($old) < time() - 30 * 86400) @unlink($old);
+  }
+}
 $tmp = $FILE . '.tmp' . getmypid();
 $saved = @file_put_contents($tmp, $json) === strlen($json) && @rename($tmp, $FILE);
 if (!$saved) {

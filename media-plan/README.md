@@ -112,3 +112,11 @@ Le décompresser par-dessus le dossier en ligne : le planning modifié, les phot
 Avant l'envoi depuis l'espace équipe, une vidéo qui n'est pas en H.264 (ProRes, HEVC, MOV…) est convertie sur l'appareil
 en MP4 H.264 1080 px (ffmpeg.wasm, `assets/vendor/ffmpeg/`, chargé seulement à ce moment-là, environ 32 Mo). Compter
 1 à 2 minutes pour 10 s de ProRes. Si l'appareil n'y arrive pas, la vidéo part telle quelle avec un message.
+
+## Mise à jour du 21 novembre
+
+- Chaque post a un bouton « Télécharger » qui récupère les fichiers originaux (photos et vidéos du carrousel).
+- Les stories ont un bouton « Partager » dans la visionneuse. Le lien affiche une vignette quand on le colle et ouvre directement la story (`?story=`).
+- Une vidéo dans un carrousel repart du début quand on revient dessus.
+- Les vidéos sont lues en streaming quand l'hébergeur accepte les requêtes Range, ce qui accélère l'ouverture d'un post partagé seul.
+- suivi.php garde une sauvegarde quotidienne dans data/backups/ (30 jours).

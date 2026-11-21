@@ -23,15 +23,41 @@ function safe_path($p) {
   return is_string($p) && preg_match('~^(media|uploads)/[A-Za-z0-9._-]+$~', $p) && strpos($p, '..') === false ? $p : '';
 }
 
+// Publication du planning (plan.js) : visuel, couverture, vidéo, titre, légende, date. Les modifications de l'équipe passent par-dessus.
+function plan_str($block, $k) {
+  if (preg_match('~\b' . $k . ":\s*'((?:[^'\\\\]|\\\\.)*)'~", $block, $m)) return str_replace(["\\'", '\\\\'], ["'", '\\'], $m[1]);
+  return '';
+}
+function plan_list($block, $k) {
+  if (preg_match('~\b' . $k . ":\s*\[(.*?)\]~s", $block, $m) && preg_match_all("~'((?:[^'\\\\]|\\\\.)*)'~", $m[1], $mm)) return array_map(function ($x) { return str_replace(["\\'", '\\\\'], ["'", '\\'], $x); }, $mm[1]);
+  $one = plan_str($block, $k);
+  return $one !== '' ? [$one] : [];
+}
+$planSrc = (string) @file_get_contents($dir . '/plan.js');
+$base = [];
+if ($key !== '' && ($at = strpos($planSrc, "id: '" . $key . "'")) !== false) {
+  $next = strpos($planSrc, "id: '", $at + 5);
+  $block = substr($planSrc, $at, $next === false ? 4000 : $next - $at);
+  $base = [
+    'type' => plan_str($block, 'type'), 'title' => plan_str($block, 'title'), 'date' => plan_str($block, 'date'), 'time' => plan_str($block, 'time'),
+    'media' => plan_list($block, 'media'), 'poster' => plan_str($block, 'poster'), 'video' => plan_str($block, 'video'),
+    'caption' => implode("\n", plan_list($block, 'caption')),
+  ];
+}
+foreach (['title', 'date', 'time', 'caption'] as $k) if (!isset($e[$k]) && !empty($base[$k])) $e[$k] = $base[$k];
+
 // Ce que montre la publication
-$reel = isset($e['format']) && $e['format'] === 'reel';
+$reel = isset($e['format']) ? $e['format'] === 'reel' : (isset($base['type']) && $base['type'] === 'reel');
 $images = [];
 $video = '';
 if ($reel) {
-  if (!empty($e['poster']) && safe_path($e['poster'])) $images[] = $e['poster'];
-  if (!empty($e['video']) && safe_path($e['video'])) $video = $e['video'];
+  $poster = !empty($e['poster']) ? $e['poster'] : (!empty($base['poster']) ? $base['poster'] : (!empty($base['media'][0]) ? $base['media'][0] : ''));
+  if ($poster && safe_path($poster)) $images[] = $poster;
+  $vid = !empty($e['video']) ? $e['video'] : (!empty($base['video']) ? $base['video'] : '');
+  if ($vid && safe_path($vid)) $video = $vid;
 } else {
-  foreach ((array) (isset($e['media']) ? $e['media'] : []) as $m) {
+  $list = !empty($e['media']) ? (array) $e['media'] : (isset($base['media']) ? $base['media'] : []);
+  foreach ($list as $m) {
     if (!safe_path($m)) continue;
     if (is_vid($m)) { if ($video === '') $video = $m; }
     else $images[] = $m;
@@ -80,11 +106,13 @@ $host = isset($_SERVER['HTTP_HOST']) ? preg_replace('/[^A-Za-z0-9.:-]/', '', $_S
 $root = ($https ? 'https' : 'http') . '://' . $host . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . '/';
 $qs = ($slug !== 'la-petite-maison' ? 'c=' . $slug . '&' : '');
 $self = $root . 'share.php?' . $qs . 'p=' . rawurlencode($key);
-$target = $root . ($qs || $key !== '' ? '?' . $qs . ($key !== '' ? 'post=' . rawurlencode($key) : '') : '');
+// Story (ajoutée par l'équipe) : ouverte en plein écran ; publication : ouverte dans sa fenêtre
+$isStory = isset($e['added']) && $e['added'] === 'story';
+$target = $root . ($qs || $key !== '' ? '?' . $qs . ($key !== '' ? ($isStory ? 'story=' : 'post=') . rawurlencode($key) : '') : '');
 
 // Nom du client, lu dans plan.js
 $client = 'La Petite Maison';
-$plan = @file_get_contents($dir . '/plan.js');
+$plan = $planSrc;
 if ($plan && preg_match("~client:\s*\{[^}]*?name:\s*'([^']+)'~s", $plan, $m)) $client = $m[1];
 
 $JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
@@ -94,7 +122,7 @@ if (!empty($e['date']) && preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $e['date'], 
   $t = mktime(12, 0, 0, (int) $d[2], (int) $d[3], (int) $d[1]);
   $when = ucfirst($JOURS[(int) date('w', $t)]) . ' ' . (int) $d[3] . ' ' . $MOIS[(int) $d[2] - 1] . (!empty($e['time']) ? ' · ' . $e['time'] : '');
 }
-$kindLabel = $reel ? 'Reel' : (count($images) + ($video ? 1 : 0) > 1 ? 'Carrousel' : ($video ? 'Vidéo' : 'Publication'));
+$kindLabel = $isStory ? 'Story' : ($reel ? 'Reel' : (count($images) + ($video ? 1 : 0) > 1 ? 'Carrousel' : ($video ? 'Vidéo' : 'Publication')));
 $title = trim((string) (isset($e['title']) ? $e['title'] : '')) ?: $kindLabel;
 $first = trim((string) strtok(isset($e['caption']) ? (string) $e['caption'] : '', "\n"));
 $desc = trim($kindLabel . ($when ? ' · ' . $when : '') . ($first !== '' ? ' — ' . $first : ''));
@@ -104,6 +132,12 @@ $site = '18H22 × ' . $client;
 function h($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); }
 $v = function ($p) use ($root, $slug) { return $root . 'clients/' . $slug . '/' . $p; };
 $imgUrl = $images ? $self . '&img=1' : '';
+// Taille réelle de l'aperçu : carrousel 1200 × 630, sinon le visuel réduit à 1200 px (reel en 9:16)
+$ogW = 1200; $ogH = 630;
+if (count($images) === 1 && ($sz = @getimagesize($dir . '/' . $images[0]))) {
+  $r = min(1, 1200 / max($sz[0], $sz[1]));
+  $ogW = (int) round($sz[0] * $r); $ogH = (int) round($sz[1] * $r);
+}
 // Version de l'image : les applications gardent l'aperçu en cache, il change avec les visuels
 if ($imgUrl) $imgUrl .= '&v=' . substr(md5(implode('|', $images)), 0, 8);
 
@@ -128,8 +162,8 @@ header('Cache-Control: no-cache');
 <meta property="og:image:secure_url" content="<?= h($imgUrl) ?>">
 <meta property="og:image:type" content="image/jpeg">
 <?php if (count($images) > 1): ?>
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+<meta property="og:image:width" content="<?= (int) $ogW ?>">
+<meta property="og:image:height" content="<?= (int) $ogH ?>">
 <?php endif; ?>
 <meta name="twitter:image" content="<?= h($imgUrl) ?>">
 <?php endif; ?>
@@ -144,7 +178,7 @@ header('Cache-Control: no-cache');
 <style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f1eee6;color:#22365f;font:16px/1.5 Georgia,serif;text-align:center}a{color:inherit}</style>
 </head>
 <body>
-<p><a href="<?= h($target) ?>">Voir la publication</a></p>
+<p><a href="<?= h($target) ?>"><?= $isStory ? 'Voir la story' : 'Voir la publication' ?></a></p>
 <script>location.replace(<?= json_encode($target, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) ?>);</script>
 </body>
 </html>
