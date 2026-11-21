@@ -69,8 +69,27 @@ if (isset($_GET['img'])) {
   $files = array_slice($images, 0, count($images) > 1 ? 3 : 1);
   if (!$files) { http_response_code(404); exit; }
   if (!function_exists('imagecreatefromstring')) { header('Location: clients/' . $slug . '/' . $files[0]); exit; }
+  // Aperçu déjà préparé : servi tout de suite (WhatsApp abandonne la vignette si l'image tarde)
+  $cacheDir = $dir . '/data/og';
+  $stamp = [];
+  foreach ($files as $f) $stamp[] = $f . ':' . @filemtime($dir . '/' . $f);
+  $cache = $cacheDir . '/' . md5(implode('|', $stamp)) . '.jpg';
+  if (is_file($cache)) {
+    header('Content-Type: image/jpeg');
+    header('Content-Length: ' . filesize($cache));
+    header('Cache-Control: public, max-age=86400');
+    readfile($cache);
+    exit;
+  }
   @ini_set('memory_limit', '256M');
+  @set_time_limit(60);
   $load = function ($f) use ($dir) { $b = @file_get_contents($dir . '/' . $f); return $b ? @imagecreatefromstring($b) : false; };
+  // Photos illisibles (HEIC…) écartées du carrousel
+  if (count($files) > 1) {
+    $okFiles = [];
+    foreach ($files as $f) { $t = $load($f); if ($t) { $okFiles[] = $f; imagedestroy($t); } }
+    $files = $okFiles ?: [$files[0]];
+  }
   if (count($files) === 1) {
     $im = $load($files[0]);
     if (!$im) { header('Location: clients/' . $slug . '/' . $files[0]); exit; }
@@ -93,6 +112,17 @@ if (isset($_GET['img'])) {
       imagecopyresampled($out, $im, $k * ($pw + $gap), 0, (int) (($w - $cw) / 2), (int) (($h - $ch) / 2), $pw, $H, $cw, $ch);
       imagedestroy($im);
     }
+  }
+  if (!is_dir($cacheDir)) @mkdir($cacheDir, 0755, true);
+  if (is_dir($cacheDir) && @imagejpeg($out, $cache . '.tmp', 84) && @rename($cache . '.tmp', $cache)) {
+    // Ménage : on garde les 200 aperçus les plus récents
+    $all = glob($cacheDir . '/*.jpg') ?: [];
+    if (count($all) > 200) { usort($all, function ($a, $b) { return filemtime($a) - filemtime($b); }); foreach (array_slice($all, 0, count($all) - 200) as $old) @unlink($old); }
+    header('Content-Type: image/jpeg');
+    header('Content-Length: ' . filesize($cache));
+    header('Cache-Control: public, max-age=86400');
+    readfile($cache);
+    exit;
   }
   header('Content-Type: image/jpeg');
   header('Cache-Control: public, max-age=3600');

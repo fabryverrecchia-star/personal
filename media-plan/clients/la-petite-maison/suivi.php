@@ -355,7 +355,7 @@ if ($kind === 'edits') {
   }
   // Heure de la dernière modification du contenu (pas des arguments) : les avis « À revoir » du client
   // donnés avant redeviennent « sans avis », la nouvelle version est à regarder
-  if ($e && ($action === 'upload' || ($action === 'edit' && array_diff(array_keys($it), ['note', 'unnote'])))) $e['mod'] = time();
+  if ($e && (($action === 'upload' && !(isset($in['slot']) && $in['slot'] === 'poster' && !empty($in['auto']))) || ($action === 'edit' && array_diff(array_keys($it), ['note', 'unnote'])))) $e['mod'] = time();
   if ($e) $data['edits'][$id] = $e; else unset($data['edits'][$id]);
   cleanup_uploads($before, $data);
   if (!$data['edits']) $data['edits'] = new stdClass();

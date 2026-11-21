@@ -522,7 +522,7 @@ a { color: inherit; }
 .carousel { overscroll-behavior-x: contain; touch-action: pan-x pan-y; }
 .carousel img, .carousel video { -webkit-user-drag: none; -webkit-touch-callout: none; user-select: none; }
 .carousel::-webkit-scrollbar { display: none; }
-.carousel > * { flex: 0 0 100%; scroll-snap-align: start; }
+.carousel > * { flex: 0 0 100%; scroll-snap-align: start; scroll-snap-stop: always; }
 .slide { position: relative; height: 100%; }
 .slide__tag {
   position: absolute;
@@ -2716,7 +2716,7 @@ body.has-sum .countdown { padding-top: 36px; padding-bottom: 24px; }
 .ad__info .post-act { justify-self: start; margin-top: 2px; }
 
 /* Carrousel mixte (PLAN.carouselRatios) : visuels entiers, sans recadrage ; le cadre suit la slide affichée */
-.media--mixed { background: var(--bg); transition: height 0.12s linear; }
+.media--mixed { background: var(--bg); transition: height 0.28s cubic-bezier(0.2, 0.7, 0.2, 1); }
 .media--mixed .carousel { align-items: center; }
 .media--mixed .carousel > img, .media--mixed .slide video, .media--mixed .slide img { object-fit: contain; }
 html.has-ratios .ed-tile img, html.has-ratios .ed-tile video { object-fit: contain; }

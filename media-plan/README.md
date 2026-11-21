@@ -120,3 +120,6 @@ en MP4 H.264 1080 px (ffmpeg.wasm, `assets/vendor/ffmpeg/`, chargé seulement à
 - Une vidéo dans un carrousel repart du début quand on revient dessus.
 - Les vidéos sont lues en streaming quand l'hébergeur accepte les requêtes Range, ce qui accélère l'ouverture d'un post partagé seul.
 - suivi.php garde une sauvegarde quotidienne dans data/backups/ (30 jours).
+- Carrousel : la hauteur s'ajuste une fois la photo posée (glissé plus net), un glissé = une photo, et un post ouvert depuis un lien démarre sur la première photo.
+- Le compte à rebours disparaît le lendemain de sa date.
+- Vignettes des liens partagés : préparées dès qu'on touche « Partager » et gardées dans data/og/ ; les stories vidéo reçoivent une image de couverture (rattrapage automatique en mode équipe).

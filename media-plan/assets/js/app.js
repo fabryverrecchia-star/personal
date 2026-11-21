@@ -511,9 +511,14 @@
   }
 
   // Compte à rebours jusqu'à une date clé (ex. le grand opening) : PLAN.countdown = { date, kicker, title, lead }
+  // Le lendemain de la date, le compte à rebours disparaît de la page
+  function cdLive() {
+    var cd = PLAN.countdown;
+    return !!(cd && cd.date && String(cd.date).slice(0, 10) >= iso(today()));
+  }
   function countdownHtml() {
     var cd = PLAN.countdown;
-    if (!cd || !cd.date) return '';
+    if (!cdLive()) return '';
     var units = [['d', 'Jours'], ['h', 'Heures'], ['m', 'Minutes'], ['s', 'Secondes']];
     return '<section class="countdown" id="opening">' +
       '<p class="label countdown__kicker" data-reveal>' + esc(cd.kicker || 'Compte à rebours') + '</p>' +
@@ -617,7 +622,7 @@
 
     html +=
       '<nav class="weeknav" aria-label="' + (monthly ? 'Mois' : 'Semaines') + '">' +
-      (PLAN.countdown ? '<a class="label" href="#opening">Opening</a>' : '') +
+      (cdLive() ? '<a class="label" href="#opening">Opening</a>' : '') +
       '<a class="label" href="#feed">Feed</a>' +
       weeks.map(function (w, k) { return '<a class="label" href="#s' + (k + 1) + '">' + (monthly ? MOIS_LONGS[firstDate(w).getMonth()] : 'S' + pad(k + 1)) + '</a>'; }).join('') +
       (PLAN.suivi && PLAN.stories !== false ? '<a class="label" href="#stories">Stories</a>' : '') +
@@ -1907,6 +1912,7 @@
     function setAdmin(on, badCode) {
       var before = anchor && anchor.getBoundingClientRect().top;
       admin = on;
+      if (on) setTimeout(posterBackfill, 4000);
       document.body.classList.toggle('is-admin', on);
       if (!on && badCode) {
         code = '';
@@ -2657,9 +2663,34 @@
       }).then(function () {
         return send({ action: 'edit', kind: 'edits', id: id, item: after });
       }).then(function () {
+        // Vidéo : une image de couverture est tirée de la vidéo, pour la vignette du lien partagé
+        if (isVideo) return storyPoster(id, file);
+      }).then(function () {
         done();
         toast(isVideo ? 'Vidéo enregistrée.' : 'Photo enregistrée.');
       }, fail);
+    }
+    // Couverture d'une story vidéo : une image prise à 0,3 s, envoyée en silence (sans toucher aux retours du client)
+    function storyPoster(id, from) {
+      return videoFrame(from).then(function (jpg) {
+        if (!jpg) return;
+        return sendFile({ action: 'upload', kind: 'edits', id: id, slot: 'poster', auto: 1 }, jpg, 'cover.jpg', function () {})
+          .then(function (d) { state = d; }, function () {});
+      });
+    }
+    // Stories vidéo déjà en ligne sans couverture : rattrapage en mode équipe, une à la fois
+    var posterRun = false;
+    function posterBackfill() {
+      if (posterRun || mode === 'local') return;
+      var E = state.edits || {};
+      var todo = Object.keys(E).filter(function (k) { var e = E[k]; return e && e.added === 'story' && e.video && !e.poster && !e.deleted; });
+      if (!todo.length) return;
+      posterRun = true;
+      (function next() {
+        var k = todo.shift();
+        if (!k || !admin) { posterRun = false; return; }
+        storyPoster(k, src(E[k].video)).then(next, next);
+      })();
     }
     se.addEventListener('click', function (e) {
       var t;
@@ -3526,6 +3557,11 @@
       body.appendChild(art);
       cur = art;
       body.scrollTop = 0;
+      // Un carrousel s'ouvre toujours sur sa première photo
+      var first = function () { art.querySelectorAll('.carousel').forEach(function (c) { c.scrollLeft = 0; }); };
+      first();
+      requestAnimationFrame(first);
+      setTimeout(first, 400);
       box.setAttribute('aria-hidden', 'false');
       document.body.classList.add('is-locked');
       requestAnimationFrame(function () { box.classList.add('is-open'); });
@@ -3608,6 +3644,8 @@
       if (!b) return;
       var key = b.getAttribute('data-share-post');
       var url = link(key);
+      // La vignette est préparée sur le serveur avant que le lien soit collé
+      try { fetch(url + '&img=1', { cache: 'no-store' }).catch(function () {}); } catch (er) {}
       var p = allPosts.filter(function (x) { return String(x._key) === key; })[0];
       var title = p && p.title ? String(p.title).replace(/<[^>]+>/g, '') : b.getAttribute('data-share-title') || 'Publication';
       // Téléphone : la feuille de partage du système (WhatsApp, Messages…) ; sinon le lien est copié
@@ -3637,6 +3675,30 @@
     });
   }
 
+  // Une image tirée d'une vidéo (fichier ou adresse), en JPEG 1080 px au plus ; null si le navigateur n'y arrive pas
+  function videoFrame(from) {
+    return new Promise(function (res) {
+      var url = typeof from === 'string' ? from : URL.createObjectURL(from);
+      var v = document.createElement('video'), t;
+      function end(b) { clearTimeout(t); v.removeAttribute('src'); try { v.load(); } catch (e) {} if (typeof from !== 'string') URL.revokeObjectURL(url); res(b || null); }
+      t = setTimeout(function () { end(null); }, 20000);
+      v.muted = true; v.playsInline = true; v.preload = 'auto'; v.crossOrigin = 'anonymous';
+      v.addEventListener('loadeddata', function () { try { v.currentTime = Math.min(0.3, (v.duration || 1) / 2); } catch (e) { end(null); } });
+      v.addEventListener('seeked', function () {
+        try {
+          var w = v.videoWidth, h = v.videoHeight, r = Math.min(1, 1080 / Math.max(w, h));
+          if (!w || !h) return end(null);
+          var c = document.createElement('canvas');
+          c.width = Math.round(w * r); c.height = Math.round(h * r);
+          c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+          c.toBlob(function (b) { end(b); }, 'image/jpeg', 0.84);
+        } catch (e) { end(null); }
+      });
+      v.addEventListener('error', function () { end(null); });
+      v.src = url;
+    });
+  }
+
   function initCarousels() {
     document.querySelectorAll('.carousel').forEach(initCarousel);
   }
@@ -3650,12 +3712,14 @@
       // (1:1, 4:5, 3:4, 5:4, paysage…) ; le cadre prend la hauteur de la slide affichée, en suivant le glissé
       var mixed = media.classList.contains('media--mixed');
       var ratios = [];
+      // La hauteur ne change qu'une fois la slide posée : la modifier pendant le glissé fait sauter l'aimantation (iPhone)
       function sizeTo() {
         if (!mixed || !car.clientWidth) return;
-        var x = car.scrollLeft / car.clientWidth, a = Math.floor(x), b = Math.min(a + 1, ratios.length - 1), f = x - a;
-        var ra = ratios[a] || ratios[0] || 1.25, rb = ratios[b] || ra;
+        var k = Math.max(0, Math.min(car.children.length - 1, Math.round(car.scrollLeft / car.clientWidth)));
+        var r = ratios[k] || ratios[0] || 1.25;
         media.style.aspectRatio = 'auto';
-        media.style.height = Math.round(car.clientWidth * (ra + (rb - ra) * f)) + 'px';
+        var h = Math.round(car.clientWidth * r) + 'px';
+        if (media.style.height !== h) media.style.height = h;
       }
       if (mixed) {
         Array.prototype.forEach.call(car.children, function (sl, k) {
@@ -3675,14 +3739,16 @@
         if (window.ResizeObserver) new ResizeObserver(function () { sizeTo(); }).observe(car);
         else window.addEventListener('resize', sizeTo);
       }
+      var settle = 0;
       car.addEventListener('scroll', function () {
         cancelAnimationFrame(raf);
         raf = requestAnimationFrame(function () {
           var k = Math.round(car.scrollLeft / car.clientWidth);
           count.textContent = k + 1;
           dots.forEach(function (d, j) { d.classList.toggle('is-on', j === k); });
-          sizeTo();
         });
+        clearTimeout(settle);
+        settle = setTimeout(sizeTo, 120);
       }, { passive: true });
     })();
   }
