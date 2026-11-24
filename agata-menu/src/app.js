@@ -229,7 +229,7 @@ function cardHTML(sec, it, i, span) {
   var ph = "";
   if (photos) {
     ph = '<div class="ph">' + (src
-      ? '<button class="ph-btn" data-view="' + sec.id + "|" + it.id + '" aria-label="' + esc(tx(it.name)) + '"></button><img alt="" decoding="async" src="' + src + '" onload="this.classList.add(\'ld\')">'
+      ? '<button class="ph-btn" data-view="' + sec.id + "|" + it.id + '" aria-label="' + esc(tx(it.name)) + '"></button><img alt="" loading="lazy" decoding="async" src="' + src + '" onload="this.classList.add(\'ld\')">'
       : '<div class="ph-empty">' + SVG.face("") + "</div>") + "</div>";
   }
   if (admin && it.stand && src) ph = ph.replace('<div class="ph">', '<div class="ph"><span class="stand">Photo provisoire</span>');
