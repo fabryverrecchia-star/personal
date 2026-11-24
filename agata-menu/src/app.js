@@ -17,7 +17,8 @@ var FONT_EXTRA = {
   ru:"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&subset=cyrillic&display=swap",
   ar:"https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Arabic:wght@400;600&display=swap"
 };
-var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* Mêmes animations sur mobile et sur ordinateur, à la demande de la maison. */
+var reduce = false;
 
 function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } }
 function ss(k, v) { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) { return null; } }
@@ -59,18 +60,15 @@ var SVG = {
   down: '<svg viewBox="0 0 16 16"><path d="M3 6l5 5 5-5"/></svg>'
 };
 
-/* Visage du preloader : le trait principal est révélé par un « pinceau » (masque),
-   les yeux par un balayage, les pommettes apparaissent ensuite. */
+/* Visage du preloader. Pas de masque animé (Safari ne repeint pas toujours un masque
+   qui bouge) : chaque trait est recouvert d'un « cache » couleur pêche qui se retire
+   comme un coup de pinceau. Même rendu sur iPhone, Android et ordinateur. */
 function preFaceSVG() {
-  var f = A.face
-    .replace('<path class="fl" d=', '<path class="fl" mask="url(#pmL)" d=')
-    .replace('<path class="fl eye-r" d=', '<path class="fl eye-r" mask="url(#pmR)" d=')
-    .replace('<path class="fl eye-l" d=', '<path class="fl eye-l" mask="url(#pmE)" d=');
-  return '<svg class="face pf" viewBox="740 255 380 375" aria-hidden="true"><defs>' +
-    '<mask id="pmL" maskUnits="userSpaceOnUse" x="740" y="255" width="380" height="375"><path id="pmLine" d="' + A.faceLine + '" fill="none" stroke="#fff" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/></mask>' +
-    '<mask id="pmE" maskUnits="userSpaceOnUse" x="740" y="255" width="380" height="375"><rect class="wipe" id="wipeL" x="748" y="335" width="125" height="66" fill="#fff"/></mask>' +
-    '<mask id="pmR" maskUnits="userSpaceOnUse" x="740" y="255" width="380" height="375"><rect class="wipe" id="wipeR" x="938" y="322" width="136" height="68" fill="#fff"/></mask>' +
-    "</defs>" + f + "</svg>";
+  return '<svg class="face pf" viewBox="740 255 380 375" aria-hidden="true">' + A.face +
+    '<path class="cov" id="covLine" d="' + A.faceLine + '" stroke-width="58" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path class="cov" id="covEyeL" d="M746 370 L868 370" stroke-width="62"/>' +
+    '<path class="cov" id="covEyeR" d="M938 356 L1078 356" stroke-width="62"/>' +
+    "</svg>";
 }
 
 /* ---------- Coquille de la page ---------- */
@@ -95,52 +93,97 @@ root.innerHTML =
 /* ---------- Preloader ---------- */
 try { history.scrollRestoration = "manual"; } catch (e) {}
 scrollTo(0, 0);
-var pre = $("#pre"), preFace = $("#preFace"), loaded = false;
+var pre = $("#pre"), preFace = $("#preFace"), loaded = false, preOn = true;
 var seen = ss("agata-seen");
-var K = reduce ? 0 : (seen ? .55 : 1);
-var E = "cubic-bezier(.65,0,.35,1)", OUT = "cubic-bezier(.16,1,.3,1)", SPRING = "cubic-bezier(.34,1.5,.64,1)";
-function anim(el, kf, o) {
-  if (!el || !el.animate) return Promise.resolve();
-  var a = el.animate(kf, { duration: (o.duration || 0) * K, delay: (o.delay || 0) * K, easing: o.easing || E, fill: o.fill || "both" });
-  return a.finished.catch(function () {});
+var K = seen ? .55 : 1;
+var EASE = {
+  inOut: function (x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; },
+  out: function (x) { return 1 - Math.pow(1 - x, 4); },
+  back: function (x) { var c1 = 1.5, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); }
+};
+/* Petit moteur d'animation image par image : identique sur tous les navigateurs. */
+function tw(dur, delay, ease, fn) {
+  dur *= K; delay *= K;
+  return new Promise(function (res) {
+    var start = null;
+    function f(now) {
+      if (start === null) start = now + delay;
+      if (now < start) return requestAnimationFrame(f);
+      var x = dur <= 0 ? 1 : Math.min(1, (now - start) / dur);
+      fn(ease(x));
+      if (x < 1) requestAnimationFrame(f); else res();
+    }
+    requestAnimationFrame(f);
+  });
 }
 function wait(ms) { return new Promise(function (r) { setTimeout(r, ms * K); }); }
 function whenLoaded() { return new Promise(function (r) { (function c() { if (loaded) r(); else setTimeout(c, 60); })(); }); }
+function blockScroll(e) { if (preOn) e.preventDefault(); }
+addEventListener("touchmove", blockScroll, { passive: false });
+addEventListener("wheel", blockScroll, { passive: false });
 function placePreFace() {
-  var hf = $(".hero .face").getBoundingClientRect(), w = Math.min(hf.width * 1.7, innerWidth * .7);
+  var hf = $(".hero .face").getBoundingClientRect(), w = Math.min(hf.width * 1.7, innerWidth * .7, innerHeight * .45);
   preFace.style.width = w + "px";
   preFace.style.left = (innerWidth - w) / 2 + "px";
   preFace.style.top = (innerHeight * .44 - w * 375 / 380 / 2) + "px";
 }
+function wipe(path, dur, delay) {
+  var L = path.getTotalLength();
+  path.setAttribute("stroke-dasharray", L + " " + L);
+  path.setAttribute("stroke-dashoffset", "0");
+  return tw(dur, delay, EASE.inOut, function (p) { path.setAttribute("stroke-dashoffset", String(-L * p)); });
+}
+function centre(el) { var b = el.getBBox(); return [b.x + b.width / 2, b.y + b.height / 2]; }
+function around(c, inner) { return "translate(" + c[0] + " " + c[1] + ") " + inner + " translate(" + (0 - c[0]) + " " + (0 - c[1]) + ")"; }
+function pop(el, delay, rot) {
+  var c = centre(el);
+  el.style.opacity = 0;
+  return tw(950, delay, EASE.back, function (p) {
+    var r = (1 - Math.min(1, p)) * rot;
+    el.style.opacity = Math.min(1, p * 1.6);
+    el.setAttribute("transform", around(c, "rotate(" + r + ") scale(" + Math.max(0, p) + ")"));
+  });
+}
+function wink(el) {
+  var c = centre(el);
+  return tw(620, 0, EASE.inOut, function (p) {
+    var k = p < .4 ? p / .4 : p < .6 ? 1 : 1 - (p - .6) / .4;
+    el.setAttribute("transform", around(c, "scale(1 " + (1 - .88 * k) + ")"));
+  });
+}
 function runPre() {
   placePreFace();
-  var line = $("#pmLine"), L = line.getTotalLength();
-  line.style.strokeDasharray = L + " " + L;
-  var ckA = $(".pf .ck2"), ckB = $(".pf .ck1"), eyeR = $(".pf .eye-r");
-  anim(line, [{ strokeDashoffset: L }, { strokeDashoffset: 0 }], { duration: 1600, delay: 150 });
-  anim($("#wipeL"), [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: 650, delay: 900 });
-  anim($("#wipeR"), [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: 650, delay: 1100 });
-  anim(ckA, [{ transform: "scale(0) rotate(-25deg)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 950, delay: 1450, easing: SPRING });
-  anim(ckB, [{ transform: "scale(0) rotate(25deg)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 950, delay: 1600, easing: SPRING });
-  wait(2450).then(function () {
-    if (!reduce) anim(eyeR, [{ transform: "none" }, { transform: "scaleY(.12) translateY(10px)", offset: .4 }, { transform: "scaleY(.12) translateY(10px)", offset: .6 }, { transform: "none" }], { duration: 600, fill: "none" });
-    return wait(650);
-  }).then(whenLoaded).then(rise);
+  $$(".pf .ck").forEach(function (c) { c.style.opacity = 0; });
+  wipe($("#covLine"), 1600, 150);
+  wipe($("#covEyeL"), 650, 900);
+  wipe($("#covEyeR"), 650, 1100);
+  pop($(".pf .ck2"), 1450, -25);
+  pop($(".pf .ck1"), 1600, 25);
+  wait(2450).then(function () { return wink($(".pf .eye-r")); })
+    .then(function () { return wait(200); }).then(whenLoaded).then(rise);
 }
 function rise() {
   ss("agata-seen", "1");
+  scrollTo(0, 0);
   var hf = $(".hero .face").getBoundingClientRect(), pf = preFace.getBoundingClientRect();
   var dx = hf.left + hf.width / 2 - (pf.left + pf.width / 2), dy = hf.top + hf.height / 2 - (pf.top + pf.height / 2), s = hf.width / pf.width;
-  anim(preFace, [{ transform: "none" }, { transform: "translate(" + dx + "px," + dy + "px) scale(" + s + ")" }], { duration: 1100 });
+  tw(1100, 0, EASE.inOut, function (p) {
+    preFace.style.transform = "translate(" + dx * p + "px," + dy * p + "px) scale(" + (1 + (s - 1) * p) + ")";
+  });
   ["hero-word", "hero-sub"].forEach(function (c) {
     var r = $(".hero ." + c).getBoundingClientRect(), el = $(c === "hero-word" ? "#preWord" : "#preSub");
     el.style.left = r.left + "px"; el.style.top = r.top + "px"; el.style.width = r.width + "px";
   });
-  anim($("#preWord"), [{ clipPath: "inset(0 0 100% 0)", transform: "translateY(18px)" }, { clipPath: "inset(0 0 0% 0)", transform: "none" }], { duration: 1000, delay: 550, easing: OUT });
-  anim($("#preSub"), [{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 800, delay: 900, easing: OUT });
+  var pw = $("#preWord"), ps = $("#preSub");
+  tw(1000, 550, EASE.out, function (p) {
+    pw.style.clipPath = pw.style.webkitClipPath = "inset(0 0 " + (100 - 100 * p) + "% 0)";
+    pw.style.transform = "translateY(" + 18 * (1 - p) + "px)";
+  });
+  tw(800, 900, EASE.out, function (p) { ps.style.opacity = p; ps.style.transform = "translateY(" + 8 * (1 - p) + "px)"; });
   wait(1700).then(function () {
     document.body.classList.add("ready");
-    return anim(pre, [{ opacity: 1 }, { opacity: 0 }], { duration: 700 });
+    preOn = false;
+    return tw(700, 0, EASE.inOut, function (p) { pre.style.opacity = 1 - p; });
   }).then(function () { pre.style.display = "none"; });
 }
 setTimeout(function () { loaded = true; }, 7000);
@@ -189,6 +232,7 @@ function cardHTML(sec, it, i, span) {
       ? '<button class="ph-btn" data-view="' + sec.id + "|" + it.id + '" aria-label="' + esc(tx(it.name)) + '"></button><img alt="" decoding="async" src="' + src + '" onload="this.classList.add(\'ld\')">'
       : '<div class="ph-empty">' + SVG.face("") + "</div>") + "</div>";
   }
+  if (admin && it.stand && src) ph = ph.replace('<div class="ph">', '<div class="ph"><span class="stand">Photo provisoire</span>');
   return '<article class="card' + (span ? " span2" : "") + (it.hidden ? " is-hidden" : "") + '" style="--i:' + i + '">' + ph + editBtn(sec, it) +
     '<div class="meta"><h3 class="name">' + esc(tx(it.name)) + "</h3>" + priceHTML(it.price) +
     (it.desc ? '<p class="desc">' + esc(tx(it.desc)) + "</p>" : "") + marks(it) + "</div></article>";
@@ -569,7 +613,7 @@ function edAction(a, b) {
     if (j >= 0 && j < sec.items.length) { sec.items.splice(idx, 1); sec.items.splice(j, 0, it); }
     touch(); toast(a === "up" ? "Plat monté" : "Plat descendu"); return;
   }
-  if (a === "noimg") { delete it.img; touch(); return itemSheet(sec.id, it.id); }
+  if (a === "noimg") { delete it.img; delete it.stand; touch(); return itemSheet(sec.id, it.id); }
   if (a === "tr") return translate(it, b);
 }
 function takePhoto(file) {
@@ -583,7 +627,7 @@ function takePhoto(file) {
     URL.revokeObjectURL(url);
     readItemForm();
     var sec = findSec(editing.sec), it = findItem(sec, editing.id), key = "u" + Date.now().toString(36);
-    draft.__imgs[key] = data; it.img = key;
+    draft.__imgs[key] = data; it.img = key; delete it.stand;
     touch(); itemSheet(sec.id, it.id); toast("Photo ajoutée");
   };
   im.onerror = function () { URL.revokeObjectURL(url); toast("Format d'image non lu. Essayez un JPEG ou un PNG."); };
