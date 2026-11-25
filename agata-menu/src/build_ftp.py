@@ -4,7 +4,7 @@ sys.path.insert(0, '.')
 BASE = "http://18h22.com/agata-menu/"
 OUT = sys.argv[1] if len(sys.argv) > 1 else "ftp/agata-menu"
 
-exec(open('build.py').read().split("A=json.load(open('assets.json'))")[0])  # reprend data + imgs filtrées
+exec(open('build.py').read().split("A=json.load(open('assets.json'))")[-2])  # reprend data + imgs filtrées
 A = json.load(open('assets.json'))
 
 if os.path.isdir(OUT): shutil.rmtree(OUT)

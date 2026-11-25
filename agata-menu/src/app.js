@@ -3,7 +3,7 @@
 var A = /*ASSETS*/;
 var DATA = JSON.parse(document.getElementById("agata-data").textContent);
 var IMGS = {};
-var LANGS = [["fr","Français"],["en","English"],["it","Italiano"],["es","Español"],["de","Deutsch"],["ru","Русский"],["ar","العربية"]];
+var LANGS = [["fr","Français"],["en","English"],["it","Italiano"],["es","Español"],["pt","Português"],["de","Deutsch"],["ru","Русский"],["ja","日本語"],["ar","العربية"]];
 var UI = {
   fr:{new:"Nouveau",bio:"Bio",nature:"Nature",biodyn:"Biodynamie",lang:"Langue",open:"Tout déplier",close:"Tout replier",soon:"photo à venir",veggie:"Végétarien",vegan:"Vegan",spicy:"Épicé",cucina:"La Cucina",bar:"Il Bar",copy:"Copier",copied:"Code Wi-Fi copié",dishes:"plats",refs:"références",ph:["On étale la pâte à la main…","Un filet d'huile d'olive…","Le four grimpe à 485 °C…"],closeV:"Fermer",prev:"Précédent",next:"Suivant"},
   en:{new:"New",bio:"Organic",nature:"Natural",biodyn:"Biodynamic",lang:"Language",open:"Expand all",close:"Collapse all",soon:"photo coming soon",veggie:"Vegetarian",vegan:"Vegan",spicy:"Spicy",cucina:"La Cucina",bar:"Il Bar",copy:"Copy",copied:"Wi-Fi code copied",dishes:"dishes",refs:"items",ph:["Stretching the dough by hand…","A drizzle of olive oil…","The oven climbs to 485 °C…"],closeV:"Close",prev:"Previous",next:"Next"},
@@ -11,10 +11,13 @@ var UI = {
   es:{new:"Novedad",bio:"Ecológico",nature:"Natural",biodyn:"Biodinámico",lang:"Idioma",open:"Abrir todo",close:"Cerrar todo",soon:"foto próximamente",veggie:"Vegetariano",vegan:"Vegano",spicy:"Picante",cucina:"La Cucina",bar:"Il Bar",copy:"Copiar",copied:"Código Wi-Fi copiado",dishes:"platos",refs:"referencias",ph:["Estiramos la masa a mano…","Un chorrito de aceite de oliva…","El horno sube a 485 °C…"],closeV:"Cerrar",prev:"Anterior",next:"Siguiente"},
   de:{new:"Neu",bio:"Bio",nature:"Naturwein",biodyn:"Biodynamisch",lang:"Sprache",open:"Alle öffnen",close:"Alle schließen",soon:"Foto folgt",veggie:"Vegetarisch",vegan:"Vegan",spicy:"Scharf",cucina:"La Cucina",bar:"Il Bar",copy:"Kopieren",copied:"WLAN-Code kopiert",dishes:"Gerichte",refs:"Positionen",ph:["Der Teig wird von Hand gezogen…","Ein Schuss Olivenöl…","Der Ofen klettert auf 485 °C…"],closeV:"Schließen",prev:"Zurück",next:"Weiter"},
   ru:{new:"Новинка",bio:"Органик",nature:"Натуральное",biodyn:"Биодинамика",lang:"Язык",open:"Развернуть всё",close:"Свернуть всё",soon:"фото скоро",veggie:"Вегетарианское",vegan:"Веганское",spicy:"Острое",cucina:"La Cucina",bar:"Il Bar",copy:"Копировать",copied:"Код Wi-Fi скопирован",dishes:"блюд",refs:"позиций",ph:["Раскатываем тесто вручную…","Капля оливкового масла…","Печь разогревается до 485 °C…"],closeV:"Закрыть",prev:"Назад",next:"Далее"},
+  pt:{new:"Novidade",bio:"Biológico",nature:"Natural",biodyn:"Biodinâmico",lang:"Idioma",open:"Abrir tudo",close:"Fechar tudo",soon:"foto em breve",veggie:"Vegetariano",vegan:"Vegano",spicy:"Picante",cucina:"La Cucina",bar:"Il Bar",copy:"Copiar",copied:"Código Wi-Fi copiado",dishes:"pratos",refs:"referências",ph:["","",""],closeV:"Fechar",prev:"Anterior",next:"Seguinte"},
+  ja:{new:"新メニュー",bio:"オーガニック",nature:"ナチュール",biodyn:"ビオディナミ",lang:"言語",open:"すべて開く",close:"すべて閉じる",soon:"写真準備中",veggie:"ベジタリアン",vegan:"ヴィーガン",spicy:"辛口",cucina:"La Cucina",bar:"Il Bar",copy:"コピー",copied:"Wi-Fiコードをコピーしました",dishes:"品",refs:"品",ph:["","",""],closeV:"閉じる",prev:"前へ",next:"次へ"},
   ar:{new:"جديد",bio:"عضوي",nature:"طبيعي",biodyn:"بيوديناميكي",lang:"اللغة",open:"فتح الكل",close:"طي الكل",soon:"الصورة قريبًا",veggie:"نباتي",vegan:"نباتي صرف",spicy:"حار",cucina:"La Cucina",bar:"Il Bar",copy:"نسخ",copied:"تم نسخ رمز الواي فاي",dishes:"أطباق",refs:"أصناف",ph:["نفرد العجينة باليد…","رشّة من زيت الزيتون…","الفرن يصل إلى 485 درجة…"],closeV:"إغلاق",prev:"السابق",next:"التالي"}
 };
 var FONT_EXTRA = {
   ru:"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&subset=cyrillic&display=swap",
+  ja:"https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400&family=Noto+Sans+JP:wght@400;500;600&display=swap",
   ar:"https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Arabic:wght@400;600&display=swap"
 };
 /* Mêmes animations sur mobile et sur ordinateur, à la demande de la maison. */
@@ -577,7 +580,7 @@ function itemSheet(secId, itemId) {
     '<div class="field"><span>Description</span><div class="tabs">' + LANGS.map(function (l) {
       return '<button data-edlang="' + l[0] + '" class="' + (l[0] === edLang ? "on" : "") + (desc[l[0]] ? "" : " miss") + '">' + l[0].toUpperCase() + "</button>"; }).join("") + "</div>" +
     '<textarea id="edDesc" dir="' + (edLang === "ar" ? "rtl" : "ltr") + '" placeholder="Description (' + edLang.toUpperCase() + ')">' + esc(desc[edLang] || "") + "</textarea>" +
-    '<div class="btns"><button class="b" data-ed="tr" id="edTr"' + (sampleNS ? "" : " disabled") + ">Traduire le FR dans les 6 autres langues</button></div></div>" +
+    '<div class="btns"><button class="b" data-ed="tr" id="edTr"' + (sampleNS ? "" : " disabled") + ">Traduire le FR dans les 8 autres langues</button></div></div>" +
     '<div class="field"><span>Pictos</span><div class="checks">' + TAGS.map(function (tg) {
       return '<label class="check"><input type="checkbox" data-tag="' + tg[0] + '"' + ((it.tags || []).indexOf(tg[0]) > -1 ? " checked" : "") + ">" + tg[1] + "</label>"; }).join("") + "</div></div>" +
     '<label class="sw">Masquer ce plat<input type="checkbox" id="edHide"' + (it.hidden ? " checked" : "") + "></label>" +
@@ -638,12 +641,12 @@ function translate(it, btn) {
   if (!sampleNS) return toast("Traduction indisponible dans cette vue.");
   if (!fr) return toast("Écrivez d'abord la description en FR.");
   btn.disabled = true; btn.textContent = "Traduction en cours…";
-  sampleNS.json("You translate an Italian restaurant menu (Agata Pizzeria, Paris). Translate this French dish description into English, Italian, Spanish, German, Russian and Arabic. Keep Italian product names (burrata, fior di latte, stracciatella, San Marzano D.O.P., etc.) and brand names as they are. Keep it short and appetising, same punctuation style. Reply with only a JSON object with the keys en, it, es, de, ru, ar.\n\nFrench: " + fr, { modelTier: "quick" })
+  sampleNS.json("You translate an Italian restaurant menu (Agata Pizzeria, Paris). Translate this French dish description into English, Italian, Spanish, Portuguese, German, Russian, Japanese and Arabic. Keep Italian product names (burrata, fior di latte, stracciatella, San Marzano D.O.P., etc.) and brand names as they are. Keep it short and appetising, same punctuation style. Reply with only a JSON object with the keys en, it, es, pt, de, ru, ja, ar.\n\nFrench: " + fr, { modelTier: "quick" })
     .then(function (o) {
-      ["en", "it", "es", "de", "ru", "ar"].forEach(function (k) { if (o && typeof o[k] === "string" && o[k].trim()) it.desc[k] = o[k].trim(); });
-      touch(); itemSheet(editing.sec, it.id); toast("Description traduite dans les 6 langues");
+      ["en", "it", "es", "pt", "de", "ru", "ja", "ar"].forEach(function (k) { if (o && typeof o[k] === "string" && o[k].trim()) it.desc[k] = o[k].trim(); });
+      touch(); itemSheet(editing.sec, it.id); toast("Description traduite dans les 8 langues");
     }, function (e) {
-      btn.disabled = false; btn.textContent = "Traduire le FR dans les 6 autres langues";
+      btn.disabled = false; btn.textContent = "Traduire le FR dans les 8 autres langues";
       toast(e && e.code === "not_granted" ? "Traduction refusée dans cette vue." : e && e.code === "rate_limited" ? "Trop de traductions d'affilée, réessayez dans une minute." : "La traduction n'a pas abouti. Réessayez.");
     });
 }

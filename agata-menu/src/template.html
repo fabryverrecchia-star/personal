@@ -18,11 +18,11 @@
   --navy:#1F4C97;    /* titres de la carte des boissons */
   --leaf:#2F8A4A;    /* végétarien */
   --line:rgba(35,31,32,.16);
-  --display:"Nanum Myeongjo","Cormorant Garamond","Amiri",Georgia,serif;
-  --name:"Nanum Myeongjo","Cormorant Garamond","Amiri",Georgia,serif;
-  --body:"Helvetica Neue",Helvetica,Arial,"Noto Sans Arabic",sans-serif;
+  --display:"Nanum Myeongjo","Cormorant Garamond","Noto Serif JP","Amiri",Georgia,serif;
+  --name:"Nanum Myeongjo","Cormorant Garamond","Noto Serif JP","Amiri",Georgia,serif;
+  --body:"Helvetica Neue",Helvetica,Arial,"Noto Sans JP","Hiragino Sans","Noto Sans Arabic",sans-serif;
   --type:var(--body);
-  --title:"Cormorant Garamond","Amiri",Georgia,serif;
+  --title:"Cormorant Garamond","Noto Serif JP","Amiri",Georgia,serif;
   --r:18px;
   --ease:cubic-bezier(.2,.8,.2,1);
   --spring:cubic-bezier(.34,1.4,.5,1);
@@ -147,6 +147,23 @@ body.ready .hero [data-in]{opacity:1;transform:none;transition:opacity .9s var(-
 .marks{grid-column:1/-1;font:600 10.5px/1 var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--leaf)}
 .marks .hot{color:var(--red-deep)}
 .hide-prices .price,.hide-desc .desc{display:none}
+
+/* Mobile : un plat par ligne, la photo pleine largeur passe avant tout */
+@media (max-width:719px){
+  .sec-inner{margin-inline:-16px;padding-inline:16px}
+  .grid,.grid.wide{grid-template-columns:minmax(0,1fr);gap:0}
+  .card,.card.span2{margin-inline:-16px;gap:0;padding-bottom:30px;margin-bottom:30px;border-bottom:1px solid var(--line)}
+  .grid .card:last-of-type{border-bottom:0;margin-bottom:0}
+  .ph,.wide .ph,.card.span2 .ph{aspect-ratio:1/1;border-radius:0}
+  .sec.open .card .ph{animation-name:unveil-raw}
+  .meta{padding:18px 16px 0;gap:8px 16px}
+  .name,.wide .name,.span2 .name{font-size:24px;line-height:1.15}
+  .price{font-size:17px}
+  .desc,.wide .desc,.span2 .desc{font-size:14px;line-height:1.55;max-width:none}
+  .edit-dot{top:12px;inset-inline-end:12px}
+  .stand{top:12px;inset-inline-start:12px}
+}
+@keyframes unveil-raw{from{clip-path:inset(0 0 18% 0)}to{clip-path:inset(0 0 0 0)}}
 
 /* Listes (extras, carte des boissons) */
 .list{display:grid;grid-template-columns:minmax(0,1fr)}

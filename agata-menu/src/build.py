@@ -23,6 +23,21 @@ imgs=json.load(open('images.json'))
 used={i.get('img') for s in data['sections'] for i in s['items'] if i.get('img')}
 missing=used-set(imgs); assert not missing, missing
 imgs={k:v for k,v in imgs.items() if k in used}
+from tr_pt_ja import TR, INFO_LINES
+_missing = []
+def _addlang(o):
+    if isinstance(o, dict):
+        if isinstance(o.get('fr'), str):
+            t = TR.get(o['fr'])
+            if t: o.setdefault('pt', t[0]); o.setdefault('ja', t[1])
+            else: _missing.append(o['fr'])
+            return
+        for v in o.values(): _addlang(v)
+    elif isinstance(o, list):
+        for v in o: _addlang(v)
+_addlang(data)
+data['info']['lines']['pt'] = INFO_LINES['pt']; data['info']['lines']['ja'] = INFO_LINES['ja']
+assert not _missing, _missing
 A=json.load(open('assets.json'))
 J=lambda o: json.dumps(o,ensure_ascii=False,separators=(',',':')).replace('<','\\u003c')
 app=open('app.js').read().replace('/*ASSETS*/',json.dumps(A,separators=(',',':')))
